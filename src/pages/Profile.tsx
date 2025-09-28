@@ -7,12 +7,15 @@ import { SecuritySettings } from "@/components/profile/SecuritySettings";
 import { NotificationSettings } from "@/components/profile/NotificationSettings";
 import { SellerSettings } from "@/components/profile/SellerSettings";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, User, Shield, Bell, Store } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, User, Shield, Bell, Store, Settings } from "lucide-react";
 
 const Profile = () => {
   const { user, profile, loading: authLoading } = useAuth();
+  const { isAdmin, loading: adminLoading } = useAdmin();
   const navigate = useNavigate();
 
   // Redirect to auth if not logged in
@@ -66,6 +69,30 @@ const Profile = () => {
         </div>
 
         <div className="max-w-4xl">
+          {/* Admin Access Card */}
+          {!adminLoading && isAdmin && (
+            <Card className="mb-6 border-primary/20 bg-primary/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-primary">
+                  <Settings className="h-5 w-5" />
+                  Administrator Access
+                </CardTitle>
+                <CardDescription>
+                  You have administrator privileges for this marketplace
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  onClick={() => navigate('/admin')} 
+                  className="gap-2"
+                >
+                  <Settings className="h-4 w-4" />
+                  Go to Admin Dashboard
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           <Tabs defaultValue="profile" className="space-y-6">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="profile" className="gap-2">
