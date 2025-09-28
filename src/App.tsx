@@ -10,6 +10,8 @@ import Landing from "./pages/Landing";
 import City from "./pages/City";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
+import SellerDashboard from "./pages/SellerDashboard";
+import CreateEditListing from "./pages/CreateEditListing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +29,9 @@ const App = () => (
                 <Route path="/" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/dashboard" element={<SellerDashboard />} />
+                <Route path="/dashboard/listing/new" element={<CreateEditListing />} />
+                <Route path="/dashboard/listing/:id/edit" element={<CreateEditListing />} />
                 <Route path="/:city" element={<City />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
