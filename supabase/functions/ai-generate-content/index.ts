@@ -9,7 +9,12 @@ const corsHeaders = {
 
 interface AIRequest {
   prompt: string;
-  generation_type: 'social_post' | 'campaign_content' | 'template' | 'test' | 'other';
+  generation_type:
+    | "social_post"
+    | "campaign_content"
+    | "template"
+    | "test"
+    | "other";
   context?: any;
   override_settings?: {
     model_name?: string;
@@ -102,7 +107,8 @@ serve(async (req) => {
       api_endpoint: aiSettings.api_endpoint,
       max_tokens: override_settings?.max_tokens || aiSettings.max_tokens,
       temperature: override_settings?.temperature || aiSettings.temperature,
-      system_prompt: override_settings?.system_prompt || aiSettings.system_prompt,
+      system_prompt:
+        override_settings?.system_prompt || aiSettings.system_prompt,
     };
 
     // Get Claude API key from Supabase secrets
@@ -132,7 +138,7 @@ serve(async (req) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-Key": claudeApiKey, // Using X-API-Key instead of Bearer
+        "x-api-key": claudeApiKey, // Using x-api-key instead of Bearer as requested
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify(claudeRequest),
@@ -141,7 +147,9 @@ serve(async (req) => {
     if (!claudeResponse.ok) {
       const errorText = await claudeResponse.text();
       console.error("Claude API error:", errorText);
-      throw new Error(`Claude API error: ${claudeResponse.status} - ${errorText}`);
+      throw new Error(
+        `Claude API error: ${claudeResponse.status} - ${errorText}`
+      );
     }
 
     const claudeResult = await claudeResponse.json();
@@ -219,7 +227,8 @@ serve(async (req) => {
           response: null,
           tokens_used: 0,
           success: false,
-          error_message: error instanceof Error ? error.message : "Unknown error",
+          error_message:
+            error instanceof Error ? error.message : "Unknown error",
           generation_type: "other",
           metadata: { error: true },
         });

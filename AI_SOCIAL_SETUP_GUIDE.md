@@ -15,7 +15,7 @@ Add these environment variables to your Supabase project:
 CLAUDE_API_KEY=your_claude_api_key_here
 ```
 
-**Important**: The system uses `X-API-Key` header (not `Bearer`) as specified in your requirements.
+**Important**: The system uses `x-api-key` header (not `Bearer`) as specifically requested.
 
 ### 2. **Database Migration**
 
@@ -130,7 +130,7 @@ Generated: "✨ Vendor Spotlight: Meet Sarah from EcoGems Chicago! 💎 Sarah tr
 
 ### **Recommended Settings**
 
-- **Model**: `claude-3-5-sonnet-20241022` (latest, most capable)
+- **Model**: `claude-sonnet-4-20250514` (Claude Sonnet 4 - latest, most capable)
 - **Max Tokens**: `4000` (good balance of length and cost)
 - **Temperature**: `0.7` (creative but consistent)
 - **System Prompt**:
@@ -141,6 +141,7 @@ You are a social media expert helping create engaging content for local craft ma
 
 ### **Alternative Models**
 
+- **Claude 3.5 Sonnet**: `claude-3-5-sonnet-20241022` (previous generation)
 - **Claude 3 Sonnet**: `claude-3-sonnet-20240229` (balanced)
 - **Claude 3 Haiku**: `claude-3-haiku-20240307` (faster, cheaper)
 
@@ -155,7 +156,7 @@ You are a social media expert helping create engaging content for local craft ma
 
 ### **API Security**
 
-- Uses `X-API-Key` header (as requested)
+- Uses `x-api-key` header (as specifically requested, NOT Bearer)
 - Supabase Secrets for API key storage
 - Row Level Security (RLS) on all tables
 - Comprehensive error logging

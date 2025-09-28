@@ -77,7 +77,7 @@ export const AISettingsManager = () => {
   } | null>(null);
 
   const [formData, setFormData] = useState({
-    model_name: "claude-3-5-sonnet-20241022",
+    model_name: "claude-sonnet-4-20250514",
     model_provider: "anthropic",
     api_endpoint: "https://api.anthropic.com/v1/messages",
     max_tokens: 4000,
@@ -309,8 +309,11 @@ export const AISettingsManager = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="claude-sonnet-4-20250514">
+                    Claude Sonnet 4 (Latest)
+                  </SelectItem>
                   <SelectItem value="claude-3-5-sonnet-20241022">
-                    Claude 3.5 Sonnet (Latest)
+                    Claude 3.5 Sonnet
                   </SelectItem>
                   <SelectItem value="claude-3-sonnet-20240229">
                     Claude 3 Sonnet
@@ -447,7 +450,9 @@ export const AISettingsManager = () => {
 
                 {testResult.success && testResult.content && (
                   <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-sm font-medium mb-1">Generated Content:</p>
+                    <p className="text-sm font-medium mb-1">
+                      Generated Content:
+                    </p>
                     <p className="text-sm">{testResult.content}</p>
                     {testResult.tokens_used && (
                       <p className="text-xs text-muted-foreground mt-2">
@@ -527,9 +532,7 @@ export const AISettingsManager = () => {
                   </div>
                   <div className="text-right text-xs text-muted-foreground">
                     <div>{new Date(log.created_at).toLocaleDateString()}</div>
-                    {log.tokens_used > 0 && (
-                      <div>{log.tokens_used} tokens</div>
-                    )}
+                    {log.tokens_used > 0 && <div>{log.tokens_used} tokens</div>}
                   </div>
                 </div>
               ))}

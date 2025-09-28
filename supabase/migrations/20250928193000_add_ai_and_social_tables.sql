@@ -232,7 +232,7 @@ INSERT INTO public.ai_settings (
   system_prompt,
   is_active
 ) VALUES (
-  'claude-3-5-sonnet-20241022',
+  'claude-sonnet-4-20250514',
   'anthropic',
   'https://api.anthropic.com/v1/messages',
   4000,
