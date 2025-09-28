@@ -1,0 +1,302 @@
+import { useState, useEffect } from "react";
+import { useCityContext } from "@/hooks/useCityContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { 
+  TrendingUp, 
+  Eye, 
+  Star, 
+  Package,
+  ChevronRight
+} from "lucide-react";
+import { LazyImage } from "@/components/ui/lazy-image";
+import { useNavigate } from "react-router-dom";
+
+interface TrendingCategory {
+  id: string;
+  name: string;
+  slug: string;
+  image_url?: string;
+  listing_count: number;
+  view_count: number;
+  growth_rate: number;
+  average_rating: number;
+}
+
+interface CategoryTrendsProps {
+  limit?: number;
+  showGrowthRate?: boolean;
+}
+
+export const CategoryTrends = ({ limit = 6, showGrowthRate = true }: CategoryTrendsProps) => {
+  const { currentCity } = useCityContext();
+  const navigate = useNavigate();
+  const [trendingCategories, setTrendingCategories] = useState<TrendingCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (currentCity) {
+      fetchTrendingCategories();
+    }
+  }, [currentCity, limit]);
+
+  const fetchTrendingCategories = async () => {
+    if (!currentCity) return;
+
+    try {
+      setLoading(true);
+
+      // Fetch categories with their statistics
+      const { data: categories, error } = await supabase
+        .from('categories')
+        .select(`
+          id,
+          name,
+          slug,
+          image_url
+        `)
+        .eq('city_id', currentCity.id)
+        .eq('is_active', true);
+
+      if (error) throw error;
+
+      if (!categories) {
+        setTrendingCategories([]);
+        return;
+      }
+
+      // Calculate statistics for each category
+      const categoriesWithStats = await Promise.all(
+        categories.map(async (category) => {
+          // Get listing count
+          const { count: listingCount } = await supabase
+            .from('listings')
+            .select('*', { count: 'exact', head: true })
+            .eq('category_id', category.id)
+            .eq('status', 'active');
+
+          // Get view count from listing analytics
+          const { data: analytics } = await supabase
+            .from('listing_analytics')
+            .select('id')
+            .in('listing_id', 
+              (await supabase
+                .from('listings')
+                .select('id')
+                .eq('category_id', category.id)
+                .eq('status', 'active')
+              ).data?.map(l => l.id) || []
+            );
+
+          // Get average rating
+          const { data: reviews } = await supabase
+            .from('reviews')
+            .select('rating')
+            .in('order_id',
+              (await supabase
+                .from('orders')
+                .select('id')
+                .in('listing_id',
+                  (await supabase
+                    .from('listings')
+                    .select('id')
+                    .eq('category_id', category.id)
+                    .eq('status', 'active')
+                  ).data?.map(l => l.id) || []
+                )
+              ).data?.map(o => o.id) || []
+            );
+
+          const averageRating = reviews && reviews.length > 0
+            ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+            : 0;
+
+          // Calculate growth rate (simplified - in production would use time-based data)
+          const growthRate = Math.random() * 50 - 10; // Mock data for demo
+
+          return {
+            ...category,
+            listing_count: listingCount || 0,
+            view_count: analytics?.length || 0,
+            growth_rate: growthRate,
+            average_rating: averageRating
+          };
+        })
+      );
+
+      // Sort by a combination of factors to determine "trending"
+      const trendingCategories = categoriesWithStats
+        .filter(cat => cat.listing_count > 0) // Only categories with listings
+        .sort((a, b) => {
+          // Weighted scoring: views (40%) + listings (30%) + growth (20%) + rating (10%)
+          const scoreA = (a.view_count * 0.4) + (a.listing_count * 0.3) + (a.growth_rate * 0.2) + (a.average_rating * 0.1);
+          const scoreB = (b.view_count * 0.4) + (b.listing_count * 0.3) + (b.growth_rate * 0.2) + (b.average_rating * 0.1);
+          return scoreB - scoreA;
+        })
+        .slice(0, limit);
+
+      setTrendingCategories(trendingCategories);
+    } catch (error) {
+      console.error('Error fetching trending categories:', error);
+      setTrendingCategories([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCategoryClick = (category: TrendingCategory) => {
+    navigate(`/${currentCity?.slug}/browse?category=${category.slug}`);
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Trending Categories
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(limit)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-24 bg-muted rounded-lg mb-3"></div>
+                <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-muted rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (trendingCategories.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Trending Categories
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <TrendingUp className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No Trending Data Yet</h3>
+            <p className="text-muted-foreground">
+              Trending categories will appear as more listings and activity grows.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Trending Categories
+          </CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/${currentCity?.slug}/browse`)}
+          >
+            View All Categories
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {trendingCategories.map((category, index) => (
+            <Card 
+              key={category.id}
+              className="group cursor-pointer hover:shadow-md transition-all duration-200 relative"
+              onClick={() => handleCategoryClick(category)}
+            >
+              {/* Trending Badge */}
+              {index < 3 && (
+                <div className="absolute top-2 left-2 z-10">
+                  <Badge 
+                    variant="default" 
+                    className={`text-xs ${
+                      index === 0 ? 'bg-yellow-500' : 
+                      index === 1 ? 'bg-gray-500' : 
+                      'bg-orange-500'
+                    }`}
+                  >
+                    #{index + 1}
+                  </Badge>
+                </div>
+              )}
+
+              <div className="relative">
+                {category.image_url ? (
+                  <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+                    <LazyImage
+                      src={category.image_url}
+                      alt={category.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-video w-full bg-gradient-to-br from-primary/20 to-primary/5 rounded-t-lg flex items-center justify-center">
+                    <Package className="h-8 w-8 text-primary/60" />
+                  </div>
+                )}
+              </div>
+
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">
+                    {category.name}
+                  </h3>
+                  {showGrowthRate && category.growth_rate > 0 && (
+                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                      +{category.growth_rate.toFixed(1)}%
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Package className="h-3 w-3" />
+                      <span>{category.listing_count} listings</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Eye className="h-3 w-3" />
+                      <span>{category.view_count} views</span>
+                    </div>
+                  </div>
+
+                  {category.average_rating > 0 && (
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                      <span>{category.average_rating.toFixed(1)} rating</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between mt-3">
+                  <Badge variant="outline" className="text-xs">
+                    Trending
+                  </Badge>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};

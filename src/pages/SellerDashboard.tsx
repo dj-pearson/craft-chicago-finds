@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { SellerAnalytics } from "@/components/seller/SellerAnalytics";
 import { SellerListings } from "@/components/seller/SellerListings";
 import { StripeOnboarding } from "@/components/seller/StripeOnboarding";
+import { SubscriptionManagement } from "@/components/subscription/SubscriptionManagement";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -357,9 +358,10 @@ export default function SellerDashboard() {
 
         {/* Main Content */}
         <Tabs defaultValue="listings" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="listings">My Listings</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="subscription">Subscription</TabsTrigger>
             <TabsTrigger value="payments">Payments</TabsTrigger>
           </TabsList>
 
@@ -369,6 +371,10 @@ export default function SellerDashboard() {
 
           <TabsContent value="analytics">
             <SellerAnalytics />
+          </TabsContent>
+
+          <TabsContent value="subscription">
+            <SubscriptionManagement />
           </TabsContent>
 
           <TabsContent value="payments">
