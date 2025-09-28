@@ -2,8 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, MapPin, ShoppingBag, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Landing = () => {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -14,9 +17,15 @@ const Landing = () => {
             <Link to="/chicago" className="text-sm font-medium hover:text-primary transition-colors">
               Shop Chicago
             </Link>
-            <Button variant="outline" size="sm">
-              Become a Seller
-            </Button>
+            {user ? (
+              <Button asChild variant="outline" size="sm">
+                <Link to="/chicago">Go to Marketplace</Link>
+              </Button>
+            ) : (
+              <Button asChild variant="outline" size="sm">
+                <Link to="/auth">Sign In</Link>
+              </Button>
+            )}
           </nav>
         </div>
       </header>
