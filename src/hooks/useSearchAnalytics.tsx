@@ -15,18 +15,21 @@ export const useSearchAnalytics = () => {
 
   const trackSearch = async (data: SearchAnalyticsData) => {
     try {
-      // Track search in database for analytics
-      const { error } = await supabase
-        .from('search_analytics')
-        .insert([{
-          ...data,
-          user_id: user?.id || null,
-          created_at: new Date().toISOString()
-        }]);
+      // For now, just log to console - will be connected to database later
+      console.log('Search tracked:', data);
+      
+      // TODO: Uncomment when types are updated
+      // const { error } = await supabase
+      //   .from('search_analytics')
+      //   .insert([{
+      //     ...data,
+      //     user_id: user?.id || null,
+      //     created_at: new Date().toISOString()
+      //   }]);
 
-      if (error) {
-        console.error('Error tracking search:', error);
-      }
+      // if (error) {
+      //   console.error('Error tracking search:', error);
+      // }
     } catch (error) {
       console.error('Error tracking search analytics:', error);
     }

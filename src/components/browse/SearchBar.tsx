@@ -100,9 +100,9 @@ export const SearchBar = ({ value, onChange, onSearch, cityId }: SearchBarProps)
       if (listings) {
         const tagMatches = new Set<string>();
         listings.forEach(listing => {
-          if (listing.tags) {
+          if (listing.tags && Array.isArray(listing.tags)) {
             listing.tags.forEach((tag: string) => {
-              if (tag.toLowerCase().includes(query.toLowerCase())) {
+              if (tag && tag.toLowerCase().includes(query.toLowerCase())) {
                 tagMatches.add(tag);
               }
             });

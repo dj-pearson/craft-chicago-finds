@@ -699,6 +699,44 @@ export type Database = {
           },
         ]
       }
+      search_analytics: {
+        Row: {
+          city_id: string | null
+          created_at: string
+          filters_used: Json | null
+          id: string
+          query: string
+          results_count: number
+          user_id: string | null
+        }
+        Insert: {
+          city_id?: string | null
+          created_at?: string
+          filters_used?: Json | null
+          id?: string
+          query: string
+          results_count?: number
+          user_id?: string | null
+        }
+        Update: {
+          city_id?: string | null
+          created_at?: string
+          filters_used?: Json | null
+          id?: string
+          query?: string
+          results_count?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "search_analytics_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           created_at: string
