@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { ProductFilters } from "@/components/browse/ProductFilters";
+import { AdvancedProductFilters } from "@/components/browse/AdvancedProductFilters";
 import { ProductGrid } from "@/components/browse/ProductGrid";
 import { SearchBar } from "@/components/browse/SearchBar";
+import { SearchResults } from "@/components/browse/SearchResults";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -265,19 +266,23 @@ const Browse = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
           <div className="lg:col-span-1">
-            <ProductFilters
+            <AdvancedProductFilters
               categories={categories}
               filters={filters}
               onFiltersChange={setFilters}
+              availableTags={['handmade', 'organic', 'custom', 'vintage', 'eco-friendly']}
             />
           </div>
 
-          {/* Product Grid */}
+          {/* Search Results */}
           <div className="lg:col-span-3">
-            <ProductGrid
+            <SearchResults
               listings={listings}
+              categories={categories}
               loading={loading}
-              currentCity={currentCity}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              totalResults={listings.length}
             />
           </div>
         </div>
