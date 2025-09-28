@@ -7,6 +7,7 @@ import { Heart, MapPin, Truck, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { MessageStarter } from "@/components/messaging";
 import { BuyNowButton } from "./BuyNowButton";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import type { Listing } from "@/pages/Browse";
 
 interface ProductInfoProps {
@@ -140,7 +141,10 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
 
         {/* Actions */}
         <div className="space-y-3">
-          <BuyNowButton listing={listing} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <AddToCartButton listing={listing} />
+            <BuyNowButton listing={listing} />
+          </div>
           {listing.seller && (
             <MessageStarter
               sellerId={listing.seller_id}

@@ -7,6 +7,7 @@ import { AuthProvider } from "./hooks/useAuth";
 import { AdminProvider } from "./hooks/useAdmin";
 import { CityProvider } from "./hooks/useCityContext";
 import { StripeProvider } from "./hooks/useStripe";
+import { CartProvider } from "./hooks/useCart";
 import Landing from "./pages/Landing";
 import City from "./pages/City";
 import Auth from "./pages/Auth";
@@ -17,6 +18,8 @@ import Browse from "./pages/Browse";
 import ProductDetail from "./pages/ProductDetail";
 import Messages from "./pages/Messages";
 import Orders from "./pages/Orders";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -26,10 +29,11 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <StripeProvider>
       <AuthProvider>
-        <AdminProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
+        <CartProvider>
+          <AdminProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
           <BrowserRouter>
             <CityProvider>
               <Routes>
@@ -39,9 +43,11 @@ const App = () => (
                 <Route path="/dashboard" element={<SellerDashboard />} />
                 <Route path="/dashboard/listing/new" element={<CreateEditListing />} />
                 <Route path="/dashboard/listing/:id/edit" element={<CreateEditListing />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/orders" element={<Orders />} />
-                <Route path="/profile" element={<Profile />} />
+                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/profile" element={<Profile />} />
                 <Route path="/:city/browse" element={<Browse />} />
                 <Route path="/:city/product/:id" element={<ProductDetail />} />
                 <Route path="/:city" element={<City />} />
@@ -50,8 +56,9 @@ const App = () => (
               </Routes>
             </CityProvider>
           </BrowserRouter>
-          </TooltipProvider>
-        </AdminProvider>
+            </TooltipProvider>
+          </AdminProvider>
+        </CartProvider>
       </AuthProvider>
     </StripeProvider>
   </QueryClientProvider>

@@ -69,19 +69,89 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
     console.log('Creating order from checkout session:', session.id)
 
-    // Create order in database
+    // Check if this is a cart checkout
+    if (metadata.is_cart_checkout === 'true') {
+      await handleCartCheckout(session, metadata)
+    } else {
+      await handleSingleItemCheckout(session, metadata)
+    }
+  } catch (error) {
+    console.error('Error handling checkout completed:', error)
+    throw error
+  }
+}
+async function handleSingleItemCheckout(session: Stripe.Checkout.Session, metadata: any) {
+  // Create order in database
+  const { error: orderError } = await supabaseClient
+    .from('orders')
+    .insert({
+      buyer_id: metadata.buyer_id,
+      seller_id: metadata.seller_id,
+      listing_id: metadata.listing_id,
+      quantity: parseInt(metadata.quantity),
+      total_amount: (session.amount_total || 0) / 100, // Convert from cents
+      commission_amount: parseFloat(metadata.platform_fee),
+      fulfillment_method: metadata.fulfillment_method,
+      shipping_address: metadata.shipping_address ? JSON.parse(metadata.shipping_address) : null,
+      pickup_location: metadata.fulfillment_method === 'local_pickup' ? metadata.pickup_location : null,
+      notes: metadata.notes || null,
+      payment_status: 'completed',
+      stripe_payment_intent_id: session.payment_intent as string,
+      status: 'pending'
+    })
+
+  if (orderError) {
+    console.error('Error creating order:', orderError)
+    throw orderError
+  }
+
+  console.log('Order created successfully')
+
+  // Update listing inventory if applicable
+  if (metadata.quantity) {
+    const { error: inventoryError } = await supabaseClient.rpc(
+      'decrement_inventory',
+      {
+        listing_uuid: metadata.listing_id,
+        quantity: parseInt(metadata.quantity)
+      }
+    )
+
+    if (inventoryError) {
+      console.error('Error updating inventory:', inventoryError)
+    }
+  }
+}
+
+async function handleCartCheckout(session: Stripe.Checkout.Session, metadata: any) {
+  const cartItems = JSON.parse(metadata.cart_items)
+  console.log('Processing cart checkout with items:', cartItems.length)
+
+  // Create separate orders for each seller
+  const ordersBySeller = cartItems.reduce((acc: any, item: any) => {
+    if (!acc[item.seller_id]) {
+      acc[item.seller_id] = []
+    }
+    acc[item.seller_id].push(item)
+    return acc
+  }, {})
+
+  for (const [sellerId, items] of Object.entries(ordersBySeller) as [string, any[]][]) {
+    const sellerTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    const sellerCommission = sellerTotal * 0.1 // 10% platform fee
+
+    // Create order for this seller
     const { error: orderError } = await supabaseClient
       .from('orders')
       .insert({
         buyer_id: metadata.buyer_id,
-        seller_id: metadata.seller_id,
-        listing_id: metadata.listing_id,
-        quantity: parseInt(metadata.quantity),
-        total_amount: (session.amount_total || 0) / 100, // Convert from cents
-        commission_amount: parseFloat(metadata.platform_fee),
+        seller_id: sellerId,
+        listing_id: items[0].listing_id, // Use first item's listing_id as reference
+        quantity: items.reduce((sum, item) => sum + item.quantity, 0),
+        total_amount: sellerTotal + sellerCommission,
+        commission_amount: sellerCommission,
         fulfillment_method: metadata.fulfillment_method,
         shipping_address: metadata.shipping_address ? JSON.parse(metadata.shipping_address) : null,
-        pickup_location: metadata.fulfillment_method === 'local_pickup' ? metadata.pickup_location : null,
         notes: metadata.notes || null,
         payment_status: 'completed',
         stripe_payment_intent_id: session.payment_intent as string,
@@ -89,30 +159,27 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       })
 
     if (orderError) {
-      console.error('Error creating order:', orderError)
+      console.error('Error creating order for seller:', sellerId, orderError)
       throw orderError
     }
 
-    console.log('Order created successfully')
-
-    // Update listing inventory if applicable
-    if (metadata.quantity) {
+    // Update inventory for each item
+    for (const item of items) {
       const { error: inventoryError } = await supabaseClient.rpc(
         'decrement_inventory',
         {
-          listing_uuid: metadata.listing_id,
-          quantity: parseInt(metadata.quantity)
+          listing_uuid: item.listing_id,
+          quantity: item.quantity
         }
       )
 
       if (inventoryError) {
-        console.error('Error updating inventory:', inventoryError)
+        console.error('Error updating inventory for item:', item.listing_id, inventoryError)
       }
     }
-  } catch (error) {
-    console.error('Error handling checkout completed:', error)
-    throw error
   }
+
+  console.log('Cart orders created successfully')
 }
 
 async function handleAccountUpdated(account: Stripe.Account) {
