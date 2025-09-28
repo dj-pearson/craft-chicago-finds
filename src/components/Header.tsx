@@ -26,24 +26,26 @@ export const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="flex h-14 sm:h-16 items-center justify-between">
           {/* Logo & City Selector */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">CM</span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-xs sm:text-sm">CM</span>
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-xl font-bold text-foreground">Chicago Makers</h1>
+                <h1 className="text-lg xl:text-xl font-bold text-foreground">Chicago Makers</h1>
                 <p className="text-xs text-muted-foreground -mt-1">Local Handmade Marketplace</p>
               </div>
             </div>
-            <CitySelector />
+            <div className="hidden sm:block">
+              <CitySelector />
+            </div>
           </div>
 
           {/* Search Bar - Desktop */}
-          <div className="hidden md:flex flex-1 max-w-2xl mx-8">
+          <div className="hidden lg:flex flex-1 max-w-xl xl:max-w-2xl mx-6 xl:mx-8">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
@@ -57,23 +59,23 @@ export const Header = () => {
           </div>
 
           {/* Navigation - Desktop */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <a href="#" className="text-foreground hover:text-primary transition-colors">
+          <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6">
+            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               Browse
             </a>
-            <a href="#" className="text-foreground hover:text-primary transition-colors">
+            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               Sell
             </a>
-            <a href="#" className="text-foreground hover:text-primary transition-colors">
+            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               About
             </a>
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             {/* Search - Mobile */}
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Search className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9 sm:h-10 sm:w-10">
+              <Search className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
 
             {/* Notifications */}
@@ -86,8 +88,8 @@ export const Header = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <User className="h-5 w-5" />
+                  <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
+                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -131,8 +133,10 @@ export const Header = () => {
                 variant="default" 
                 size="sm"
                 onClick={() => navigate("/auth")}
+                className="text-xs sm:text-sm px-3 sm:px-4"
               >
-                Sign In
+                <span className="hidden sm:inline">Sign In</span>
+                <span className="sm:hidden">Sign In</span>
               </Button>
             )}
 
@@ -140,41 +144,46 @@ export const Header = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="md:hidden"
+              className="lg:hidden h-9 w-9 sm:h-10 sm:w-10"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMenuOpen ? <X className="h-4 w-4 sm:h-5 sm:w-5" /> : <Menu className="h-4 w-4 sm:h-5 sm:w-5" />}
             </Button>
           </div>
         </div>
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border">
+          <div className="lg:hidden py-4 px-1 border-t border-border animate-fade-in">
+            {/* City Selector - Mobile */}
+            <div className="mb-4 sm:hidden">
+              <CitySelector />
+            </div>
+
             {/* Mobile Search */}
-            <div className="relative mb-4">
+            <div className="relative mb-6">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 type="text"
                 placeholder="Search handmade goods..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2"
+                className="w-full pl-10 pr-4 py-3 text-base"
               />
             </div>
 
             {/* Mobile Navigation */}
-            <nav className="flex flex-col space-y-3">
-              <a href="#" className="text-foreground hover:text-primary transition-colors py-2">
+            <nav className="space-y-1">
+              <a href="#" className="flex items-center text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium">
                 Browse Categories
               </a>
-              <a href="#" className="text-foreground hover:text-primary transition-colors py-2">
+              <a href="#" className="flex items-center text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium">
                 Start Selling
               </a>
-              <a href="#" className="text-foreground hover:text-primary transition-colors py-2">
+              <a href="#" className="flex items-center text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium">
                 About Chicago Makers
               </a>
-              <a href="#" className="text-foreground hover:text-primary transition-colors py-2">
+              <a href="#" className="flex items-center text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium">
                 Help & Support
               </a>
             </nav>

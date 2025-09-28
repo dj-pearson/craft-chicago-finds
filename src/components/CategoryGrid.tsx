@@ -98,36 +98,36 @@ export const CategoryGrid = () => {
   }
 
   return (
-    <section className="py-16 bg-background">
+    <section className="py-12 sm:py-16 bg-background">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
             Shop by Category
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
             Explore unique handmade goods across different categories, all crafted by local {currentCity?.name} artisans.
           </p>
         </div>
 
         {/* Category Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
           {categories.map((category) => (
             <Card 
               key={category.id}
-              className="group hover:shadow-elevated transition-all duration-300 cursor-pointer border-border/50 hover:border-primary/20"
+              className="group hover:shadow-elevated transition-all duration-300 cursor-pointer border-border/50 hover:border-primary/20 touch-target"
             >
-              <CardContent className="p-6">
-                <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${categoryGradients[category.slug] || 'from-primary/20 to-primary/10'} flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
+              <CardContent className="p-4 sm:p-6">
+                <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br ${categoryGradients[category.slug] || 'from-primary/20 to-primary/10'} flex items-center justify-center text-xl sm:text-2xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
                   {categoryIcons[category.slug] || "🛍️"}
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
                   {category.name}
                 </h3>
-                <Badge variant="secondary" className="mb-4">
+                <Badge variant="secondary" className="mb-3 sm:mb-4 text-xs">
                   {category.listing_count} {category.listing_count === 1 ? 'item' : 'items'}
                 </Badge>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {category.description || `Discover unique ${category.name.toLowerCase()} made by local artisans`}
                 </p>
               </CardContent>

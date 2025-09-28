@@ -133,4 +133,24 @@ All colors MUST be HSL. Chicago-inspired palette with artisanal warmth.
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Mobile-first touch targets */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Improved tap targets for mobile */
+  button, a, [role="button"] {
+    @apply touch-manipulation;
+  }
+
+  /* Smooth scrolling for mobile */
+  html {
+    @apply scroll-smooth;
+  }
+
+  /* Better focus states for accessibility */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
 }

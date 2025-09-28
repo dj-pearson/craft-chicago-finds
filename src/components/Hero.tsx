@@ -19,8 +19,8 @@ export const Hero = () => {
       </div>
 
       {/* Content */}
-      <div className="relative container mx-auto px-4 py-20 lg:py-32">
-        <div className="max-w-3xl">
+      <div className="relative container mx-auto px-4 py-16 sm:py-20 lg:py-32">
+        <div className="max-w-4xl">
           {/* Badge */}
           <Badge 
             variant="secondary" 
@@ -31,37 +31,37 @@ export const Hero = () => {
           </Badge>
 
           {/* Heading */}
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 leading-tight">
             Discover
             <span className="block text-accent">{currentCity?.name || "Chicago"} Makers</span>
           </h1>
 
           {/* Subheading */}
-          <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
+          <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
             Support local artisans and find unique handmade goods from talented makers across {currentCity?.name || "the Windy City"}.
           </p>
 
           {/* Stats */}
-          <div className="flex flex-wrap gap-6 mb-10">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 mb-10">
             <div className="flex items-center text-white/90">
-              <Users className="w-5 h-5 mr-2" />
-              <span className="font-semibold">200+ Local Makers</span>
+              <Users className="w-5 h-5 mr-2 flex-shrink-0" />
+              <span className="font-semibold text-sm sm:text-base">200+ Local Makers</span>
             </div>
             <div className="flex items-center text-white/90">
-              <Sparkles className="w-5 h-5 mr-2" />
-              <span className="font-semibold">Handmade Only</span>
+              <Sparkles className="w-5 h-5 mr-2 flex-shrink-0" />
+              <span className="font-semibold text-sm sm:text-base">Handmade Only</span>
             </div>
             <div className="flex items-center text-white/90">
-              <MapPin className="w-5 h-5 mr-2" />
-              <span className="font-semibold">Local Pickup Available</span>
+              <MapPin className="w-5 h-5 mr-2 flex-shrink-0" />
+              <span className="font-semibold text-sm sm:text-base">Local Pickup Available</span>
             </div>
           </div>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Button 
               size="lg" 
-              className="bg-white text-primary hover:bg-white/90 font-semibold px-8 py-4 h-auto"
+              className="bg-white text-primary hover:bg-white/90 font-semibold px-6 sm:px-8 py-4 h-auto text-base touch-target"
             >
               Shop Local Goods
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -69,7 +69,7 @@ export const Hero = () => {
             <Button 
               variant="outline" 
               size="lg"
-              className="border-white text-white hover:bg-white hover:text-primary font-semibold px-8 py-4 h-auto"
+              className="border-white text-white hover:bg-white hover:text-primary font-semibold px-6 sm:px-8 py-4 h-auto text-base touch-target"
             >
               Start Selling
             </Button>
