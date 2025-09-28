@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SellerAnalytics } from "@/components/seller/SellerAnalytics";
 import { SellerListings } from "@/components/seller/SellerListings";
+import { StripeOnboarding } from "@/components/seller/StripeOnboarding";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,12 +35,14 @@ interface SellerStats {
 }
 
 export default function SellerDashboard() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [stats, setStats] = useState<SellerStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(true);
   const [isSellerVerified, setIsSellerVerified] = useState(false);
+  const [showStripeOnboarding, setShowStripeOnboarding] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -51,7 +54,16 @@ export default function SellerDashboard() {
       checkSellerStatus();
       fetchSellerStats();
     }
-  }, [user, authLoading, navigate]);
+
+    // Check if returning from Stripe onboarding
+    const onboardingStatus = searchParams.get('onboarding');
+    if (onboardingStatus === 'complete') {
+      toast({
+        title: "Payment setup complete!",
+        description: "Your Stripe account has been connected successfully.",
+      });
+    }
+  }, [user, authLoading, navigate, searchParams]);
 
   const checkSellerStatus = async () => {
     if (!user) return;
@@ -59,7 +71,7 @@ export default function SellerDashboard() {
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('is_seller, seller_verified')
+        .select('is_seller, seller_verified, stripe_account_id')
         .eq('user_id', user.id)
         .single();
 
@@ -76,6 +88,11 @@ export default function SellerDashboard() {
       }
 
       setIsSellerVerified(profile.seller_verified || false);
+      
+      // Check if payment setup is needed
+      if (!profile.stripe_account_id && profile.is_seller) {
+        setShowStripeOnboarding(true);
+      }
     } catch (error) {
       console.error('Error checking seller status:', error);
       toast({
@@ -206,6 +223,23 @@ export default function SellerDashboard() {
           </div>
         </div>
 
+        {/* Stripe Onboarding Modal */}
+        {showStripeOnboarding && (
+          <div className="mb-8">
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader>
+                <CardTitle className="text-primary">Complete Your Payment Setup</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  To start selling and receiving payments, you need to set up your Stripe account.
+                </p>
+                <StripeOnboarding onComplete={() => setShowStripeOnboarding(false)} />
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Stats Overview */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -323,9 +357,10 @@ export default function SellerDashboard() {
 
         {/* Main Content */}
         <Tabs defaultValue="listings" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="listings">My Listings</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="payments">Payments</TabsTrigger>
           </TabsList>
 
           <TabsContent value="listings">
@@ -334,6 +369,17 @@ export default function SellerDashboard() {
 
           <TabsContent value="analytics">
             <SellerAnalytics />
+          </TabsContent>
+
+          <TabsContent value="payments">
+            <Card>
+              <CardHeader>
+                <CardTitle>Payment Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <StripeOnboarding />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>

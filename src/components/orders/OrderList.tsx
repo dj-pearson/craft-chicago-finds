@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 import { Eye, Package, Clock, CheckCircle, XCircle } from "lucide-react";
+import { PaymentStatusBadge } from "@/components/payments/PaymentComponents";
 
 interface Order {
   id: string;
@@ -158,10 +159,13 @@ export const OrderList = ({ type, onOrderSelect }: OrderListProps) => {
               <CardTitle className="text-lg">
                 {order.listing?.title || "Product"}
               </CardTitle>
-              <Badge variant={getStatusVariant(order.status) as any} className="flex items-center gap-1">
-                {getStatusIcon(order.status)}
-                {order.status}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <PaymentStatusBadge status={order.payment_status as any} />
+                <Badge variant={getStatusVariant(order.status) as any} className="flex items-center gap-1">
+                  {getStatusIcon(order.status)}
+                  {order.status}
+                </Badge>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">

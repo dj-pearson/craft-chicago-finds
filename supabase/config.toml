@@ -1,1 +1,10 @@
 project_id = "slamtlgebisrimijeoid"
+
+[functions.create-checkout-session]
+verify_jwt = true
+
+[functions.create-connect-account]
+verify_jwt = true
+
+[functions.stripe-webhook]
+verify_jwt = false
