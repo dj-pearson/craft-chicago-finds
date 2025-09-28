@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { ConversationList } from "@/components/messaging/ConversationList";
 import { ChatWindow } from "@/components/messaging/ChatWindow";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 
@@ -53,36 +54,104 @@ const Messages = () => {
   }, [user]);
 
   const fetchConversations = async () => {
-    // TODO: Implement conversation fetching from Supabase
-    // For now, using mock data
-    const mockConversations: Conversation[] = [
-      {
-        id: "conv-1",
-        listing_id: "listing-1",
-        other_user_id: "user-2",
-        other_user: {
-          id: "user-2",
-          display_name: "Sarah Chen",
-          avatar_url: null,
-        },
-        listing: {
-          id: "listing-1",
-          title: "Handmade Ceramic Vase",
-          images: ["/api/placeholder/200/200"],
-          price: 45.00,
-        },
-        last_message: {
-          content: "Is this still available?",
-          created_at: new Date().toISOString(),
-          sender_id: user?.id || "",
-        },
-        unread_count: 1,
-        updated_at: new Date().toISOString(),
-      },
-    ];
+    if (!user) return;
     
-    setConversations(mockConversations);
-    setLoading(false);
+    try {
+      setLoading(true);
+      
+      // Get all messages where user is either sender or receiver
+      const { data: messagesData, error } = await supabase
+        .from('messages')
+        .select(`
+          conversation_id,
+          sender_id,
+          receiver_id,
+          content,
+          created_at,
+          read_at,
+          listing_id,
+          listings (
+            id,
+            title,
+            images,
+            price
+          )
+        `)
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Group messages by conversation and get the latest message for each
+      const conversationMap = new Map<string, any>();
+      
+      for (const message of messagesData || []) {
+        const convId = message.conversation_id;
+        const otherUserId = message.sender_id === user.id ? message.receiver_id : message.sender_id;
+        
+        if (!conversationMap.has(convId)) {
+          conversationMap.set(convId, {
+            id: convId,
+            other_user_id: otherUserId,
+            listing: message.listings,
+            last_message: message,
+            unread_count: 0,
+            messages: []
+          });
+        }
+        
+        const conv = conversationMap.get(convId);
+        conv.messages.push(message);
+        
+        // Count unread messages (where user is receiver and read_at is null)
+        if (message.receiver_id === user.id && !message.read_at) {
+          conv.unread_count++;
+        }
+      }
+
+      // Get user profiles for all other users
+      const otherUserIds = Array.from(conversationMap.values()).map(conv => conv.other_user_id);
+      
+      if (otherUserIds.length > 0) {
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, avatar_url')
+          .in('user_id', otherUserIds);
+
+        if (profilesError) throw profilesError;
+
+        // Map profiles to conversations
+        const conversations = Array.from(conversationMap.values()).map(conv => {
+          const profile = profilesData?.find(p => p.user_id === conv.other_user_id);
+          return {
+            id: conv.id,
+            other_user_id: conv.other_user_id,
+            other_user: {
+              id: conv.other_user_id,
+              display_name: profile?.display_name || 'Unknown User',
+              avatar_url: profile?.avatar_url || null
+            },
+            listing: conv.listing,
+            last_message: conv.last_message,
+            unread_count: conv.unread_count,
+            updated_at: conv.last_message?.created_at || new Date().toISOString()
+          };
+        });
+
+        // Sort by last message date
+        conversations.sort((a, b) => {
+          const dateA = a.last_message ? new Date(a.last_message.created_at) : new Date(0);
+          const dateB = b.last_message ? new Date(b.last_message.created_at) : new Date(0);
+          return dateB.getTime() - dateA.getTime();
+        });
+
+        setConversations(conversations);
+      }
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Show loading state

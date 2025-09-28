@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageCircle, Send, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
 export interface Message {
@@ -12,9 +13,11 @@ export interface Message {
   content: string;
   sender_id: string;
   receiver_id: string;
-  conversation_id: string;
+  conversation_id?: string;
   created_at: string;
   read_at?: string;
+  order_id?: string;
+  listing_id?: string;
 }
 
 interface ChatWindowProps {
@@ -48,81 +51,136 @@ export const ChatWindow = ({ conversationId, currentUser }: ChatWindowProps) => 
   const fetchMessages = async () => {
     if (!conversationId) return;
 
-    // TODO: Implement message fetching from Supabase
-    // For now, using mock data
-    const mockMessages: Message[] = [
-      {
-        id: "msg-1",
-        content: "Hi! I'm interested in this ceramic vase. Is it still available?",
-        sender_id: currentUser.id,
-        receiver_id: "user-2",
-        conversation_id: conversationId,
-        created_at: new Date(Date.now() - 3600000).toISOString(),
-      },
-      {
-        id: "msg-2",
-        content: "Yes, it's still available! It's one of my newest pieces. Would you like to know more about it?",
-        sender_id: "user-2",
-        receiver_id: currentUser.id,
-        conversation_id: conversationId,
-        created_at: new Date(Date.now() - 3000000).toISOString(),
-      },
-      {
-        id: "msg-3",
-        content: "That would be great! What are the dimensions and what type of clay did you use?",
-        sender_id: currentUser.id,
-        receiver_id: "user-2",
-        conversation_id: conversationId,
-        created_at: new Date(Date.now() - 1800000).toISOString(),
-      },
-    ];
+    try {
+      setLoading(true);
+      
+      // Get all messages for this conversation
+      const { data: messagesData, error: messagesError } = await supabase
+        .from('messages')
+        .select(`
+          id,
+          content,
+          sender_id,
+          receiver_id,
+          created_at,
+          read_at,
+          order_id,
+          listing_id
+        `)
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
 
-    setMessages(mockMessages);
+      if (messagesError) throw messagesError;
+
+      // Add conversation_id to messages
+      const messagesWithConversation = (messagesData || []).map(msg => ({
+        ...msg,
+        conversation_id: conversationId
+      }));
+      
+      setMessages(messagesWithConversation);
+
+      // Mark messages as read
+      const unreadMessages = messagesData?.filter(
+        msg => msg.receiver_id === currentUser.id && !msg.read_at
+      ) || [];
+
+      if (unreadMessages.length > 0) {
+        await supabase
+          .from('messages')
+          .update({ read_at: new Date().toISOString() })
+          .in('id', unreadMessages.map(msg => msg.id));
+      }
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      toast({
+        title: "Failed to load messages",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchConversationInfo = async () => {
     if (!conversationId) return;
 
-    // TODO: Implement conversation info fetching
-    // Mock data for now
-    setConversationInfo({
-      other_user: {
-        id: "user-2",
-        display_name: "Sarah Chen",
-        avatar_url: null,
-      },
-      listing: {
-        id: "listing-1",
-        title: "Handmade Ceramic Vase",
-        images: ["/api/placeholder/200/200"],
-        price: 45.00,
-      },
-    });
+    try {
+      // Get the first message to determine other user and listing
+      const { data: messageData, error } = await supabase
+        .from('messages')
+        .select(`
+          sender_id,
+          receiver_id,
+          listing_id,
+          listings (
+            id,
+            title,
+            images,
+            price
+          )
+        `)
+        .eq('conversation_id', conversationId)
+        .limit(1)
+        .single();
+
+      if (error) throw error;
+
+      const otherUserId = messageData.sender_id === currentUser.id 
+        ? messageData.receiver_id 
+        : messageData.sender_id;
+
+      // Get other user's profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, avatar_url')
+        .eq('user_id', otherUserId)
+        .single();
+
+      if (profileError) throw profileError;
+
+      setConversationInfo({
+        other_user: {
+          id: otherUserId,
+          display_name: profileData.display_name || 'Unknown User',
+          avatar_url: profileData.avatar_url
+        },
+        listing: messageData.listings
+      });
+    } catch (error) {
+      console.error('Error fetching conversation info:', error);
+    }
   };
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !conversationId || loading) return;
+    if (!newMessage.trim() || !conversationId || loading || !conversationInfo?.other_user) return;
 
     setLoading(true);
     try {
-      // TODO: Implement message sending to Supabase
-      const mockMessage: Message = {
-        id: `msg-${Date.now()}`,
-        content: newMessage.trim(),
-        sender_id: currentUser.id,
-        receiver_id: conversationInfo?.other_user?.id || "",
-        conversation_id: conversationId,
-        created_at: new Date().toISOString(),
-      };
+      const { error } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: conversationId,
+          sender_id: currentUser.id,
+          receiver_id: conversationInfo.other_user.id,
+          content: newMessage.trim(),
+          listing_id: conversationInfo.listing?.id || null
+        });
 
-      setMessages(prev => [...prev, mockMessage]);
+      if (error) throw error;
+
       setNewMessage("");
+      
+      // Refresh messages to get the new one
+      fetchMessages();
 
       toast({
         title: "Message sent",
         description: "Your message has been delivered.",
       });
     } catch (error) {
+      console.error('Error sending message:', error);
       toast({
         title: "Failed to send message",
         description: "Please try again.",
