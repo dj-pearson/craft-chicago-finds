@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, ShoppingCart, User, Menu, X, LogOut } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, LogOut, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -114,10 +114,14 @@ export const Header = () => {
                     <DropdownMenuItem onClick={() => navigate("/dashboard")}>
                       Seller Dashboard
                     </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onClick={() => navigate("/orders")}>
-                    My Orders
-                  </DropdownMenuItem>
+                   )}
+                   <DropdownMenuItem onClick={() => navigate("/messages")}>
+                     <MessageCircle className="mr-2 h-4 w-4" />
+                     Messages
+                   </DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => navigate("/orders")}>
+                     My Orders
+                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut}>
                     <LogOut className="mr-2 h-4 w-4" />

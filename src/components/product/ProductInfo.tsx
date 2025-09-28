@@ -137,6 +137,7 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
             size="lg" 
             className="w-full"
             disabled={listing.inventory_count === 0}
+            onClick={handleContact}
           >
             {listing.inventory_count === 0 ? "Sold Out" : "Contact Seller"}
           </Button>
