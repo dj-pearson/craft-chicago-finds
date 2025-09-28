@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CitySelector } from "@/components/CitySelector";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,15 +24,18 @@ export const Header = () => {
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">CM</span>
+          {/* Logo & City Selector */}
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-sm">CM</span>
+              </div>
+              <div className="hidden sm:block">
+                <h1 className="text-xl font-bold text-foreground">Chicago Makers</h1>
+                <p className="text-xs text-muted-foreground -mt-1">Local Handmade Marketplace</p>
+              </div>
             </div>
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-bold text-foreground">Chicago Makers</h1>
-              <p className="text-xs text-muted-foreground -mt-1">Local Handmade Marketplace</p>
-            </div>
+            <CitySelector />
           </div>
 
           {/* Search Bar - Desktop */}

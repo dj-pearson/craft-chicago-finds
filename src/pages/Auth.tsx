@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,17 +17,21 @@ const Auth = () => {
   const [isSeller, setIsSeller] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get redirect path from location state or default to chicago
+  const from = (location.state as any)?.from?.pathname || "/chicago";
 
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/chicago");
+        navigate(from);
       }
     };
     checkUser();
-  }, [navigate]);
+  }, [navigate, from]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +42,7 @@ const Auth = () => {
 
     setLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/chicago`;
+      const redirectUrl = `${window.location.origin}${from}`;
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -79,7 +83,7 @@ const Auth = () => {
           toast.error("Account created but profile setup failed. Please contact support.");
         } else {
           toast.success("Account created successfully!");
-          navigate("/chicago");
+          navigate(from);
         }
       }
     } catch (error) {
@@ -114,7 +118,7 @@ const Auth = () => {
 
       if (data.session) {
         toast.success("Welcome back!");
-        navigate("/chicago");
+        navigate(from);
       }
     } catch (error) {
       toast.error("An unexpected error occurred. Please try again.");

@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       categories: {
         Row: {
+          city_id: string | null
           created_at: string
           description: string | null
           id: string
@@ -27,6 +28,7 @@ export type Database = {
           sort_order: number | null
         }
         Insert: {
+          city_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -38,6 +40,7 @@ export type Database = {
           sort_order?: number | null
         }
         Update: {
+          city_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -50,6 +53,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "categories_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "categories_parent_id_fkey"
             columns: ["parent_id"]
             isOneToOne: false
@@ -58,9 +68,49 @@ export type Database = {
           },
         ]
       }
+      cities: {
+        Row: {
+          created_at: string
+          description: string | null
+          hero_image_url: string | null
+          id: string
+          is_active: boolean
+          launch_date: string | null
+          name: string
+          slug: string
+          state: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          hero_image_url?: string | null
+          id?: string
+          is_active?: boolean
+          launch_date?: string | null
+          name: string
+          slug: string
+          state: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          hero_image_url?: string | null
+          id?: string
+          is_active?: boolean
+          launch_date?: string | null
+          name?: string
+          slug?: string
+          state?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       listings: {
         Row: {
           category_id: string | null
+          city_id: string | null
           created_at: string
           description: string | null
           featured: boolean
@@ -79,6 +129,7 @@ export type Database = {
         }
         Insert: {
           category_id?: string | null
+          city_id?: string | null
           created_at?: string
           description?: string | null
           featured?: boolean
@@ -97,6 +148,7 @@ export type Database = {
         }
         Update: {
           category_id?: string | null
+          city_id?: string | null
           created_at?: string
           description?: string | null
           featured?: boolean
@@ -119,6 +171,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listings_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
             referencedColumns: ["id"]
           },
         ]
@@ -246,6 +305,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          city_id: string | null
           created_at: string
           display_name: string | null
           email: string | null
@@ -259,6 +319,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          city_id?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
@@ -272,6 +333,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          city_id?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
@@ -282,7 +344,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {

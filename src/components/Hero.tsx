@@ -2,8 +2,10 @@ import { ArrowRight, MapPin, Users, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import heroImage from "@/assets/hero-marketplace.jpg";
+import { useCityContext } from "@/hooks/useCityContext";
 
 export const Hero = () => {
+  const { currentCity } = useCityContext();
   return (
     <section className="relative overflow-hidden bg-gradient-hero">
       {/* Background Image with Overlay */}
@@ -25,18 +27,18 @@ export const Hero = () => {
             className="mb-6 bg-white/20 text-white border-white/30 hover:bg-white/30"
           >
             <MapPin className="w-4 h-4 mr-2" />
-            Chicago's Local Marketplace
+            {currentCity?.name || "Chicago"}'s Local Marketplace
           </Badge>
 
           {/* Heading */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
             Discover
-            <span className="block text-accent">Chicago Makers</span>
+            <span className="block text-accent">{currentCity?.name || "Chicago"} Makers</span>
           </h1>
 
           {/* Subheading */}
           <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
-            Support local artisans and find unique handmade goods from talented makers across the Windy City.
+            Support local artisans and find unique handmade goods from talented makers across {currentCity?.name || "the Windy City"}.
           </p>
 
           {/* Stats */}
