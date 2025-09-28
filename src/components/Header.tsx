@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CitySelector } from "@/components/CitySelector";
+import { NotificationCenter } from "@/components/notifications";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -73,6 +74,9 @@ export const Header = () => {
             <Button variant="ghost" size="icon" className="md:hidden">
               <Search className="h-5 w-5" />
             </Button>
+
+            {/* Notifications */}
+            {user && <NotificationCenter />}
 
             {/* Cart */}
             <Button variant="ghost" size="icon" className="relative">
