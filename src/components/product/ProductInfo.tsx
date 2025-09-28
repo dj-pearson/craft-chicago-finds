@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Heart, MapPin, Truck, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { MessageStarter } from "@/components/messaging";
+import { BuyNowButton } from "./BuyNowButton";
 import type { Listing } from "@/pages/Browse";
 
 interface ProductInfoProps {
@@ -139,14 +140,7 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
 
         {/* Actions */}
         <div className="space-y-3">
-          <Button 
-            size="lg" 
-            className="w-full"
-            disabled={listing.inventory_count === 0}
-            onClick={handleContact}
-          >
-            {listing.inventory_count === 0 ? "Sold Out" : "Contact Seller"}
-          </Button>
+          <BuyNowButton listing={listing} />
           {listing.seller && (
             <MessageStarter
               sellerId={listing.seller_id}
