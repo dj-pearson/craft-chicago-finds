@@ -141,6 +141,7 @@ export const CategoryGrid = () => {
             variant="outline" 
             size="lg"
             className="hover:bg-primary hover:text-primary-foreground"
+            onClick={() => window.location.href = `/${currentCity?.slug}/browse`}
           >
             View All Categories
           </Button>
