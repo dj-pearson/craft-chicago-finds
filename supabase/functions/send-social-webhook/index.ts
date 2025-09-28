@@ -78,7 +78,8 @@ serve(async (req) => {
     // Get the post data
     const { data: post, error: postError } = await supabaseClient
       .from("social_media_posts")
-      .select(`
+      .select(
+        `
         *,
         social_media_campaigns (
           id,
@@ -90,7 +91,8 @@ serve(async (req) => {
           name,
           slug
         )
-      `)
+      `
+      )
       .eq("id", post_id)
       .single();
 
@@ -166,7 +168,8 @@ serve(async (req) => {
         const payload: WebhookPayload = {
           post_id: post.id,
           title: post.title || "",
-          short_description: post.short_description || post.content.substring(0, 280),
+          short_description:
+            post.short_description || post.content.substring(0, 280),
           long_description: post.long_description || post.content,
           hashtags: post.hashtags || [],
           platform: post.platform,
@@ -255,16 +258,16 @@ serve(async (req) => {
           }`
         );
       } catch (webhookError) {
-        console.error(
-          `Webhook ${webhookSetting.name} failed:`,
-          webhookError
-        );
+        console.error(`Webhook ${webhookSetting.name} failed:`, webhookError);
 
         const errorResult = {
           webhook_id: webhookSetting.id,
           webhook_name: webhookSetting.name,
           success: false,
-          error: webhookError instanceof Error ? webhookError.message : "Unknown error",
+          error:
+            webhookError instanceof Error
+              ? webhookError.message
+              : "Unknown error",
           sent_at: new Date().toISOString(),
         };
 
