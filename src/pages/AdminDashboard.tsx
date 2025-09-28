@@ -21,10 +21,14 @@ import {
   Edit,
   BarChart3,
   ArrowLeft,
+  Brain,
+  Share2,
 } from "lucide-react";
 import { CityManager } from "@/components/admin/CityManager";
 import { UserManager } from "@/components/admin/UserManager";
 import { ContentManager } from "@/components/admin/ContentManager";
+import { AISettingsManager } from "@/components/admin/AISettingsManager";
+import { SocialMediaManager } from "@/components/admin/SocialMediaManager";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 
 const AdminDashboard = () => {
@@ -119,7 +123,7 @@ const AdminDashboard = () => {
       {/* Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview" className="gap-2">
               <BarChart3 className="h-4 w-4" />
               Overview
@@ -135,6 +139,14 @@ const AdminDashboard = () => {
             <TabsTrigger value="content" className="gap-2">
               <Edit className="h-4 w-4" />
               Content
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="gap-2">
+              <Brain className="h-4 w-4" />
+              AI Settings
+            </TabsTrigger>
+            <TabsTrigger value="social" className="gap-2">
+              <Share2 className="h-4 w-4" />
+              Social
             </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="h-4 w-4" />
@@ -270,6 +282,14 @@ const AdminDashboard = () => {
 
           <TabsContent value="content">
             <ContentManager />
+          </TabsContent>
+
+          <TabsContent value="ai">
+            <AISettingsManager />
+          </TabsContent>
+
+          <TabsContent value="social">
+            <SocialMediaManager />
           </TabsContent>
 
           <TabsContent value="analytics">

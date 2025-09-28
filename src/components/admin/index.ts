@@ -5,3 +5,5 @@ export * from "./CityManager";
 export * from "./UserManager";
 export * from "./AnalyticsDashboard";
 export * from "./ContentManager";
+export * from "./AISettingsManager";
+export * from "./SocialMediaManager";
