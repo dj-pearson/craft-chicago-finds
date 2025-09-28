@@ -120,11 +120,11 @@ serve(async (req) => {
         platform_fee: platformFee.toString(),
       },
       // If seller has Stripe Connect account, use application fee
-      ...(listing.profiles?.stripe_account_id && {
+      ...(listing.profiles && Array.isArray(listing.profiles) && listing.profiles[0]?.stripe_account_id && {
         payment_intent_data: {
           application_fee_amount: Math.round(platformFee * 100),
           transfer_data: {
-            destination: listing.profiles.stripe_account_id,
+            destination: listing.profiles[0].stripe_account_id,
           },
         },
       }),
@@ -142,7 +142,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error creating checkout session:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,

@@ -22,9 +22,9 @@ export const StripeOnboarding = ({ onComplete }: StripeOnboardingProps) => {
   const [businessInfo, setBusinessInfo] = useState({
     first_name: profile?.display_name?.split(' ')[0] || '',
     last_name: profile?.display_name?.split(' ')[1] || '',
-    business_name: profile?.business_name || '',
-    description: profile?.seller_description || '',
-    website: profile?.website || ''
+    business_name: (profile as any)?.business_name || '',
+    description: (profile as any)?.seller_description || '',
+    website: (profile as any)?.website || ''
   });
 
   const handleStartOnboarding = async () => {
@@ -59,7 +59,7 @@ export const StripeOnboarding = ({ onComplete }: StripeOnboardingProps) => {
   };
 
   // If user already has Stripe account
-  if (profile?.stripe_account_id) {
+  if ((profile as any)?.stripe_account_id) {
     return (
       <Card>
         <CardHeader>
@@ -71,13 +71,13 @@ export const StripeOnboarding = ({ onComplete }: StripeOnboardingProps) => {
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Badge variant={profile.seller_verified ? "default" : "secondary"}>
-                {profile.seller_verified ? "Verified" : "Pending Verification"}
+              <Badge variant={(profile as any)?.seller_verified ? "default" : "secondary"}>
+                {(profile as any)?.seller_verified ? "Verified" : "Pending Verification"}
               </Badge>
             </div>
             <p className="text-muted-foreground">
               Your Stripe account is connected and ready to receive payments.
-              {!profile.seller_verified && " Verification may take 1-2 business days."}
+              {!(profile as any)?.seller_verified && " Verification may take 1-2 business days."}
             </p>
             {onComplete && (
               <Button onClick={onComplete}>

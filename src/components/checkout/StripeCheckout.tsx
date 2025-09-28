@@ -94,13 +94,13 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
         throw new Error(paymentError?.message || 'Failed to create payment intent');
       }
 
-      // Confirm payment
+      // Confirm payment with demo card element
       const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
         paymentIntentData.client_secret,
         {
           payment_method: {
             card: {
-              // This would normally be elements, but for demo we'll redirect to Stripe Checkout
+              token: 'tok_visa' // Demo token for testing
             }
           }
         }
@@ -114,7 +114,7 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
         // Create order in database
         const { data: orderData, error: orderError } = await supabase
           .from('orders')
-          .insert({
+          .insert([{
             buyer_id: user.id,
             seller_id: listing.seller_id,
             listing_id: listing.id,
@@ -122,12 +122,12 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
             total_amount: total,
             commission_amount: platformFee,
             fulfillment_method: fulfillmentMethod,
-            shipping_address: fulfillmentMethod === 'shipping' ? shippingAddress : null,
+            shipping_address: fulfillmentMethod === 'shipping' ? JSON.stringify(shippingAddress) : null,
             pickup_location: fulfillmentMethod === 'local_pickup' ? listing.pickup_location : null,
             notes,
             payment_status: 'completed',
             stripe_payment_intent_id: paymentIntent.id
-          })
+          }])
           .select()
           .single();
 

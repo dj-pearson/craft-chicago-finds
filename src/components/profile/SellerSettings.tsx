@@ -245,15 +245,15 @@ export const SellerSettings = ({ user, profile }: SellerSettingsProps) => {
             <div>
               <p className="font-medium">Payout Method</p>
               <p className="text-sm text-muted-foreground">
-                {profile?.stripe_account_id ? "Stripe connected" : "Not set up"}
+                {(profile as any)?.stripe_account_id ? "Stripe connected" : "Not set up"}
               </p>
             </div>
             <Button variant="outline" onClick={handlePayoutSetup}>
-              {profile?.stripe_account_id ? "Manage" : "Set Up"}
+              {(profile as any)?.stripe_account_id ? "Manage" : "Set Up"}
             </Button>
           </div>
 
-          {!profile?.stripe_account_id && (
+          {!(profile as any)?.stripe_account_id && (
             <div className="flex items-start gap-3 p-3 bg-muted/50 border rounded-lg">
               <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>

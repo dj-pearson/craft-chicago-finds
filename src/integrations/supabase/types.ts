@@ -541,6 +541,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      decrement_inventory: {
+        Args: { listing_uuid: string; quantity: number }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _city_id?: string

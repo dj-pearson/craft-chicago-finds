@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./hooks/useAuth";
 import { AdminProvider } from "./hooks/useAdmin";
 import { CityProvider } from "./hooks/useCityContext";
+import { StripeProvider } from "./hooks/useStripe";
 import Landing from "./pages/Landing";
 import City from "./pages/City";
 import Auth from "./pages/Auth";
@@ -23,11 +24,12 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <AdminProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
+    <StripeProvider>
+      <AuthProvider>
+        <AdminProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
           <BrowserRouter>
             <CityProvider>
               <Routes>
@@ -48,9 +50,10 @@ const App = () => (
               </Routes>
             </CityProvider>
           </BrowserRouter>
-        </TooltipProvider>
-      </AdminProvider>
-    </AuthProvider>
+          </TooltipProvider>
+        </AdminProvider>
+      </AuthProvider>
+    </StripeProvider>
   </QueryClientProvider>
 );
 
