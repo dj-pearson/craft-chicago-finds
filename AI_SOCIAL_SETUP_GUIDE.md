@@ -44,6 +44,7 @@ supabase functions deploy generate-social-campaign
 ## 🎯 **FEATURES IMPLEMENTED**
 
 ### **✅ Centralized AI Management**
+
 - **Single Configuration Point**: All AI settings managed in one place
 - **Model Flexibility**: Easy switching between Claude models
 - **Test Function**: Built-in AI model testing
@@ -51,6 +52,7 @@ supabase functions deploy generate-social-campaign
 - **Error Handling**: Comprehensive error logging and recovery
 
 ### **✅ Social Media Management**
+
 - **Campaign Management**: Create and manage marketing campaigns
 - **AI Content Generation**: Generate posts using Claude
 - **Multi-Platform Support**: Facebook, Instagram, Twitter, LinkedIn
@@ -59,6 +61,7 @@ supabase functions deploy generate-social-campaign
 - **30-Day Plan Integration**: Based on your Social.md strategy
 
 ### **✅ Admin Dashboard Integration**
+
 - **AI Settings Tab**: Configure models, test connections
 - **Social Tab**: Manage campaigns and posts
 - **Real-time Status**: Live model status and testing
@@ -108,6 +111,7 @@ supabase functions deploy generate-social-campaign
 ## 🎨 **CONTENT GENERATION EXAMPLES**
 
 ### **Launch Countdown Posts**
+
 ```
 Prompt: "Create an exciting countdown post for Chicago marketplace launching in 5 days. Focus on local artisans and unique gifts."
 
@@ -115,6 +119,7 @@ Generated: "🎉 Only 5 days until Chicago Makers Marketplace launches! Get read
 ```
 
 ### **Vendor Spotlight**
+
 ```
 Prompt: "Write a vendor spotlight post featuring a local jewelry maker named Sarah who creates eco-friendly pieces."
 
@@ -124,27 +129,32 @@ Generated: "✨ Vendor Spotlight: Meet Sarah from EcoGems Chicago! 💎 Sarah tr
 ## 📊 **AI MODEL CONFIGURATION**
 
 ### **Recommended Settings**
+
 - **Model**: `claude-3-5-sonnet-20241022` (latest, most capable)
 - **Max Tokens**: `4000` (good balance of length and cost)
 - **Temperature**: `0.7` (creative but consistent)
-- **System Prompt**: 
+- **System Prompt**:
+
 ```
 You are a social media expert helping create engaging content for local craft marketplaces. Focus on community building, supporting local artisans, and encouraging authentic engagement. Keep content friendly, creative, and supportive. Always include relevant hashtags and calls-to-action.
 ```
 
 ### **Alternative Models**
+
 - **Claude 3 Sonnet**: `claude-3-sonnet-20240229` (balanced)
 - **Claude 3 Haiku**: `claude-3-haiku-20240307` (faster, cheaper)
 
 ## 🔒 **SECURITY & PERMISSIONS**
 
 ### **Access Control**
+
 - **AI Settings**: Admin only
 - **Social Management**: Admin and City Moderators
 - **Content Generation**: Admin and City Moderators
 - **Logs**: Users see their own, Admins see all
 
 ### **API Security**
+
 - Uses `X-API-Key` header (as requested)
 - Supabase Secrets for API key storage
 - Row Level Security (RLS) on all tables
@@ -153,7 +163,9 @@ You are a social media expert helping create engaging content for local craft ma
 ## 📈 **USAGE MONITORING**
 
 ### **AI Generation Logs**
+
 Track every AI interaction:
+
 - **User**: Who generated content
 - **Model**: Which AI model was used
 - **Tokens**: Cost tracking
@@ -161,6 +173,7 @@ Track every AI interaction:
 - **Type**: Content type generated
 
 ### **Performance Metrics**
+
 - Token usage per user/campaign
 - Success rates by model
 - Content generation frequency
@@ -171,6 +184,7 @@ Track every AI interaction:
 The system implements your Social.md strategy:
 
 ### **Week 1: Teasers & Brand Introduction**
+
 - Mystery teasers
 - Problem/solution posts
 - Brand announcement
@@ -178,6 +192,7 @@ The system implements your Social.md strategy:
 - Community highlights
 
 ### **Week 2: Education & Engagement**
+
 - Holiday motivation
 - Team introductions
 - FAQ posts
@@ -185,6 +200,7 @@ The system implements your Social.md strategy:
 - Partnership announcements
 
 ### **Week 3: Countdown & Promotions**
+
 - Formal countdown begins
 - Giveaway/contest
 - Feature highlights
@@ -192,6 +208,7 @@ The system implements your Social.md strategy:
 - Launch event invites
 
 ### **Week 4: Final Push & Launch**
+
 - Daily countdown
 - Vendor spotlights
 - Community engagement
@@ -201,18 +218,21 @@ The system implements your Social.md strategy:
 ## 🔧 **TROUBLESHOOTING**
 
 ### **AI Test Fails**
+
 1. Check `CLAUDE_API_KEY` in Supabase secrets
 2. Verify API endpoint is correct
 3. Check model name spelling
 4. Review system prompt for issues
 
 ### **Content Not Generating**
+
 1. Ensure user has proper permissions
 2. Check AI settings are active
 3. Verify prompt is clear and specific
 4. Review error logs in AI Settings
 
 ### **Database Errors**
+
 1. Ensure migrations are applied
 2. Check RLS policies
 3. Verify user roles are set correctly

@@ -72,23 +72,27 @@ export const LazyImage = ({
           {...props}
         />
       )}
-      
+
       {/* Loading placeholder */}
       {!isLoaded && !hasError && shouldLoad && (
-        <div className={cn(
-          "absolute inset-0 bg-muted animate-pulse flex items-center justify-center",
-          className
-        )}>
+        <div
+          className={cn(
+            "absolute inset-0 bg-muted animate-pulse flex items-center justify-center",
+            className
+          )}
+        >
           <div className="w-8 h-8 border-2 border-muted-foreground/20 border-t-muted-foreground/60 rounded-full animate-spin" />
         </div>
       )}
 
       {/* Error fallback */}
       {hasError && (
-        <div className={cn(
-          "absolute inset-0 bg-muted flex items-center justify-center",
-          className
-        )}>
+        <div
+          className={cn(
+            "absolute inset-0 bg-muted flex items-center justify-center",
+            className
+          )}
+        >
           {fallback || (
             <div className="text-muted-foreground text-sm text-center p-4">
               <div className="w-8 h-8 mx-auto mb-2 opacity-50">
@@ -113,10 +117,7 @@ export const LazyImage = ({
 
       {/* Initial placeholder before intersection */}
       {!shouldLoad && (
-        <div className={cn(
-          "absolute inset-0 bg-muted",
-          className
-        )} />
+        <div className={cn("absolute inset-0 bg-muted", className)} />
       )}
     </div>
   );

@@ -9,7 +9,12 @@ const corsHeaders = {
 
 interface CampaignRequest {
   city_id: string;
-  campaign_type: 'launch' | 'seasonal' | 'promotional' | 'engagement' | 'countdown';
+  campaign_type:
+    | "launch"
+    | "seasonal"
+    | "promotional"
+    | "engagement"
+    | "countdown";
   start_date: string;
   end_date?: string;
   target_audience?: string;
@@ -55,9 +60,21 @@ serve(async (req) => {
     }
 
     const requestData: CampaignRequest = await req.json();
-    const { city_id, campaign_type, start_date, end_date, target_audience, goals, custom_context } = requestData;
+    const {
+      city_id,
+      campaign_type,
+      start_date,
+      end_date,
+      target_audience,
+      goals,
+      custom_context,
+    } = requestData;
 
-    console.log("Generating social campaign:", { city_id, campaign_type, start_date });
+    console.log("Generating social campaign:", {
+      city_id,
+      campaign_type,
+      start_date,
+    });
 
     // Get city information
     const { data: city, error: cityError } = await supabaseClient
@@ -72,8 +89,12 @@ serve(async (req) => {
 
     // Calculate campaign duration
     const startDate = new Date(start_date);
-    const endDate = end_date ? new Date(end_date) : new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days default
-    const durationDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000));
+    const endDate = end_date
+      ? new Date(end_date)
+      : new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days default
+    const durationDays = Math.ceil(
+      (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
+    );
 
     // Build context for AI generation
     const campaignContext = `
@@ -81,12 +102,16 @@ SOCIAL MEDIA CAMPAIGN GENERATION REQUEST
 
 City: ${city.name} (${city.slug})
 Campaign Type: ${campaign_type}
-Duration: ${durationDays} days (${start_date} to ${endDate.toISOString().split('T')[0]})
-Target Audience: ${target_audience || 'Local makers, craft shoppers, and community members'}
-Goals: ${goals || 'Build awareness, engage community, drive vendor sign-ups'}
+Duration: ${durationDays} days (${start_date} to ${
+      endDate.toISOString().split("T")[0]
+    })
+Target Audience: ${
+      target_audience || "Local makers, craft shoppers, and community members"
+    }
+Goals: ${goals || "Build awareness, engage community, drive vendor sign-ups"}
 
-City Description: ${city.description || 'Local craft marketplace'}
-Custom Context: ${custom_context || 'None'}
+City Description: ${city.description || "Local craft marketplace"}
+Custom Context: ${custom_context || "None"}
 
 CAMPAIGN REQUIREMENTS:
 Based on the 30-day social media plan for CraftLocal launch, generate a comprehensive campaign that includes:
@@ -118,27 +143,34 @@ TONE AND VOICE:
 - Encouraging and inspirational
 - Professional but approachable
 
-Please provide a detailed campaign strategy with specific content recommendations, posting frequency, and engagement tactics tailored to ${city.name}'s local craft marketplace launch.
+Please provide a detailed campaign strategy with specific content recommendations, posting frequency, and engagement tactics tailored to ${
+      city.name
+    }'s local craft marketplace launch.
 `;
 
     // Generate campaign strategy using AI
-    const response = await supabaseClient.functions.invoke("ai-generate-content", {
-      body: {
-        prompt: campaignContext,
-        generation_type: "campaign_content",
-        context: {
-          city_name: city.name,
-          city_slug: city.slug,
-          campaign_type,
-          duration_days: durationDays,
-          start_date,
-          end_date: endDate.toISOString().split('T')[0],
+    const response = await supabaseClient.functions.invoke(
+      "ai-generate-content",
+      {
+        body: {
+          prompt: campaignContext,
+          generation_type: "campaign_content",
+          context: {
+            city_name: city.name,
+            city_slug: city.slug,
+            campaign_type,
+            duration_days: durationDays,
+            start_date,
+            end_date: endDate.toISOString().split("T")[0],
+          },
         },
-      },
-    });
+      }
+    );
 
     if (response.error) {
-      throw new Error(response.error.message || "AI campaign generation failed");
+      throw new Error(
+        response.error.message || "AI campaign generation failed"
+      );
     }
 
     const campaignStrategy = response.data;
@@ -148,15 +180,22 @@ Please provide a detailed campaign strategy with specific content recommendation
       .from("social_media_campaigns")
       .insert({
         city_id,
-        name: `${city.name} ${campaign_type.charAt(0).toUpperCase() + campaign_type.slice(1)} Campaign`,
+        name: `${city.name} ${
+          campaign_type.charAt(0).toUpperCase() + campaign_type.slice(1)
+        } Campaign`,
         description: `AI-generated ${campaign_type} campaign for ${city.name} marketplace`,
         campaign_type,
         start_date,
-        end_date: endDate.toISOString().split('T')[0],
-        status: 'draft',
+        end_date: endDate.toISOString().split("T")[0],
+        status: "draft",
         target_audience,
         goals,
-        hashtags: [`#${city.slug}Makers`, '#CraftLocal', '#ShopLocal', '#SupportSmallBusiness'],
+        hashtags: [
+          `#${city.slug}Makers`,
+          "#CraftLocal",
+          "#ShopLocal",
+          "#SupportSmallBusiness",
+        ],
         created_by: user.id,
       })
       .select()
@@ -184,17 +223,20 @@ Make sure posts follow the 30-day social media plan guidelines and include varie
 Format as JSON array with objects containing: platform, post_type, content, hashtags, timing, engagement_notes.
 `;
 
-    const postsResponse = await supabaseClient.functions.invoke("ai-generate-content", {
-      body: {
-        prompt: samplePostsPrompt,
-        generation_type: "social_post",
-        context: {
-          campaign_id: newCampaign.id,
-          city_name: city.name,
-          campaign_type,
+    const postsResponse = await supabaseClient.functions.invoke(
+      "ai-generate-content",
+      {
+        body: {
+          prompt: samplePostsPrompt,
+          generation_type: "social_post",
+          context: {
+            campaign_id: newCampaign.id,
+            city_name: city.name,
+            campaign_type,
+          },
         },
-      },
-    });
+      }
+    );
 
     let samplePosts = [];
     if (!postsResponse.error && postsResponse.data) {
@@ -211,10 +253,10 @@ Format as JSON array with objects containing: platform, post_type, content, hash
             platform: "facebook",
             post_type: "text",
             content: postsResponse.data.content.substring(0, 500),
-            hashtags: [`#${city.slug}Makers`, '#CraftLocal'],
+            hashtags: [`#${city.slug}Makers`, "#CraftLocal"],
             timing: "Morning post",
-            engagement_notes: "Encourage comments and shares"
-          }
+            engagement_notes: "Encourage comments and shares",
+          },
         ];
       }
     }
@@ -225,7 +267,8 @@ Format as JSON array with objects containing: platform, post_type, content, hash
         campaign: newCampaign,
         strategy: campaignStrategy.content,
         sample_posts: samplePosts,
-        tokens_used: campaignStrategy.tokens_used + (postsResponse.data?.tokens_used || 0),
+        tokens_used:
+          campaignStrategy.tokens_used + (postsResponse.data?.tokens_used || 0),
         message: "Social media campaign generated successfully",
       }),
       {

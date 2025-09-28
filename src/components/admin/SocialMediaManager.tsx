@@ -454,7 +454,10 @@ Please generate engaging social media content that follows the 30-day social med
                       id="campaign_name"
                       value={campaignForm.name}
                       onChange={(e) =>
-                        setCampaignForm({ ...campaignForm, name: e.target.value })
+                        setCampaignForm({
+                          ...campaignForm,
+                          name: e.target.value,
+                        })
                       }
                       placeholder="e.g., Chicago Launch Countdown"
                     />
@@ -482,7 +485,10 @@ Please generate engaging social media content that follows the 30-day social med
                       <Select
                         value={campaignForm.campaign_type}
                         onValueChange={(value) =>
-                          setCampaignForm({ ...campaignForm, campaign_type: value })
+                          setCampaignForm({
+                            ...campaignForm,
+                            campaign_type: value,
+                          })
                         }
                       >
                         <SelectTrigger>
@@ -491,7 +497,9 @@ Please generate engaging social media content that follows the 30-day social med
                         <SelectContent>
                           <SelectItem value="launch">Launch</SelectItem>
                           <SelectItem value="seasonal">Seasonal</SelectItem>
-                          <SelectItem value="promotional">Promotional</SelectItem>
+                          <SelectItem value="promotional">
+                            Promotional
+                          </SelectItem>
                           <SelectItem value="engagement">Engagement</SelectItem>
                           <SelectItem value="countdown">Countdown</SelectItem>
                         </SelectContent>
@@ -565,7 +573,10 @@ Please generate engaging social media content that follows the 30-day social med
                       id="goals"
                       value={campaignForm.goals}
                       onChange={(e) =>
-                        setCampaignForm({ ...campaignForm, goals: e.target.value })
+                        setCampaignForm({
+                          ...campaignForm,
+                          goals: e.target.value,
+                        })
                       }
                       placeholder="Campaign objectives and goals..."
                       rows={2}
@@ -595,11 +606,15 @@ Please generate engaging social media content that follows the 30-day social med
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-lg">{campaign.name}</h3>
+                        <h3 className="font-semibold text-lg">
+                          {campaign.name}
+                        </h3>
                         <Badge className={getStatusColor(campaign.status)}>
                           {campaign.status}
                         </Badge>
-                        <Badge variant="outline">{campaign.campaign_type}</Badge>
+                        <Badge variant="outline">
+                          {campaign.campaign_type}
+                        </Badge>
                       </div>
                       {campaign.description && (
                         <p className="text-muted-foreground mb-3">
@@ -608,17 +623,17 @@ Please generate engaging social media content that follows the 30-day social med
                       )}
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span>
-                          Start: {new Date(campaign.start_date).toLocaleDateString()}
+                          Start:{" "}
+                          {new Date(campaign.start_date).toLocaleDateString()}
                         </span>
                         {campaign.end_date && (
                           <span>
-                            End: {new Date(campaign.end_date).toLocaleDateString()}
+                            End:{" "}
+                            {new Date(campaign.end_date).toLocaleDateString()}
                           </span>
                         )}
                         {campaign.hashtags && campaign.hashtags.length > 0 && (
-                          <span>
-                            {campaign.hashtags.length} hashtags
-                          </span>
+                          <span>{campaign.hashtags.length} hashtags</span>
                         )}
                       </div>
                     </div>
@@ -639,7 +654,9 @@ Please generate engaging social media content that follows the 30-day social med
               <Card>
                 <CardContent className="p-8 text-center">
                   <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No campaigns yet</h3>
+                  <h3 className="text-lg font-semibold mb-2">
+                    No campaigns yet
+                  </h3>
                   <p className="text-muted-foreground mb-4">
                     Create your first social media campaign to get started.
                   </p>
@@ -736,7 +753,10 @@ Please generate engaging social media content that follows the 30-day social med
                         id="ai_prompt"
                         value={postForm.ai_prompt}
                         onChange={(e) =>
-                          setPostForm({ ...postForm, ai_prompt: e.target.value })
+                          setPostForm({
+                            ...postForm,
+                            ai_prompt: e.target.value,
+                          })
                         }
                         placeholder="Describe the content you want AI to generate..."
                         rows={2}
@@ -781,7 +801,9 @@ Please generate engaging social media content that follows the 30-day social med
                       />
                     </div>
                     <div>
-                      <Label htmlFor="scheduled_for">Schedule For (Optional)</Label>
+                      <Label htmlFor="scheduled_for">
+                        Schedule For (Optional)
+                      </Label>
                       <Input
                         id="scheduled_for"
                         type="datetime-local"
@@ -829,12 +851,15 @@ Please generate engaging social media content that follows the 30-day social med
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm mb-3 line-clamp-3">{post.content}</p>
+                      <p className="text-sm mb-3 line-clamp-3">
+                        {post.content}
+                      </p>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span>Platform: {post.platform}</span>
                         {post.scheduled_for && (
                           <span>
-                            Scheduled: {new Date(post.scheduled_for).toLocaleString()}
+                            Scheduled:{" "}
+                            {new Date(post.scheduled_for).toLocaleString()}
                           </span>
                         )}
                         {post.hashtags && post.hashtags.length > 0 && (
