@@ -97,65 +97,102 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="container mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate("/")}
-              className="gap-2"
+              className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3"
             >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Site
+              <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Back to Site</span>
+              <span className="sm:hidden">Back</span>
             </Button>
-            <div className="flex items-center gap-2">
-              <Settings className="h-6 w-6 text-primary" />
-              <h1 className="text-xl font-bold">Admin Dashboard</h1>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Settings className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+              <h1 className="text-lg sm:text-xl font-bold">
+                <span className="hidden sm:inline">Admin Dashboard</span>
+                <span className="sm:hidden">Admin</span>
+              </h1>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="destructive">Admin</Badge>
-            <span className="text-sm text-muted-foreground">{user?.email}</span>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Badge variant="destructive" className="text-xs">Admin</Badge>
+            <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline truncate max-w-32">
+              {user?.email}
+            </span>
           </div>
         </div>
       </header>
 
       {/* Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="overview" className="gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="cities" className="gap-2">
-              <MapPin className="h-4 w-4" />
-              Cities
-            </TabsTrigger>
-            <TabsTrigger value="users" className="gap-2">
-              <Users className="h-4 w-4" />
-              Users
-            </TabsTrigger>
-            <TabsTrigger value="content" className="gap-2">
-              <Edit className="h-4 w-4" />
-              Content
-            </TabsTrigger>
-            <TabsTrigger value="ai" className="gap-2">
-              <Brain className="h-4 w-4" />
-              AI Settings
-            </TabsTrigger>
-            <TabsTrigger value="social" className="gap-2">
-              <Share2 className="h-4 w-4" />
-              Social
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Analytics
-            </TabsTrigger>
-          </TabsList>
+          {/* Mobile-optimized TabsList with horizontal scroll */}
+          <div className="relative mb-6">
+            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-7 lg:grid-cols-7 gap-1 sm:gap-0 bg-muted/50">
+              <TabsTrigger 
+                value="overview" 
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Overview</span>
+                <span className="sm:hidden">Over</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="cities" 
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Cities</span>
+                <span className="sm:hidden">Cities</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="users" 
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Users</span>
+                <span className="sm:hidden">Users</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="content" 
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Content</span>
+                <span className="sm:hidden">Cont</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="ai" 
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <Brain className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">AI Settings</span>
+                <span className="sm:hidden">AI</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="social" 
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Social</span>
+                <span className="sm:hidden">Soc</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="analytics" 
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Analytics</span>
+                <span className="sm:hidden">Anal</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
@@ -217,27 +254,27 @@ const AdminDashboard = () => {
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Quick Actions</CardTitle>
                   <CardDescription>Common administrative tasks</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button className="w-full justify-start gap-2">
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <Button className="w-full justify-start gap-2 text-sm sm:text-base">
                     <Plus className="h-4 w-4" />
                     Add New City
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full justify-start gap-2"
+                    className="w-full justify-start gap-2 text-sm sm:text-base"
                   >
                     <Users className="h-4 w-4" />
                     Manage User Roles
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full justify-start gap-2"
+                    className="w-full justify-start gap-2 text-sm sm:text-base"
                   >
                     <Eye className="h-4 w-4" />
                     Review Flagged Content
