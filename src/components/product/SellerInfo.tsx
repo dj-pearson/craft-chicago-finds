@@ -2,8 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Star, Shield, MessageCircle, Store } from "lucide-react";
+import { MapPin, Star, Shield, Store } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { MessageStarter } from "@/components/messaging";
 
 interface SellerInfoProps {
   seller?: {
@@ -95,14 +96,12 @@ export const SellerInfo = ({ seller }: SellerInfoProps) => {
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            className="flex-1"
-            onClick={handleContact}
-          >
-            <MessageCircle className="mr-2 h-4 w-4" />
-            Message Seller
-          </Button>
+          <MessageStarter
+            sellerId={seller.id}
+            sellerName={seller.display_name || "Seller"}
+            buttonText="Message Seller"
+            variant="outline"
+          />
           <Button 
             variant="outline" 
             className="flex-1"

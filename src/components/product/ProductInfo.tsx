@@ -3,12 +3,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Heart, MapPin, Truck, MessageCircle, Share2 } from "lucide-react";
+import { Heart, MapPin, Truck, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { MessageStarter } from "@/components/messaging";
 import type { Listing } from "@/pages/Browse";
 
 interface ProductInfoProps {
-  listing: Listing;
+  listing: Listing & {
+    seller?: {
+      id: string;
+      display_name: string;
+    };
+  };
 }
 
 export const ProductInfo = ({ listing }: ProductInfoProps) => {
@@ -43,8 +49,8 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
 
   const handleContact = () => {
     toast({
-      title: "Feature coming soon",
-      description: "Direct messaging will be available soon.",
+      title: "Contact seller",
+      description: "Use the message button to contact the seller directly.",
     });
   };
 
@@ -141,15 +147,15 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
           >
             {listing.inventory_count === 0 ? "Sold Out" : "Contact Seller"}
           </Button>
-          <Button 
-            variant="outline" 
-            size="lg" 
-            className="w-full"
-            onClick={handleContact}
-          >
-            <MessageCircle className="mr-2 h-4 w-4" />
-            Send Message
-          </Button>
+          {listing.seller && (
+            <MessageStarter
+              sellerId={listing.seller_id}
+              listingId={listing.id}
+              sellerName={listing.seller.display_name || "Seller"}
+              buttonText="Send Message"
+              variant="outline"
+            />
+          )}
         </div>
 
         {/* Product Details */}

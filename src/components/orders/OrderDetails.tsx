@@ -8,9 +8,11 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Package, MapPin, CreditCard, Truck, MessageCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ArrowLeft, Package, MapPin, CreditCard, Truck, MessageCircle, Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import { ReviewForm, ReviewDisplay } from "@/components/reviews";
 
 interface OrderDetailsProps {
   orderId: string;
@@ -58,6 +60,8 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
   const [updating, setUpdating] = useState(false);
   const [trackingNumber, setTrackingNumber] = useState("");
   const [newStatus, setNewStatus] = useState("");
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -104,7 +108,28 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
       }
     };
 
+    const fetchReviews = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('reviews')
+          .select(`
+            *,
+            reviewer:profiles!reviews_reviewer_id_fkey (
+              display_name,
+              avatar_url
+            )
+          `)
+          .eq('order_id', orderId);
+
+        if (error) throw error;
+        setReviews(data || []);
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+      }
+    };
+
     fetchOrder();
+    fetchReviews();
   }, [orderId, toast]);
 
   const updateOrder = async () => {
@@ -411,6 +436,71 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
             >
               {updating ? "Updating..." : "Update Order"}
             </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Reviews Section */}
+      {order.status === 'completed' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Star className="h-5 w-5" />
+              Reviews
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Review Form for Buyer */}
+            {isBuyer && !reviews.some(r => r.reviewer_id === user?.id) && (
+              <div className="mb-6 pb-6 border-b">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold">Rate your experience</h3>
+                  <Dialog open={showReviewForm} onOpenChange={setShowReviewForm}>
+                    <DialogTrigger asChild>
+                      <Button>Write Review</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Review {order.seller_profile.display_name}</DialogTitle>
+                      </DialogHeader>
+                      <ReviewForm
+                        orderId={order.id}
+                        sellerId={order.seller_id}
+                        buyerId={order.buyer_id}
+                        onSubmit={() => {
+                          setShowReviewForm(false);
+                          // Refresh reviews
+                          const fetchReviews = async () => {
+                            try {
+                              const { data, error } = await supabase
+                                .from('reviews')
+                                .select(`
+                                  *,
+                                  reviewer:profiles!reviews_reviewer_id_fkey (
+                                    display_name,
+                                    avatar_url
+                                  )
+                                `)
+                                .eq('order_id', orderId);
+
+                              if (error) throw error;
+                              setReviews(data || []);
+                            } catch (error) {
+                              console.error('Error fetching reviews:', error);
+                            }
+                          };
+                          fetchReviews();
+                        }}
+                        onCancel={() => setShowReviewForm(false)}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
+            )}
+
+            {/* Display Reviews */}
+            <ReviewDisplay reviews={reviews} />
           </CardContent>
         </Card>
       )}
