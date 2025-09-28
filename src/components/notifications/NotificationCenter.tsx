@@ -30,7 +30,7 @@ import { formatDistanceToNow } from "date-fns";
 
 interface Notification {
   id: string;
-  type: 'message' | 'order' | 'review' | 'listing' | 'system';
+  type: string;
   title: string;
   content: string;
   read: boolean;
@@ -55,64 +55,44 @@ export const NotificationCenter = () => {
 
     setLoading(true);
     try {
-      // Create mock notifications since we don't have a notifications table yet
-      // In a real implementation, you'd fetch from a notifications table
-      const mockNotifications: Notification[] = [
-        {
-          id: '1',
-          type: 'message',
-          title: 'New Message',
-          content: 'You have a new message about your listing "Handmade Ceramic Mug"',
-          read: false,
-          created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
-          action_url: '/messages',
-          sender: {
-            display_name: 'Sarah Johnson',
-            avatar_url: ''
-          }
-        },
-        {
-          id: '2',
-          type: 'order',
-          title: 'Order Confirmed',
-          content: 'Your order #12345 has been confirmed by the seller',
-          read: false,
-          created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-          action_url: '/orders',
-          related_id: '12345'
-        },
-        {
-          id: '3',
-          type: 'review',
-          title: 'New Review',
-          content: 'You received a 5-star review for your recent sale',
-          read: true,
-          created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
-          sender: {
-            display_name: 'Mike Chen',
-            avatar_url: ''
-          }
-        },
-        {
-          id: '4',
-          type: 'listing',
-          title: 'Listing Approved',
-          content: 'Your listing "Artisan Wooden Bowl" has been approved and is now live',
-          read: true,
-          created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days ago
-        },
-        {
-          id: '5',
-          type: 'system',
-          title: 'Welcome to Chicago Makers!',
-          content: 'Thank you for joining our community. Start exploring amazing handmade products from local artisans.',
-          read: true,
-          created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(), // 1 week ago
-        }
-      ];
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
 
-      setNotifications(mockNotifications);
-      setUnreadCount(mockNotifications.filter(n => !n.read).length);
+      if (error) throw error;
+
+      const notifications = data || [];
+      
+      // Get sender info for notifications that have sender_id
+      const senderIds = notifications
+        .filter(n => n.sender_id)
+        .map(n => n.sender_id);
+
+      let senderProfiles: any[] = [];
+      if (senderIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, avatar_url')
+          .in('user_id', senderIds);
+        
+        senderProfiles = profiles || [];
+      }
+
+      const formattedNotifications = notifications.map(notification => ({
+        ...notification,
+        sender: senderProfiles.find(p => p.user_id === notification.sender_id) 
+          ? {
+              display_name: senderProfiles.find(p => p.user_id === notification.sender_id)?.display_name || 'User',
+              avatar_url: senderProfiles.find(p => p.user_id === notification.sender_id)?.avatar_url
+            }
+          : undefined
+      }));
+
+      setNotifications(formattedNotifications);
+      setUnreadCount(formattedNotifications.filter(n => !n.read).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);
       toast.error('Failed to load notifications');
@@ -150,34 +130,41 @@ export const NotificationCenter = () => {
 
   const markAsRead = async (notificationId: string) => {
     try {
-      // Update local state
+      const { error } = await supabase.rpc('mark_notification_read', {
+        notification_id: notificationId
+      });
+
+      if (error) throw error;
+
       setNotifications(prev => 
-        prev.map(n => 
-          n.id === notificationId 
-            ? { ...n, read: true }
-            : n
+        prev.map(notification => 
+          notification.id === notificationId 
+            ? { ...notification, read: true }
+            : notification
         )
       );
+      
       setUnreadCount(prev => Math.max(0, prev - 1));
-
-      // In a real implementation, you'd update the database here
-      // await supabase.from('notifications').update({ read: true }).eq('id', notificationId);
     } catch (error) {
       console.error('Error marking notification as read:', error);
+      toast.error('Failed to mark notification as read');
     }
   };
 
   const markAllAsRead = async () => {
     try {
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-      setUnreadCount(0);
+      const { error } = await supabase.rpc('mark_all_notifications_read');
 
-      // In a real implementation, you'd update the database here
-      // await supabase.from('notifications').update({ read: true }).eq('user_id', user.id);
+      if (error) throw error;
+
+      setNotifications(prev => 
+        prev.map(notification => ({ ...notification, read: true }))
+      );
+      setUnreadCount(0);
       toast.success('All notifications marked as read');
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
-      toast.error('Failed to mark notifications as read');
+      toast.error('Failed to mark all notifications as read');
     }
   };
 
