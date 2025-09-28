@@ -88,8 +88,21 @@ export const ContentManager = () => {
   const [editingSlot, setEditingSlot] = useState<FeaturedSlot | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const [formData, setFormData] = useState({
-    slot_type: "featured_listing" as const,
+  const [formData, setFormData] = useState<{
+    slot_type: "hero" | "featured_category" | "featured_listing" | "seasonal";
+    title: string;
+    description: string;
+    image_url: string;
+    action_url: string;
+    action_text: string;
+    listing_id: string;
+    category_id: string;
+    sort_order: number;
+    is_active: boolean;
+    start_date: string;
+    end_date: string;
+  }>({
+    slot_type: "featured_listing",
     title: "",
     description: "",
     image_url: "",
@@ -130,26 +143,9 @@ export const ContentManager = () => {
       if (!selectedCity) return;
 
       // Fetch featured slots for selected city
-      const { data: slotsData, error: slotsError } = await supabase
+      const { data: slotsData, error: slotsError } = await (supabase as any)
         .from("featured_slots")
-        .select(`
-          id,
-          city_id,
-          slot_type,
-          title,
-          description,
-          image_url,
-          action_url,
-          action_text,
-          listing_id,
-          category_id,
-          sort_order,
-          is_active,
-          start_date,
-          end_date,
-          created_at,
-          updated_at
-        `)
+        .select("*")
         .eq("city_id", selectedCity)
         .order("sort_order");
 
@@ -195,7 +191,7 @@ export const ContentManager = () => {
 
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("featured_slots").insert({
+      const { error } = await (supabase as any).from("featured_slots").insert({
         city_id: selectedCity,
         slot_type: formData.slot_type,
         title: formData.title,
@@ -238,7 +234,7 @@ export const ContentManager = () => {
 
     setSubmitting(true);
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("featured_slots")
         .update({
           slot_type: formData.slot_type,
@@ -283,7 +279,7 @@ export const ContentManager = () => {
     if (!confirm("Are you sure you want to delete this featured slot?")) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("featured_slots")
         .delete()
         .eq("id", slotId);
@@ -308,7 +304,7 @@ export const ContentManager = () => {
 
   const handleToggleActive = async (slotId: string, isActive: boolean) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("featured_slots")
         .update({ is_active: !isActive })
         .eq("id", slotId);
@@ -328,7 +324,7 @@ export const ContentManager = () => {
 
   const resetForm = () => {
     setFormData({
-      slot_type: "featured_listing" as "hero" | "featured_category" | "featured_listing" | "seasonal",
+      slot_type: "featured_listing",
       title: "",
       description: "",
       image_url: "",

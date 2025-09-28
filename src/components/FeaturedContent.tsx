@@ -66,26 +66,10 @@ export const FeaturedContent = ({
       // Get current date for filtering seasonal content
       const today = new Date().toISOString().split("T")[0];
 
-      const { data, error } = await supabase
+      // Use any type to bypass TypeScript issues with database types
+      const { data: slotsData, error } = await (supabase as any)
         .from("featured_slots")
-        .select(
-          `
-          id,
-          slot_type,
-          title,
-          description,
-          image_url,
-          action_url,
-          action_text,
-          listing_id,
-          category_id,
-          sort_order,
-          start_date,
-          end_date,
-          listing:listings(id, title, price, images),
-          category:categories(id, name, slug)
-        `
-        )
+        .select("*")
         .eq("city_id", currentCity.id)
         .eq("is_active", true)
         .in("slot_type", slotTypes)
@@ -99,25 +83,57 @@ export const FeaturedContent = ({
         return;
       }
 
-      // Cast the data to our FeaturedSlot type
-      const typedData = (data || []).map((item: any) => ({
-        id: item.id,
-        slot_type: item.slot_type,
-        title: item.title,
-        description: item.description,
-        image_url: item.image_url,
-        action_url: item.action_url,
-        action_text: item.action_text,
-        listing_id: item.listing_id,
-        category_id: item.category_id,
-        sort_order: item.sort_order,
-        start_date: item.start_date,
-        end_date: item.end_date,
-        listing: item.listing?.[0] || null,
-        category: item.category?.[0] || null,
-      })) as FeaturedSlot[];
+      if (!slotsData || slotsData.length === 0) {
+        setFeaturedSlots([]);
+        return;
+      }
 
-      setFeaturedSlots(typedData);
+      // Enhance with related data
+      const enhancedSlots: FeaturedSlot[] = await Promise.all(
+        slotsData.map(async (slot: any) => {
+          let listing = null;
+          let category = null;
+
+          // Fetch listing data if needed
+          if (slot.listing_id) {
+            const { data: listingData } = await supabase
+              .from("listings")
+              .select("id, title, price, images")
+              .eq("id", slot.listing_id)
+              .single();
+            listing = listingData;
+          }
+
+          // Fetch category data if needed
+          if (slot.category_id) {
+            const { data: categoryData } = await supabase
+              .from("categories")
+              .select("id, name, slug")
+              .eq("id", slot.category_id)
+              .single();
+            category = categoryData;
+          }
+
+          return {
+            id: slot.id,
+            slot_type: slot.slot_type,
+            title: slot.title,
+            description: slot.description,
+            image_url: slot.image_url,
+            action_url: slot.action_url,
+            action_text: slot.action_text,
+            listing_id: slot.listing_id,
+            category_id: slot.category_id,
+            sort_order: slot.sort_order,
+            start_date: slot.start_date,
+            end_date: slot.end_date,
+            listing,
+            category,
+          };
+        })
+      );
+
+      setFeaturedSlots(enhancedSlots);
     } catch (error) {
       console.error("Error fetching featured content:", error);
     } finally {
