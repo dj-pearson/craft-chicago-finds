@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useCityContext } from "@/hooks/useCityContext";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Category {
@@ -40,10 +41,16 @@ export const CategoryGrid = () => {
   const { currentCity } = useCityContext();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const { ref, isIntersecting } = useIntersectionObserver({ 
+    threshold: 0.1, 
+    freezeOnceVisible: true 
+  });
 
   useEffect(() => {
-    fetchCategories();
-  }, [currentCity]);
+    if (isIntersecting && currentCity) {
+      fetchCategories();
+    }
+  }, [isIntersecting, currentCity]);
 
   const fetchCategories = async () => {
     if (!currentCity) return;
@@ -98,7 +105,7 @@ export const CategoryGrid = () => {
   }
 
   return (
-    <section className="py-12 sm:py-16 bg-background">
+    <section ref={ref} className="py-12 sm:py-16 bg-background">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">

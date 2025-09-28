@@ -9,24 +9,38 @@ import { CityProvider } from "./hooks/useCityContext";
 import { StripeProvider } from "./hooks/useStripe";
 import { CartProvider } from "./hooks/useCart";
 import { PlansProvider } from "./hooks/usePlans";
-import Landing from "./pages/Landing";
-import City from "./pages/City";
-import Auth from "./pages/Auth";
-import AdminDashboard from "./pages/AdminDashboard";
-import SellerDashboard from "./pages/SellerDashboard";
-import CreateEditListing from "./pages/CreateEditListing";
-import Browse from "./pages/Browse";
-import ProductDetail from "./pages/ProductDetail";
-import Messages from "./pages/Messages";
-import Orders from "./pages/Orders";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import Pricing from "./pages/Pricing";
-import Profile from "./pages/Profile";
-import Disputes from "./pages/Disputes";
-import NotFound from "./pages/NotFound";
+import { Suspense, lazy } from "react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
-const queryClient = new QueryClient();
+// Lazy load pages for better performance
+const Landing = lazy(() => import("./pages/Landing"));
+const City = lazy(() => import("./pages/City"));
+const Auth = lazy(() => import("./pages/Auth"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const SellerDashboard = lazy(() => import("./pages/SellerDashboard"));
+const CreateEditListing = lazy(() => import("./pages/CreateEditListing"));
+const Browse = lazy(() => import("./pages/Browse"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const Messages = lazy(() => import("./pages/Messages"));
+const Orders = lazy(() => import("./pages/Orders"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Disputes = lazy(() => import("./pages/Disputes"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Configure React Query with caching optimizations
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (was cacheTime)
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -40,13 +54,14 @@ const App = () => (
                 <Sonner />
           <BrowserRouter>
             <CityProvider>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/dashboard" element={<SellerDashboard />} />
-                <Route path="/dashboard/listing/new" element={<CreateEditListing />} />
-                <Route path="/dashboard/listing/:id/edit" element={<CreateEditListing />} />
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/dashboard" element={<SellerDashboard />} />
+                  <Route path="/dashboard/listing/new" element={<CreateEditListing />} />
+                  <Route path="/dashboard/listing/:id/edit" element={<CreateEditListing />} />
                   <Route path="/messages" element={<Messages />} />
                   <Route path="/orders" element={<Orders />} />
                   <Route path="/cart" element={<Cart />} />
@@ -54,12 +69,13 @@ const App = () => (
                   <Route path="/pricing" element={<Pricing />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/disputes" element={<Disputes />} />
-                <Route path="/:city/browse" element={<Browse />} />
-                <Route path="/:city/product/:id" element={<ProductDetail />} />
-                <Route path="/:city" element={<City />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+                  <Route path="/:city/browse" element={<Browse />} />
+                  <Route path="/:city/product/:id" element={<ProductDetail />} />
+                  <Route path="/:city" element={<City />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </CityProvider>
           </BrowserRouter>
               </TooltipProvider>

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LazyImage } from "@/components/ui/lazy-image";
 import makersImage from "@/assets/makers-collage.jpg";
 
 const featuredMakers = [
@@ -40,33 +41,38 @@ const featuredMakers = [
 
 export const FeaturedMakers = () => {
   return (
-    <section className="py-16 bg-muted/30">
+    <section className="py-12 sm:py-16 bg-muted/30">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8 sm:mb-12">
           <Badge variant="outline" className="mb-4">
             Featured This Month
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
             Meet Our Makers
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
             Get to know the talented artisans behind Chicago's most unique handmade goods.
           </p>
         </div>
 
         {/* Makers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
           {featuredMakers.map((maker, index) => (
             <Card 
               key={index}
-              className="group hover:shadow-elevated transition-all duration-300 border-border/50 hover:border-primary/20"
+              className="group hover:shadow-elevated transition-all duration-300 border-border/50 hover:border-primary/20 touch-target"
             >
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 {/* Maker Avatar & Info */}
                 <div className="flex items-start space-x-4 mb-4">
-                  <Avatar className="w-16 h-16">
-                    <AvatarImage src={maker.image} alt={maker.name} />
+                  <Avatar className="w-12 h-12 sm:w-16 sm:h-16">
+                    <LazyImage 
+                      src={maker.image} 
+                      alt={maker.name}
+                      className="w-full h-full object-cover"
+                      placeholder="Loading..."
+                    />
                     <AvatarFallback className="bg-gradient-primary text-primary-foreground">
                       {maker.name.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>

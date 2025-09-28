@@ -1,8 +1,12 @@
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { CategoryGrid } from "@/components/CategoryGrid";
-import { FeaturedMakers } from "@/components/FeaturedMakers";
 import { Footer } from "@/components/Footer";
+import { Suspense, lazy } from "react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+
+// Lazy load below-the-fold component
+const FeaturedMakers = lazy(() => import("@/components/FeaturedMakers").then(module => ({ default: module.FeaturedMakers })));
 
 const Index = () => {
   return (
@@ -11,7 +15,9 @@ const Index = () => {
       <main>
         <Hero />
         <CategoryGrid />
-        <FeaturedMakers />
+        <Suspense fallback={<LoadingSpinner text="Loading featured makers..." />}>
+          <FeaturedMakers />
+        </Suspense>
       </main>
       <Footer />
     </div>
