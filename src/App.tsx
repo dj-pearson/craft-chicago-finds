@@ -23,6 +23,7 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Pricing from "./pages/Pricing";
 import Profile from "./pages/Profile";
+import Disputes from "./pages/Disputes";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
                   <Route path="/checkout" element={<Checkout />} />
                   <Route path="/pricing" element={<Pricing />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/disputes" element={<Disputes />} />
                 <Route path="/:city/browse" element={<Browse />} />
                 <Route path="/:city/product/:id" element={<ProductDetail />} />
                 <Route path="/:city" element={<City />} />

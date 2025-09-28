@@ -107,6 +107,95 @@ export type Database = {
         }
         Relationships: []
       }
+      dispute_messages: {
+        Row: {
+          created_at: string
+          dispute_id: string
+          id: string
+          message: string
+          sender_id: string
+          sender_type: string
+        }
+        Insert: {
+          created_at?: string
+          dispute_id: string
+          id?: string
+          message: string
+          sender_id: string
+          sender_type: string
+        }
+        Update: {
+          created_at?: string
+          dispute_id?: string
+          id?: string
+          message?: string
+          sender_id?: string
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_messages_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disputes: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          description: string
+          dispute_type: string
+          disputed_user_id: string
+          disputing_user_id: string
+          evidence_urls: string[] | null
+          id: string
+          order_id: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          description: string
+          dispute_type: string
+          disputed_user_id: string
+          disputing_user_id: string
+          evidence_urls?: string[] | null
+          id?: string
+          order_id: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string
+          dispute_type?: string
+          disputed_user_id?: string
+          disputing_user_id?: string
+          evidence_urls?: string[] | null
+          id?: string
+          order_id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       listing_analytics: {
         Row: {
           created_at: string
@@ -308,6 +397,7 @@ export type Database = {
           buyer_id: string
           commission_amount: number
           created_at: string
+          dispute_id: string | null
           fulfillment_method: string
           id: string
           listing_id: string
@@ -327,6 +417,7 @@ export type Database = {
           buyer_id: string
           commission_amount: number
           created_at?: string
+          dispute_id?: string | null
           fulfillment_method: string
           id?: string
           listing_id: string
@@ -346,6 +437,7 @@ export type Database = {
           buyer_id?: string
           commission_amount?: number
           created_at?: string
+          dispute_id?: string | null
           fulfillment_method?: string
           id?: string
           listing_id?: string
@@ -362,6 +454,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_listing_id_fkey"
             columns: ["listing_id"]
