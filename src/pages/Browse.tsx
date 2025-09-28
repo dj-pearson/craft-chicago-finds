@@ -8,6 +8,7 @@ import { SearchBar } from "@/components/browse/SearchBar";
 import { SearchResults } from "@/components/browse/SearchResults";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
+import { useSearchAnalytics } from "@/hooks/useSearchAnalytics";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -60,6 +61,7 @@ export interface FilterOptions {
 const Browse = () => {
   const { user, loading: authLoading } = useAuth();
   const { currentCity, loading: cityLoading, isValidCity } = useCityContext();
+  const { trackSearch } = useSearchAnalytics();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -156,9 +158,14 @@ const Browse = () => {
         query = query.eq("shipping_available", true);
       }
 
-      // Apply search
+      // Apply search with better relevance
       if (searchQuery) {
-        query = query.or(`title.ilike.%${searchQuery}%, description.ilike.%${searchQuery}%`);
+        // Search across multiple fields with weighted relevance
+        query = query.or(
+          `title.ilike.%${searchQuery}%,` +
+          `description.ilike.%${searchQuery}%,` +
+          `tags.cs.{${searchQuery}}`
+        );
       }
 
       // Apply sorting
@@ -186,7 +193,18 @@ const Browse = () => {
         return;
       }
 
-      setListings(data || []);
+      const results = data || [];
+      setListings(results);
+
+      // Track search analytics
+      if (searchQuery && results.length >= 0) {
+        trackSearch({
+          query: searchQuery,
+          results_count: results.length,
+          filters_used: filters,
+          city_id: currentCity.id
+        });
+      }
     } catch (error) {
       console.error("Error fetching listings:", error);
     } finally {
@@ -261,6 +279,7 @@ const Browse = () => {
           value={searchQuery}
           onChange={setSearchQuery}
           onSearch={fetchListings}
+          cityId={currentCity.id}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
