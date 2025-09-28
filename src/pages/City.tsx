@@ -99,6 +99,35 @@ const City = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main>
+        {/* City Breadcrumb */}
+        <div className="bg-muted/30 border-b border-border">
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate("/")}
+                  className="text-muted-foreground hover:text-primary h-auto p-1 -ml-1"
+                >
+                  National Marketplace
+                </Button>
+                <span className="text-muted-foreground">/</span>
+                <span className="font-medium text-foreground">{currentCity.name}</span>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate("/")}
+                className="gap-2"
+              >
+                <ArrowLeft className="h-3 w-3" />
+                All Cities
+              </Button>
+            </div>
+          </div>
+        </div>
+        
         <div className="container mx-auto px-4 py-8">
           <FeaturedContent />
         </div>

@@ -31,7 +31,7 @@ export const Header = () => {
         <div className="flex h-14 sm:h-16 items-center justify-between">
           {/* Logo & City Selector */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate("/")}>
               <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-xs sm:text-sm">CL</span>
               </div>
@@ -52,6 +52,13 @@ export const Header = () => {
 
           {/* Navigation - Desktop */}
           <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6">
+            <Button 
+              variant="ghost" 
+              className="text-sm font-medium h-auto p-2 hover:text-primary transition-colors"
+              onClick={() => navigate("/")}
+            >
+              National Marketplace
+            </Button>
             <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               Browse
             </a>
@@ -159,6 +166,16 @@ export const Header = () => {
 
             {/* Mobile Navigation */}
             <nav className="space-y-1">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium h-auto"
+                onClick={() => {
+                  navigate("/");
+                  setIsMenuOpen(false);
+                }}
+              >
+                🌎 National Marketplace
+              </Button>
               <a href="#" className="flex items-center text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium">
                 Browse Categories
               </a>
@@ -166,7 +183,7 @@ export const Header = () => {
                 Start Selling
               </a>
               <a href="#" className="flex items-center text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium">
-                About Chicago Makers
+                About Craft Local
               </a>
               <a href="#" className="flex items-center text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium">
                 Help & Support
