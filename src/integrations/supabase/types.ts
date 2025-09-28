@@ -196,6 +196,115 @@ export type Database = {
         }
         Relationships: []
       }
+      featured_slots: {
+        Row: {
+          action_text: string | null
+          action_url: string | null
+          category_id: string | null
+          city_id: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          listing_id: string | null
+          slot_type: string
+          sort_order: number
+          start_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          action_text?: string | null
+          action_url?: string | null
+          category_id?: string | null
+          city_id: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          listing_id?: string | null
+          slot_type: string
+          sort_order?: number
+          start_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          action_text?: string | null
+          action_url?: string | null
+          category_id?: string | null
+          city_id?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          listing_id?: string | null
+          slot_type?: string
+          sort_order?: number
+          start_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_slots_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "featured_slots_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "featured_slots_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      image_optimizations: {
+        Row: {
+          created_at: string
+          id: string
+          optimized_versions: Json
+          original_size: number
+          original_url: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          optimized_versions?: Json
+          original_size: number
+          original_url: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          optimized_versions?: Json
+          original_size?: number
+          original_url?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       listing_analytics: {
         Row: {
           created_at: string
@@ -274,6 +383,9 @@ export type Database = {
           images: string[] | null
           inventory_count: number | null
           local_pickup_available: boolean
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_notes: string | null
           pickup_location: string | null
           price: number
           seller_id: string
@@ -294,6 +406,9 @@ export type Database = {
           images?: string[] | null
           inventory_count?: number | null
           local_pickup_available?: boolean
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
           pickup_location?: string | null
           price: number
           seller_id: string
@@ -314,6 +429,9 @@ export type Database = {
           images?: string[] | null
           inventory_count?: number | null
           local_pickup_available?: boolean
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
           pickup_location?: string | null
           price?: number
           seller_id?: string
@@ -388,6 +506,50 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moderation_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          listing_id: string | null
+          moderator_id: string
+          new_status: string | null
+          notes: string | null
+          previous_status: string | null
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          moderator_id: string
+          new_status?: string | null
+          notes?: string | null
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          moderator_id?: string
+          new_status?: string | null
+          notes?: string | null
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_logs_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
             referencedColumns: ["id"]
           },
         ]
