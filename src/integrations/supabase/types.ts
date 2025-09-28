@@ -392,6 +392,51 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          action_url: string | null
+          content: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          read: boolean
+          read_at: string | null
+          related_id: string | null
+          sender_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          read?: boolean
+          read_at?: string | null
+          related_id?: string | null
+          sender_id?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          read?: boolean
+          read_at?: string | null
+          related_id?: string | null
+          sender_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           buyer_id: string
@@ -744,6 +789,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_notification: {
+        Args: {
+          _action_url?: string
+          _content: string
+          _metadata?: Json
+          _related_id?: string
+          _sender_id?: string
+          _title: string
+          _type: string
+          _user_id: string
+        }
+        Returns: string
+      }
       decrement_inventory: {
         Args: { listing_uuid: string; quantity: number }
         Returns: undefined
@@ -767,6 +825,14 @@ export type Database = {
       is_city_moderator: {
         Args: { _city_id: string; _user_id: string }
         Returns: boolean
+      }
+      mark_all_notifications_read: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      mark_notification_read: {
+        Args: { notification_id: string }
+        Returns: undefined
       }
       update_last_seen: {
         Args: { _user_id: string }
