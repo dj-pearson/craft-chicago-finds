@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, ShoppingCart, User, Menu, X, LogOut, MessageCircle } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, LogOut, MessageCircle, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -75,6 +75,20 @@ export const Header = () => {
 
             {/* Cart */}
             <CartIndicator showLabel={false} />
+
+            {/* Admin quick access */}
+            {isAdmin && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="hidden md:inline-flex gap-1"
+                onClick={() => navigate("/admin")}
+                aria-label="Go to Admin Dashboard"
+              >
+                <Settings className="h-4 w-4" />
+                Admin
+              </Button>
+            )}
 
             {/* User */}
             {user ? (
@@ -171,6 +185,15 @@ export const Header = () => {
               <a href="#" className="flex items-center text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium">
                 Help & Support
               </a>
+              {isAdmin && (
+                <button
+                  onClick={() => { setIsMenuOpen(false); navigate('/admin'); }}
+                  className="w-full flex items-center text-primary hover:text-primary-foreground hover:bg-primary/80 transition-colors py-3 px-3 rounded-lg text-base font-medium gap-2"
+                >
+                  <Settings className="h-4 w-4" />
+                  Admin Dashboard
+                </button>
+              )}
             </nav>
           </div>
         )}

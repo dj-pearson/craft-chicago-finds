@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, MapPin, ShoppingBag, Users } from "lucide-react";
+import { ArrowRight, MapPin, ShoppingBag, Users, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 
 interface City {
@@ -18,6 +19,7 @@ interface City {
 
 const Landing = () => {
   const { user } = useAuth();
+  const { isAdmin } = useAdmin();
   const [cities, setCities] = useState<City[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -55,6 +57,14 @@ const Landing = () => {
             <Link to="/chicago" className="text-sm font-medium hover:text-primary transition-colors">
               Shop Chicago
             </Link>
+            {isAdmin && (
+              <Button asChild size="sm" variant="default" className="gap-1">
+                <Link to="/admin">
+                  <Settings className="h-4 w-4" />
+                  Admin
+                </Link>
+              </Button>
+            )}
             {user ? (
               <Button asChild variant="outline" size="sm">
                 <Link to="/chicago">Go to Marketplace</Link>
