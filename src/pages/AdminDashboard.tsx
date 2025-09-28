@@ -3,21 +3,28 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Settings, 
-  Users, 
-  MapPin, 
-  Plus, 
-  Eye, 
-  Edit, 
+import {
+  Settings,
+  Users,
+  MapPin,
+  Plus,
+  Eye,
+  Edit,
   BarChart3,
-  ArrowLeft 
+  ArrowLeft,
 } from "lucide-react";
 import { CityManager } from "@/components/admin/CityManager";
 import { UserManager } from "@/components/admin/UserManager";
+import { ContentManager } from "@/components/admin/ContentManager";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 
 const AdminDashboard = () => {
@@ -53,7 +60,9 @@ const AdminDashboard = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Verifying admin access...</p>
+          <p className="mt-4 text-muted-foreground">
+            Verifying admin access...
+          </p>
         </div>
       </div>
     );
@@ -110,7 +119,7 @@ const AdminDashboard = () => {
       {/* Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview" className="gap-2">
               <BarChart3 className="h-4 w-4" />
               Overview
@@ -123,6 +132,10 @@ const AdminDashboard = () => {
               <Users className="h-4 w-4" />
               Users
             </TabsTrigger>
+            <TabsTrigger value="content" className="gap-2">
+              <Edit className="h-4 w-4" />
+              Content
+            </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="h-4 w-4" />
               Analytics
@@ -133,7 +146,9 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Cities</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Cities
+                  </CardTitle>
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -146,7 +161,9 @@ const AdminDashboard = () => {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Users
+                  </CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -159,7 +176,9 @@ const AdminDashboard = () => {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Sellers</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Active Sellers
+                  </CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -172,7 +191,9 @@ const AdminDashboard = () => {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Pending Reviews
+                  </CardTitle>
                   <Eye className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -195,11 +216,17 @@ const AdminDashboard = () => {
                     <Plus className="h-4 w-4" />
                     Add New City
                   </Button>
-                  <Button variant="outline" className="w-full justify-start gap-2">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start gap-2"
+                  >
                     <Users className="h-4 w-4" />
                     Manage User Roles
                   </Button>
-                  <Button variant="outline" className="w-full justify-start gap-2">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start gap-2"
+                  >
                     <Eye className="h-4 w-4" />
                     Review Flagged Content
                   </Button>
@@ -209,7 +236,9 @@ const AdminDashboard = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>Latest administrative actions</CardDescription>
+                  <CardDescription>
+                    Latest administrative actions
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -237,6 +266,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="users">
             <UserManager />
+          </TabsContent>
+
+          <TabsContent value="content">
+            <ContentManager />
           </TabsContent>
 
           <TabsContent value="analytics">
