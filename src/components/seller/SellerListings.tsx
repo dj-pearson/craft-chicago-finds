@@ -1,34 +1,35 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useCityContext } from "@/hooks/useCityContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { 
+  Edit, 
+  Eye, 
+  MoreHorizontal, 
+  Search, 
+  Package,
+  DollarSign,
+  TrendingUp,
+  AlertCircle
+} from "lucide-react";
 import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
-  Eye, 
-  Heart, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
-  ToggleLeft, 
-  ToggleRight,
-  Search,
-  Plus
-} from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 interface Listing {
   id: string;
   title: string;
-  description: string | null;
+  description: string;
   price: number;
   status: string;
   images: string[];
@@ -36,298 +37,280 @@ interface Listing {
   inventory_count: number;
   created_at: string;
   updated_at: string;
-  category: {
+  category_id: string;
+  categories?: {
     name: string;
-  } | null;
+  };
 }
 
-interface SellerListingsProps {
-  onStatsUpdate: () => void;
-}
-
-export const SellerListings = ({ onStatsUpdate }: SellerListingsProps) => {
+export const SellerListings = () => {
   const { user } = useAuth();
-  const { currentCity } = useCityContext();
+  const navigate = useNavigate();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
+  useEffect(() => {
+    if (user) {
+      fetchListings();
+    }
+  }, [user]);
+
   const fetchListings = async () => {
-    if (!user || !currentCity) return;
+    if (!user) return;
 
     try {
+      setLoading(true);
+      
       const { data, error } = await supabase
-        .from("listings")
+        .from('listings')
         .select(`
-          id,
-          title,
-          description,
-          price,
-          status,
-          images,
-          view_count,
-          inventory_count,
-          created_at,
-          updated_at,
-          category:categories(name)
+          *,
+          categories (
+            name
+          )
         `)
-        .eq("seller_id", user.id)
-        .eq("city_id", currentCity.id)
-        .order("created_at", { ascending: false });
+        .eq('seller_id', user.id)
+        .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error("Error fetching listings:", error);
-        toast.error("Failed to fetch listings");
-        return;
-      }
+      if (error) throw error;
 
       setListings(data || []);
     } catch (error) {
-      console.error("Error fetching listings:", error);
-      toast.error("Failed to fetch listings");
+      console.error('Error fetching listings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load your listings.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchListings();
-  }, [user, currentCity]);
-
-  const toggleListingStatus = async (listingId: string, currentStatus: string) => {
-    const newStatus = currentStatus === "active" ? "inactive" : "active";
-    
+  const updateListingStatus = async (listingId: string, newStatus: string) => {
     try {
       const { error } = await supabase
-        .from("listings")
-        .update({ status: newStatus })
-        .eq("id", listingId);
+        .from('listings')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', listingId);
 
-      if (error) {
-        console.error("Error updating listing status:", error);
-        toast.error("Failed to update listing status");
-        return;
-      }
+      if (error) throw error;
 
-      toast.success(`Listing ${newStatus === "active" ? "activated" : "deactivated"}`);
-      fetchListings();
-      onStatsUpdate();
+      setListings(prev => 
+        prev.map(listing => 
+          listing.id === listingId 
+            ? { ...listing, status: newStatus as any }
+            : listing
+        )
+      );
+
+      toast({
+        title: "Status updated",
+        description: `Listing status changed to ${newStatus}.`,
+      });
     } catch (error) {
-      console.error("Error updating listing status:", error);
-      toast.error("Failed to update listing status");
-    }
-  };
-
-  const deleteListing = async (listingId: string) => {
-    if (!confirm("Are you sure you want to delete this listing? This action cannot be undone.")) {
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from("listings")
-        .delete()
-        .eq("id", listingId);
-
-      if (error) {
-        console.error("Error deleting listing:", error);
-        toast.error("Failed to delete listing");
-        return;
-      }
-
-      toast.success("Listing deleted successfully");
-      fetchListings();
-      onStatsUpdate();
-    } catch (error) {
-      console.error("Error deleting listing:", error);
-      toast.error("Failed to delete listing");
+      console.error('Error updating listing status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update listing status.",
+        variant: "destructive"
+      });
     }
   };
 
   const filteredListings = listings.filter(listing => {
-    const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         listing.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         listing.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || listing.status === statusFilter;
+    
     return matchesSearch && matchesStatus;
   });
 
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      draft: { variant: "outline" as const, text: "Draft" },
+      active: { variant: "default" as const, text: "Active" },
+      sold: { variant: "secondary" as const, text: "Sold" },
+      inactive: { variant: "destructive" as const, text: "Inactive" }
+    };
+
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
+    
+    return (
+      <Badge variant={config.variant}>
+        {config.text}
+      </Badge>
+    );
+  };
+
   if (loading) {
     return (
-      <div className="text-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-        <p className="mt-4 text-muted-foreground">Loading listings...</p>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>My Listings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex items-center space-x-4 p-4 border rounded-lg animate-pulse">
+                <div className="w-16 h-16 bg-muted rounded-lg"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-muted rounded w-3/4"></div>
+                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">My Listings</h2>
-          <p className="text-muted-foreground">Manage your product listings</p>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Package className="h-5 w-5" />
+          My Listings ({listings.length})
+        </CardTitle>
+        
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search listings..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="sold">Sold</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      </div>
+      </CardHeader>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search listings..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              Status: {statusFilter === "all" ? "All" : statusFilter}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setStatusFilter("all")}>
-              All
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter("active")}>
-              Active
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter("draft")}>
-              Draft
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter("inactive")}>
-              Inactive
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {/* Listings Grid */}
-      {filteredListings.length === 0 ? (
-        <Card className="text-center py-12">
-          <CardContent>
-            <div className="text-center space-y-4">
-              <div className="mx-auto w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
-                <Plus className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">No listings found</h3>
-                <p className="text-muted-foreground">
-                  {searchQuery || statusFilter !== "all" 
-                    ? "Try adjusting your search or filters" 
-                    : "Create your first listing to get started"
-                  }
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredListings.map((listing) => (
-            <Card key={listing.id} className="overflow-hidden">
-              <div className="aspect-video bg-muted relative">
-                {listing.images && listing.images.length > 0 ? (
-                  <img
-                    src={`${supabase.storage.from('product-images').getPublicUrl(listing.images[0]).data.publicUrl}`}
-                    alt={listing.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    No Image
+      <CardContent>
+        {filteredListings.length === 0 ? (
+          <div className="text-center py-12">
+            <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">
+              {listings.length === 0 ? "No listings yet" : "No listings match your search"}
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              {listings.length === 0 
+                ? "Create your first listing to start selling on the marketplace."
+                : "Try adjusting your search or filter criteria."
+              }
+            </p>
+            {listings.length === 0 && (
+              <Button onClick={() => navigate("/create-listing")}>
+                Create Your First Listing
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredListings.map((listing) => (
+              <div key={listing.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                <div className="flex items-start gap-4">
+                  {/* Listing Image */}
+                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                    {listing.images?.[0] ? (
+                      <img 
+                        src={listing.images[0]} 
+                        alt={listing.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                    )}
                   </div>
-                )}
-                <div className="absolute top-2 left-2">
-                  <Badge 
-                    variant={listing.status === "active" ? "default" : 
-                            listing.status === "draft" ? "secondary" : "outline"}
-                  >
-                    {listing.status}
-                  </Badge>
-                </div>
-                <div className="absolute top-2 right-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit Listing
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => toggleListingStatus(listing.id, listing.status)}
-                      >
-                        {listing.status === "active" ? (
-                          <>
-                            <ToggleLeft className="mr-2 h-4 w-4" />
-                            Deactivate
-                          </>
-                        ) : (
-                          <>
-                            <ToggleRight className="mr-2 h-4 w-4" />
-                            Activate
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => deleteListing(listing.id)}
-                        className="text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-              
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg line-clamp-1">{listing.title}</CardTitle>
-                    <CardDescription className="line-clamp-2">
-                      {listing.description || "No description"}
-                    </CardDescription>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold text-lg">
-                    ${listing.price.toFixed(2)}
-                  </span>
-                  {listing.category && (
-                    <Badge variant="outline">{listing.category.name}</Badge>
-                  )}
-                </div>
-              </CardHeader>
 
-              <CardContent className="pt-0">
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1">
-                      <Eye className="h-4 w-4" />
-                      <span>{listing.view_count || 0}</span>
+                  {/* Listing Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h3 className="font-semibold text-lg truncate">{listing.title}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {listing.categories?.name} • Created {new Date(listing.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 ml-4">
+                        {getStatusBadge(listing.status)}
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => navigate(`/listing/${listing.id}`)}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/edit-listing/${listing.id}`)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            {listing.status === 'active' && (
+                              <DropdownMenuItem onClick={() => updateListingStatus(listing.id, 'inactive')}>
+                                <AlertCircle className="h-4 w-4 mr-2" />
+                                Deactivate
+                              </DropdownMenuItem>
+                            )}
+                            {listing.status === 'inactive' && (
+                              <DropdownMenuItem onClick={() => updateListingStatus(listing.id, 'active')}>
+                                <TrendingUp className="h-4 w-4 mr-2" />
+                                Activate
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Heart className="h-4 w-4" />
-                      <span>0</span>
+
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                      {listing.description}
+                    </p>
+
+                    {/* Stats */}
+                    <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <DollarSign className="h-4 w-4" />
+                        <span className="font-medium">${listing.price}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Eye className="h-4 w-4" />
+                        <span>{listing.view_count || 0} views</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Package className="h-4 w-4" />
+                        <span>{listing.inventory_count || 0} in stock</span>
+                      </div>
                     </div>
                   </div>
-                  <span>Stock: {listing.inventory_count}</span>
                 </div>
-                <div className="mt-2 text-xs text-muted-foreground">
-                  Created {new Date(listing.created_at).toLocaleDateString()}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };

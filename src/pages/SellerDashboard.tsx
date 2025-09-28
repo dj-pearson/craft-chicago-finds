@@ -1,421 +1,343 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { useCityContext } from "@/hooks/useCityContext";
-import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SellerAnalytics } from "@/components/seller/SellerAnalytics";
+import { SellerListings } from "@/components/seller/SellerListings";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
   Plus, 
   Package, 
-  BarChart3, 
-  Settings, 
-  Edit, 
-  Eye, 
-  Trash2,
-  ArrowLeft,
-  Store
+  TrendingUp, 
+  MessageSquare, 
+  DollarSign,
+  Eye,
+  ShoppingCart,
+  Star
 } from "lucide-react";
-import { toast } from "sonner";
-
-interface Listing {
-  id: string;
-  title: string;
-  description: string | null;
-  price: number;
-  status: string;
-  images: string[];
-  view_count: number;
-  inventory_count: number;
-  category_id: string | null;
-  created_at: string;
-  updated_at: string;
-  categories?: {
-    name: string;
-    slug: string;
-  };
-}
+import { toast } from "@/hooks/use-toast";
 
 interface SellerStats {
-  totalListings: number;
-  activeListings: number;
-  totalViews: number;
-  totalOrders: number;
-  monthlyRevenue: number;
+  total_listings: number;
+  active_listings: number;
+  total_views: number;
+  total_orders: number;
+  total_revenue: number;
+  pending_orders: number;
+  messages_count: number;
+  average_rating: number;
 }
 
-const SellerDashboard = () => {
-  const { user, profile } = useAuth();
-  const { currentCity } = useCityContext();
+export default function SellerDashboard() {
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [stats, setStats] = useState<SellerStats>({
-    totalListings: 0,
-    activeListings: 0,
-    totalViews: 0,
-    totalOrders: 0,
-    monthlyRevenue: 0
-  });
+  const [stats, setStats] = useState<SellerStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [isSellerVerified, setIsSellerVerified] = useState(false);
 
   useEffect(() => {
-    if (!user) {
+    if (!authLoading && !user) {
       navigate("/auth");
       return;
     }
 
-    if (!profile?.is_seller) {
-      toast.error("You need to be a seller to access this dashboard");
-      navigate("/");
-      return;
+    if (user) {
+      checkSellerStatus();
+      fetchSellerStats();
     }
+  }, [user, authLoading, navigate]);
 
-    fetchListings();
-    fetchStats();
-  }, [user, profile, navigate]);
-
-  const fetchListings = async () => {
-    if (!user || !currentCity) return;
+  const checkSellerStatus = async () => {
+    if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from("listings")
-        .select(`
-          *,
-          categories (
-            name,
-            slug
-          )
-        `)
-        .eq("seller_id", user.id)
-        .eq("city_id", currentCity.id)
-        .order("created_at", { ascending: false });
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('is_seller, seller_verified')
+        .eq('user_id', user.id)
+        .single();
 
-      if (error) {
-        console.error("Error fetching listings:", error);
-        toast.error("Failed to fetch your listings");
+      if (error) throw error;
+
+      if (!profile?.is_seller) {
+        toast({
+          title: "Seller account required",
+          description: "Please enable seller mode in your profile settings.",
+          variant: "destructive"
+        });
+        navigate("/profile");
         return;
       }
 
-      setListings(data || []);
+      setIsSellerVerified(profile.seller_verified || false);
     } catch (error) {
-      console.error("Error fetching listings:", error);
-      toast.error("Failed to fetch your listings");
+      console.error('Error checking seller status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to verify seller status.",
+        variant: "destructive"
+      });
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  const fetchSellerStats = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+
+      // Get listing stats
+      const { data: listings, error: listingsError } = await supabase
+        .from('listings')
+        .select('id, status, view_count, price')
+        .eq('seller_id', user.id);
+
+      if (listingsError) throw listingsError;
+
+      // Get order stats
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('id, status, total_amount')
+        .eq('seller_id', user.id);
+
+      if (ordersError) throw ordersError;
+
+      // Get message stats
+      const { data: messages, error: messagesError } = await supabase
+        .from('messages')
+        .select('id')
+        .eq('receiver_id', user.id);
+
+      if (messagesError) throw messagesError;
+
+      // Get review stats
+      const { data: reviews, error: reviewsError } = await supabase
+        .from('reviews')
+        .select('rating')
+        .eq('reviewed_user_id', user.id)
+        .eq('review_type', 'seller');
+
+      if (reviewsError) throw reviewsError;
+
+      const totalListings = listings?.length || 0;
+      const activeListings = listings?.filter(l => l.status === 'active').length || 0;
+      const totalViews = listings?.reduce((sum, l) => sum + (l.view_count || 0), 0) || 0;
+      const totalOrders = orders?.length || 0;
+      const totalRevenue = orders?.reduce((sum, o) => sum + parseFloat(String(o.total_amount || '0')), 0) || 0;
+      const pendingOrders = orders?.filter(o => o.status === 'pending').length || 0;
+      const messagesCount = messages?.length || 0;
+      const averageRating = reviews?.length 
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length 
+        : 0;
+
+      setStats({
+        total_listings: totalListings,
+        active_listings: activeListings,
+        total_views: totalViews,
+        total_orders: totalOrders,
+        total_revenue: totalRevenue,
+        pending_orders: pendingOrders,
+        messages_count: messagesCount,
+        average_rating: averageRating
+      });
+
+    } catch (error) {
+      console.error('Error fetching seller stats:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load dashboard data.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchStats = async () => {
-    if (!user) return;
-
-    try {
-      // Get basic listing stats
-      const totalViews = listings.reduce((sum, listing) => sum + (listing.view_count || 0), 0);
-      
-      setStats({
-        totalListings: listings.length,
-        activeListings: listings.filter(l => l.status === 'active').length,
-        totalViews,
-        totalOrders: 0, // TODO: Calculate from orders table
-        monthlyRevenue: 0 // TODO: Calculate from orders table
-      });
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-    }
-  };
-
-  const deleteListing = async (listingId: string) => {
-    if (!confirm("Are you sure you want to delete this listing?")) return;
-
-    try {
-      const { error } = await supabase
-        .from("listings")
-        .delete()
-        .eq("id", listingId)
-        .eq("seller_id", user?.id);
-
-      if (error) {
-        console.error("Error deleting listing:", error);
-        toast.error("Failed to delete listing");
-        return;
-      }
-
-      toast.success("Listing deleted successfully");
-      fetchListings();
-    } catch (error) {
-      console.error("Error deleting listing:", error);
-      toast.error("Failed to delete listing");
-    }
-  };
-
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'active': return 'default';
-      case 'draft': return 'secondary';
-      case 'sold': return 'outline';
-      case 'inactive': return 'destructive';
-      default: return 'secondary';
-    }
-  };
-
-  if (loading) {
+  if (authLoading || profileLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="flex items-center justify-center py-16">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-muted-foreground">Loading your dashboard...</p>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
         </div>
-        <Footer />
       </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
-      {/* Header */}
-      <div className="border-b bg-muted/50">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/")}
-                className="gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Marketplace
-              </Button>
-              <div>
-                <div className="flex items-center gap-2">
-                  <Store className="h-6 w-6 text-primary" />
-                  <h1 className="text-2xl font-bold">Seller Dashboard</h1>
-                </div>
-                <p className="text-muted-foreground">
-                  {currentCity?.name} • {profile?.display_name}
-                </p>
-              </div>
+      <main className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2 flex items-center gap-3">
+                <Package className="h-8 w-8" />
+                Seller Dashboard
+              </h1>
+              <p className="text-muted-foreground">
+                Manage your listings and track your business performance
+              </p>
             </div>
-            <Button onClick={() => navigate("/dashboard/listing/new")} className="gap-2">
-              <Plus className="h-4 w-4" />
-              New Listing
-            </Button>
+            <div className="flex items-center gap-3">
+              {!isSellerVerified && (
+                <Badge variant="outline" className="text-orange-600 border-orange-600">
+                  Pending Verification
+                </Badge>
+              )}
+              <Button onClick={() => navigate("/create-listing")} className="gap-2">
+                <Plus className="h-4 w-4" />
+                New Listing
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview" className="gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="listings" className="gap-2">
-              <Package className="h-4 w-4" />
-              My Listings
-            </TabsTrigger>
-            <TabsTrigger value="orders" className="gap-2">
-              <Package className="h-4 w-4" />
-              Orders
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
-              <Settings className="h-4 w-4" />
-              Settings
-            </TabsTrigger>
+        {/* Stats Overview */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {[...Array(8)].map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-6">
+                  <div className="animate-pulse">
+                    <div className="w-8 h-8 bg-muted rounded mb-2"></div>
+                    <div className="h-6 bg-muted rounded mb-1"></div>
+                    <div className="h-4 bg-muted rounded w-2/3"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : stats ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <Package className="h-8 w-8 text-blue-600" />
+                  <div>
+                    <p className="text-2xl font-bold">{stats.total_listings}</p>
+                    <p className="text-sm text-muted-foreground">Total Listings</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <TrendingUp className="h-8 w-8 text-green-600" />
+                  <div>
+                    <p className="text-2xl font-bold">{stats.active_listings}</p>
+                    <p className="text-sm text-muted-foreground">Active Listings</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <Eye className="h-8 w-8 text-purple-600" />
+                  <div>
+                    <p className="text-2xl font-bold">{stats.total_views.toLocaleString()}</p>
+                    <p className="text-sm text-muted-foreground">Total Views</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <ShoppingCart className="h-8 w-8 text-orange-600" />
+                  <div>
+                    <p className="text-2xl font-bold">{stats.total_orders}</p>
+                    <p className="text-sm text-muted-foreground">Total Orders</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <DollarSign className="h-8 w-8 text-green-600" />
+                  <div>
+                    <p className="text-2xl font-bold">${stats.total_revenue.toFixed(2)}</p>
+                    <p className="text-sm text-muted-foreground">Total Revenue</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <Package className="h-8 w-8 text-red-600" />
+                  <div>
+                    <p className="text-2xl font-bold">{stats.pending_orders}</p>
+                    <p className="text-sm text-muted-foreground">Pending Orders</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <MessageSquare className="h-8 w-8 text-blue-600" />
+                  <div>
+                    <p className="text-2xl font-bold">{stats.messages_count}</p>
+                    <p className="text-sm text-muted-foreground">Messages</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <Star className="h-8 w-8 text-yellow-600" />
+                  <div>
+                    <p className="text-2xl font-bold">{stats.average_rating.toFixed(1)}</p>
+                    <p className="text-sm text-muted-foreground">Average Rating</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : null}
+
+        {/* Main Content */}
+        <Tabs defaultValue="listings" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="listings">My Listings</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Listings</CardTitle>
-                  <Package className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalListings}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {stats.activeListings} active
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-                  <Eye className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalViews}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Across all listings
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-                  <Package className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalOrders}</div>
-                  <p className="text-xs text-muted-foreground">
-                    All time orders
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Revenue</CardTitle>
-                  <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">${stats.monthlyRevenue}</div>
-                  <p className="text-xs text-muted-foreground">
-                    This month
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recent Activity */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Your latest listing activity</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
-                  <p>No recent activity to show</p>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="listings">
+            <SellerListings />
           </TabsContent>
 
-          <TabsContent value="listings" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold">My Listings</h2>
-                <p className="text-muted-foreground">Manage your product listings</p>
-              </div>
-              <Button onClick={() => navigate("/dashboard/listing/new")} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Add New Listing
-              </Button>
-            </div>
-
-            {listings.length === 0 ? (
-              <Card>
-                <CardContent className="text-center py-16">
-                  <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No listings yet</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Start selling by creating your first product listing
-                  </p>
-                  <Button onClick={() => navigate("/dashboard/listing/new")}>
-                    Create Your First Listing
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {listings.map((listing) => (
-                  <Card key={listing.id}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="line-clamp-2">{listing.title}</CardTitle>
-                          <CardDescription className="line-clamp-2">
-                            {listing.categories?.name}
-                          </CardDescription>
-                        </div>
-                        <Badge variant={getStatusBadgeVariant(listing.status)}>
-                          {listing.status}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold">${listing.price}</span>
-                        <div className="text-right text-sm text-muted-foreground">
-                          <div>{listing.view_count} views</div>
-                          <div>Stock: {listing.inventory_count}</div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate(`/dashboard/listing/${listing.id}/edit`)}
-                          className="gap-2 flex-1"
-                        >
-                          <Edit className="h-4 w-4" />
-                          Edit
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => deleteListing(listing.id)}
-                          className="gap-2"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="orders">
-            <Card>
-              <CardHeader>
-                <CardTitle>Orders</CardTitle>
-                <CardDescription>Manage your customer orders</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <p>Order management coming soon...</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>Seller Settings</CardTitle>
-                <CardDescription>Configure your seller preferences</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <p>Seller settings coming soon...</p>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="analytics">
+            <SellerAnalytics />
           </TabsContent>
         </Tabs>
       </main>
-      
       <Footer />
     </div>
   );
-};
-
-export default SellerDashboard;
+}
