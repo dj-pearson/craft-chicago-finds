@@ -70,7 +70,18 @@ export const FeaturedContent = ({
         .from("featured_slots")
         .select(
           `
-          *,
+          id,
+          slot_type,
+          title,
+          description,
+          image_url,
+          action_url,
+          action_text,
+          listing_id,
+          category_id,
+          sort_order,
+          start_date,
+          end_date,
           listing:listings(id, title, price, images),
           category:categories(id, name, slug)
         `
@@ -88,7 +99,25 @@ export const FeaturedContent = ({
         return;
       }
 
-      setFeaturedSlots(data || []);
+      // Cast the data to our FeaturedSlot type
+      const typedData = (data || []).map((item: any) => ({
+        id: item.id,
+        slot_type: item.slot_type,
+        title: item.title,
+        description: item.description,
+        image_url: item.image_url,
+        action_url: item.action_url,
+        action_text: item.action_text,
+        listing_id: item.listing_id,
+        category_id: item.category_id,
+        sort_order: item.sort_order,
+        start_date: item.start_date,
+        end_date: item.end_date,
+        listing: item.listing?.[0] || null,
+        category: item.category?.[0] || null,
+      })) as FeaturedSlot[];
+
+      setFeaturedSlots(typedData);
     } catch (error) {
       console.error("Error fetching featured content:", error);
     } finally {

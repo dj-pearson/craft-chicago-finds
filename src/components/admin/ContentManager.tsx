@@ -132,7 +132,24 @@ export const ContentManager = () => {
       // Fetch featured slots for selected city
       const { data: slotsData, error: slotsError } = await supabase
         .from("featured_slots")
-        .select("*")
+        .select(`
+          id,
+          city_id,
+          slot_type,
+          title,
+          description,
+          image_url,
+          action_url,
+          action_text,
+          listing_id,
+          category_id,
+          sort_order,
+          is_active,
+          start_date,
+          end_date,
+          created_at,
+          updated_at
+        `)
         .eq("city_id", selectedCity)
         .order("sort_order");
 
@@ -180,7 +197,16 @@ export const ContentManager = () => {
     try {
       const { error } = await supabase.from("featured_slots").insert({
         city_id: selectedCity,
-        ...formData,
+        slot_type: formData.slot_type,
+        title: formData.title,
+        description: formData.description || null,
+        image_url: formData.image_url || null,
+        action_url: formData.action_url || null,
+        action_text: formData.action_text || null,
+        listing_id: formData.listing_id || null,
+        category_id: formData.category_id || null,
+        sort_order: formData.sort_order,
+        is_active: formData.is_active,
         start_date: formData.start_date || null,
         end_date: formData.end_date || null,
       });
@@ -215,7 +241,16 @@ export const ContentManager = () => {
       const { error } = await supabase
         .from("featured_slots")
         .update({
-          ...formData,
+          slot_type: formData.slot_type,
+          title: formData.title,
+          description: formData.description || null,
+          image_url: formData.image_url || null,
+          action_url: formData.action_url || null,
+          action_text: formData.action_text || null,
+          listing_id: formData.listing_id || null,
+          category_id: formData.category_id || null,
+          sort_order: formData.sort_order,
+          is_active: formData.is_active,
           start_date: formData.start_date || null,
           end_date: formData.end_date || null,
           updated_at: new Date().toISOString(),
@@ -293,7 +328,7 @@ export const ContentManager = () => {
 
   const resetForm = () => {
     setFormData({
-      slot_type: "featured_listing",
+      slot_type: "featured_listing" as "hero" | "featured_category" | "featured_listing" | "seasonal",
       title: "",
       description: "",
       image_url: "",
