@@ -57,14 +57,6 @@ const Landing = () => {
             <Link to="/chicago" className="text-sm font-medium hover:text-primary transition-colors">
               Shop Chicago
             </Link>
-            {isAdmin && (
-              <Button asChild size="sm" variant="default" className="gap-1">
-                <Link to="/admin">
-                  <Settings className="h-4 w-4" />
-                  Admin
-                </Link>
-              </Button>
-            )}
             {user ? (
               <Button asChild variant="outline" size="sm">
                 <Link to="/chicago">Go to Marketplace</Link>
