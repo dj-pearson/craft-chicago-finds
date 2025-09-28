@@ -71,7 +71,6 @@ export const FeaturedMakers = () => {
                       src={maker.image} 
                       alt={maker.name}
                       className="w-full h-full object-cover"
-                      placeholder="Loading..."
                     />
                     <AvatarFallback className="bg-gradient-primary text-primary-foreground">
                       {maker.name.split(' ').map(n => n[0]).join('')}

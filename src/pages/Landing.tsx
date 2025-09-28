@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
+import { Header } from "@/components/Header";
 
 interface City {
   id: string;
@@ -29,7 +30,8 @@ const Landing = () => {
         const { data, error } = await supabase
           .from("cities")
           .select("*")
-          .order("is_active DESC, name");
+          .order("is_active", { ascending: false })
+          .order("name", { ascending: true });
 
         if (error) {
           console.error("Error fetching cities:", error);
@@ -49,26 +51,7 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="font-bold text-xl">Local Makers</div>
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/chicago" className="text-sm font-medium hover:text-primary transition-colors">
-              Shop Chicago
-            </Link>
-            {user ? (
-              <Button asChild variant="outline" size="sm">
-                <Link to="/chicago">Go to Marketplace</Link>
-              </Button>
-            ) : (
-              <Button asChild variant="outline" size="sm">
-                <Link to="/auth">Sign In</Link>
-              </Button>
-            )}
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <main>
         {/* Hero Section */}

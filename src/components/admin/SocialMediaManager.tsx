@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase as supabaseClient } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -47,6 +47,8 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
+const supabase: any = supabaseClient;
+
 interface SocialMediaCampaign {
   id: string;
   city_id: string;
@@ -78,6 +80,7 @@ interface SocialMediaPost {
   status: string;
   ai_generated: boolean;
   ai_prompt?: string;
+  webhook_sent_at?: string | null;
   created_at: string;
 }
 
