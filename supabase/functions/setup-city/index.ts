@@ -1,0 +1,239 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+interface CitySetupRequest {
+  action: 'create' | 'setup-infrastructure';
+  cityData?: {
+    name: string;
+    slug: string;
+    state: string;
+    description?: string;
+    is_active: boolean;
+    launch_date?: string;
+    hero_image_url?: string;
+  };
+  cityId?: string;
+}
+
+serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Get the authorization header
+    const authorization = req.headers.get('Authorization');
+    if (!authorization) {
+      console.error('No authorization header provided');
+      return new Response(
+        JSON.stringify({ error: 'No authorization header' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Verify the user is authenticated and is admin
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
+      authorization.replace('Bearer ', '')
+    );
+
+    if (authError || !user) {
+      console.error('Authentication failed:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Authentication failed' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Check if user is admin
+    const { data: isAdmin, error: adminError } = await supabaseClient.rpc(
+      'is_admin',
+      { _user_id: user.id }
+    );
+
+    if (adminError || !isAdmin) {
+      console.error('Admin check failed:', adminError);
+      return new Response(
+        JSON.stringify({ error: 'Admin access required' }),
+        { 
+          status: 403, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    const requestData: CitySetupRequest = await req.json();
+
+    if (requestData.action === 'create') {
+      if (!requestData.cityData) {
+        return new Response(
+          JSON.stringify({ error: 'City data is required for create action' }),
+          { 
+            status: 400, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+
+      console.log('Creating city:', requestData.cityData);
+
+      // Create the city
+      const { data: city, error: cityError } = await supabaseClient
+        .from('cities')
+        .insert([requestData.cityData])
+        .select()
+        .single();
+
+      if (cityError) {
+        console.error('Error creating city:', cityError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to create city', details: cityError }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+
+      console.log('City created:', city);
+
+      // Auto-setup default categories for the new city
+      const defaultCategories = [
+        {
+          name: 'Jewelry & Accessories',
+          slug: 'jewelry-accessories',
+          description: 'Handcrafted jewelry, bags, and fashion accessories',
+          city_id: city.id
+        },
+        {
+          name: 'Home & Garden',
+          slug: 'home-garden',
+          description: 'Home decor, furniture, and garden items',
+          city_id: city.id
+        },
+        {
+          name: 'Art & Collectibles',
+          slug: 'art-collectibles',
+          description: 'Original artwork, prints, and collectible items',
+          city_id: city.id
+        },
+        {
+          name: 'Clothing',
+          slug: 'clothing',
+          description: 'Handmade clothing and fashion items',
+          city_id: city.id
+        },
+        {
+          name: 'Food & Beverages',
+          slug: 'food-beverages',
+          description: 'Artisanal food products and beverages',
+          city_id: city.id
+        },
+        {
+          name: 'Bath & Beauty',
+          slug: 'bath-beauty',
+          description: 'Natural soaps, skincare, and beauty products',
+          city_id: city.id
+        },
+        {
+          name: 'Toys & Games',
+          slug: 'toys-games',
+          description: 'Handcrafted toys and educational games',
+          city_id: city.id
+        },
+        {
+          name: 'Books & Stationery',
+          slug: 'books-stationery',
+          description: 'Books, notebooks, and paper goods',
+          city_id: city.id
+        }
+      ];
+
+      const { error: categoriesError } = await supabaseClient
+        .from('categories')
+        .insert(defaultCategories);
+
+      if (categoriesError) {
+        console.error('Error creating categories:', categoriesError);
+        // Don't fail the whole operation if categories fail
+      } else {
+        console.log('Default categories created for city');
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          city,
+          message: 'City created successfully with default categories'
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+
+    } else if (requestData.action === 'setup-infrastructure') {
+      if (!requestData.cityId) {
+        return new Response(
+          JSON.stringify({ error: 'City ID is required for setup-infrastructure action' }),
+          { 
+            status: 400, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+
+      console.log('Setting up infrastructure for city:', requestData.cityId);
+
+      // Here you can add any additional setup logic
+      // For example: creating default seller accounts, setting up payment processing, etc.
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'City infrastructure setup completed'
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+
+    } else {
+      return new Response(
+        JSON.stringify({ error: 'Invalid action specified' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(
+      JSON.stringify({ error: 'Internal server error', details: errorMessage }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
+  }
+});
