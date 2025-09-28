@@ -53,11 +53,11 @@ const NationalMarketplace = () => {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-foreground">National Marketplace</h1>
-                  <p className="text-sm text-muted-foreground">Discover makers from all cities</p>
+                  <p className="text-sm text-muted-foreground">Discover makers who ship nationwide</p>
                 </div>
               </div>
               <Badge variant="secondary" className="text-sm">
-                All Cities
+                Ships Nationwide
               </Badge>
             </div>
           </div>
@@ -79,7 +79,8 @@ const NationalMarketplace = () => {
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-4">Explore Local Marketplaces</h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Want to focus on makers in your area? Browse city-specific marketplaces for local pickup and community connections.
+              Want to shop locally? Browse city-specific marketplaces for local pickup, 
+              in-person meetings, and community connections with makers in your area.
             </p>
             <Button 
               onClick={() => navigate("/")}

@@ -40,14 +40,16 @@ export const NationalFeaturedMakers = () => {
     try {
       setLoading(true);
       
-      // Get featured makers from all cities
+      // Get featured makers who offer national shipping
       const { data, error } = await supabase
         .from('featured_makers')
         .select(`
           *,
-          cities!inner(name, slug)
+          cities!inner(name, slug),
+          profiles!inner(ships_nationally)
         `)
         .eq('is_featured', true)
+        .eq('profiles.ships_nationally', true)
         .gte('featured_until', new Date().toISOString().split('T')[0])
         .order('sort_order')
         .limit(9);

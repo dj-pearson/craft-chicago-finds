@@ -71,7 +71,8 @@ const NationalBrowse = () => {
       let query = supabase
         .from('listings')
         .select('*')
-        .eq('status', 'active');
+        .eq('status', 'active')
+        .eq('national_shipping_available', true); // Only show items with national shipping
 
       // Apply category filter
       if (currentCategory) {
@@ -117,7 +118,7 @@ const NationalBrowse = () => {
                     {makersOnly ? 'All Makers' : currentCategory ? currentCategory.name : 'Browse All'}
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    {makersOnly ? 'Discover makers' : 'Shop handmade goods'} from all cities
+                    {makersOnly ? 'Discover makers who ship nationwide' : 'Shop handmade goods with national shipping'}
                   </p>
                 </div>
               </div>

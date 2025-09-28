@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { SellerAnalytics } from "@/components/seller/SellerAnalytics";
 import { SellerListings } from "@/components/seller/SellerListings";
 import { StripeOnboarding } from "@/components/seller/StripeOnboarding";
-import { SubscriptionManagement } from "@/components/subscription/SubscriptionManagement";
+import { ShippingSettings } from "@/components/seller/ShippingSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,7 +20,10 @@ import {
   DollarSign,
   Eye,
   ShoppingCart,
-  Star
+  Star,
+  BarChart3,
+  CreditCard,
+  Truck
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -358,11 +361,27 @@ export default function SellerDashboard() {
 
         {/* Main Content */}
         <Tabs defaultValue="listings" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="listings">My Listings</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="subscription">Subscription</TabsTrigger>
-            <TabsTrigger value="payments">Payments</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+            <TabsTrigger value="listings" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Package className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">My Listings</span>
+              <span className="sm:hidden">Items</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Analytics</span>
+              <span className="sm:hidden">Stats</span>
+            </TabsTrigger>
+            <TabsTrigger value="shipping" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Truck className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Shipping</span>
+              <span className="sm:hidden">Ship</span>
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Payments</span>
+              <span className="sm:hidden">Pay</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="listings">
@@ -373,19 +392,13 @@ export default function SellerDashboard() {
             <SellerAnalytics />
           </TabsContent>
 
-          <TabsContent value="subscription">
-            <SubscriptionManagement />
+          
+          <TabsContent value="shipping">
+            <ShippingSettings />
           </TabsContent>
 
           <TabsContent value="payments">
-            <Card>
-              <CardHeader>
-                <CardTitle>Payment Settings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <StripeOnboarding />
-              </CardContent>
-            </Card>
+            <StripeOnboarding />
           </TabsContent>
         </Tabs>
       </main>

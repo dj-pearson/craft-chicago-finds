@@ -634,7 +634,9 @@ export type Database = {
           city_id: string | null
           created_at: string
           description: string | null
+          estimated_shipping_days: number | null
           featured: boolean
+          free_shipping_threshold: number | null
           id: string
           images: string[] | null
           inventory_count: number | null
@@ -642,10 +644,13 @@ export type Database = {
           moderated_at: string | null
           moderated_by: string | null
           moderation_notes: string | null
+          national_shipping_available: boolean | null
           pickup_location: string | null
           price: number
           seller_id: string
           shipping_available: boolean
+          shipping_cost: number | null
+          shipping_notes: string | null
           status: string
           tags: string[] | null
           title: string
@@ -657,7 +662,9 @@ export type Database = {
           city_id?: string | null
           created_at?: string
           description?: string | null
+          estimated_shipping_days?: number | null
           featured?: boolean
+          free_shipping_threshold?: number | null
           id?: string
           images?: string[] | null
           inventory_count?: number | null
@@ -665,10 +672,13 @@ export type Database = {
           moderated_at?: string | null
           moderated_by?: string | null
           moderation_notes?: string | null
+          national_shipping_available?: boolean | null
           pickup_location?: string | null
           price: number
           seller_id: string
           shipping_available?: boolean
+          shipping_cost?: number | null
+          shipping_notes?: string | null
           status?: string
           tags?: string[] | null
           title: string
@@ -680,7 +690,9 @@ export type Database = {
           city_id?: string | null
           created_at?: string
           description?: string | null
+          estimated_shipping_days?: number | null
           featured?: boolean
+          free_shipping_threshold?: number | null
           id?: string
           images?: string[] | null
           inventory_count?: number | null
@@ -688,10 +700,13 @@ export type Database = {
           moderated_at?: string | null
           moderated_by?: string | null
           moderation_notes?: string | null
+          national_shipping_available?: boolean | null
           pickup_location?: string | null
           price?: number
           seller_id?: string
           shipping_available?: boolean
+          shipping_cost?: number | null
+          shipping_notes?: string | null
           status?: string
           tags?: string[] | null
           title?: string
@@ -1079,8 +1094,10 @@ export type Database = {
           business_name: string | null
           city_id: string | null
           created_at: string
+          default_shipping_cost: number | null
           display_name: string | null
           email: string | null
+          free_shipping_threshold: number | null
           id: string
           is_seller: boolean
           last_seen_at: string | null
@@ -1090,6 +1107,8 @@ export type Database = {
           seller_categories: string[] | null
           seller_description: string | null
           seller_verified: boolean
+          shipping_policy: string | null
+          ships_nationally: boolean | null
           social_links: Json | null
           stripe_account_id: string | null
           stripe_customer_id: string | null
@@ -1105,8 +1124,10 @@ export type Database = {
           business_name?: string | null
           city_id?: string | null
           created_at?: string
+          default_shipping_cost?: number | null
           display_name?: string | null
           email?: string | null
+          free_shipping_threshold?: number | null
           id?: string
           is_seller?: boolean
           last_seen_at?: string | null
@@ -1116,6 +1137,8 @@ export type Database = {
           seller_categories?: string[] | null
           seller_description?: string | null
           seller_verified?: boolean
+          shipping_policy?: string | null
+          ships_nationally?: boolean | null
           social_links?: Json | null
           stripe_account_id?: string | null
           stripe_customer_id?: string | null
@@ -1131,8 +1154,10 @@ export type Database = {
           business_name?: string | null
           city_id?: string | null
           created_at?: string
+          default_shipping_cost?: number | null
           display_name?: string | null
           email?: string | null
+          free_shipping_threshold?: number | null
           id?: string
           is_seller?: boolean
           last_seen_at?: string | null
@@ -1142,6 +1167,8 @@ export type Database = {
           seller_categories?: string[] | null
           seller_description?: string | null
           seller_verified?: boolean
+          shipping_policy?: string | null
+          ships_nationally?: boolean | null
           social_links?: Json | null
           stripe_account_id?: string | null
           stripe_customer_id?: string | null
@@ -1238,6 +1265,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      shipping_zones: {
+        Row: {
+          created_at: string
+          estimated_days: number | null
+          free_shipping_threshold: number | null
+          id: string
+          is_active: boolean | null
+          seller_id: string
+          shipping_cost: number
+          states: string[]
+          updated_at: string
+          zone_name: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_days?: number | null
+          free_shipping_threshold?: number | null
+          id?: string
+          is_active?: boolean | null
+          seller_id: string
+          shipping_cost: number
+          states: string[]
+          updated_at?: string
+          zone_name: string
+        }
+        Update: {
+          created_at?: string
+          estimated_days?: number | null
+          free_shipping_threshold?: number | null
+          id?: string
+          is_active?: boolean | null
+          seller_id?: string
+          shipping_cost?: number
+          states?: string[]
+          updated_at?: string
+          zone_name?: string
+        }
+        Relationships: []
       }
       social_media_campaigns: {
         Row: {
@@ -1615,6 +1681,10 @@ export type Database = {
       calculate_category_growth_rate: {
         Args: { category_uuid: string; days_back?: number }
         Returns: number
+      }
+      check_shipping_availability: {
+        Args: { seller_uuid: string; target_state: string }
+        Returns: boolean
       }
       create_notification: {
         Args: {

@@ -49,7 +49,7 @@ export const NationalCategoryGrid = () => {
     try {
       setLoading(true);
 
-      // Fetch all active categories across all cities
+      // Fetch categories that have listings with national shipping
       const { data: categoriesData, error } = await supabase
         .from('categories')
         .select(`
@@ -74,12 +74,13 @@ export const NationalCategoryGrid = () => {
           const existing = categoryMap.get(key)!;
           existing.cities.push(cat.cities.name);
         } else {
-          // Get listing count for this category across all cities
+          // Get listing count for categories with national shipping available
           const { count: listingCount } = await supabase
             .from('listings')
             .select('*', { count: 'exact', head: true })
             .eq('category_id', cat.id)
-            .eq('status', 'active');
+            .eq('status', 'active')
+            .eq('national_shipping_available', true);
 
           categoryMap.set(key, {
             id: cat.id,
