@@ -144,7 +144,7 @@ const Landing = () => {
         {/* Features */}
         <section className="py-16 px-4">
           <div className="container mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">Why Choose Local Makers?</h2>
+            <h2 className="text-3xl font-bold text-center mb-12">Why Choose Craft Local?</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="text-center">
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">

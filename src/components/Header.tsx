@@ -33,10 +33,10 @@ export const Header = () => {
           <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="flex items-center space-x-2">
               <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xs sm:text-sm">CM</span>
+                <span className="text-primary-foreground font-bold text-xs sm:text-sm">CL</span>
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-lg xl:text-xl font-bold text-foreground">Chicago Makers</h1>
+                <h1 className="text-lg xl:text-xl font-bold text-foreground">Craft Local</h1>
                 <p className="text-xs text-muted-foreground -mt-1">Local Handmade Marketplace</p>
               </div>
             </div>

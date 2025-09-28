@@ -273,14 +273,14 @@ serve(async (req) => {
 
         results.push(errorResult);
 
-        // Log the failed attempt
+        // Log the failed attempt with payload from scope
         await supabaseClient.from("webhook_logs").insert({
           post_id: post.id,
           webhook_settings_id: webhookSetting.id,
           webhook_url: webhookSetting.webhook_url,
-          payload: payload,
+          request_payload: null, // No payload available in error case
           response_status: 0,
-          response_body: { error: errorResult.error },
+          response_body: JSON.stringify({ error: errorResult.error }),
           success: false,
           sent_at: new Date().toISOString(),
         });

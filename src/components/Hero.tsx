@@ -24,21 +24,21 @@ export const Hero = () => {
           {/* Badge */}
           <Badge 
             variant="secondary" 
-            className="mb-6 bg-white/20 text-white border-white/30 hover:bg-white/30"
-          >
-            <MapPin className="w-4 h-4 mr-2" />
-            {currentCity?.name || "Chicago"}'s Local Marketplace
+             className="mb-6 bg-white/20 text-white border-white/30 hover:bg-white/30"
+           >
+             <MapPin className="w-4 h-4 mr-2" />
+             {currentCity?.name || "Local"} Craft Marketplace
           </Badge>
 
           {/* Heading */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 leading-tight">
-            Discover
-            <span className="block text-accent">{currentCity?.name || "Chicago"} Makers</span>
+            Discover Local
+            <span className="block text-accent">Makers</span>
           </h1>
 
           {/* Subheading */}
           <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
-            Support local artisans and find unique handmade goods from talented makers across {currentCity?.name || "the Windy City"}.
+            Support local artisans and find unique handmade goods from talented makers in your community.
           </p>
 
           {/* Stats */}

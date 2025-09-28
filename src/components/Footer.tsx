@@ -11,19 +11,19 @@ export const Footer = () => {
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">CM</span>
+                <span className="text-primary-foreground font-bold text-sm">CL</span>
               </div>
               <div>
-                <h3 className="text-lg font-bold">Chicago Makers</h3>
+                <h3 className="text-lg font-bold">Craft Local</h3>
                 <p className="text-xs text-background/70">Local Handmade Marketplace</p>
               </div>
             </div>
             <p className="text-background/80 text-sm leading-relaxed mb-4">
-              Supporting local artisans and connecting Chicago with unique handmade goods since 2024.
+              Supporting local artisans and connecting communities with unique handmade goods.
             </p>
             <div className="flex items-center text-background/80 text-sm">
               <Heart className="w-4 h-4 mr-2 text-accent" />
-              Made with love in Chicago
+              Made with love for local communities
             </div>
           </div>
 
@@ -80,7 +80,7 @@ export const Footer = () => {
                 </div>
                 <div className="flex items-center">
                   <Mail className="w-4 h-4 mr-2" />
-                  hello@chicagomakers.com
+                  hello@craftlocal.net
                 </div>
                 <div className="flex items-center">
                   <Phone className="w-4 h-4 mr-2" />
@@ -95,7 +95,7 @@ export const Footer = () => {
         <div className="border-t border-background/20 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-background/60 text-sm">
-              © 2024 Chicago Makers. All rights reserved.
+              © 2024 Craft Local. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="text-background/60 hover:text-background transition-colors text-sm">
