@@ -14,6 +14,8 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 // Lazy load pages for better performance
 const Landing = lazy(() => import("./pages/Landing"));
+const NationalMarketplace = lazy(() => import("./pages/NationalMarketplace"));
+const NationalBrowse = lazy(() => import("./pages/NationalBrowse"));
 const City = lazy(() => import("./pages/City"));
 const Auth = lazy(() => import("./pages/Auth"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -57,6 +59,8 @@ const App = () => (
               <Suspense fallback={<LoadingSpinner />}>
                 <Routes>
                   <Route path="/" element={<Landing />} />
+                  <Route path="/marketplace" element={<NationalMarketplace />} />
+                  <Route path="/browse" element={<NationalBrowse />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/dashboard" element={<SellerDashboard />} />

@@ -55,7 +55,7 @@ export const Header = () => {
             <Button 
               variant="ghost" 
               className="text-sm font-medium h-auto p-2 hover:text-primary transition-colors"
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/marketplace")}
             >
               National Marketplace
             </Button>
@@ -170,7 +170,7 @@ export const Header = () => {
                 variant="ghost" 
                 className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium h-auto"
                 onClick={() => {
-                  navigate("/");
+                  navigate("/marketplace");
                   setIsMenuOpen(false);
                 }}
               >
