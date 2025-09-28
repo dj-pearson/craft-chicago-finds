@@ -2,41 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Chicago Makers Marketplace Design System
+All colors MUST be HSL. Chicago-inspired palette with artisanal warmth.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Base colors - warm whites and deep grays */
+    --background: 0 0% 99%;
+    --foreground: 215 25% 15%;
 
+    /* Cards and surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 215 25% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 215 25% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Chicago blue primary - inspired by city flag */
+    --primary: 204 86% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 204 86% 65%;
+    --primary-dark: 204 86% 35%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Warm earth secondary - artisan crafts */
+    --secondary: 28 45% 92%;
+    --secondary-foreground: 28 45% 25%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted tones */
+    --muted: 20 15% 95%;
+    --muted-foreground: 215 15% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - warm terracotta */
+    --accent: 12 65% 60%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* System colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
 
-    --radius: 0.5rem;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Borders and inputs */
+    --border: 20 15% 88%;
+    --input: 20 15% 88%;
+    --ring: 204 86% 45%;
+
+    /* Design tokens */
+    --radius: 0.75rem;
+
+    /* Gradients - Chicago sky and warmth */
+    --gradient-primary: linear-gradient(135deg, hsl(204 86% 45%), hsl(204 86% 65%));
+    --gradient-warm: linear-gradient(135deg, hsl(28 45% 92%), hsl(20 35% 88%));
+    --gradient-hero: linear-gradient(135deg, hsl(204 86% 45%) 0%, hsl(12 65% 60%) 100%);
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -2px hsl(215 25% 15% / 0.08);
+    --shadow-elevated: 0 8px 30px -4px hsl(215 25% 15% / 0.12);
+    --shadow-glow: 0 0 40px hsl(204 86% 45% / 0.15);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
     --sidebar-background: 0 0% 98%;
 
