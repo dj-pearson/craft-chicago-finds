@@ -1,45 +1,100 @@
+import { useState, useEffect } from "react";
 import { Star, MapPin, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LazyImage } from "@/components/ui/lazy-image";
-import makersImage from "@/assets/makers-collage.jpg";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { supabase } from "@/integrations/supabase/client";
+import { useCityContext } from "@/hooks/useCityContext";
+import { useNavigate } from "react-router-dom";
 
-const featuredMakers = [
-  {
-    name: "Sarah Chen",
-    shop: "Clay & Soul Pottery",
-    specialty: "Handmade Ceramics",
-    location: "Lincoln Park",
-    rating: 4.9,
-    reviews: 127,
-    image: makersImage,
-    featured: "Unique glazed pottery inspired by Lake Michigan waves"
-  },
-  {
-    name: "Marcus Rodriguez",
-    shop: "Windycraft Woodworks",
-    specialty: "Custom Furniture",
-    location: "Pilsen", 
-    rating: 5.0,
-    reviews: 89,
-    image: makersImage,
-    featured: "Sustainable hardwood pieces with Chicago architectural details"
-  },
-  {
-    name: "Elena Novak",
-    shop: "Threads & Treasures",
-    specialty: "Artisan Jewelry",
-    location: "Wicker Park",
-    rating: 4.8,
-    reviews: 203,
-    image: makersImage,
-    featured: "Hand-forged jewelry using recycled Chicago building materials"
-  }
-];
+interface FeaturedMaker {
+  id: string;
+  user_id: string;
+  shop_name: string;
+  specialty: string;
+  featured_description: string;
+  location: string;
+  neighborhood: string;
+  rating: number;
+  review_count: number;
+  avatar_url?: string;
+  profiles?: {
+    display_name: string;
+  };
+}
 
 export const FeaturedMakers = () => {
+  const { currentCity } = useCityContext();
+  const navigate = useNavigate();
+  const [featuredMakers, setFeaturedMakers] = useState<FeaturedMaker[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (currentCity) {
+      fetchFeaturedMakers();
+    }
+  }, [currentCity]);
+
+  const fetchFeaturedMakers = async () => {
+    if (!currentCity) return;
+
+    try {
+      setLoading(true);
+      // For now, return empty since there's no data in featured_makers table yet
+      // This would work once data is added to the table
+      const { data, error } = await supabase
+        .from('featured_makers')
+        .select('*')
+        .eq('city_id', currentCity.id)
+        .eq('is_featured', true)
+        .gte('featured_until', new Date().toISOString().split('T')[0])
+        .order('sort_order')
+        .limit(6);
+
+      let featuredMakersWithProfiles = [];
+      
+      if (data && data.length > 0) {
+        // Fetch profiles separately for better type safety
+        const userIds = data.map(maker => maker.user_id);
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, display_name')
+          .in('user_id', userIds);
+
+        featuredMakersWithProfiles = data.map(maker => ({
+          ...maker,
+          profiles: profiles?.find(p => p.user_id === maker.user_id)
+        }));
+      }
+
+      if (error) throw error;
+      setFeaturedMakers(featuredMakersWithProfiles);
+    } catch (error) {
+      console.error('Error fetching featured makers:', error);
+      setFeaturedMakers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <section className="py-12 sm:py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <LoadingSpinner text="Loading featured makers..." />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (featuredMakers.length === 0) {
+    return null; // Don't show section if no featured makers
+  }
   return (
     <section className="py-12 sm:py-16 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -58,32 +113,35 @@ export const FeaturedMakers = () => {
 
         {/* Makers Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
-          {featuredMakers.map((maker, index) => (
+          {featuredMakers.map((maker) => (
             <Card 
-              key={index}
-              className="group hover:shadow-elevated transition-all duration-300 border-border/50 hover:border-primary/20 touch-target"
+              key={maker.id}
+              className="group hover:shadow-elevated transition-all duration-300 border-border/50 hover:border-primary/20 touch-target cursor-pointer"
+              onClick={() => navigate(`/${currentCity?.slug}/sellers/${maker.user_id}`)}
             >
               <CardContent className="p-4 sm:p-6">
                 {/* Maker Avatar & Info */}
                 <div className="flex items-start space-x-4 mb-4">
                   <Avatar className="w-12 h-12 sm:w-16 sm:h-16">
-                    <LazyImage 
-                      src={maker.image} 
-                      alt={maker.name}
-                      className="w-full h-full object-cover"
-                    />
+                    {maker.avatar_url && (
+                      <LazyImage 
+                        src={maker.avatar_url} 
+                        alt={maker.profiles?.display_name || maker.shop_name}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                     <AvatarFallback className="bg-gradient-primary text-primary-foreground">
-                      {maker.name.split(' ').map(n => n[0]).join('')}
+                      {(maker.profiles?.display_name || maker.shop_name).split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-                      {maker.name}
+                      {maker.profiles?.display_name || 'Maker'}
                     </h3>
-                    <p className="text-primary font-medium">{maker.shop}</p>
+                    <p className="text-primary font-medium">{maker.shop_name}</p>
                     <div className="flex items-center text-muted-foreground text-sm mt-1">
                       <MapPin className="w-3 h-3 mr-1" />
-                      {maker.location}
+                      {maker.neighborhood || maker.location}
                     </div>
                   </div>
                 </div>
@@ -95,30 +153,32 @@ export const FeaturedMakers = () => {
 
                 {/* Featured Work */}
                 <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
-                  {maker.featured}
+                  {maker.featured_description}
                 </p>
 
                 {/* Rating */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <div className="flex items-center mr-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`w-4 h-4 ${
-                            i < Math.floor(maker.rating) 
-                              ? 'text-warning fill-warning' 
-                              : 'text-muted-foreground/30'
-                          }`} 
-                        />
-                      ))}
+                {maker.rating > 0 && (
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <div className="flex items-center mr-2">
+                        {[...Array(5)].map((_, i) => (
+                          <Star 
+                            key={i} 
+                            className={`w-4 h-4 ${
+                              i < Math.floor(maker.rating) 
+                                ? 'text-warning fill-warning' 
+                                : 'text-muted-foreground/30'
+                            }`} 
+                          />
+                        ))}
+                      </div>
+                      <span className="text-sm font-medium">{maker.rating.toFixed(1)}</span>
+                      <span className="text-sm text-muted-foreground ml-1">
+                        ({maker.review_count} reviews)
+                      </span>
                     </div>
-                    <span className="text-sm font-medium">{maker.rating}</span>
-                    <span className="text-sm text-muted-foreground ml-1">
-                      ({maker.reviews} reviews)
-                    </span>
                   </div>
-                </div>
+                )}
 
                 {/* CTA */}
                 <Button 

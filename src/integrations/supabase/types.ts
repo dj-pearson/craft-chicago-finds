@@ -14,6 +14,185 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_generation_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          generation_type: string
+          id: string
+          metadata: Json | null
+          model_used: string
+          prompt: string
+          response: string | null
+          success: boolean
+          tokens_used: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          generation_type: string
+          id?: string
+          metadata?: Json | null
+          model_used: string
+          prompt: string
+          response?: string | null
+          success?: boolean
+          tokens_used?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          generation_type?: string
+          id?: string
+          metadata?: Json | null
+          model_used?: string
+          prompt?: string
+          response?: string | null
+          success?: boolean
+          tokens_used?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_settings: {
+        Row: {
+          api_endpoint: string
+          created_at: string
+          id: string
+          is_active: boolean
+          max_tokens: number
+          model_name: string
+          model_provider: string
+          system_prompt: string | null
+          temperature: number
+          updated_at: string
+        }
+        Insert: {
+          api_endpoint?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_tokens?: number
+          model_name?: string
+          model_provider?: string
+          system_prompt?: string | null
+          temperature?: number
+          updated_at?: string
+        }
+        Update: {
+          api_endpoint?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_tokens?: number
+          model_name?: string
+          model_provider?: string
+          system_prompt?: string | null
+          temperature?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      analytics_trends: {
+        Row: {
+          city_id: string | null
+          created_at: string
+          date: string
+          entity_id: string
+          entity_type: string
+          id: string
+          metadata: Json | null
+          metric_type: string
+          value: number
+        }
+        Insert: {
+          city_id?: string | null
+          created_at?: string
+          date?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          metric_type: string
+          value: number
+        }
+        Update: {
+          city_id?: string | null
+          created_at?: string
+          date?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          metric_type?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_trends_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_automation: {
+        Row: {
+          automation_status: string
+          campaign_id: string
+          created_at: string
+          created_by: string
+          generation_progress: Json | null
+          id: string
+          posts_generated: number
+          total_days: number
+          updated_at: string
+          webhook_settings_id: string | null
+        }
+        Insert: {
+          automation_status?: string
+          campaign_id: string
+          created_at?: string
+          created_by: string
+          generation_progress?: Json | null
+          id?: string
+          posts_generated?: number
+          total_days?: number
+          updated_at?: string
+          webhook_settings_id?: string | null
+        }
+        Update: {
+          automation_status?: string
+          campaign_id?: string
+          created_at?: string
+          created_by?: string
+          generation_progress?: Json | null
+          id?: string
+          posts_generated?: number
+          total_days?: number
+          updated_at?: string
+          webhook_settings_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_automation_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "social_media_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_automation_webhook_settings_id_fkey"
+            columns: ["webhook_settings_id"]
+            isOneToOne: false
+            referencedRelation: "webhook_settings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           city_id: string | null
@@ -195,6 +374,83 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      featured_makers: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          city_id: string | null
+          cover_image_url: string | null
+          created_at: string
+          featured_description: string | null
+          featured_until: string | null
+          id: string
+          is_featured: boolean | null
+          location: string | null
+          neighborhood: string | null
+          rating: number | null
+          review_count: number | null
+          shop_name: string
+          social_links: Json | null
+          sort_order: number | null
+          specialty: string
+          tags: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          city_id?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          featured_description?: string | null
+          featured_until?: string | null
+          id?: string
+          is_featured?: boolean | null
+          location?: string | null
+          neighborhood?: string | null
+          rating?: number | null
+          review_count?: number | null
+          shop_name: string
+          social_links?: Json | null
+          sort_order?: number | null
+          specialty: string
+          tags?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          city_id?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          featured_description?: string | null
+          featured_until?: string | null
+          id?: string
+          is_featured?: boolean | null
+          location?: string | null
+          neighborhood?: string | null
+          rating?: number | null
+          review_count?: number | null
+          shop_name?: string
+          social_links?: Json | null
+          sort_order?: number | null
+          specialty?: string
+          tags?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_makers_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       featured_slots: {
         Row: {
@@ -983,6 +1239,209 @@ export type Database = {
           },
         ]
       }
+      social_media_campaigns: {
+        Row: {
+          campaign_type: string
+          city_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          end_date: string | null
+          goals: string | null
+          hashtags: string[] | null
+          id: string
+          name: string
+          start_date: string
+          status: string
+          target_audience: string | null
+          updated_at: string
+        }
+        Insert: {
+          campaign_type: string
+          city_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_date?: string | null
+          goals?: string | null
+          hashtags?: string[] | null
+          id?: string
+          name: string
+          start_date: string
+          status?: string
+          target_audience?: string | null
+          updated_at?: string
+        }
+        Update: {
+          campaign_type?: string
+          city_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_date?: string | null
+          goals?: string | null
+          hashtags?: string[] | null
+          id?: string
+          name?: string
+          start_date?: string
+          status?: string
+          target_audience?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_media_campaigns_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_media_posts: {
+        Row: {
+          ai_generated: boolean
+          ai_prompt: string | null
+          auto_generated: boolean
+          campaign_day: number | null
+          campaign_id: string | null
+          city_id: string
+          content: string
+          created_at: string
+          created_by: string
+          engagement_stats: Json | null
+          hashtags: string[] | null
+          id: string
+          long_description: string | null
+          media_urls: string[] | null
+          platform: string
+          post_theme: string | null
+          post_type: string
+          posted_at: string | null
+          scheduled_for: string | null
+          short_description: string | null
+          status: string
+          title: string | null
+          updated_at: string
+          webhook_response: Json | null
+          webhook_sent_at: string | null
+        }
+        Insert: {
+          ai_generated?: boolean
+          ai_prompt?: string | null
+          auto_generated?: boolean
+          campaign_day?: number | null
+          campaign_id?: string | null
+          city_id: string
+          content: string
+          created_at?: string
+          created_by: string
+          engagement_stats?: Json | null
+          hashtags?: string[] | null
+          id?: string
+          long_description?: string | null
+          media_urls?: string[] | null
+          platform: string
+          post_theme?: string | null
+          post_type: string
+          posted_at?: string | null
+          scheduled_for?: string | null
+          short_description?: string | null
+          status?: string
+          title?: string | null
+          updated_at?: string
+          webhook_response?: Json | null
+          webhook_sent_at?: string | null
+        }
+        Update: {
+          ai_generated?: boolean
+          ai_prompt?: string | null
+          auto_generated?: boolean
+          campaign_day?: number | null
+          campaign_id?: string | null
+          city_id?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          engagement_stats?: Json | null
+          hashtags?: string[] | null
+          id?: string
+          long_description?: string | null
+          media_urls?: string[] | null
+          platform?: string
+          post_theme?: string | null
+          post_type?: string
+          posted_at?: string | null
+          scheduled_for?: string | null
+          short_description?: string | null
+          status?: string
+          title?: string | null
+          updated_at?: string
+          webhook_response?: Json | null
+          webhook_sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_media_posts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "social_media_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_media_posts_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_media_templates: {
+        Row: {
+          content_template: string
+          created_at: string
+          created_by: string
+          description: string | null
+          hashtag_template: string[] | null
+          id: string
+          is_active: boolean
+          name: string
+          platform: string
+          template_type: string
+          updated_at: string
+          variables: Json | null
+        }
+        Insert: {
+          content_template: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          hashtag_template?: string[] | null
+          id?: string
+          is_active?: boolean
+          name: string
+          platform: string
+          template_type: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Update: {
+          content_template?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          hashtag_template?: string[] | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          platform?: string
+          template_type?: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string
@@ -1068,11 +1527,95 @@ export type Database = {
           },
         ]
       }
+      webhook_logs: {
+        Row: {
+          error_message: string | null
+          id: string
+          post_id: string
+          request_payload: Json
+          response_body: string | null
+          response_status: number | null
+          sent_at: string
+          success: boolean
+          webhook_url: string
+        }
+        Insert: {
+          error_message?: string | null
+          id?: string
+          post_id: string
+          request_payload: Json
+          response_body?: string | null
+          response_status?: number | null
+          sent_at?: string
+          success?: boolean
+          webhook_url: string
+        }
+        Update: {
+          error_message?: string | null
+          id?: string
+          post_id?: string
+          request_payload?: Json
+          response_body?: string | null
+          response_status?: number | null
+          sent_at?: string
+          success?: boolean
+          webhook_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_logs_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_media_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_settings: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean
+          name: string
+          platforms: string[]
+          secret_key: string | null
+          updated_at: string
+          webhook_url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean
+          name: string
+          platforms?: string[]
+          secret_key?: string | null
+          updated_at?: string
+          webhook_url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          platforms?: string[]
+          secret_key?: string | null
+          updated_at?: string
+          webhook_url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      calculate_category_growth_rate: {
+        Args: { category_uuid: string; days_back?: number }
+        Returns: number
+      }
       create_notification: {
         Args: {
           _action_url?: string

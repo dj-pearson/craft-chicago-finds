@@ -113,8 +113,13 @@ export const CategoryTrends = ({ limit = 6, showGrowthRate = true }: CategoryTre
             ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
             : 0;
 
-          // Calculate growth rate (simplified - in production would use time-based data)
-          const growthRate = Math.random() * 50 - 10; // Mock data for demo
+          // Calculate growth rate using database function
+          const { data: growthData } = await supabase
+            .rpc('calculate_category_growth_rate', { 
+              category_uuid: category.id, 
+              days_back: 30 
+            });
+          const growthRate = growthData || 0;
 
           return {
             ...category,

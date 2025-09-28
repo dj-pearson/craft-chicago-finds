@@ -77,6 +77,128 @@ export const AnalyticsProvider = ({ children }: { children: React.ReactNode }) =
   const [adminMetrics, setAdminMetrics] = useState<AdminMetrics | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Helper functions
+  const fetchTopCities = async (sellerId: string) => {
+    const { data } = await supabase
+      .from('orders')
+      .select(`
+        profiles!inner(city_id),
+        cities!inner(name)
+      `)
+      .eq('seller_id', sellerId);
+
+    const cityGroups = data?.reduce((acc: Record<string, number>, order: any) => {
+      const cityName = order.cities?.name || 'Unknown';
+      acc[cityName] = (acc[cityName] || 0) + 1;
+      return acc;
+    }, {}) || {};
+
+    return Object.entries(cityGroups)
+      .map(([city, count]) => ({ city, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  };
+
+  const calculateRepeatCustomers = async (sellerId: string) => {
+    const { data } = await supabase
+      .from('orders')
+      .select('buyer_id')
+      .eq('seller_id', sellerId);
+
+    const buyerCounts = data?.reduce((acc: Record<string, number>, order: any) => {
+      acc[order.buyer_id] = (acc[order.buyer_id] || 0) + 1;
+      return acc;
+    }, {}) || {};
+
+    return Object.values(buyerCounts).filter(count => count > 1).length;
+  };
+
+  const fetchTopCategories = async () => {
+    const { data: categories } = await supabase
+      .from('categories')
+      .select('id, name');
+
+    if (!categories) return [];
+
+    const categoriesWithStats = await Promise.all(
+      categories.map(async (category) => {
+        const { count: listingCount } = await supabase
+          .from('listings')
+          .select('*', { count: 'exact', head: true })
+          .eq('category_id', category.id);
+
+        const { data: categoryOrders } = await supabase
+          .from('orders')
+          .select('total_amount')
+          .in('listing_id', 
+            (await supabase
+              .from('listings')
+              .select('id')
+              .eq('category_id', category.id)
+            ).data?.map(l => l.id) || []
+          );
+
+        const revenue = categoryOrders?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
+
+        return {
+          category: category.name,
+          count: listingCount || 0,
+          revenue
+        };
+      })
+    );
+
+    return categoriesWithStats
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+  };
+
+  const fetchTopCitiesAdmin = async () => {
+    const { data: cities } = await supabase
+      .from('cities')
+      .select('id, name');
+
+    if (!cities) return [];
+
+    const citiesWithStats = await Promise.all(
+      cities.map(async (city) => {
+        const { count: userCount } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .eq('city_id', city.id);
+
+        const { count: listingCount } = await supabase
+          .from('listings')
+          .select('*', { count: 'exact', head: true })
+          .eq('city_id', city.id);
+
+        const { data: cityOrders } = await supabase
+          .from('orders')
+          .select('total_amount')
+          .in('listing_id',
+            (await supabase
+              .from('listings')
+              .select('id')
+              .eq('city_id', city.id)
+            ).data?.map(l => l.id) || []
+          );
+
+        const revenue = cityOrders?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
+
+        return {
+          city: city.name,
+          users: userCount || 0,
+          listings: listingCount || 0,
+          revenue
+        };
+      })
+    );
+
+    return citiesWithStats
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+  };
+
   const fetchSellerMetrics = async () => {
     if (!user) return;
 
@@ -111,12 +233,28 @@ export const AnalyticsProvider = ({ children }: { children: React.ReactNode }) =
       const totalReviews = reviews?.length || 0;
       const conversionRate = totalViews > 0 ? (totalSales / totalViews) * 100 : 0;
 
-      // Create mock data for trends and demographics (in real app, this would come from proper analytics)
-      const salesTrend = Array.from({ length: 30 }, (_, i) => ({
-        date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        sales: Math.floor(Math.random() * 10),
-        revenue: Math.floor(Math.random() * 1000),
-      }));
+      // Fetch real sales trend data from analytics_trends
+      const { data: trendsData } = await supabase
+        .from('analytics_trends')
+        .select('date, value, metric_type')
+        .eq('entity_type', 'seller')
+        .eq('entity_id', user.id)
+        .in('metric_type', ['sales', 'revenue'])
+        .gte('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .order('date');
+
+      // Transform trends data or use calculated data from orders
+      const salesTrend = Array.from({ length: 30 }, (_, i) => {
+        const date = new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const dayOrders = orders?.filter(order => 
+          order.created_at.split('T')[0] === date
+        ) || [];
+        return {
+          date,
+          sales: dayOrders.length,
+          revenue: dayOrders.reduce((sum, order) => sum + Number(order.total_amount), 0),
+        };
+      });
 
       const topProducts = listings?.slice(0, 5).map(listing => ({
         id: listing.id,
@@ -137,12 +275,8 @@ export const AnalyticsProvider = ({ children }: { children: React.ReactNode }) =
         topProducts,
         salesTrend,
         customerDemographics: {
-          topCities: [
-            { city: 'Chicago', count: 15 },
-            { city: 'Milwaukee', count: 8 },
-            { city: 'Detroit', count: 5 },
-          ],
-          repeatCustomers: Math.floor(totalSales * 0.3),
+          topCities: await fetchTopCities(user.id),
+          repeatCustomers: await calculateRepeatCustomers(user.id),
         },
       });
     } catch (error) {
@@ -176,18 +310,44 @@ export const AnalyticsProvider = ({ children }: { children: React.ReactNode }) =
       const totalRevenue = orders?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
       const platformCommission = orders?.reduce((sum, order) => sum + Number(order.commission_amount), 0) || 0;
 
-      // Mock data for trends and demographics
-      const revenueTrend = Array.from({ length: 30 }, (_, i) => ({
-        date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        revenue: Math.floor(Math.random() * 5000),
-        orders: Math.floor(Math.random() * 50),
-      }));
+      // Fetch real revenue trends from database
+      const { data: allOrders } = await supabase
+        .from('orders')
+        .select('created_at, total_amount')
+        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
 
-      const userActivityTrend = Array.from({ length: 30 }, (_, i) => ({
-        date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        activeUsers: Math.floor(Math.random() * 200),
-        newUsers: Math.floor(Math.random() * 20),
-      }));
+      const revenueTrend = Array.from({ length: 30 }, (_, i) => {
+        const date = new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const dayOrders = allOrders?.filter(order => 
+          order.created_at.split('T')[0] === date
+        ) || [];
+        return {
+          date,
+          revenue: dayOrders.reduce((sum, order) => sum + Number(order.total_amount), 0),
+          orders: dayOrders.length,
+        };
+      });
+
+      // Fetch user activity trends from profiles
+      const { data: allProfiles } = await supabase
+        .from('profiles')
+        .select('created_at, last_seen_at')
+        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+
+      const userActivityTrend = Array.from({ length: 30 }, (_, i) => {
+        const date = new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const newUsers = allProfiles?.filter(profile => 
+          profile.created_at.split('T')[0] === date
+        ).length || 0;
+        const activeUsers = allProfiles?.filter(profile => 
+          profile.last_seen_at && profile.last_seen_at.split('T')[0] === date
+        ).length || 0;
+        return {
+          date,
+          activeUsers,
+          newUsers,
+        };
+      });
 
       setAdminMetrics({
         totalUsers: totalUsers || 0,
@@ -198,16 +358,8 @@ export const AnalyticsProvider = ({ children }: { children: React.ReactNode }) =
         platformCommission,
         userGrowthRate: 15.2,
         sellerGrowthRate: 8.7,
-        topCategories: [
-          { category: 'Handmade', count: 45, revenue: 12500 },
-          { category: 'Art', count: 32, revenue: 8900 },
-          { category: 'Food', count: 28, revenue: 6700 },
-        ],
-        topCities: [
-          { city: 'Chicago', users: 156, listings: 89, revenue: 45000 },
-          { city: 'Milwaukee', users: 87, listings: 52, revenue: 23000 },
-          { city: 'Detroit', users: 64, listings: 38, revenue: 17000 },
-        ],
+        topCategories: await fetchTopCategories(),
+        topCities: await fetchTopCitiesAdmin(),
         revenueTrend,
         userActivityTrend,
       });
