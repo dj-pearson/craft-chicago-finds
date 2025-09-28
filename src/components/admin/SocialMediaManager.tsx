@@ -40,6 +40,10 @@ import {
   Users,
   TrendingUp,
   RefreshCw,
+  Webhook,
+  Settings,
+  Zap,
+  Globe,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -94,6 +98,9 @@ export const SocialMediaManager = () => {
   const [isCreateCampaignOpen, setIsCreateCampaignOpen] = useState(false);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [generatingContent, setGeneratingContent] = useState(false);
+  const [generating30DayCampaign, setGenerating30DayCampaign] = useState(false);
+  const [webhookSettings, setWebhookSettings] = useState<any[]>([]);
+  const [isWebhookConfigOpen, setIsWebhookConfigOpen] = useState(false);
 
   const [campaignForm, setCampaignForm] = useState({
     name: "",
@@ -115,6 +122,20 @@ export const SocialMediaManager = () => {
     hashtags: "",
     scheduled_for: "",
     ai_prompt: "",
+  });
+
+  const [webhookForm, setWebhookForm] = useState({
+    name: "",
+    webhook_url: "",
+    secret_key: "",
+    platforms: [] as string[],
+  });
+
+  const [campaignGenForm, setCampaignGenForm] = useState({
+    campaign_id: "",
+    launch_date: "",
+    webhook_settings_id: "",
+    auto_schedule: false,
   });
 
   useEffect(() => {
@@ -162,6 +183,15 @@ export const SocialMediaManager = () => {
 
       if (postsError) throw postsError;
       setPosts(postsData || []);
+
+      // Fetch webhook settings
+      const { data: webhookData, error: webhookError } = await supabase
+        .from("webhook_settings")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (webhookError) throw webhookError;
+      setWebhookSettings(webhookData || []);
     } catch (error) {
       console.error("Error fetching social media data:", error);
       toast({
@@ -320,6 +350,117 @@ Please generate engaging social media content that follows the 30-day social med
     }
   };
 
+  const handleGenerate30DayCampaign = async () => {
+    if (!selectedCity || !campaignGenForm.campaign_id || !campaignGenForm.launch_date) {
+      toast({
+        title: "Error",
+        description: "Please select a campaign and launch date",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setGenerating30DayCampaign(true);
+    try {
+      const response = await supabase.functions.invoke("generate-30day-campaign", {
+        body: {
+          campaign_id: campaignGenForm.campaign_id,
+          city_id: selectedCity,
+          launch_date: campaignGenForm.launch_date,
+          webhook_settings_id: campaignGenForm.webhook_settings_id || null,
+          auto_schedule: campaignGenForm.auto_schedule,
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || "Campaign generation failed");
+      }
+
+      toast({
+        title: "Campaign Generated!",
+        description: `Successfully generated ${response.data.posts_generated} posts for the 30-day campaign`,
+      });
+
+      fetchData(); // Refresh the posts list
+    } catch (error) {
+      console.error("Error generating 30-day campaign:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate 30-day campaign",
+        variant: "destructive",
+      });
+    } finally {
+      setGenerating30DayCampaign(false);
+    }
+  };
+
+  const handleCreateWebhook = async () => {
+    if (!webhookForm.name || !webhookForm.webhook_url) {
+      toast({
+        title: "Error",
+        description: "Please provide webhook name and URL",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from("webhook_settings").insert({
+        name: webhookForm.name,
+        webhook_url: webhookForm.webhook_url,
+        secret_key: webhookForm.secret_key || null,
+        platforms: webhookForm.platforms.length > 0 ? webhookForm.platforms : ["all"],
+        created_by: user?.id,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Webhook configuration created successfully",
+      });
+
+      setIsWebhookConfigOpen(false);
+      resetWebhookForm();
+      fetchData();
+    } catch (error) {
+      console.error("Error creating webhook:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create webhook configuration",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSendWebhook = async (postId: string) => {
+    try {
+      const response = await supabase.functions.invoke("send-social-webhook", {
+        body: {
+          post_id: postId,
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || "Webhook sending failed");
+      }
+
+      toast({
+        title: "Webhook Sent!",
+        description: `Sent to ${response.data.successful_webhooks}/${response.data.webhooks_sent} webhooks`,
+      });
+
+      fetchData(); // Refresh to show webhook status
+    } catch (error) {
+      console.error("Error sending webhook:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send webhook",
+        variant: "destructive",
+      });
+    }
+  };
+
   const resetCampaignForm = () => {
     setCampaignForm({
       name: "",
@@ -343,6 +484,15 @@ Please generate engaging social media content that follows the 30-day social med
       hashtags: "",
       scheduled_for: "",
       ai_prompt: "",
+    });
+  };
+
+  const resetWebhookForm = () => {
+    setWebhookForm({
+      name: "",
+      webhook_url: "",
+      secret_key: "",
+      platforms: [],
     });
   };
 
@@ -428,6 +578,14 @@ Please generate engaging social media content that follows the 30-day social med
           <TabsTrigger value="posts" className="gap-2">
             <Send className="h-4 w-4" />
             Posts
+          </TabsTrigger>
+          <TabsTrigger value="automation" className="gap-2">
+            <Zap className="h-4 w-4" />
+            Automation
+          </TabsTrigger>
+          <TabsTrigger value="webhooks" className="gap-2">
+            <Webhook className="h-4 w-4" />
+            Webhooks
           </TabsTrigger>
         </TabsList>
 
@@ -868,6 +1026,14 @@ Please generate engaging social media content that follows the 30-day social med
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSendWebhook(post.id)}
+                        disabled={!!post.webhook_sent_at}
+                      >
+                        <Globe className="h-4 w-4" />
+                      </Button>
                       <Button variant="outline" size="sm">
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -891,6 +1057,246 @@ Please generate engaging social media content that follows the 30-day social med
                   <Button onClick={() => setIsCreatePostOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Create Post
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="automation" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5" />
+                30-Day Campaign Generator
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="campaign_select_gen">Select Campaign</Label>
+                  <Select
+                    value={campaignGenForm.campaign_id}
+                    onValueChange={(value) =>
+                      setCampaignGenForm({ ...campaignGenForm, campaign_id: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select campaign" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {campaigns.map((campaign) => (
+                        <SelectItem key={campaign.id} value={campaign.id}>
+                          {campaign.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="launch_date">Launch Date</Label>
+                  <Input
+                    id="launch_date"
+                    type="date"
+                    value={campaignGenForm.launch_date}
+                    onChange={(e) =>
+                      setCampaignGenForm({
+                        ...campaignGenForm,
+                        launch_date: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="webhook_select">Webhook (Optional)</Label>
+                <Select
+                  value={campaignGenForm.webhook_settings_id}
+                  onValueChange={(value) =>
+                    setCampaignGenForm({ ...campaignGenForm, webhook_settings_id: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select webhook" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {webhookSettings.map((webhook) => (
+                      <SelectItem key={webhook.id} value={webhook.id}>
+                        {webhook.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="auto_schedule"
+                  checked={campaignGenForm.auto_schedule}
+                  onChange={(e) =>
+                    setCampaignGenForm({
+                      ...campaignGenForm,
+                      auto_schedule: e.target.checked,
+                    })
+                  }
+                />
+                <Label htmlFor="auto_schedule">Auto-schedule posts (9 AM daily)</Label>
+              </div>
+
+              <Button
+                onClick={handleGenerate30DayCampaign}
+                disabled={generating30DayCampaign}
+                className="w-full"
+              >
+                {generating30DayCampaign ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4 mr-2" />
+                )}
+                Generate 30-Day Campaign
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="webhooks" className="space-y-4">
+          <div className="flex justify-end">
+            <Dialog open={isWebhookConfigOpen} onOpenChange={setIsWebhookConfigOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={resetWebhookForm}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Webhook
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Configure Webhook</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="webhook_name">Webhook Name</Label>
+                    <Input
+                      id="webhook_name"
+                      value={webhookForm.name}
+                      onChange={(e) =>
+                        setWebhookForm({ ...webhookForm, name: e.target.value })
+                      }
+                      placeholder="e.g., Zapier Integration"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="webhook_url">Webhook URL</Label>
+                    <Input
+                      id="webhook_url"
+                      value={webhookForm.webhook_url}
+                      onChange={(e) =>
+                        setWebhookForm({ ...webhookForm, webhook_url: e.target.value })
+                      }
+                      placeholder="https://hooks.zapier.com/..."
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="secret_key">Secret Key (Optional)</Label>
+                    <Input
+                      id="secret_key"
+                      value={webhookForm.secret_key}
+                      onChange={(e) =>
+                        setWebhookForm({ ...webhookForm, secret_key: e.target.value })
+                      }
+                      placeholder="For webhook verification"
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Supported Platforms</Label>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {["facebook", "instagram", "twitter", "linkedin", "all"].map((platform) => (
+                        <label key={platform} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={webhookForm.platforms.includes(platform)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setWebhookForm({
+                                  ...webhookForm,
+                                  platforms: [...webhookForm.platforms, platform],
+                                });
+                              } else {
+                                setWebhookForm({
+                                  ...webhookForm,
+                                  platforms: webhookForm.platforms.filter((p) => p !== platform),
+                                });
+                              }
+                            }}
+                          />
+                          <span className="capitalize">{platform}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsWebhookConfigOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button onClick={handleCreateWebhook}>Create Webhook</Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <div className="grid gap-4">
+            {webhookSettings.map((webhook) => (
+              <Card key={webhook.id}>
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="font-semibold text-lg">{webhook.name}</h3>
+                        <Badge className={webhook.is_active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+                          {webhook.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {webhook.webhook_url}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>Platforms: {webhook.platforms?.join(", ") || "All"}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
+            {webhookSettings.length === 0 && (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Webhook className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No webhooks configured</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Add a webhook to automatically send posts to external services.
+                  </p>
+                  <Button onClick={() => setIsWebhookConfigOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Webhook
                   </Button>
                 </CardContent>
               </Card>

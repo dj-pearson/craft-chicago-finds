@@ -22,55 +22,111 @@ const CAMPAIGN_STRUCTURE = {
     theme: "Teasers & Brand Introduction",
     days: [
       { day: 1, theme: "mystery_teaser", title: "Something New is Coming" },
-      { day: 2, theme: "problem_solution", title: "Hint at the Problem & Solution" },
-      { day: 3, theme: "brand_reveal", title: "Official CraftLocal Announcement" },
+      {
+        day: 2,
+        theme: "problem_solution",
+        title: "Hint at the Problem & Solution",
+      },
+      {
+        day: 3,
+        theme: "brand_reveal",
+        title: "Official CraftLocal Announcement",
+      },
       { day: 4, theme: "vendor_benefits", title: "Why CraftLocal for Vendors" },
       { day: 5, theme: "community_highlight", title: "Community Highlight" },
       { day: 6, theme: "platform_preview", title: "How It Works Sneak Peek" },
-      { day: 7, theme: "engagement_poll", title: "Local Market Trivia/Poll" }
-    ]
+      { day: 7, theme: "engagement_poll", title: "Local Market Trivia/Poll" },
+    ],
   },
   // Week 2 (Days 8-14): Education and Early Engagement
   week2: {
     theme: "Education & Engagement",
     days: [
-      { day: 8, theme: "holiday_motivation", title: "1 Month to Holiday Season" },
+      {
+        day: 8,
+        theme: "holiday_motivation",
+        title: "1 Month to Holiday Season",
+      },
       { day: 9, theme: "team_intro", title: "Meet the Team/Founder Story" },
       { day: 10, theme: "vendor_faq", title: "FAQ for Vendors" },
-      { day: 11, theme: "product_categories", title: "Showcase Product Categories" },
-      { day: 12, theme: "partnership_shoutout", title: "Cross-Promotion/Partnership" },
+      {
+        day: 11,
+        theme: "product_categories",
+        title: "Showcase Product Categories",
+      },
+      {
+        day: 12,
+        theme: "partnership_shoutout",
+        title: "Cross-Promotion/Partnership",
+      },
       { day: 13, theme: "craft_story_engagement", title: "Your Craft Story" },
-      { day: 14, theme: "weekend_inspiration", title: "Weekend Inspiration/Meme" }
-    ]
+      {
+        day: 14,
+        theme: "weekend_inspiration",
+        title: "Weekend Inspiration/Meme",
+      },
+    ],
   },
   // Week 3 (Days 15-21): Countdown Begins & Interactive Promotions
   week3: {
     theme: "Countdown & Promotions",
     days: [
-      { day: 15, theme: "countdown_kickoff", title: "T-minus 2 Weeks Countdown" },
-      { day: 16, theme: "holiday_gift_guide", title: "Holiday Preview Gift Guide" },
-      { day: 17, theme: "giveaway_contest", title: "Giveaway/Contest Announcement" },
-      { day: 18, theme: "feature_highlight", title: "CraftLocal Features Highlight" },
-      { day: 19, theme: "testimonial_quote", title: "Testimonial/Early Adopter Quote" },
+      {
+        day: 15,
+        theme: "countdown_kickoff",
+        title: "T-minus 2 Weeks Countdown",
+      },
+      {
+        day: 16,
+        theme: "holiday_gift_guide",
+        title: "Holiday Preview Gift Guide",
+      },
+      {
+        day: 17,
+        theme: "giveaway_contest",
+        title: "Giveaway/Contest Announcement",
+      },
+      {
+        day: 18,
+        theme: "feature_highlight",
+        title: "CraftLocal Features Highlight",
+      },
+      {
+        day: 19,
+        theme: "testimonial_quote",
+        title: "Testimonial/Early Adopter Quote",
+      },
       { day: 20, theme: "launch_event_invite", title: "Launch Event Invite" },
-      { day: 21, theme: "one_week_hype", title: "One Week to Go Hype Video" }
-    ]
+      { day: 21, theme: "one_week_hype", title: "One Week to Go Hype Video" },
+    ],
   },
   // Week 4 (Days 22-30): Final Countdown & Launch
   week4: {
     theme: "Final Countdown & Launch",
     days: [
       { day: 22, theme: "vendor_howto", title: "5 Days - Vendor How-To Guide" },
-      { day: 23, theme: "buyer_experience", title: "4 Days - Buyer Experience Teaser" },
-      { day: 24, theme: "contest_reminder", title: "3 Days - Contest & Sign-Up Reminder" },
-      { day: 25, theme: "community_thanks", title: "2 Days - Thank You to Community" },
+      {
+        day: 23,
+        theme: "buyer_experience",
+        title: "4 Days - Buyer Experience Teaser",
+      },
+      {
+        day: 24,
+        theme: "contest_reminder",
+        title: "3 Days - Contest & Sign-Up Reminder",
+      },
+      {
+        day: 25,
+        theme: "community_thanks",
+        title: "2 Days - Thank You to Community",
+      },
       { day: 26, theme: "launch_eve_hype", title: "1 Day - Launch Eve Hype" },
       { day: 27, theme: "launch_day", title: "LAUNCH DAY!" },
       { day: 28, theme: "launch_recap", title: "Launch Day Recap" },
       { day: 29, theme: "first_sales", title: "First Sales Celebration" },
-      { day: 30, theme: "week_one_complete", title: "Week One Complete" }
-    ]
-  }
+      { day: 30, theme: "week_one_complete", title: "Week One Complete" },
+    ],
+  },
 };
 
 serve(async (req) => {
@@ -108,9 +164,19 @@ serve(async (req) => {
     }
 
     const requestData: CampaignGenerationRequest = await req.json();
-    const { campaign_id, city_id, launch_date, webhook_settings_id, auto_schedule } = requestData;
+    const {
+      campaign_id,
+      city_id,
+      launch_date,
+      webhook_settings_id,
+      auto_schedule,
+    } = requestData;
 
-    console.log("Generating 30-day campaign:", { campaign_id, city_id, launch_date });
+    console.log("Generating 30-day campaign:", {
+      campaign_id,
+      city_id,
+      launch_date,
+    });
 
     // Get campaign and city information
     const { data: campaign, error: campaignError } = await supabaseClient
@@ -147,20 +213,24 @@ serve(async (req) => {
       .single();
 
     if (automationError) {
-      throw new Error(`Failed to create automation: ${automationError.message}`);
+      throw new Error(
+        `Failed to create automation: ${automationError.message}`
+      );
     }
 
     console.log("Created automation record:", automation.id);
 
     // Generate posts for all 30 days
     const launchDate = new Date(launch_date);
-    const campaignStartDate = new Date(launchDate.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days before launch
-    
+    const campaignStartDate = new Date(
+      launchDate.getTime() - 30 * 24 * 60 * 60 * 1000
+    ); // 30 days before launch
+
     const allDays = [
       ...CAMPAIGN_STRUCTURE.week1.days,
       ...CAMPAIGN_STRUCTURE.week2.days,
       ...CAMPAIGN_STRUCTURE.week3.days,
-      ...CAMPAIGN_STRUCTURE.week4.days
+      ...CAMPAIGN_STRUCTURE.week4.days,
     ];
 
     const generatedPosts = [];
@@ -168,12 +238,16 @@ serve(async (req) => {
 
     for (const dayInfo of allDays) {
       try {
-        const postDate = new Date(campaignStartDate.getTime() + (dayInfo.day - 1) * 24 * 60 * 60 * 1000);
+        const postDate = new Date(
+          campaignStartDate.getTime() + (dayInfo.day - 1) * 24 * 60 * 60 * 1000
+        );
         const daysUntilLaunch = 30 - dayInfo.day + 1;
 
         // Generate AI content for this day
         const aiPrompt = `
-Generate social media content for Day ${dayInfo.day} of a 30-day ${city.name} craft marketplace launch campaign.
+Generate social media content for Day ${dayInfo.day} of a 30-day ${
+          city.name
+        } craft marketplace launch campaign.
 
 CAMPAIGN CONTEXT:
 - City: ${city.name} (${city.slug})
@@ -193,10 +267,26 @@ CONTENT GUIDELINES:
 - Warm, creative, and supportive tone
 - Community-oriented language ("we," "together," "local family")
 - Include relevant hashtags: #CraftLocal, #${city.slug}Makers, #ShopLocal
-- ${dayInfo.theme === 'launch_day' ? 'MAXIMUM EXCITEMENT - This is the big day!' : ''}
-- ${dayInfo.theme.includes('countdown') ? `Emphasize ${daysUntilLaunch} days remaining` : ''}
-- ${dayInfo.theme.includes('vendor') ? 'Focus on benefits for local makers and artisans' : ''}
-- ${dayInfo.theme.includes('community') ? 'Encourage engagement and community participation' : ''}
+- ${
+          dayInfo.theme === "launch_day"
+            ? "MAXIMUM EXCITEMENT - This is the big day!"
+            : ""
+        }
+- ${
+          dayInfo.theme.includes("countdown")
+            ? `Emphasize ${daysUntilLaunch} days remaining`
+            : ""
+        }
+- ${
+          dayInfo.theme.includes("vendor")
+            ? "Focus on benefits for local makers and artisans"
+            : ""
+        }
+- ${
+          dayInfo.theme.includes("community")
+            ? "Encourage engagement and community participation"
+            : ""
+        }
 
 Format your response as JSON:
 {
@@ -206,23 +296,29 @@ Format your response as JSON:
 }
 `;
 
-        const aiResponse = await supabaseClient.functions.invoke("ai-generate-content", {
-          body: {
-            prompt: aiPrompt,
-            generation_type: "social_post",
-            context: {
-              campaign_id,
-              city_name: city.name,
-              city_slug: city.slug,
-              day: dayInfo.day,
-              theme: dayInfo.theme,
-              days_until_launch: daysUntilLaunch,
+        const aiResponse = await supabaseClient.functions.invoke(
+          "ai-generate-content",
+          {
+            body: {
+              prompt: aiPrompt,
+              generation_type: "social_post",
+              context: {
+                campaign_id,
+                city_name: city.name,
+                city_slug: city.slug,
+                day: dayInfo.day,
+                theme: dayInfo.theme,
+                days_until_launch: daysUntilLaunch,
+              },
             },
-          },
-        });
+          }
+        );
 
         if (aiResponse.error) {
-          console.error(`AI generation failed for day ${dayInfo.day}:`, aiResponse.error);
+          console.error(
+            `AI generation failed for day ${dayInfo.day}:`,
+            aiResponse.error
+          );
           continue;
         }
 
@@ -237,20 +333,23 @@ Format your response as JSON:
             postContent = {
               title: dayInfo.title,
               short_description: aiResponse.data.content.substring(0, 280),
-              long_description: aiResponse.data.content.substring(0, 500)
+              long_description: aiResponse.data.content.substring(0, 500),
             };
           }
         } catch (parseError) {
-          console.error(`JSON parsing failed for day ${dayInfo.day}:`, parseError);
+          console.error(
+            `JSON parsing failed for day ${dayInfo.day}:`,
+            parseError
+          );
           postContent = {
             title: dayInfo.title,
             short_description: aiResponse.data.content.substring(0, 280),
-            long_description: aiResponse.data.content.substring(0, 500)
+            long_description: aiResponse.data.content.substring(0, 500),
           };
         }
 
         // Create the post record
-        const scheduledTime = auto_schedule 
+        const scheduledTime = auto_schedule
           ? new Date(postDate.getTime() + 9 * 60 * 60 * 1000) // 9 AM on the day
           : null;
 
@@ -279,7 +378,10 @@ Format your response as JSON:
           .single();
 
         if (postError) {
-          console.error(`Failed to create post for day ${dayInfo.day}:`, postError);
+          console.error(
+            `Failed to create post for day ${dayInfo.day}:`,
+            postError
+          );
           continue;
         }
 
@@ -301,13 +403,12 @@ Format your response as JSON:
             generation_progress: {
               current_day: dayInfo.day,
               total_days: 30,
-              percentage: Math.round((postsGenerated / 30) * 100)
-            }
+              percentage: Math.round((postsGenerated / 30) * 100),
+            },
           })
           .eq("id", automation.id);
 
         console.log(`Generated post for day ${dayInfo.day}: ${dayInfo.theme}`);
-
       } catch (dayError) {
         console.error(`Error generating day ${dayInfo.day}:`, dayError);
         continue;
@@ -324,12 +425,14 @@ Format your response as JSON:
           current_day: 30,
           total_days: 30,
           percentage: 100,
-          completed_at: new Date().toISOString()
-        }
+          completed_at: new Date().toISOString(),
+        },
       })
       .eq("id", automation.id);
 
-    console.log(`Campaign generation completed: ${postsGenerated} posts created`);
+    console.log(
+      `Campaign generation completed: ${postsGenerated} posts created`
+    );
 
     return new Response(
       JSON.stringify({
@@ -344,7 +447,6 @@ Format your response as JSON:
         status: 200,
       }
     );
-
   } catch (error) {
     console.error("Error generating 30-day campaign:", error);
     return new Response(
