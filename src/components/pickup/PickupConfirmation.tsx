@@ -23,16 +23,9 @@ interface PickupAppointment {
   seller_notes?: string;
   confirmed_at?: string;
   completed_at?: string;
-  slot: {
-    date: string;
-    time_start: string;
-    time_end: string;
-  };
-  buyer_profile: {
-    display_name: string;
-    email: string;
-    phone?: string;
-  };
+  seller_id: string;
+  buyer_id: string;
+  slot_id: string;
 }
 
 export const PickupConfirmation = ({ orderId, onConfirmed }: PickupConfirmationProps) => {
@@ -51,11 +44,7 @@ export const PickupConfirmation = ({ orderId, onConfirmed }: PickupConfirmationP
     try {
       const { data, error } = await supabase
         .from('pickup_appointments')
-        .select(`
-          *,
-          slot:pickup_slots(date, time_start, time_end),
-          buyer_profile:profiles!pickup_appointments_buyer_id_fkey(display_name, email, phone)
-        `)
+        .select('*')
         .eq('order_id', orderId)
         .single();
 
@@ -103,7 +92,7 @@ export const PickupConfirmation = ({ orderId, onConfirmed }: PickupConfirmationP
         await supabase
           .from('pickup_slots')
           .update({ is_available: true })
-          .eq('id', appointment.slot.id);
+          .eq('id', appointment.slot_id);
       }
 
       await supabase
@@ -195,12 +184,9 @@ export const PickupConfirmation = ({ orderId, onConfirmed }: PickupConfirmationP
           <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
             <Calendar className="h-4 w-4 mt-0.5 text-muted-foreground" />
             <div>
-              <p className="text-sm font-medium">Date & Time</p>
+              <p className="text-sm font-medium">Pickup Scheduled</p>
               <p className="text-sm text-muted-foreground">
-                {format(new Date(appointment.slot.date), 'EEEE, MMMM d, yyyy')}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {appointment.slot.time_start} - {appointment.slot.time_end}
+                Status: {appointment.status}
               </p>
             </div>
           </div>
@@ -216,14 +202,8 @@ export const PickupConfirmation = ({ orderId, onConfirmed }: PickupConfirmationP
           <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
             <User className="h-4 w-4 mt-0.5 text-muted-foreground" />
             <div>
-              <p className="text-sm font-medium">
-                {isSeller ? 'Buyer' : 'Seller'} Information
-              </p>
-              <p className="text-sm text-muted-foreground">{appointment.buyer_profile.display_name}</p>
-              <p className="text-sm text-muted-foreground">{appointment.buyer_profile.email}</p>
-              {appointment.buyer_profile.phone && (
-                <p className="text-sm text-muted-foreground">{appointment.buyer_profile.phone}</p>
-              )}
+              <p className="text-sm font-medium">Appointment Details</p>
+              <p className="text-sm text-muted-foreground">Order ID: {orderId}</p>
             </div>
           </div>
         </div>

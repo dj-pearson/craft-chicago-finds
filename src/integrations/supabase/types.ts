@@ -515,6 +515,90 @@ export type Database = {
           },
         ]
       }
+      pickup_appointments: {
+        Row: {
+          buyer_id: string
+          buyer_notes: string | null
+          completed_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          id: string
+          order_id: string
+          pickup_location: string
+          seller_id: string
+          seller_notes: string | null
+          slot_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          buyer_notes?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          id?: string
+          order_id: string
+          pickup_location: string
+          seller_id: string
+          seller_notes?: string | null
+          slot_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          buyer_notes?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          id?: string
+          order_id?: string
+          pickup_location?: string
+          seller_id?: string
+          seller_notes?: string | null
+          slot_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pickup_slots: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          is_available: boolean
+          notes: string | null
+          seller_id: string
+          time_end: string
+          time_start: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          is_available?: boolean
+          notes?: string | null
+          seller_id: string
+          time_end: string
+          time_start: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          is_available?: boolean
+          notes?: string | null
+          seller_id?: string
+          time_end?: string
+          time_start?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plans: {
         Row: {
           active: boolean

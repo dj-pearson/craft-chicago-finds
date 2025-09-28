@@ -13,6 +13,7 @@ import { ArrowLeft, Package, MapPin, CreditCard, Truck, MessageCircle, Star } fr
 import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { ReviewForm, ReviewDisplay } from "@/components/reviews";
+import { PickupScheduler, PickupConfirmation } from "@/components/pickup";
 
 interface OrderDetailsProps {
   orderId: string;
@@ -405,6 +406,32 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Pickup Scheduling */}
+      {order.fulfillment_method === "local_pickup" && order.status === "pending" && isBuyer && (
+        <PickupScheduler
+          orderId={order.id}
+          sellerId={order.seller_id}
+          pickupLocation={order.pickup_location || ""}
+          onScheduled={() => {
+            // Refresh order data
+            const orderCopy = { ...order };
+            orderCopy.status = "confirmed";
+            setOrder(orderCopy);
+          }}
+        />
+      )}
+
+      {/* Pickup Confirmation */}
+      {order.fulfillment_method === "local_pickup" && order.status !== "pending" && (
+        <PickupConfirmation
+          orderId={order.id}
+          onConfirmed={() => {
+            // Refresh the component
+            window.location.reload();
+          }}
+        />
+      )}
 
       {/* Actions */}
       {isSeller && (

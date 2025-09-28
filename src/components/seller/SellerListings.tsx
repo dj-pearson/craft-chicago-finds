@@ -16,8 +16,10 @@ import {
   Package,
   DollarSign,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  Clock
 } from "lucide-react";
+import { PickupSlotManager } from "@/components/pickup";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -169,12 +171,16 @@ export const SellerListings = () => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Package className="h-5 w-5" />
-          My Listings ({listings.length})
-        </CardTitle>
+    <div className="space-y-6">
+      {/* Pickup Slot Manager */}
+      <PickupSlotManager />
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            My Listings ({listings.length})
+          </CardTitle>
         
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4">
@@ -312,5 +318,6 @@ export const SellerListings = () => {
         )}
       </CardContent>
     </Card>
+    </div>
   );
 };

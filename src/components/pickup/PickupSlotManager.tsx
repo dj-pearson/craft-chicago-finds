@@ -19,13 +19,6 @@ interface PickupSlot {
   time_end: string;
   is_available: boolean;
   notes?: string;
-  appointments?: {
-    id: string;
-    buyer_profile: {
-      display_name: string;
-    };
-    status: string;
-  }[];
 }
 
 export const PickupSlotManager = () => {
@@ -53,14 +46,7 @@ export const PickupSlotManager = () => {
     try {
       const { data, error } = await supabase
         .from('pickup_slots')
-        .select(`
-          *,
-          appointments:pickup_appointments(
-            id,
-            status,
-            buyer_profile:profiles!pickup_appointments_buyer_id_fkey(display_name)
-          )
-        `)
+        .select('*')
         .eq('seller_id', user.id)
         .gte('date', format(startOfDay(new Date()), 'yyyy-MM-dd'))
         .order('date', { ascending: true })
@@ -328,9 +314,9 @@ export const PickupSlotManager = () => {
                       {slot.notes && (
                         <p className="text-sm text-muted-foreground">{slot.notes}</p>
                       )}
-                      {slot.appointments && slot.appointments.length > 0 && (
+                      {!slot.is_available && (
                         <p className="text-sm text-primary">
-                          Booked by {slot.appointments[0].buyer_profile.display_name}
+                          Slot is booked
                         </p>
                       )}
                     </div>
