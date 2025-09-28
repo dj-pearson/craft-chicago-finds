@@ -64,7 +64,7 @@ export const PlansProvider = ({ children }: { children: React.ReactNode }) => {
         .order('price');
 
       if (error) throw error;
-      setPlans(data || []);
+      setPlans(data as Plan[] || []);
     } catch (error) {
       console.error('Error fetching plans:', error);
     }
@@ -86,7 +86,7 @@ export const PlansProvider = ({ children }: { children: React.ReactNode }) => {
         .maybeSingle();
 
       if (error) throw error;
-      setCurrentSubscription(data as Subscription | null);
+      setCurrentSubscription(data as any);
     } catch (error) {
       console.error('Error fetching subscription:', error);
     } finally {

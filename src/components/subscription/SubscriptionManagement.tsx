@@ -163,7 +163,7 @@ export const SubscriptionManagement = () => {
           <CardTitle className="flex items-center gap-2">
             <Crown className="h-5 w-5 text-primary" />
             {plan.name} Plan
-            <Badge variant="success">Active</Badge>
+            <Badge variant="default">Active</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -176,7 +176,7 @@ export const SubscriptionManagement = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Status</span>
-                <Badge variant="success">{currentSubscription.status}</Badge>
+                <Badge variant="default">{currentSubscription.status}</Badge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Next billing</span>
@@ -303,7 +303,7 @@ export const SubscriptionManagement = () => {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Auto-renewal</span>
-              <Badge variant="success">Enabled</Badge>
+              <Badge variant="default">Enabled</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Next charge</span>

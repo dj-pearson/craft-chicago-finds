@@ -8,6 +8,7 @@ import { AdminProvider } from "./hooks/useAdmin";
 import { CityProvider } from "./hooks/useCityContext";
 import { StripeProvider } from "./hooks/useStripe";
 import { CartProvider } from "./hooks/useCart";
+import { PlansProvider } from "./hooks/usePlans";
 import Landing from "./pages/Landing";
 import City from "./pages/City";
 import Auth from "./pages/Auth";
@@ -20,6 +21,7 @@ import Messages from "./pages/Messages";
 import Orders from "./pages/Orders";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
+import Pricing from "./pages/Pricing";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -29,11 +31,12 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <StripeProvider>
       <AuthProvider>
-        <CartProvider>
-          <AdminProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
+        <PlansProvider>
+          <CartProvider>
+            <AdminProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
           <BrowserRouter>
             <CityProvider>
               <Routes>
@@ -47,6 +50,7 @@ const App = () => (
                   <Route path="/orders" element={<Orders />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/pricing" element={<Pricing />} />
                   <Route path="/profile" element={<Profile />} />
                 <Route path="/:city/browse" element={<Browse />} />
                 <Route path="/:city/product/:id" element={<ProductDetail />} />
@@ -56,9 +60,10 @@ const App = () => (
               </Routes>
             </CityProvider>
           </BrowserRouter>
-            </TooltipProvider>
-          </AdminProvider>
-        </CartProvider>
+              </TooltipProvider>
+            </AdminProvider>
+          </CartProvider>
+        </PlansProvider>
       </AuthProvider>
     </StripeProvider>
   </QueryClientProvider>

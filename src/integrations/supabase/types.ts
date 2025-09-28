@@ -371,6 +371,60 @@ export type Database = {
           },
         ]
       }
+      plans: {
+        Row: {
+          active: boolean
+          analytics_enabled: boolean
+          created_at: string
+          custom_branding: boolean
+          featured_listings: number
+          features: string[]
+          id: string
+          interval: string
+          max_listings: number | null
+          name: string
+          popular: boolean
+          price: number
+          priority_support: boolean
+          stripe_price_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          analytics_enabled?: boolean
+          created_at?: string
+          custom_branding?: boolean
+          featured_listings?: number
+          features?: string[]
+          id?: string
+          interval: string
+          max_listings?: number | null
+          name: string
+          popular?: boolean
+          price: number
+          priority_support?: boolean
+          stripe_price_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          analytics_enabled?: boolean
+          created_at?: string
+          custom_branding?: boolean
+          featured_listings?: number
+          features?: string[]
+          id?: string
+          interval?: string
+          max_listings?: number | null
+          name?: string
+          popular?: boolean
+          price?: number
+          priority_support?: boolean
+          stripe_price_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -392,6 +446,7 @@ export type Database = {
           seller_verified: boolean
           social_links: Json | null
           stripe_account_id: string | null
+          stripe_customer_id: string | null
           tax_id: string | null
           updated_at: string
           user_id: string
@@ -417,6 +472,7 @@ export type Database = {
           seller_verified?: boolean
           social_links?: Json | null
           stripe_account_id?: string | null
+          stripe_customer_id?: string | null
           tax_id?: string | null
           updated_at?: string
           user_id: string
@@ -442,6 +498,7 @@ export type Database = {
           seller_verified?: boolean
           social_links?: Json | null
           stripe_account_id?: string | null
+          stripe_customer_id?: string | null
           tax_id?: string | null
           updated_at?: string
           user_id?: string
@@ -494,6 +551,53 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          id: string
+          plan_id: string
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end: string
+          current_period_start: string
+          id?: string
+          plan_id: string
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          plan_id?: string
+          status?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
             referencedColumns: ["id"]
           },
         ]
