@@ -375,44 +375,77 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          business_address: string | null
+          business_name: string | null
           city_id: string | null
           created_at: string
           display_name: string | null
           email: string | null
           id: string
           is_seller: boolean
+          last_seen_at: string | null
           location: string | null
+          notification_preferences: Json | null
+          phone: string | null
+          seller_categories: string[] | null
+          seller_description: string | null
           seller_verified: boolean
+          social_links: Json | null
+          stripe_account_id: string | null
+          tax_id: string | null
           updated_at: string
           user_id: string
+          website: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          business_address?: string | null
+          business_name?: string | null
           city_id?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
           is_seller?: boolean
+          last_seen_at?: string | null
           location?: string | null
+          notification_preferences?: Json | null
+          phone?: string | null
+          seller_categories?: string[] | null
+          seller_description?: string | null
           seller_verified?: boolean
+          social_links?: Json | null
+          stripe_account_id?: string | null
+          tax_id?: string | null
           updated_at?: string
           user_id: string
+          website?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          business_address?: string | null
+          business_name?: string | null
           city_id?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
           is_seller?: boolean
+          last_seen_at?: string | null
           location?: string | null
+          notification_preferences?: Json | null
+          phone?: string | null
+          seller_categories?: string[] | null
+          seller_description?: string | null
           seller_verified?: boolean
+          social_links?: Json | null
+          stripe_account_id?: string | null
+          tax_id?: string | null
           updated_at?: string
           user_id?: string
+          website?: string | null
         }
         Relationships: [
           {
@@ -527,6 +560,10 @@ export type Database = {
       is_city_moderator: {
         Args: { _city_id: string; _user_id: string }
         Returns: boolean
+      }
+      update_last_seen: {
+        Args: { _user_id: string }
+        Returns: undefined
       }
     }
     Enums: {

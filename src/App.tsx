@@ -16,6 +16,7 @@ import Browse from "./pages/Browse";
 import ProductDetail from "./pages/ProductDetail";
 import Messages from "./pages/Messages";
 import Orders from "./pages/Orders";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
                 <Route path="/dashboard/listing/:id/edit" element={<CreateEditListing />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/orders" element={<Orders />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/:city/browse" element={<Browse />} />
                 <Route path="/:city/product/:id" element={<ProductDetail />} />
                 <Route path="/:city" element={<City />} />
