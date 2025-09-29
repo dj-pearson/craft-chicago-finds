@@ -212,10 +212,15 @@ serve(async (req) => {
           Object.assign(headers, webhookSetting.headers);
         }
 
-        console.log(`Sending webhook to: ${webhookSetting.webhook_url}`);
+        // Ensure webhook URL has protocol
+        const webhookUrl = webhookSetting.webhook_url.startsWith('http') 
+          ? webhookSetting.webhook_url 
+          : `https://${webhookSetting.webhook_url}`;
+
+        console.log(`Sending webhook to: ${webhookUrl}`);
 
         // Send the webhook
-        const webhookResponse = await fetch(webhookSetting.webhook_url, {
+        const webhookResponse = await fetch(webhookUrl, {
           method: "POST",
           headers,
           body: JSON.stringify(payload),
