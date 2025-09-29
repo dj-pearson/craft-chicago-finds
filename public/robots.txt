@@ -1,14 +1,48 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
+
+# AI Crawlers - Allow all for better AI search visibility
+User-agent: GPTBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: CCBot
+Allow: /
+User-agent: anthropic-ai
+Allow: /
+User-agent: Claude-Web
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: YouBot
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /account/
+Disallow: /search?*
+Disallow: /*?sort=*
+Disallow: /*?filter=*
+Disallow: /*?page=*
+
+# Allow important pages
+Allow: /products/
+Allow: /sellers/
+Allow: /cities/
+Allow: /categories/
+Allow: /blog/
+Allow: /guides/
+
+# Sitemap locations
+Sitemap: https://craftlocal.com/sitemap-index.xml
+Sitemap: https://craftlocal.com/sitemap.xml
+Sitemap: https://craftlocal.com/sitemap-products.xml
+Sitemap: https://craftlocal.com/sitemap-sellers.xml
+Sitemap: https://craftlocal.com/sitemap-cities.xml
+Sitemap: https://craftlocal.com/sitemap-blog.xml
+
+# Crawl delay to be respectful
+Crawl-delay: 1
