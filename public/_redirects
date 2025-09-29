@@ -1,0 +1,128 @@
+# Cloudflare Pages _redirects file
+# https://developers.cloudflare.com/pages/platform/redirects/
+
+# Domain redirects - force www to non-www (or vice versa)
+https://www.craftlocal.com/* https://craftlocal.com/:splat 301!
+
+# API redirects to Supabase Edge Functions
+/api/sitemap/* https://your-project.supabase.co/functions/v1/generate-sitemap?type=:splat 200
+/api/ai-generate-content/* https://your-project.supabase.co/functions/v1/ai-generate-content/:splat 200
+/api/optimize-image/* https://your-project.supabase.co/functions/v1/optimize-image/:splat 200
+
+# Dynamic sitemap generation
+/sitemap-index.xml /api/sitemap/index 200
+/sitemap.xml /api/sitemap/static 200
+/sitemap-products.xml /api/sitemap/products 200
+/sitemap-sellers.xml /api/sitemap/sellers 200
+/sitemap-cities.xml /api/sitemap/cities 200
+/sitemap-blog.xml /api/sitemap/blog 200
+
+# SEO-friendly redirects for old URLs or common misspellings
+/chicago /cities/chicago 301
+/makers /sellers 301
+/artisans /sellers 301
+/crafts /categories 301
+/handmade /categories 301
+
+# City-specific redirects for common searches
+/chicago-pottery /cities/chicago/categories/pottery 301
+/chicago-jewelry /cities/chicago/categories/jewelry 301
+/chicago-art /cities/chicago/categories/art 301
+/chicago-gifts /cities/chicago/categories/gifts 301
+/chicago-makers /cities/chicago 301
+
+# Category redirects for better SEO
+/pottery /categories/pottery 301
+/jewelry /categories/jewelry 301
+/home-decor /categories/home-decor 301
+/art /categories/art 301
+/gifts /categories/gifts 301
+
+# Legacy URL patterns (if migrating from another platform)
+/product/:id /products/:id 301
+/shop/:id /sellers/:id 301
+/category/:slug /categories/:slug 301
+
+# Admin panel security - redirect to login if not authenticated
+/admin /auth?redirect=/admin 302
+
+# Handle common file extensions that should redirect to SPA
+/about.html /about 301
+/contact.html /contact 301
+/privacy.html /privacy 301
+/terms.html /terms 301
+
+# Social media and marketing redirects
+/instagram https://instagram.com/craftlocal 302
+/facebook https://facebook.com/craftlocal 302
+/twitter https://twitter.com/craftlocal 302
+
+# Press and media kit
+/press /about#press 301
+/media /about#press 301
+
+# Common typos and alternative spellings
+/craft-local /  301
+/craftlocals / 301
+/craft-locals / 301
+
+# Mobile app redirects (future)
+/app /  302
+/mobile /  302
+
+# Newsletter and signup redirects
+/newsletter /auth?tab=signup 302
+/signup /auth?tab=signup 302
+/signin /auth?tab=signin 302
+/login /auth?tab=signin 302
+/register /auth?tab=signup 302
+
+# Help and support redirects
+/help /contact 301
+/support /contact 301
+/faq /about#faq 301
+
+# Seller onboarding flow
+/sell-with-us /sell 301
+/become-seller /sell 301
+/start-selling /sell 301
+
+# Gift-related redirects for seasonal traffic
+/holiday-gifts /categories/gifts 302
+/christmas-gifts /categories/gifts 302
+/valentine-gifts /categories/gifts 302
+/mothers-day-gifts /categories/gifts 302
+
+# Blog redirects for common content
+/how-to-sell /blog/how-to-sell-handmade-items-online 301
+/pricing-guide /blog/how-to-price-handmade-products 301
+/photography-tips /blog/product-photography-tips-handmade-sellers 301
+
+# Location-based redirects for expansion cities (future)
+/milwaukee /cities/milwaukee 302
+/madison /cities/madison 302
+/indianapolis /cities/indianapolis 302
+
+# Affiliate and partner redirects
+/partners /about#partners 301
+/wholesale /contact 301
+
+# Event and craft fair redirects
+/events /blog/chicago-craft-fairs-events 302
+/craft-fairs /blog/chicago-craft-fairs-events 302
+
+# Handle trailing slashes consistently
+/cities/chicago/ /cities/chicago 301
+/categories/pottery/ /categories/pottery 301
+/sellers/*/  /sellers/:splat 301
+/products/*/ /products/:splat 301
+
+# Force HTTPS redirect (handled by Cloudflare, but good to have)
+http://craftlocal.com/* https://craftlocal.com/:splat 301!
+
+# Handle www subdomain consistently
+http://www.craftlocal.com/* https://craftlocal.com/:splat 301!
+
+# SPA fallback - MUST BE LAST
+# This ensures all unmatched routes go to index.html for client-side routing
+/* /index.html 200
