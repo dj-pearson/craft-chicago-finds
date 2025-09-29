@@ -73,35 +73,35 @@ Let makers or local tastemakers make public collections; buyers can follow them.
 ✅Wishlist sharing
 One click to share a list for birthdays/holidays.
 
-Seller-side power tools
+✅ Seller-side power tools
 
-AI photo helper
+✅ AI photo helper
 Auto background clean-up, crop to square/portrait, exposure fix. One click per image.
 
-AI titles, tags, and descriptions
+✅ AI titles, tags, and descriptions
 Drafts based on the photo + seller notes. Seller approves/edits.
 
-Price coach
+✅ Price coach
 Private comps within category/size/material; nudge when price is far off market.
 
-Bulk edit & CSV/etsy import
+✅ Bulk edit & CSV/etsy import
 Fast onboarding. Map fields, review, publish.
 
-Prep & pack guides
+✅ Prep & pack guides
 Best-practice checklists by item type; packaging tips to reduce damage and returns.
 
 Shipping label hub (phase 2)
 Buy USPS/UPS labels, auto-fill weight from past orders, tracking sent to buyer.
 
-Data & feedback loops
+✅ Data & feedback loops
 
-Shop health score (private)
+✅ Shop health score (private)
 Ship speed, review rate, low damage rate → clear hints on how to improve.
 
-Search insight cards (private)
-“People searched ‘cedar candle’ 1,200 times last week; add ‘cedar’ tag?” One-click fix.
+✅ Search insight cards (private)
+"People searched 'cedar candle' 1,200 times last week; add 'cedar' tag?" One-click fix.
 
-A/B test slots
+✅ A/B test slots
 Try two cover photos or titles; show which one sells more.
 
 Nice extras that wow

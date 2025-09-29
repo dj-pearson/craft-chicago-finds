@@ -23,6 +23,9 @@ import {
   ImageIcon
 } from "lucide-react";
 import { toast } from "sonner";
+import { AIPhotoHelper } from "@/components/seller/AIPhotoHelper";
+import { AIListingHelper } from "@/components/seller/AIListingHelper";
+import { PriceCoach } from "@/components/seller/PriceCoach";
 
 interface Category {
   id: string;
@@ -609,6 +612,47 @@ const CreateEditListing = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* AI Listing Helper */}
+              <AIListingHelper
+                imageUrl={images[0]}
+                category={categories.find(c => c.id === formData.category_id)?.name}
+                currentTitle={formData.title}
+                currentDescription={formData.description}
+                currentTags={formData.tags}
+                onContentGenerated={(content) => {
+                  if (content.title) {
+                    setFormData(prev => ({ ...prev, title: content.title! }));
+                  }
+                  if (content.description) {
+                    setFormData(prev => ({ ...prev, description: content.description! }));
+                  }
+                  if (content.tags) {
+                    setFormData(prev => ({ ...prev, tags: content.tags!.join(', ') }));
+                  }
+                }}
+                className="mb-6"
+              />
+
+              {/* AI Photo Helper - Show only if there are images */}
+              {images.length > 0 && (
+                <AIPhotoHelper
+                  imageUrl={images[0]}
+                  onImageProcessed={(newImageUrl) => {
+                    setImages(prev => [newImageUrl, ...prev.slice(1)]);
+                  }}
+                  className="mb-6"
+                />
+              )}
+
+              {/* Price Coach */}
+              <PriceCoach
+                category={formData.category_id}
+                currentPrice={formData.price ? parseFloat(formData.price) : undefined}
+                productTitle={formData.title}
+                productTags={formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : []}
+                className="mb-6"
+              />
 
               {/* Tips */}
               <Card>
