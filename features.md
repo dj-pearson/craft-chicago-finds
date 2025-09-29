@@ -1,9 +1,9 @@
 Buying & checkout
 
-One-tap guest checkout + Apple Pay / Google Pay
+✅ One-tap guest checkout + Apple Pay / Google Pay
 Cut steps. Remember email + address with a magic link for next time (no password walls).
 
-Multi-seller cart with one charge
+✅ Multi-seller cart with one charge
 One receipt, split payouts via Stripe Connect on the back end.
 
 Gift mode
