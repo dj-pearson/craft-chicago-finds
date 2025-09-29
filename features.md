@@ -39,16 +39,16 @@ Buyer assembles gift sets from different items; auto bundle discount.
 
 Trust, quality & support
 
-Delivery promise bar
+✅Delivery promise bar
 Clear “Order by Wed → arrives Tue” dates on PDP/cart, based on seller lead time + carrier SLA.
 
-Badges that matter
+✅Badges that matter
 Top-rated, Fast shipper, Great packaging, Eco pack. All earned from real metrics.
 
-Photo reviews with attributes
+✅Photo reviews with attributes
 Ask quick tags: fit/quality/packaging. Show buyer photos at the top.
 
-Simple protection & easy refunds
+✅Simple protection & easy refunds
 Clear “not as described / damaged” flow; instant partial refunds when seller opts in.
 
 Speed & polish
