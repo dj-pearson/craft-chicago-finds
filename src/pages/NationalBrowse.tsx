@@ -9,6 +9,7 @@ import { Globe, ArrowRight, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { LazyImage } from "@/components/ui/lazy-image";
+import { SubtleSignupPrompt } from "@/components/auth/SubtleSignupPrompt";
 
 interface Category {
   id: string;
@@ -35,32 +36,28 @@ const NationalBrowse = () => {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const categorySlug = searchParams.get('category');
-  const searchQuery = searchParams.get('q') || '';
-  const makersOnly = searchParams.get('type') === 'makers';
+  const categorySlug = searchParams.get("category");
+  const searchQuery = searchParams.get("q") || "";
+  const makersOnly = searchParams.get("type") === "makers";
 
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-    
+    // Allow anonymous browsing - fetch data regardless of auth status
     fetchCategories();
     fetchListings();
-  }, [user, navigate, categorySlug, searchQuery]);
+  }, [categorySlug, searchQuery]);
 
   const fetchCategories = async () => {
     try {
       const { data, error } = await supabase
-        .from('categories')
-        .select('id, name, slug, parent_id')
-        .eq('is_active', true)
-        .order('name');
+        .from("categories")
+        .select("id, name, slug, parent_id")
+        .eq("is_active", true)
+        .order("name");
 
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
     } finally {
       setLoading(false);
     }
@@ -69,41 +66,39 @@ const NationalBrowse = () => {
   const fetchListings = async () => {
     try {
       let query = supabase
-        .from('listings')
-        .select('*')
-        .eq('status', 'active')
-        .eq('national_shipping_available', true); // Only show items with national shipping
+        .from("listings")
+        .select("*")
+        .eq("status", "active")
+        .eq("national_shipping_available", true); // Only show items with national shipping
 
       // Apply category filter
       if (currentCategory) {
-        query = query.eq('category_id', currentCategory.id);
+        query = query.eq("category_id", currentCategory.id);
       }
 
       // Apply search filter
       if (searchQuery) {
-        query = query.ilike('title', `%${searchQuery}%`);
+        query = query.ilike("title", `%${searchQuery}%`);
       }
 
       const { data, error } = await query.limit(50);
-      
+
       if (error) throw error;
       setListings(data || []);
     } catch (error) {
-      console.error('Error fetching listings:', error);
+      console.error("Error fetching listings:", error);
       setListings([]);
     }
   };
 
-  const currentCategory = categories.find(cat => cat.slug === categorySlug);
+  const currentCategory = categories.find((cat) => cat.slug === categorySlug);
 
-  if (!user) {
-    return null;
-  }
+  // Allow anonymous browsing - user is optional
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main>
         {/* National Browse Header */}
         <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border">
@@ -115,10 +110,16 @@ const NationalBrowse = () => {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-foreground">
-                    {makersOnly ? 'All Makers' : currentCategory ? currentCategory.name : 'Browse All'}
+                    {makersOnly
+                      ? "All Makers"
+                      : currentCategory
+                      ? currentCategory.name
+                      : "Browse All"}
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    {makersOnly ? 'Discover makers who ship nationwide' : 'Shop handmade goods with national shipping'}
+                    {makersOnly
+                      ? "Discover makers who ship nationwide"
+                      : "Shop handmade goods with national shipping"}
                   </p>
                 </div>
               </div>
@@ -126,8 +127,8 @@ const NationalBrowse = () => {
                 <Badge variant="secondary" className="text-sm">
                   National
                 </Badge>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => navigate("/")}
                   className="gap-2"
@@ -159,14 +160,16 @@ const NationalBrowse = () => {
             <div className="relative">
               <input
                 type="text"
-                placeholder={`Search ${makersOnly ? 'makers' : 'products'} nationwide...`}
+                placeholder={`Search ${
+                  makersOnly ? "makers" : "products"
+                } nationwide...`}
                 value={searchQuery}
                 onChange={(e) => {
                   const newParams = new URLSearchParams(searchParams);
                   if (e.target.value) {
-                    newParams.set('q', e.target.value);
+                    newParams.set("q", e.target.value);
                   } else {
-                    newParams.delete('q');
+                    newParams.delete("q");
                   }
                   navigate(`/browse?${newParams.toString()}`);
                 }}
@@ -177,6 +180,9 @@ const NationalBrowse = () => {
         </div>
 
         <div className="container mx-auto px-4 py-6">
+          {/* Subtle signup prompt for anonymous users */}
+          <SubtleSignupPrompt variant="general" className="mb-6" />
+
           {/* Listings Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {loading ? (
@@ -193,12 +199,13 @@ const NationalBrowse = () => {
                 <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No Results Found</h3>
                 <p className="text-muted-foreground">
-                  Try adjusting your search terms or browse different categories.
+                  Try adjusting your search terms or browse different
+                  categories.
                 </p>
               </div>
             ) : (
               listings.map((listing) => (
-                <Card 
+                <Card
                   key={listing.id}
                   className="group cursor-pointer hover:shadow-md transition-all duration-200"
                   onClick={() => navigate(`/product/${listing.id}`)}
@@ -216,7 +223,7 @@ const NationalBrowse = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   <CardContent className="p-4">
                     <h3 className="font-semibold text-base group-hover:text-primary transition-colors mb-2 line-clamp-1">
                       {listing.title}

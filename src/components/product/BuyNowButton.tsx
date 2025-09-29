@@ -1,11 +1,16 @@
-import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { StripeCheckout } from '@/components/checkout/StripeCheckout';
-import { ShoppingCart, CreditCard } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { StripeCheckout } from "@/components/checkout/StripeCheckout";
+import { ShoppingCart, CreditCard } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface BuyNowButtonProps {
   listing: {
@@ -27,21 +32,13 @@ export const BuyNowButton = ({ listing }: BuyNowButtonProps) => {
   const [showCheckout, setShowCheckout] = useState(false);
 
   const handleBuyNow = () => {
-    if (!user) {
-      toast({
-        title: 'Please sign in',
-        description: 'You need to be signed in to make a purchase.',
-        variant: 'destructive'
-      });
-      navigate('/auth');
-      return;
-    }
+    // Allow guest purchases - no need to require authentication
 
-    if (user.id === listing.seller_id) {
+    if (user && user.id === listing.seller_id) {
       toast({
-        title: 'Cannot purchase',
-        description: 'You cannot purchase your own listing.',
-        variant: 'destructive'
+        title: "Cannot purchase",
+        description: "You cannot purchase your own listing.",
+        variant: "destructive",
       });
       return;
     }
@@ -52,19 +49,20 @@ export const BuyNowButton = ({ listing }: BuyNowButtonProps) => {
   const handleCheckoutSuccess = (orderId: string) => {
     setShowCheckout(false);
     toast({
-      title: 'Order placed successfully!',
-      description: 'You can track your order in the Orders page.',
+      title: "Order placed successfully!",
+      description: "You can track your order in the Orders page.",
     });
-    navigate('/orders');
+    navigate("/orders");
   };
 
-  const isAvailable = listing.inventory_count === null || listing.inventory_count > 0;
-  const isSeller = user?.id === listing.seller_id;
+  const isAvailable =
+    listing.inventory_count === null || listing.inventory_count > 0;
+  const isSeller = user && user.id === listing.seller_id;
 
   return (
     <>
-      <Button 
-        size="lg" 
+      <Button
+        size="lg"
         className="w-full"
         disabled={!isAvailable || isSeller}
         onClick={handleBuyNow}

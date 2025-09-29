@@ -8,6 +8,7 @@ import { SearchBar } from "@/components/browse/SearchBar";
 import { SearchResults } from "@/components/browse/SearchResults";
 import { ReadyTodayFilters } from "@/components/browse/ReadyTodayFilters";
 import { VisualSearch } from "@/components/browse/VisualSearch";
+import { SubtleSignupPrompt } from "@/components/auth/SubtleSignupPrompt";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
 import { useSearchAnalytics } from "@/hooks/useSearchAnalytics";
@@ -93,12 +94,7 @@ const Browse = () => {
     setSearchQuery("Visual Search Results");
   };
 
-  // Redirect to auth if not logged in
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
+  // No longer redirect to auth - allow anonymous browsing
 
   // Initialize filters from URL params
   useEffect(() => {
@@ -327,10 +323,7 @@ const Browse = () => {
     );
   }
 
-  // Don't render if user not authenticated
-  if (!user) {
-    return null;
-  }
+  // Allow anonymous browsing - user is optional
 
   return (
     <div className="min-h-screen bg-background">
@@ -372,6 +365,9 @@ const Browse = () => {
             />
           </div>
         </div>
+
+        {/* Subtle signup prompt for anonymous users */}
+        <SubtleSignupPrompt variant="general" className="mb-6" />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}

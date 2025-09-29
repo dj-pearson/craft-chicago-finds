@@ -6,6 +6,7 @@ import { CategoryGrid } from "@/components/CategoryGrid";
 import { FeaturedMakers } from "@/components/FeaturedMakers";
 import { FeaturedContent } from "@/components/FeaturedContent";
 import { Footer } from "@/components/Footer";
+import { SubtleSignupPrompt } from "@/components/auth/SubtleSignupPrompt";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
 import { Button } from "@/components/ui/button";
@@ -16,12 +17,7 @@ const City = () => {
   const { currentCity, loading: cityLoading, isValidCity } = useCityContext();
   const navigate = useNavigate();
 
-  // Redirect to auth if not logged in
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
+  // No longer redirect to auth - allow anonymous browsing
 
   // Show loading state
   if (authLoading || cityLoading) {
@@ -90,10 +86,7 @@ const City = () => {
     );
   }
 
-  // Don't render if user not authenticated
-  if (!user) {
-    return null;
-  }
+  // Allow anonymous browsing - user is optional
 
   return (
     <div className="min-h-screen bg-background">
@@ -104,19 +97,21 @@ const City = () => {
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2 text-sm">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => navigate("/")}
                   className="text-muted-foreground hover:text-primary h-auto p-1 -ml-1"
                 >
                   National Marketplace
                 </Button>
                 <span className="text-muted-foreground">/</span>
-                <span className="font-medium text-foreground">{currentCity.name}</span>
+                <span className="font-medium text-foreground">
+                  {currentCity.name}
+                </span>
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => navigate("/")}
                 className="gap-2"
@@ -127,8 +122,10 @@ const City = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="container mx-auto px-4 py-8">
+          {/* Subtle signup prompt for anonymous users */}
+          <SubtleSignupPrompt variant="general" className="mb-8" />
           <FeaturedContent />
         </div>
         <CategoryGrid />

@@ -10,17 +10,13 @@ import { Button } from "@/components/ui/button";
 import { NationalCategoryGrid } from "@/components/NationalCategoryGrid";
 import { NationalFeaturedMakers } from "@/components/NationalFeaturedMakers";
 import { NationalFeaturedContent } from "@/components/NationalFeaturedContent";
+import { SubtleSignupPrompt } from "@/components/auth/SubtleSignupPrompt";
 
 const NationalMarketplace = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect to auth if not logged in
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
+  // No longer redirect to auth - allow anonymous browsing
 
   // Show loading state
   if (authLoading) {
@@ -34,10 +30,7 @@ const NationalMarketplace = () => {
     );
   }
 
-  // Don't render if user not authenticated
-  if (!user) {
-    return null;
-  }
+  // Allow anonymous browsing - user is optional
 
   return (
     <div className="min-h-screen bg-background">
@@ -52,8 +45,12 @@ const NationalMarketplace = () => {
                   <Globe className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-foreground">National Marketplace</h1>
-                  <p className="text-sm text-muted-foreground">Discover makers who ship nationwide</p>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    National Marketplace
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    Discover makers who ship nationwide
+                  </p>
                 </div>
               </div>
               <Badge variant="secondary" className="text-sm">
@@ -65,6 +62,8 @@ const NationalMarketplace = () => {
 
         {/* Featured Content */}
         <div className="container mx-auto px-4 py-8">
+          {/* Subtle signup prompt for anonymous users */}
+          <SubtleSignupPrompt variant="general" className="mb-8" />
           <NationalFeaturedContent />
         </div>
 
@@ -77,14 +76,17 @@ const NationalMarketplace = () => {
         {/* City Exploration CTA */}
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-4">Explore Local Marketplaces</h2>
+            <h2 className="text-3xl font-bold mb-4">
+              Explore Local Marketplaces
+            </h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Want to shop locally? Browse city-specific marketplaces for local pickup, 
-              in-person meetings, and community connections with makers in your area.
+              Want to shop locally? Browse city-specific marketplaces for local
+              pickup, in-person meetings, and community connections with makers
+              in your area.
             </p>
-            <Button 
+            <Button
               onClick={() => navigate("/")}
-              variant="outline" 
+              variant="outline"
               size="lg"
               className="gap-2"
             >
