@@ -53,13 +53,13 @@ Clear “not as described / damaged” flow; instant partial refunds when seller
 
 Speed & polish
 
-Crazy-fast UI
+✅Crazy-fast UI
 Image CDN, lazy-load, prefetch on hover, skeleton states, optimistic UI for cart/actions. Target <2.5s LCP.
 
-Smart save without login
+✅Smart save without login
 Hearts and recent views stored locally; send a magic link to sync later.
 
-Accessible by default
+✅Accessible by default
 High-contrast toggle, reduced motion, large hit-areas, ARIA labels, good tab order.
 
 Community & retention
