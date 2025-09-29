@@ -27,6 +27,7 @@ const Messages = lazy(() => import("./pages/Messages"));
 const Orders = lazy(() => import("./pages/Orders"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Checkout = lazy(() => import("./pages/Checkout"));
+const GuestCheckout = lazy(() => import("./components/checkout/GuestCheckout"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Disputes = lazy(() => import("./pages/Disputes"));
@@ -70,6 +71,7 @@ const App = () => (
                   <Route path="/orders" element={<Orders />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/guest-checkout" element={<GuestCheckout />} />
                   <Route path="/pricing" element={<Pricing />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/disputes" element={<Disputes />} />
