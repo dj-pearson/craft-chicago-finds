@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { trackPageView, trackCityVisit, trackCategoryView, trackSellerView, trackViewItem } from "./analytics";
 
 export interface SEOConfig {
   title: string;

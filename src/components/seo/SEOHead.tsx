@@ -89,6 +89,17 @@ export const SEOHead = ({ config, children }: SEOHeadProps) => {
       <link rel="dns-prefetch" href="//fonts.googleapis.com" />
       <link rel="dns-prefetch" href="//cdnjs.cloudflare.com" />
       
+      {/* Google Analytics */}
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-3K5Z8EXE1P"></script>
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-3K5Z8EXE1P');
+        `
+      }} />
+      
       {/* Additional head content */}
       {children}
     </Helmet>
