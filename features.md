@@ -64,13 +64,13 @@ High-contrast toggle, reduced motion, large hit-areas, ARIA labels, good tab ord
 
 Community & retention
 
-Follow shops & notify on new items
+✅Follow shops & notify on new items
 “Follow” button on every shop; digest emails when new items drop.
 
-Collections by creators
+✅Collections by creators
 Let makers or local tastemakers make public collections; buyers can follow them.
 
-Wishlist sharing
+✅Wishlist sharing
 One click to share a list for birthdays/holidays.
 
 Seller-side power tools
