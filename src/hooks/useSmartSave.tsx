@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface SavedItem {
@@ -49,10 +48,11 @@ export const useSmartSave = () => {
     loadFromStorage();
   }, []);
 
-  // Sync with server when user logs in
+  // Sync with server when user logs in (stub for now)
   useEffect(() => {
     if (user && state.hasPendingSync) {
-      syncWithServer();
+      // TODO: Implement server sync when user_favorites and user_recent_views tables exist
+      console.log('Smart save sync not yet implemented');
     }
   }, [user, state.hasPendingSync]);
 
@@ -99,7 +99,7 @@ export const useSmartSave = () => {
       listing_id: listingId,
       listing_data: listingData,
       timestamp: Date.now(),
-      synced: !!user, // Mark as synced if user is logged in
+      synced: false, // Mark as not synced since we don't have server integration yet
     };
 
     setState(prev => {
@@ -118,44 +118,19 @@ export const useSmartSave = () => {
       const newState = {
         ...prev,
         favorites: newFavorites,
-        hasPendingSync: !user || prev.hasPendingSync,
+        hasPendingSync: true,
       };
 
       saveToStorage({ favorites: newFavorites });
       return newState;
     });
 
-    // Sync immediately if user is logged in
-    if (user) {
-      try {
-        await supabase
-          .from('user_favorites')
-          .upsert({
-            user_id: user.id,
-            listing_id: listingId,
-            created_at: new Date().toISOString(),
-          });
-        
-        // Mark as synced
-        setState(prev => ({
-          ...prev,
-          favorites: prev.favorites.map(f => 
-            f.listing_id === listingId ? { ...f, synced: true } : f
-          ),
-        }));
-      } catch (error) {
-        console.error('Error syncing favorite:', error);
-      }
-    }
-
     toast({
       title: "Added to favorites",
-      description: user 
-        ? "Saved to your account" 
-        : "Saved locally. Sign in to sync across devices.",
+      description: "Saved locally. Server sync coming soon!",
       duration: 3000,
     });
-  }, [user, toast, saveToStorage]);
+  }, [toast, saveToStorage]);
 
   // Remove from favorites
   const removeFavorite = useCallback(async (listingId: string) => {
@@ -169,24 +144,11 @@ export const useSmartSave = () => {
       };
     });
 
-    // Remove from server if user is logged in
-    if (user) {
-      try {
-        await supabase
-          .from('user_favorites')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('listing_id', listingId);
-      } catch (error) {
-        console.error('Error removing favorite from server:', error);
-      }
-    }
-
     toast({
       title: "Removed from favorites",
       duration: 2000,
     });
-  }, [user, toast, saveToStorage]);
+  }, [toast, saveToStorage]);
 
   // Add to recent views
   const addRecentView = useCallback((
@@ -199,7 +161,7 @@ export const useSmartSave = () => {
       listing_id: listingId,
       listing_data: listingData,
       timestamp: Date.now(),
-      synced: !!user,
+      synced: false,
     };
 
     setState(prev => {
@@ -212,30 +174,10 @@ export const useSmartSave = () => {
       return {
         ...prev,
         recentViews: newRecentViews,
-        hasPendingSync: !user || prev.hasPendingSync,
+        hasPendingSync: true,
       };
     });
-
-    // Sync with server if user is logged in (fire and forget)
-    if (user) {
-      supabase
-        .from('user_recent_views')
-        .upsert({
-          user_id: user.id,
-          listing_id: listingId,
-          viewed_at: new Date().toISOString(),
-        })
-        .then(() => {
-          setState(prev => ({
-            ...prev,
-            recentViews: prev.recentViews.map(v => 
-              v.listing_id === listingId ? { ...v, synced: true } : v
-            ),
-          }));
-        })
-        .catch(error => console.error('Error syncing recent view:', error));
-    }
-  }, [user, saveToStorage]);
+  }, [saveToStorage]);
 
   // Clear recent views
   const clearRecentViews = useCallback(() => {
@@ -245,145 +187,47 @@ export const useSmartSave = () => {
     }));
     
     localStorage.removeItem(STORAGE_KEYS.recentViews);
-    
-    if (user) {
-      supabase
-        .from('user_recent_views')
-        .delete()
-        .eq('user_id', user.id)
-        .catch(error => console.error('Error clearing recent views:', error));
-    }
-  }, [user]);
+  }, []);
 
-  // Sync with server
+  // Sync with server (stub)
   const syncWithServer = useCallback(async () => {
     if (!user) return;
 
     setState(prev => ({ ...prev, isLoading: true }));
 
     try {
-      // Sync favorites
-      const unsyncedFavorites = state.favorites.filter(f => !f.synced);
-      if (unsyncedFavorites.length > 0) {
-        const favoritesToSync = unsyncedFavorites.map(f => ({
-          user_id: user.id,
-          listing_id: f.listing_id,
-          created_at: new Date(f.timestamp).toISOString(),
-        }));
-
-        await supabase
-          .from('user_favorites')
-          .upsert(favoritesToSync);
-      }
-
-      // Sync recent views
-      const unsyncedViews = state.recentViews.filter(v => !v.synced);
-      if (unsyncedViews.length > 0) {
-        const viewsToSync = unsyncedViews.map(v => ({
-          user_id: user.id,
-          listing_id: v.listing_id,
-          viewed_at: new Date(v.timestamp).toISOString(),
-        }));
-
-        await supabase
-          .from('user_recent_views')
-          .upsert(viewsToSync);
-      }
-
-      // Load server data and merge
-      const [serverFavorites, serverViews] = await Promise.all([
-        supabase
-          .from('user_favorites')
-          .select('listing_id, created_at')
-          .eq('user_id', user.id),
-        supabase
-          .from('user_recent_views')
-          .select('listing_id, viewed_at')
-          .eq('user_id', user.id)
-          .order('viewed_at', { ascending: false })
-          .limit(MAX_RECENT_VIEWS)
-      ]);
-
-      // Merge server data with local data
-      const mergedFavorites = mergeSavedItems(
-        state.favorites,
-        serverFavorites.data?.map(f => ({
-          id: `server_fav_${f.listing_id}`,
-          type: 'favorite' as const,
-          listing_id: f.listing_id,
-          timestamp: new Date(f.created_at).getTime(),
-          synced: true,
-        })) || []
-      );
-
-      const mergedViews = mergeSavedItems(
-        state.recentViews,
-        serverViews.data?.map(v => ({
-          id: `server_view_${v.listing_id}`,
-          type: 'recent_view' as const,
-          listing_id: v.listing_id,
-          timestamp: new Date(v.viewed_at).getTime(),
-          synced: true,
-        })) || []
-      );
-
-      setState(prev => ({
-        ...prev,
-        favorites: mergedFavorites,
-        recentViews: mergedViews,
-        hasPendingSync: false,
-        isLoading: false,
-      }));
-
-      saveToStorage({ 
-        favorites: mergedFavorites, 
-        recentViews: mergedViews 
-      });
-
+      // TODO: Implement server sync when user_favorites and user_recent_views tables exist
+      console.log('Server sync not yet implemented');
+      
       toast({
-        title: "Data synced",
-        description: "Your favorites and recent views have been synced across devices",
+        title: "Feature coming soon",
+        description: "Server sync will be available soon!",
         duration: 3000,
       });
-
     } catch (error) {
       console.error('Error syncing with server:', error);
-      setState(prev => ({ ...prev, isLoading: false }));
-      
       toast({
         title: "Sync failed",
         description: "Unable to sync your data. Please try again later.",
         variant: "destructive",
         duration: 4000,
       });
+    } finally {
+      setState(prev => ({ ...prev, isLoading: false }));
     }
-  }, [user, state.favorites, state.recentViews, toast, saveToStorage]);
+  }, [user, toast]);
 
-  // Send magic link for syncing
+  // Send magic link for syncing (stub)
   const sendSyncMagicLink = useCallback(async (email: string) => {
     try {
-      // Generate a unique sync token
-      const syncToken = `sync_${Date.now()}_${Math.random().toString(36).substr(2, 16)}`;
-      localStorage.setItem(STORAGE_KEYS.syncToken, syncToken);
-
-      // Send magic link (this would be implemented with your auth system)
-      const response = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/sync?token=${syncToken}`,
-        }
-      });
-
-      if (response.error) {
-        throw response.error;
-      }
-
+      // TODO: Implement magic link when auth system supports it
+      console.log('Magic link not yet implemented:', email);
+      
       toast({
-        title: "Magic link sent!",
-        description: `Check your email at ${email} for a link to sync your data`,
-        duration: 5000,
+        title: "Feature coming soon",
+        description: "Magic link sync will be available soon!",
+        duration: 3000,
       });
-
     } catch (error) {
       console.error('Error sending magic link:', error);
       toast({
@@ -394,31 +238,6 @@ export const useSmartSave = () => {
       });
     }
   }, [toast]);
-
-  // Helper function to merge saved items
-  const mergeSavedItems = (local: SavedItem[], server: Partial<SavedItem>[]): SavedItem[] => {
-    const merged = new Map<string, SavedItem>();
-    
-    // Add local items
-    local.forEach(item => {
-      merged.set(item.listing_id, item);
-    });
-    
-    // Add or update with server items
-    server.forEach(item => {
-      if (item.listing_id) {
-        const existing = merged.get(item.listing_id);
-        if (!existing || (item.timestamp && item.timestamp > existing.timestamp)) {
-          merged.set(item.listing_id, {
-            ...existing,
-            ...item,
-          } as SavedItem);
-        }
-      }
-    });
-    
-    return Array.from(merged.values()).sort((a, b) => b.timestamp - a.timestamp);
-  };
 
   // Check if item is favorited
   const isFavorited = useCallback((listingId: string) => {

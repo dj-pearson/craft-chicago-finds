@@ -232,7 +232,7 @@ export const usePerformanceMonitor = (enabled: boolean = true) => {
       totalResources: resources.length,
       slowResources: resources.filter(r => r.duration > 1000),
       largeResources: resources.filter(r => r.transferSize > 100000),
-      blockedResources: resources.filter(r => r.blockedStart > 0),
+      blockedResources: resources.filter(r => r.requestStart > r.startTime),
       cacheHitRatio: resources.filter(r => r.transferSize === 0).length / resources.length,
       resourceTypes: resources.reduce((acc, r) => {
         const type = r.initiatorType || 'other';

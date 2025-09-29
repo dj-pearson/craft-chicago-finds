@@ -33,11 +33,10 @@ export const EmailDigestSettings = () => {
   const {
     preferences,
     loading,
-    digestContent,
     updatePreference,
-    sendTestDigest,
-    unsubscribeFromAll,
-    getPreference,
+    subscribeToDigest,
+    unsubscribeFromDigest,
+    refreshPreferences,
   } = useEmailDigest();
 
   const [testingDigest, setTestingDigest] = useState<string | null>(null);
@@ -87,7 +86,8 @@ export const EmailDigestSettings = () => {
   const handleTestDigest = async (digestType: string) => {
     setTestingDigest(digestType);
     try {
-      await sendTestDigest(digestType as any);
+      // TODO: Implement test digest when backend supports it
+      console.log('Test digest not yet implemented:', digestType);
     } finally {
       setTestingDigest(null);
     }
@@ -152,7 +152,7 @@ export const EmailDigestSettings = () => {
         {/* Digest Type Settings */}
         <div className="space-y-4">
           {digestTypes.map((digest) => {
-            const preference = getPreference(digest.type);
+            const preference = preferences.find(p => p.digest_type === digest.type);
             const IconComponent = digest.icon;
 
             return (
@@ -260,7 +260,7 @@ export const EmailDigestSettings = () => {
 
           <div className="flex gap-2">
             <Button
-              onClick={unsubscribeFromAll}
+              onClick={() => console.log('Unsubscribe all not yet implemented')}
               variant="outline"
               className="text-destructive hover:text-destructive"
             >
@@ -269,52 +269,14 @@ export const EmailDigestSettings = () => {
           </div>
         </div>
 
-        {/* Preview Content */}
-        {digestContent && (
-          <div className="space-y-3">
-            <h4 className="font-medium">Preview Content</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <Card className="p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Package className="h-4 w-4 text-blue-600" />
-                  <span className="font-medium">New Items</span>
-                </div>
-                <p className="text-2xl font-bold text-blue-600">
-                  {digestContent.new_items.length}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  from followed shops
-                </p>
-              </Card>
-
-              <Card className="p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Eye className="h-4 w-4 text-purple-600" />
-                  <span className="font-medium">Collections</span>
-                </div>
-                <p className="text-2xl font-bold text-purple-600">
-                  {digestContent.collection_updates.length}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  updated collections
-                </p>
-              </Card>
-
-              <Card className="p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Users className="h-4 w-4 text-green-600" />
-                  <span className="font-medium">Active Shops</span>
-                </div>
-                <p className="text-2xl font-bold text-green-600">
-                  {digestContent.followed_shops.length}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  shops with updates
-                </p>
-              </Card>
-            </div>
+        {/* Preview Content - Coming Soon */}
+        <div className="space-y-3">
+          <h4 className="font-medium">Preview Content</h4>
+          <div className="text-center py-8 text-muted-foreground">
+            <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p>Digest preview coming soon!</p>
           </div>
-        )}
+        </div>
 
         {/* Email Tips */}
         <Alert>
