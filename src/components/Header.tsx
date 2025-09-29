@@ -38,20 +38,12 @@ export const Header = () => {
         <div className="flex h-14 sm:h-16 items-center justify-between">
           {/* Logo & City Selector */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate("/")}>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center">
-                <img 
-                  src={logoSrc} 
-                  alt={logoAlt} 
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div className="hidden sm:block">
-                <h1 className="text-lg xl:text-xl font-bold text-foreground">
-                  {isChicagoPage ? 'CraftLocal Chicago' : 'Craft Local'}
-                </h1>
-                <p className="text-xs text-muted-foreground -mt-1">Local Handmade Marketplace</p>
-              </div>
+            <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
+              <img 
+                src={logoSrc} 
+                alt={logoAlt} 
+                className="h-8 sm:h-10 w-auto object-contain"
+              />
             </div>
             <div className="hidden sm:block">
               <CitySelector />
