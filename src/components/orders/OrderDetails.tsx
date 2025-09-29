@@ -13,6 +13,8 @@ import { ArrowLeft, Package, MapPin, CreditCard, Truck, MessageCircle, Star } fr
 import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { ReviewForm, ReviewDisplay } from "@/components/reviews";
+import { EnhancedReviewForm } from "@/components/reviews/EnhancedReviewForm";
+import { ProtectionClaimForm } from "./ProtectionClaimForm";
 import { PickupScheduler, PickupConfirmation } from "@/components/pickup";
 
 interface OrderDetailsProps {
@@ -63,6 +65,7 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
   const [newStatus, setNewStatus] = useState("");
   const [reviews, setReviews] = useState<any[]>([]);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showProtectionForm, setShowProtectionForm] = useState(false);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -477,51 +480,79 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {/* Review Form for Buyer */}
-            {isBuyer && !reviews.some(r => r.reviewer_id === user?.id) && (
-              <div className="mb-6 pb-6 border-b">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold">Rate your experience</h3>
-                  <Dialog open={showReviewForm} onOpenChange={setShowReviewForm}>
-                    <DialogTrigger asChild>
-                      <Button>Write Review</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Review {order.seller_profile.display_name}</DialogTitle>
-                      </DialogHeader>
-                      <ReviewForm
-                        orderId={order.id}
-                        sellerId={order.seller_id}
-                        buyerId={order.buyer_id}
-                        onSubmit={() => {
-                          setShowReviewForm(false);
-                          // Refresh reviews
-                          const fetchReviews = async () => {
-                            try {
-                              const { data, error } = await supabase
-                                .from('reviews')
-                                .select(`
-                                  *,
-                                  reviewer:profiles!reviews_reviewer_id_fkey (
-                                    display_name,
-                                    avatar_url
-                                  )
-                                `)
-                                .eq('order_id', orderId);
+            {/* Review Form and Protection Claims for Buyer */}
+            {isBuyer && (
+              <div className="mb-6 pb-6 border-b space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold">Order Actions</h3>
+                  <div className="flex gap-2">
+                    {/* Protection Claim Button */}
+                    <Dialog open={showProtectionForm} onOpenChange={setShowProtectionForm}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="text-red-600 border-red-300 hover:bg-red-50">
+                          Report Issue
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <ProtectionClaimForm
+                          orderId={order.id}
+                          sellerId={order.seller_id}
+                          productTitle={order.listings.title}
+                          orderAmount={order.total_amount}
+                          onSubmit={() => {
+                            setShowProtectionForm(false);
+                            toast({
+                              title: "Claim submitted",
+                              description: "Your protection claim has been submitted for review."
+                            });
+                          }}
+                          onCancel={() => setShowProtectionForm(false)}
+                        />
+                      </DialogContent>
+                    </Dialog>
 
-                              if (error) throw error;
-                              setReviews(data || []);
-                            } catch (error) {
-                              console.error('Error fetching reviews:', error);
-                            }
-                          };
-                          fetchReviews();
-                        }}
-                        onCancel={() => setShowReviewForm(false)}
-                      />
-                    </DialogContent>
-                  </Dialog>
+                    {/* Enhanced Review Button */}
+                    {!reviews.some(r => r.reviewer_id === user?.id) && (
+                      <Dialog open={showReviewForm} onOpenChange={setShowReviewForm}>
+                        <DialogTrigger asChild>
+                          <Button>Write Review</Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                          <EnhancedReviewForm
+                            orderId={order.id}
+                            sellerId={order.seller_id}
+                            buyerId={order.buyer_id}
+                            productTitle={order.listings.title}
+                            onSubmit={() => {
+                              setShowReviewForm(false);
+                              // Refresh reviews
+                              const fetchReviews = async () => {
+                                try {
+                                  const { data, error } = await supabase
+                                    .from('reviews')
+                                    .select(`
+                                      *,
+                                      reviewer:profiles!reviews_reviewer_id_fkey (
+                                        display_name,
+                                        avatar_url
+                                      )
+                                    `)
+                                    .eq('order_id', orderId);
+
+                                  if (error) throw error;
+                                  setReviews(data || []);
+                                } catch (error) {
+                                  console.error('Error fetching reviews:', error);
+                                }
+                              };
+                              fetchReviews();
+                            }}
+                            onCancel={() => setShowReviewForm(false)}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

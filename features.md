@@ -28,13 +28,13 @@ Weekly themed lists (e.g., “Cozy at Home”), time-boxed “drops”, and a �
 
 Personalization & custom orders
 
-Live personalization preview
+✅Live personalization preview
 For engraving/monograms: live text preview on the product photo (canvas/SVG), with rules (max chars, fonts).
 
-Instant chat with photo mark-up
+✅Instant chat with photo mark-up
 Buyer sends a photo; seller can draw arrows/notes right on it to agree on custom details.
 
-Build-a-bundle
+✅Build-a-bundle
 Buyer assembles gift sets from different items; auto bundle discount.
 
 Trust, quality & support

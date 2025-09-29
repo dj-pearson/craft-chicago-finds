@@ -11,6 +11,8 @@ import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { PersonalizationPreview } from "./PersonalizationPreview";
 import { CustomOrderChat } from "./CustomOrderChat";
 import { BundleBuilder } from "./BundleBuilder";
+import { DeliveryPromiseBar } from "./DeliveryPromiseBar";
+import { SellerBadges } from "../seller/SellerBadges";
 import { supabase } from "@/integrations/supabase/client";
 import type { Listing } from "@/pages/Browse";
 
@@ -133,6 +135,19 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* Seller Info with Badges */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Sold by</span>
+            <span className="font-medium">{listing.seller?.display_name || "Unknown Seller"}</span>
+          </div>
+          <SellerBadges 
+            sellerId={listing.seller_id} 
+            size="sm" 
+            maxBadges={4}
+          />
+        </div>
+
         {/* Inventory Status */}
         {listing.inventory_count !== null && (
           <div>
@@ -145,6 +160,20 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
             )}
           </div>
         )}
+
+        {/* Delivery Promise */}
+        <DeliveryPromiseBar
+          processingTimeDays={listing.processing_time_days || 3}
+          shippingTimeDays={listing.shipping_time_days || 3}
+          fulfillmentMethod={
+            listing.local_pickup_available && listing.shipping_available 
+              ? 'both' 
+              : listing.local_pickup_available 
+                ? 'pickup' 
+                : 'shipping'
+          }
+          pickupLocation={listing.pickup_location}
+        />
 
         {/* Description */}
         {listing.description && (
