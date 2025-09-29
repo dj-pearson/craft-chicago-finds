@@ -212,6 +212,51 @@ export const ProductFilters = ({ categories, filters, onFiltersChange }: Product
 
         <Separator />
 
+        {/* Ready Today Filters */}
+        <div className="space-y-2">
+          <Label>Ready Today</Label>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="ready-today"
+                checked={filters.readyToday || false}
+                onChange={(e) => handleFilterChange('readyToday', e.target.checked || undefined)}
+                className="rounded"
+              />
+              <Label htmlFor="ready-today" className="text-sm cursor-pointer">
+                Ready today
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="ships-today"
+                checked={filters.shipsToday || false}
+                onChange={(e) => handleFilterChange('shipsToday', e.target.checked || undefined)}
+                className="rounded"
+              />
+              <Label htmlFor="ships-today" className="text-sm cursor-pointer">
+                Ships today
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="pickup-today"
+                checked={filters.pickupToday || false}
+                onChange={(e) => handleFilterChange('pickupToday', e.target.checked || undefined)}
+                className="rounded"
+              />
+              <Label htmlFor="pickup-today" className="text-sm cursor-pointer">
+                Pickup today
+              </Label>
+            </div>
+          </div>
+        </div>
+
+        <Separator />
+
         {/* Sort By */}
         <div className="space-y-2">
           <Label htmlFor="sort">Sort By</Label>

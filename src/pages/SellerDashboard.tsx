@@ -6,6 +6,7 @@ import { SellerAnalytics } from "@/components/seller/SellerAnalytics";
 import { SellerListings } from "@/components/seller/SellerListings";
 import { StripeOnboarding } from "@/components/seller/StripeOnboarding";
 import { ShippingSettings } from "@/components/seller/ShippingSettings";
+import { ReadyTodaySettings } from "@/components/seller/ReadyTodaySettings";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -361,7 +362,7 @@ export default function SellerDashboard() {
 
         {/* Main Content */}
         <Tabs defaultValue="listings" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-5">
             <TabsTrigger value="listings" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
               <Package className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">My Listings</span>
@@ -376,6 +377,11 @@ export default function SellerDashboard() {
               <Truck className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Shipping</span>
               <span className="sm:hidden">Ship</span>
+            </TabsTrigger>
+            <TabsTrigger value="ready-today" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Package className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Ready Today</span>
+              <span className="sm:hidden">Ready</span>
             </TabsTrigger>
             <TabsTrigger value="payments" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
               <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -395,6 +401,10 @@ export default function SellerDashboard() {
           
           <TabsContent value="shipping">
             <ShippingSettings />
+          </TabsContent>
+
+          <TabsContent value="ready-today">
+            <ReadyTodaySettings sellerId={user?.id || ''} />
           </TabsContent>
 
           <TabsContent value="payments">

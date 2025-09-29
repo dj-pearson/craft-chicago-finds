@@ -6,6 +6,7 @@ import { AdvancedProductFilters } from "@/components/browse/AdvancedProductFilte
 import { ProductGrid } from "@/components/browse/ProductGrid";
 import { SearchBar } from "@/components/browse/SearchBar";
 import { SearchResults } from "@/components/browse/SearchResults";
+import { ReadyTodayFilters } from "@/components/browse/ReadyTodayFilters";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
 import { useSearchAnalytics } from "@/hooks/useSearchAnalytics";
@@ -30,6 +31,9 @@ export interface Listing {
   view_count: number | null;
   created_at: string;
   pickup_location?: string | null;
+  ready_today?: boolean;
+  ships_today?: boolean;
+  pickup_today?: boolean;
   categories?: {
     id: string;
     name: string;
@@ -56,6 +60,9 @@ export interface FilterOptions {
   maxPrice?: number;
   fulfillment?: 'pickup' | 'shipping' | 'both';
   sortBy?: 'newest' | 'oldest' | 'price_low' | 'price_high' | 'popular';
+  readyToday?: boolean;
+  shipsToday?: boolean;
+  pickupToday?: boolean;
 }
 
 const Browse = () => {
@@ -156,6 +163,17 @@ const Browse = () => {
         query = query.eq("local_pickup_available", true);
       } else if (filters.fulfillment === 'shipping') {
         query = query.eq("shipping_available", true);
+      }
+
+      // Apply ready today filters
+      if (filters.readyToday) {
+        query = query.eq("ready_today", true);
+      }
+      if (filters.shipsToday) {
+        query = query.eq("ships_today", true);
+      }
+      if (filters.pickupToday) {
+        query = query.eq("pickup_today", true);
       }
 
       // Apply search with better relevance
@@ -284,7 +302,18 @@ const Browse = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-6">
+            <ReadyTodayFilters
+              filters={{
+                readyToday: filters.readyToday,
+                shipsToday: filters.shipsToday,
+                pickupToday: filters.pickupToday
+              }}
+              onFiltersChange={(readyFilters) => setFilters({
+                ...filters,
+                ...readyFilters
+              })}
+            />
             <AdvancedProductFilters
               categories={categories}
               filters={filters}

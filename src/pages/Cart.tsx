@@ -7,11 +7,19 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Plus, Minus, ShoppingCart, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { GiftModeToggle } from '@/components/cart/GiftModeToggle';
 
 export const CartPage = () => {
   const { items, updateQuantity, removeItem, clearCart, totalAmount, itemCount } = useCart();
   const navigate = useNavigate();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [giftMode, setGiftMode] = useState({
+    enabled: false,
+    message: '',
+    recipientEmail: '',
+    scheduledShipDate: '',
+    hidePrices: false
+  });
 
   const platformFeeRate = 0.1; // 10%
   const platformFee = totalAmount * platformFeeRate;
@@ -31,7 +39,7 @@ export const CartPage = () => {
 
   const handleCheckout = () => {
     setIsCheckingOut(true);
-    navigate('/checkout');
+    navigate('/checkout', { state: { giftMode } });
   };
 
   if (items.length === 0) {
@@ -154,6 +162,12 @@ export const CartPage = () => {
                 </CardContent>
               </Card>
             ))}
+
+            {/* Gift Mode */}
+            <GiftModeToggle
+              giftMode={giftMode}
+              onGiftModeChange={setGiftMode}
+            />
 
             {/* Cart Actions */}
             <div className="flex justify-between">

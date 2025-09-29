@@ -646,11 +646,14 @@ export type Database = {
           moderation_notes: string | null
           national_shipping_available: boolean | null
           pickup_location: string | null
+          pickup_today: boolean | null
           price: number
+          ready_today: boolean | null
           seller_id: string
           shipping_available: boolean
           shipping_cost: number | null
           shipping_notes: string | null
+          ships_today: boolean | null
           status: string
           tags: string[] | null
           title: string
@@ -674,11 +677,14 @@ export type Database = {
           moderation_notes?: string | null
           national_shipping_available?: boolean | null
           pickup_location?: string | null
+          pickup_today?: boolean | null
           price: number
+          ready_today?: boolean | null
           seller_id: string
           shipping_available?: boolean
           shipping_cost?: number | null
           shipping_notes?: string | null
+          ships_today?: boolean | null
           status?: string
           tags?: string[] | null
           title: string
@@ -702,11 +708,14 @@ export type Database = {
           moderation_notes?: string | null
           national_shipping_available?: boolean | null
           pickup_location?: string | null
+          pickup_today?: boolean | null
           price?: number
+          ready_today?: boolean | null
           seller_id?: string
           shipping_available?: boolean
           shipping_cost?: number | null
           shipping_notes?: string | null
+          ships_today?: boolean | null
           status?: string
           tags?: string[] | null
           title?: string
@@ -877,12 +886,17 @@ export type Database = {
           created_at: string
           dispute_id: string | null
           fulfillment_method: string
+          gift_message: string | null
+          gift_mode: boolean | null
+          gift_recipient_email: string | null
+          hide_prices_on_receipt: boolean | null
           id: string
           listing_id: string
           notes: string | null
           payment_status: string
           pickup_location: string | null
           quantity: number
+          scheduled_ship_date: string | null
           seller_id: string
           shipping_address: Json | null
           status: string
@@ -897,12 +911,17 @@ export type Database = {
           created_at?: string
           dispute_id?: string | null
           fulfillment_method: string
+          gift_message?: string | null
+          gift_mode?: boolean | null
+          gift_recipient_email?: string | null
+          hide_prices_on_receipt?: boolean | null
           id?: string
           listing_id: string
           notes?: string | null
           payment_status?: string
           pickup_location?: string | null
           quantity?: number
+          scheduled_ship_date?: string | null
           seller_id: string
           shipping_address?: Json | null
           status?: string
@@ -917,12 +936,17 @@ export type Database = {
           created_at?: string
           dispute_id?: string | null
           fulfillment_method?: string
+          gift_message?: string | null
+          gift_mode?: boolean | null
+          gift_recipient_email?: string | null
+          hide_prices_on_receipt?: boolean | null
           id?: string
           listing_id?: string
           notes?: string | null
           payment_status?: string
           pickup_location?: string | null
           quantity?: number
+          scheduled_ship_date?: string | null
           seller_id?: string
           shipping_address?: Json | null
           status?: string

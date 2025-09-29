@@ -93,17 +93,39 @@ export const ProductGrid = ({ listings, loading, currentCity }: ProductGridProps
                 <Heart className="h-4 w-4" />
               </Button>
 
-              {/* Inventory indicator */}
-              {listing.inventory_count !== null && listing.inventory_count <= 5 && listing.inventory_count > 0 && (
-                <Badge variant="destructive" className="absolute bottom-2 left-2">
-                  Only {listing.inventory_count} left
-                </Badge>
-              )}
-              {listing.inventory_count === 0 && (
-                <Badge variant="secondary" className="absolute bottom-2 left-2">
-                  Sold out
-                </Badge>
-              )}
+              {/* Ready Today Badges */}
+              <div className="absolute bottom-2 left-2 flex flex-col gap-1">
+                {listing.ready_today && (
+                  <Badge className="bg-green-500 hover:bg-green-600 text-white text-xs">
+                    <Package className="h-3 w-3 mr-1" />
+                    Ready Today
+                  </Badge>
+                )}
+                {listing.ships_today && (
+                  <Badge className="bg-blue-500 hover:bg-blue-600 text-white text-xs">
+                    <Truck className="h-3 w-3 mr-1" />
+                    Ships Today
+                  </Badge>
+                )}
+                {listing.pickup_today && (
+                  <Badge className="bg-purple-500 hover:bg-purple-600 text-white text-xs">
+                    <MapPin className="h-3 w-3 mr-1" />
+                    Pickup Today
+                  </Badge>
+                )}
+                
+                {/* Inventory indicator */}
+                {listing.inventory_count !== null && listing.inventory_count <= 5 && listing.inventory_count > 0 && (
+                  <Badge variant="destructive" className="text-xs">
+                    Only {listing.inventory_count} left
+                  </Badge>
+                )}
+                {listing.inventory_count === 0 && (
+                  <Badge variant="secondary" className="text-xs">
+                    Sold out
+                  </Badge>
+                )}
+              </div>
             </div>
 
             <CardContent className="p-4">

@@ -11,7 +11,8 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, CreditCard, ArrowLeft, Package, Truck, MapPin, Mail, Smartphone } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { GiftModeToggle } from '@/components/cart/GiftModeToggle';
 
 interface ShippingAddress {
   name: string;
@@ -27,11 +28,21 @@ export const GuestCheckout = () => {
   const { items, clearCart, totalAmount, itemCount } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   
   const [loading, setLoading] = useState(false);
   const [sendMagicLink, setSendMagicLink] = useState(false);
   const [fulfillmentMethod, setFulfillmentMethod] = useState<'mixed' | 'shipping' | 'local_pickup'>('mixed');
   const [notes, setNotes] = useState('');
+  const [giftMode, setGiftMode] = useState(
+    location.state?.giftMode || {
+      enabled: false,
+      message: '',
+      recipientEmail: '',
+      scheduledShipDate: '',
+      hidePrices: false
+    }
+  );
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     name: '',
     email: '',
@@ -102,6 +113,12 @@ export const GuestCheckout = () => {
           shipping_address: (fulfillmentMethod === 'shipping' || fulfillmentMethod === 'mixed') ? shippingAddress : null,
           notes: notes || null,
           send_magic_link: sendMagicLink,
+          gift_mode: giftMode.enabled ? {
+            message: giftMode.message,
+            recipient_email: giftMode.recipientEmail,
+            scheduled_ship_date: giftMode.scheduledShipDate,
+            hide_prices: giftMode.hidePrices
+          } : null,
           success_url: `${window.location.origin}/orders?checkout=success&guest=true`,
           cancel_url: `${window.location.origin}/cart`
         }
@@ -305,6 +322,12 @@ export const GuestCheckout = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Gift Mode */}
+            <GiftModeToggle
+              giftMode={giftMode}
+              onGiftModeChange={setGiftMode}
+            />
 
             {/* Order Notes */}
             <Card>
