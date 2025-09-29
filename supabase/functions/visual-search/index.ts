@@ -145,7 +145,6 @@ serve(async (req) => {
           price: listing.price,
           images: listing.images,
           similarity_score: Math.min(similarity_score + tagBoost, 1.0), // Cap at 1.0
-          seller_id: listing.seller_id,
         };
       })
     );

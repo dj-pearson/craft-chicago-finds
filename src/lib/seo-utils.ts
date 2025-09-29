@@ -615,3 +615,48 @@ export const validateSEOMetadata = (
 
   return issues;
 };
+
+// SEO Manager class for centralized SEO management
+export class SEOManager {
+  private static instance: SEOManager;
+  
+  public static getInstance(): SEOManager {
+    if (!SEOManager.instance) {
+      SEOManager.instance = new SEOManager();
+    }
+    return SEOManager.instance;
+  }
+
+  public updatePageSEO(metadata: SEOMetadata): void {
+    applySEOMetadata(metadata);
+  }
+
+  public generateListingSEO(listing: ListingSEO): SEOMetadata {
+    return generateListingSEO(listing);
+  }
+
+  public generateCityPageSEO(cityData: CityPageSEO): SEOMetadata {
+    return generateCityPageSEO(cityData);
+  }
+}
+
+export const seoManager = SEOManager.getInstance();
+
+// Additional types for compatibility
+export interface LocalSEOData {
+  businessName: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  phone?: string;
+  hours?: string[];
+}
+
+export interface SEOConfig {
+  siteName: string;
+  defaultTitle: string;
+  defaultDescription: string;
+  defaultKeywords: string[];
+  baseUrl: string;
+}
