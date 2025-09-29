@@ -5,16 +5,14 @@
 name = "craft-chicago-finds"
 compatibility_date = "2024-12-19"
 
+# Force npm usage (Pages should ignore this but adding for completeness)
+[build]
+command = "npm run build"
+cwd = "."
+
 # For local development only
 [env.development]
 compatibility_date = "2024-12-19"
-
-# Functions configuration (if using Cloudflare Functions)
-[[env.development.d1_databases]]
-# Add D1 database bindings if needed
-
-[[env.development.kv_namespaces]]
-# Add KV namespace bindings if needed
 
 # Note: Build configuration is handled by Cloudflare Pages dashboard
 # Environment variables are set in the Pages dashboard, not here
