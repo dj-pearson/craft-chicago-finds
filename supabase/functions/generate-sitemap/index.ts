@@ -135,13 +135,17 @@ ${urlEntries}
 async function generateProductsSitemap(supabaseClient: any, domain: string): Promise<string> {
   const { data: products, error } = await supabaseClient
     .from('listings')
-    .select('slug, updated_at, price, images')
+    .select('slug, updated_at, price, images, title')
     .eq('status', 'active')
     .order('updated_at', { ascending: false })
     .limit(50000); // Google sitemap limit
 
   if (error) {
-    throw new Error(`Failed to fetch products: ${error.message}`);
+    console.error('Failed to fetch products:', error.message);
+    // Return empty sitemap if table doesn't exist or query fails
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+</urlset>`;
   }
 
   const urlEntries = products.map((product: any) => {
@@ -167,23 +171,9 @@ ${urlEntries}
 }
 
 async function generateSellersSitemap(supabaseClient: any, domain: string): Promise<string> {
-  const { data: sellers, error } = await supabaseClient
-    .from('seller_profiles')
-    .select('user_id, updated_at, shop_name, users!inner(id)')
-    .eq('is_active', true)
-    .order('updated_at', { ascending: false });
-
-  if (error) {
-    throw new Error(`Failed to fetch sellers: ${error.message}`);
-  }
-
-  const urlEntries = sellers.map((seller: any) => `
-  <url>
-    <loc>${domain}/sellers/${seller.user_id}</loc>
-    <lastmod>${seller.updated_at}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>`).join('');
+  // For now, return empty sellers sitemap since seller_profiles table doesn't exist yet
+  // TODO: Update when seller_profiles table is created
+  const urlEntries = '';
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -199,7 +189,19 @@ async function generateCitiesSitemap(supabaseClient: any, domain: string): Promi
     .order('name');
 
   if (error) {
-    throw new Error(`Failed to fetch cities: ${error.message}`);
+    console.error('Failed to fetch cities:', error.message);
+    // Return basic Chicago city sitemap if query fails
+    const staticCityEntries = `  <url>
+    <loc>${domain}/chicago</loc>
+    <lastmod>2024-11-01T00:00:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+    
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${staticCityEntries}
+</urlset>`;
   }
 
   // Generate city pages and category combinations
@@ -235,30 +237,12 @@ ${urlEntries.join('')}
 }
 
 async function generateBlogSitemap(supabaseClient: any, domain: string): Promise<string> {
-  const { data: posts, error } = await supabaseClient
-    .from('blog_posts')
-    .select('slug, updated_at, publish_date, featured_image')
-    .eq('status', 'published')
-    .order('publish_date', { ascending: false });
-
-  if (error) {
-    throw new Error(`Failed to fetch blog posts: ${error.message}`);
-  }
-
-  const urlEntries = posts.map((post: any) => `
-  <url>
-    <loc>${domain}/blog/${post.slug}</loc>
-    <lastmod>${post.updated_at}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-    ${post.featured_image ? `
-    <image:image>
-      <image:loc>${post.featured_image}</image:loc>
-    </image:image>` : ''}
-  </url>`).join('');
+  // For now, return empty blog sitemap since blog_posts table doesn't exist yet
+  // TODO: Update when blog_posts table is created
+  const urlEntries = '';
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urlEntries}
 </urlset>`;
 }

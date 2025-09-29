@@ -9,9 +9,9 @@ https://www.craftlocal.com/* https://craftlocal.com/:splat 301!
 /api/ai-generate-content/* https://your-project.supabase.co/functions/v1/ai-generate-content/:splat 200
 /api/optimize-image/* https://your-project.supabase.co/functions/v1/optimize-image/:splat 200
 
-# Dynamic sitemap generation
+# Static sitemap.xml is served from /public/sitemap.xml
+# Dynamic sitemap generation for other sitemaps
 /sitemap-index.xml /api/sitemap/index 200
-/sitemap.xml /api/sitemap/static 200
 /sitemap-products.xml /api/sitemap/products 200
 /sitemap-sellers.xml /api/sitemap/sellers 200
 /sitemap-cities.xml /api/sitemap/cities 200
