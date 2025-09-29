@@ -27,8 +27,12 @@ interface ProductInfoProps {
 
 export const ProductInfo = ({ listing }: ProductInfoProps) => {
   const [isFavorited, setIsFavorited] = useState(false);
-  const [personalizationOptions, setPersonalizationOptions] = useState<any[]>([]);
-  const [personalizations, setPersonalizations] = useState<Record<string, any>>({});
+  const [personalizationOptions, setPersonalizationOptions] = useState<any[]>(
+    []
+  );
+  const [personalizations, setPersonalizations] = useState<Record<string, any>>(
+    {}
+  );
   const [personalizationCost, setPersonalizationCost] = useState(0);
   const [personalizationValid, setPersonalizationValid] = useState(true);
   const { toast } = useToast();
@@ -38,19 +42,19 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
     const fetchPersonalizationOptions = async () => {
       try {
         const { data, error } = await supabase
-          .from('personalization_options')
-          .select('*')
-          .eq('listing_id', listing.id)
-          .order('option_type', { ascending: true });
+          .from("personalization_options")
+          .select("*")
+          .eq("listing_id", listing.id)
+          .order("option_type", { ascending: true });
 
         if (error) {
-          console.error('Error fetching personalization options:', error);
+          console.error("Error fetching personalization options:", error);
           return;
         }
 
         setPersonalizationOptions(data || []);
       } catch (error) {
-        console.error('Error fetching personalization options:', error);
+        console.error("Error fetching personalization options:", error);
       }
     };
 
@@ -60,12 +64,15 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
   const handlePersonalizationChange = (data: any) => {
     setPersonalizations(data.personalizations || {});
     setPersonalizationCost(data.additionalCost || 0);
-    
+
     // Validate required fields
-    const requiredOptions = personalizationOptions.filter(opt => opt.is_required);
-    const isValid = requiredOptions.every(opt => 
-      data.personalizations?.[opt.option_key] && 
-      data.personalizations[opt.option_key].trim() !== ''
+    const requiredOptions = personalizationOptions.filter(
+      (opt) => opt.is_required
+    );
+    const isValid = requiredOptions.every(
+      (opt) =>
+        data.personalizations?.[opt.option_key] &&
+        data.personalizations[opt.option_key].trim() !== ""
     );
     setPersonalizationValid(isValid);
   };
@@ -74,7 +81,7 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
     setIsFavorited(!isFavorited);
     toast({
       title: isFavorited ? "Removed from favorites" : "Added to favorites",
-      description: isFavorited 
+      description: isFavorited
         ? "This item has been removed from your favorites."
         : "This item has been added to your favorites.",
     });
@@ -112,7 +119,9 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
               <Badge variant="outline">{listing.categories.name}</Badge>
             )}
             <CardTitle className="text-2xl">{listing.title}</CardTitle>
-            <div className="text-3xl font-bold text-primary">${listing.price}</div>
+            <div className="text-3xl font-bold text-primary">
+              ${listing.price}
+            </div>
           </div>
           <div className="flex gap-2">
             <Button
@@ -121,13 +130,11 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
               onClick={handleFavorite}
               className={isFavorited ? "text-destructive" : ""}
             >
-              <Heart className={`h-4 w-4 ${isFavorited ? "fill-current" : ""}`} />
+              <Heart
+                className={`h-4 w-4 ${isFavorited ? "fill-current" : ""}`}
+              />
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleShare}
-            >
+            <Button variant="outline" size="sm" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
             </Button>
           </div>
@@ -139,13 +146,11 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Sold by</span>
-            <span className="font-medium">{listing.seller?.display_name || "Unknown Seller"}</span>
+            <span className="font-medium">
+              {listing.seller?.display_name || "Unknown Seller"}
+            </span>
           </div>
-          <SellerBadges 
-            sellerId={listing.seller_id} 
-            size="sm" 
-            maxBadges={4}
-          />
+          <SellerBadges sellerId={listing.seller_id} size="sm" maxBadges={4} />
         </div>
 
         {/* Inventory Status */}
@@ -154,9 +159,13 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
             {listing.inventory_count === 0 ? (
               <Badge variant="destructive">Sold Out</Badge>
             ) : listing.inventory_count <= 5 ? (
-              <Badge variant="destructive">Only {listing.inventory_count} left in stock</Badge>
+              <Badge variant="destructive">
+                Only {listing.inventory_count} left in stock
+              </Badge>
             ) : (
-              <Badge variant="secondary">{listing.inventory_count} in stock</Badge>
+              <Badge variant="secondary">
+                {listing.inventory_count} in stock
+              </Badge>
             )}
           </div>
         )}
@@ -166,11 +175,11 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
           processingTimeDays={listing.processing_time_days || 3}
           shippingTimeDays={listing.shipping_time_days || 3}
           fulfillmentMethod={
-            listing.local_pickup_available && listing.shipping_available 
-              ? 'both' 
-              : listing.local_pickup_available 
-                ? 'pickup' 
-                : 'shipping'
+            listing.local_pickup_available && listing.shipping_available
+              ? "both"
+              : listing.local_pickup_available
+              ? "pickup"
+              : "shipping"
           }
           pickupLocation={listing.pickup_location}
         />
@@ -190,7 +199,7 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
           <>
             <Separator />
             <PersonalizationPreview
-              productImage={listing.images?.[0] || ''}
+              productImage={listing.images?.[0] || ""}
               productTitle={listing.title}
               personalizationOptions={personalizationOptions}
               onPersonalizationChange={handlePersonalizationChange}
@@ -245,10 +254,10 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
               </div>
             </div>
           )}
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <AddToCartButton 
-              listing={listing} 
+            <AddToCartButton
+              listing={listing}
               personalizations={personalizations}
               personalizationCost={personalizationCost}
               disabled={!personalizationValid}
@@ -279,7 +288,7 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
                   image: listing.images?.[0],
                   seller_id: listing.seller_id,
                   seller_name: listing.seller.display_name || "Seller",
-                  inventory_count: listing.inventory_count || 0
+                  inventory_count: listing.inventory_count || 0,
                 }}
               />
             </div>

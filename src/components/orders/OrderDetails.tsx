@@ -8,8 +8,22 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowLeft, Package, MapPin, CreditCard, Truck, MessageCircle, Star } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  ArrowLeft,
+  Package,
+  MapPin,
+  CreditCard,
+  Truck,
+  MessageCircle,
+  Star,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { ReviewForm, ReviewDisplay } from "@/components/reviews";
@@ -72,10 +86,12 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
       try {
         const { data: orderData, error } = await supabase
           .from("orders")
-          .select(`
+          .select(
+            `
             *,
             listings!inner(id, title, description, price, images)
-          `)
+          `
+          )
           .eq("id", orderId)
           .single();
 
@@ -91,15 +107,29 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
 
         // Get additional profile data
         const [buyerProfile, sellerProfile] = await Promise.all([
-          supabase.from("profiles").select("display_name, email").eq("user_id", orderData.buyer_id).single(),
-          supabase.from("profiles").select("display_name, email").eq("user_id", orderData.seller_id).single()
+          supabase
+            .from("profiles")
+            .select("display_name, email")
+            .eq("user_id", orderData.buyer_id)
+            .single(),
+          supabase
+            .from("profiles")
+            .select("display_name, email")
+            .eq("user_id", orderData.seller_id)
+            .single(),
         ]);
 
         const orderWithProfiles = {
           ...orderData,
           listing: orderData.listings,
-          buyer_profile: buyerProfile.data || { display_name: "Unknown", email: "" },
-          seller_profile: sellerProfile.data || { display_name: "Unknown", email: "" }
+          buyer_profile: buyerProfile.data || {
+            display_name: "Unknown",
+            email: "",
+          },
+          seller_profile: sellerProfile.data || {
+            display_name: "Unknown",
+            email: "",
+          },
         };
 
         setOrder(orderWithProfiles);
@@ -115,20 +145,22 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
     const fetchReviews = async () => {
       try {
         const { data, error } = await supabase
-          .from('reviews')
-          .select(`
+          .from("reviews")
+          .select(
+            `
             *,
             reviewer:profiles!reviews_reviewer_id_fkey (
               display_name,
               avatar_url
             )
-          `)
-          .eq('order_id', orderId);
+          `
+          )
+          .eq("order_id", orderId);
 
         if (error) throw error;
         setReviews(data || []);
       } catch (error) {
-        console.error('Error fetching reviews:', error);
+        console.error("Error fetching reviews:", error);
       }
     };
 
@@ -264,7 +296,9 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span>Subtotal ({order.quantity}x)</span>
-                <span>${(order.total_amount - order.commission_amount).toFixed(2)}</span>
+                <span>
+                  ${(order.total_amount - order.commission_amount).toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Platform fee</span>
@@ -281,7 +315,11 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
 
             <div className="space-y-2">
               <Label className="text-muted-foreground">Created</Label>
-              <p>{formatDistanceToNow(new Date(order.created_at), { addSuffix: true })}</p>
+              <p>
+                {formatDistanceToNow(new Date(order.created_at), {
+                  addSuffix: true,
+                })}
+              </p>
             </div>
 
             {order.notes && (
@@ -343,12 +381,15 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
               <>
                 {order.shipping_address && (
                   <div>
-                    <Label className="text-muted-foreground">Shipping Address</Label>
+                    <Label className="text-muted-foreground">
+                      Shipping Address
+                    </Label>
                     <div className="text-sm mt-1">
                       <p>{order.shipping_address.name}</p>
                       <p>{order.shipping_address.address}</p>
                       <p>
-                        {order.shipping_address.city}, {order.shipping_address.state}{" "}
+                        {order.shipping_address.city},{" "}
+                        {order.shipping_address.state}{" "}
                         {order.shipping_address.zip}
                       </p>
                     </div>
@@ -369,19 +410,24 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
 
                 {order.tracking_number && !isSeller && (
                   <div>
-                    <Label className="text-muted-foreground">Tracking Number</Label>
+                    <Label className="text-muted-foreground">
+                      Tracking Number
+                    </Label>
                     <p className="font-mono text-sm">{order.tracking_number}</p>
                   </div>
                 )}
               </>
             )}
 
-            {order.fulfillment_method === "local_pickup" && order.pickup_location && (
-              <div>
-                <Label className="text-muted-foreground">Pickup Location</Label>
-                <p className="text-sm">{order.pickup_location}</p>
-              </div>
-            )}
+            {order.fulfillment_method === "local_pickup" &&
+              order.pickup_location && (
+                <div>
+                  <Label className="text-muted-foreground">
+                    Pickup Location
+                  </Label>
+                  <p className="text-sm">{order.pickup_location}</p>
+                </div>
+              )}
           </CardContent>
         </Card>
 
@@ -411,30 +457,33 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
       </div>
 
       {/* Pickup Scheduling */}
-      {order.fulfillment_method === "local_pickup" && order.status === "pending" && isBuyer && (
-        <PickupScheduler
-          orderId={order.id}
-          sellerId={order.seller_id}
-          pickupLocation={order.pickup_location || ""}
-          onScheduled={() => {
-            // Refresh order data
-            const orderCopy = { ...order };
-            orderCopy.status = "confirmed";
-            setOrder(orderCopy);
-          }}
-        />
-      )}
+      {order.fulfillment_method === "local_pickup" &&
+        order.status === "pending" &&
+        isBuyer && (
+          <PickupScheduler
+            orderId={order.id}
+            sellerId={order.seller_id}
+            pickupLocation={order.pickup_location || ""}
+            onScheduled={() => {
+              // Refresh order data
+              const orderCopy = { ...order };
+              orderCopy.status = "confirmed";
+              setOrder(orderCopy);
+            }}
+          />
+        )}
 
       {/* Pickup Confirmation */}
-      {order.fulfillment_method === "local_pickup" && order.status !== "pending" && (
-        <PickupConfirmation
-          orderId={order.id}
-          onConfirmed={() => {
-            // Refresh the component
-            window.location.reload();
-          }}
-        />
-      )}
+      {order.fulfillment_method === "local_pickup" &&
+        order.status !== "pending" && (
+          <PickupConfirmation
+            orderId={order.id}
+            onConfirmed={() => {
+              // Refresh the component
+              window.location.reload();
+            }}
+          />
+        )}
 
       {/* Actions */}
       {isSeller && (
@@ -461,7 +510,11 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
 
             <Button
               onClick={updateOrder}
-              disabled={updating || (trackingNumber === order.tracking_number && newStatus === order.status)}
+              disabled={
+                updating ||
+                (trackingNumber === order.tracking_number &&
+                  newStatus === order.status)
+              }
               className="w-full"
             >
               {updating ? "Updating..." : "Update Order"}
@@ -471,7 +524,7 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
       )}
 
       {/* Reviews Section */}
-      {order.status === 'completed' && (
+      {order.status === "completed" && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -487,9 +540,15 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
                   <h3 className="font-semibold">Order Actions</h3>
                   <div className="flex gap-2">
                     {/* Protection Claim Button */}
-                    <Dialog open={showProtectionForm} onOpenChange={setShowProtectionForm}>
+                    <Dialog
+                      open={showProtectionForm}
+                      onOpenChange={setShowProtectionForm}
+                    >
                       <DialogTrigger asChild>
-                        <Button variant="outline" className="text-red-600 border-red-300 hover:bg-red-50">
+                        <Button
+                          variant="outline"
+                          className="text-red-600 border-red-300 hover:bg-red-50"
+                        >
                           Report Issue
                         </Button>
                       </DialogTrigger>
@@ -503,7 +562,8 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
                             setShowProtectionForm(false);
                             toast({
                               title: "Claim submitted",
-                              description: "Your protection claim has been submitted for review."
+                              description:
+                                "Your protection claim has been submitted for review.",
                             });
                           }}
                           onCancel={() => setShowProtectionForm(false)}
@@ -512,8 +572,11 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
                     </Dialog>
 
                     {/* Enhanced Review Button */}
-                    {!reviews.some(r => r.reviewer_id === user?.id) && (
-                      <Dialog open={showReviewForm} onOpenChange={setShowReviewForm}>
+                    {!reviews.some((r) => r.reviewer_id === user?.id) && (
+                      <Dialog
+                        open={showReviewForm}
+                        onOpenChange={setShowReviewForm}
+                      >
                         <DialogTrigger asChild>
                           <Button>Write Review</Button>
                         </DialogTrigger>
@@ -529,20 +592,25 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
                               const fetchReviews = async () => {
                                 try {
                                   const { data, error } = await supabase
-                                    .from('reviews')
-                                    .select(`
+                                    .from("reviews")
+                                    .select(
+                                      `
                                       *,
                                       reviewer:profiles!reviews_reviewer_id_fkey (
                                         display_name,
                                         avatar_url
                                       )
-                                    `)
-                                    .eq('order_id', orderId);
+                                    `
+                                    )
+                                    .eq("order_id", orderId);
 
                                   if (error) throw error;
                                   setReviews(data || []);
                                 } catch (error) {
-                                  console.error('Error fetching reviews:', error);
+                                  console.error(
+                                    "Error fetching reviews:",
+                                    error
+                                  );
                                 }
                               };
                               fetchReviews();
