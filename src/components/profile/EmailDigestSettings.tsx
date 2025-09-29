@@ -1,27 +1,33 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { 
-  Mail, 
-  Bell, 
-  Users, 
-  Package, 
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  Mail,
+  Bell,
+  Users,
+  Package,
   Calendar,
   Eye,
   Settings,
   AlertCircle,
   CheckCircle,
-  Clock
-} from 'lucide-react';
-import { useEmailDigest } from '@/hooks/useEmailDigest';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { formatDistanceToNow } from 'date-fns';
+  Clock,
+} from "lucide-react";
+import { useEmailDigest } from "@/hooks/useEmailDigest";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { formatDistanceToNow } from "date-fns";
 
 export const EmailDigestSettings = () => {
   const {
@@ -31,51 +37,51 @@ export const EmailDigestSettings = () => {
     updatePreference,
     sendTestDigest,
     unsubscribeFromAll,
-    getPreference
+    getPreference,
   } = useEmailDigest();
 
   const [testingDigest, setTestingDigest] = useState<string | null>(null);
 
   const digestTypes = [
     {
-      type: 'shop_follows' as const,
-      title: 'Shop Updates',
-      description: 'Get notified when shops you follow add new items',
+      type: "shop_follows" as const,
+      title: "Shop Updates",
+      description: "Get notified when shops you follow add new items",
       icon: Users,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
     },
     {
-      type: 'collections' as const,
-      title: 'Collection Updates',
-      description: 'Get notified when collections you follow are updated',
+      type: "collections" as const,
+      title: "Collection Updates",
+      description: "Get notified when collections you follow are updated",
       icon: Package,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
     },
     {
-      type: 'weekly_digest' as const,
-      title: 'Weekly Digest',
-      description: 'A summary of new items and updates from your follows',
+      type: "weekly_digest" as const,
+      title: "Weekly Digest",
+      description: "A summary of new items and updates from your follows",
       icon: Calendar,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
+      color: "text-green-600",
+      bgColor: "bg-green-50",
     },
     {
-      type: 'monthly_summary' as const,
-      title: 'Monthly Summary',
-      description: 'Monthly highlights and trends from the marketplace',
+      type: "monthly_summary" as const,
+      title: "Monthly Summary",
+      description: "Monthly highlights and trends from the marketplace",
       icon: Eye,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
     },
   ];
 
   const frequencyOptions = [
-    { value: 'never', label: 'Never', description: 'Disabled' },
-    { value: 'daily', label: 'Daily', description: 'Every day' },
-    { value: 'weekly', label: 'Weekly', description: 'Once a week' },
-    { value: 'monthly', label: 'Monthly', description: 'Once a month' },
+    { value: "never", label: "Never", description: "Disabled" },
+    { value: "daily", label: "Daily", description: "Every day" },
+    { value: "weekly", label: "Weekly", description: "Once a week" },
+    { value: "monthly", label: "Monthly", description: "Once a month" },
   ];
 
   const handleTestDigest = async (digestType: string) => {
@@ -137,8 +143,9 @@ export const EmailDigestSettings = () => {
         <Alert>
           <Bell className="h-4 w-4" />
           <AlertDescription>
-            Stay updated with personalized email digests based on your follows and interests.
-            You can adjust frequency or disable any digest type at any time.
+            Stay updated with personalized email digests based on your follows
+            and interests. You can adjust frequency or disable any digest type
+            at any time.
           </AlertDescription>
         </Alert>
 
@@ -147,7 +154,7 @@ export const EmailDigestSettings = () => {
           {digestTypes.map((digest) => {
             const preference = getPreference(digest.type);
             const IconComponent = digest.icon;
-            
+
             return (
               <div key={digest.type} className="space-y-3">
                 <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -155,7 +162,7 @@ export const EmailDigestSettings = () => {
                     <div className={`p-2 rounded-lg ${digest.bgColor}`}>
                       <IconComponent className={`h-5 w-5 ${digest.color}`} />
                     </div>
-                    
+
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <h4 className="font-medium">{digest.title}</h4>
@@ -171,7 +178,11 @@ export const EmailDigestSettings = () => {
                       {preference?.last_sent_at && (
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          Last sent {formatDistanceToNow(new Date(preference.last_sent_at))} ago
+                          Last sent{" "}
+                          {formatDistanceToNow(
+                            new Date(preference.last_sent_at)
+                          )}{" "}
+                          ago
                         </p>
                       )}
                     </div>
@@ -180,11 +191,11 @@ export const EmailDigestSettings = () => {
                   <div className="flex items-center gap-3">
                     {/* Frequency Selector */}
                     <Select
-                      value={preference?.frequency || 'weekly'}
-                      onValueChange={(frequency) => 
-                        updatePreference(digest.type, { 
+                      value={preference?.frequency || "weekly"}
+                      onValueChange={(frequency) =>
+                        updatePreference(digest.type, {
                           frequency: frequency as any,
-                          is_active: frequency !== 'never'
+                          is_active: frequency !== "never",
                         })
                       }
                     >
@@ -208,20 +219,24 @@ export const EmailDigestSettings = () => {
                     {/* Test Button */}
                     <Button
                       onClick={() => handleTestDigest(digest.type)}
-                      disabled={!preference?.is_active || testingDigest === digest.type}
+                      disabled={
+                        !preference?.is_active || testingDigest === digest.type
+                      }
                       variant="outline"
                       size="sm"
                     >
-                      {testingDigest === digest.type ? 'Testing...' : 'Test'}
+                      {testingDigest === digest.type ? "Testing..." : "Test"}
                     </Button>
 
                     {/* Active Toggle */}
                     <Switch
                       checked={preference?.is_active || false}
-                      onCheckedChange={(checked) => 
-                        updatePreference(digest.type, { 
+                      onCheckedChange={(checked) =>
+                        updatePreference(digest.type, {
                           is_active: checked,
-                          frequency: checked ? (preference?.frequency || 'weekly') : 'never'
+                          frequency: checked
+                            ? preference?.frequency || "weekly"
+                            : "never",
                         })
                       }
                     />
@@ -242,7 +257,7 @@ export const EmailDigestSettings = () => {
               Manage all your email preferences at once
             </p>
           </div>
-          
+
           <div className="flex gap-2">
             <Button
               onClick={unsubscribeFromAll}
@@ -271,7 +286,7 @@ export const EmailDigestSettings = () => {
                   from followed shops
                 </p>
               </Card>
-              
+
               <Card className="p-3">
                 <div className="flex items-center gap-2 mb-2">
                   <Eye className="h-4 w-4 text-purple-600" />
@@ -284,7 +299,7 @@ export const EmailDigestSettings = () => {
                   updated collections
                 </p>
               </Card>
-              
+
               <Card className="p-3">
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="h-4 w-4 text-green-600" />
@@ -305,9 +320,9 @@ export const EmailDigestSettings = () => {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            <strong>Email Tips:</strong> Digests are sent based on activity from your follows. 
-            If there are no updates, you won't receive an email. You can always test a digest 
-            to see what content would be included.
+            <strong>Email Tips:</strong> Digests are sent based on activity from
+            your follows. If there are no updates, you won't receive an email.
+            You can always test a digest to see what content would be included.
           </AlertDescription>
         </Alert>
       </CardContent>
