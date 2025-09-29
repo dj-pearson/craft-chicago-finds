@@ -6,10 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Eye, EyeOff, Mail, Lock, User, Store } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Store, Calendar, AlertTriangle, Clock } from "lucide-react";
 import { z } from "zod";
+import { LAUNCH_CONFIG, isLaunched, isPreLaunch, getLaunchCountdown, formatLaunchDate } from "@/lib/launch-config";
 
 // Validation schemas
 const signInSchema = z.object({
@@ -55,6 +57,37 @@ const Auth = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [countdown, setCountdown] = useState(getLaunchCountdown());
+  const [registrationEnabled, setRegistrationEnabled] = useState(LAUNCH_CONFIG.REGISTRATION_ENABLED);
+  const [emailSignupData, setEmailSignupData] = useState({
+    email: "",
+    type: "general" as "general" | "seller"
+  });
+  const [emailSignupLoading, setEmailSignupLoading] = useState(false);
+
+  // Update countdown every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCountdown(getLaunchCountdown());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Check registration status from admin settings
+  useEffect(() => {
+    const checkRegistrationStatus = async () => {
+      try {
+        // In production, this would fetch from Supabase
+        // For now, use launch config default
+        setRegistrationEnabled(LAUNCH_CONFIG.REGISTRATION_ENABLED);
+      } catch (error) {
+        console.error("Error checking registration status:", error);
+      }
+    };
+
+    checkRegistrationStatus();
+  }, []);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -118,6 +151,17 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if registration is enabled
+    if (!registrationEnabled) {
+      toast({
+        title: "Registration Currently Disabled",
+        description: "We're preparing for our Chicago launch on November 1st. Sign up below to be notified when registration opens!",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setFormLoading(true);
     setErrors({});
 
@@ -172,6 +216,31 @@ const Auth = () => {
     }
   };
 
+  const handleEmailSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailSignupLoading(true);
+
+    try {
+      // In production, this would save to Supabase
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+
+      toast({
+        title: "Thanks for signing up!",
+        description: "We'll notify you as soon as Chicago registration opens on November 1st.",
+      });
+
+      setEmailSignupData({ email: "", type: "general" });
+    } catch (error) {
+      toast({
+        title: "Signup failed",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setEmailSignupLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -195,11 +264,56 @@ const Auth = () => {
           <p className="text-muted-foreground">Your local handmade marketplace</p>
         </div>
 
+        {/* Launch Status Banner */}
+        {!registrationEnabled && isPreLaunch() && (
+          <Card className="border-amber-200 bg-amber-50 mb-6">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Calendar className="h-5 w-5 text-amber-600" />
+                <h3 className="font-semibold text-amber-900">Chicago Launch Coming Soon!</h3>
+              </div>
+              <p className="text-amber-800 text-sm mb-3">
+                {LAUNCH_CONFIG.LAUNCH_HEADLINE}
+              </p>
+              <div className="text-center">
+                <p className="text-amber-700 font-medium mb-2">Launching {formatLaunchDate('month-day')}</p>
+                {!countdown.isLaunched && (
+                  <div className="grid grid-cols-4 gap-2 text-center">
+                    <div className="bg-white rounded p-2">
+                      <div className="text-lg font-bold text-amber-900">{countdown.days}</div>
+                      <div className="text-xs text-amber-600">Days</div>
+                    </div>
+                    <div className="bg-white rounded p-2">
+                      <div className="text-lg font-bold text-amber-900">{countdown.hours}</div>
+                      <div className="text-xs text-amber-600">Hours</div>
+                    </div>
+                    <div className="bg-white rounded p-2">
+                      <div className="text-lg font-bold text-amber-900">{countdown.minutes}</div>
+                      <div className="text-xs text-amber-600">Minutes</div>
+                    </div>
+                    <div className="bg-white rounded p-2">
+                      <div className="text-lg font-bold text-amber-900">{countdown.seconds}</div>
+                      <div className="text-xs text-amber-600">Seconds</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="border-border/50 shadow-elevated">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsTrigger value="signup" disabled={!registrationEnabled}>
+                Sign Up
+                {!registrationEnabled && (
+                  <Badge variant="outline" className="ml-2 text-xs">
+                    Soon
+                  </Badge>
+                )}
+              </TabsTrigger>
             </TabsList>
 
             {/* Sign In Tab */}
@@ -282,16 +396,96 @@ const Auth = () => {
 
             {/* Sign Up Tab */}
             <TabsContent value="signup">
-              <form onSubmit={handleSignUp}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Create an account
-                  </CardTitle>
-                  <CardDescription>
-                    Join our community of local makers and buyers
-                  </CardDescription>
-                </CardHeader>
+              {!registrationEnabled ? (
+                <div>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-amber-600" />
+                      Registration Opens November 1st
+                    </CardTitle>
+                    <CardDescription>
+                      Get notified when Chicago registration opens and be among the first to join!
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <h3 className="font-semibold text-blue-900 mb-2">What's Coming:</h3>
+                        <ul className="text-blue-800 text-sm space-y-1">
+                          <li>• Connect with 50+ local Chicago artisans</li>
+                          <li>• Shop unique handmade items from your neighborhood</li>
+                          <li>• Support local makers and small businesses</li>
+                          <li>• Enjoy local pickup and fast shipping</li>
+                        </ul>
+                      </div>
+                      
+                      <form onSubmit={handleEmailSignup} className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="notify-email">Email Address</Label>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                            <Input
+                              id="notify-email"
+                              type="email"
+                              placeholder="Enter your email"
+                              value={emailSignupData.email}
+                              onChange={(e) => setEmailSignupData(prev => ({ ...prev, email: e.target.value }))}
+                              className="pl-10"
+                              required
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>I'm interested in:</Label>
+                          <div className="flex gap-4">
+                            <label className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                name="signup-type"
+                                value="general"
+                                checked={emailSignupData.type === "general"}
+                                onChange={(e) => setEmailSignupData(prev => ({ ...prev, type: e.target.value as "general" | "seller" }))}
+                                className="text-primary"
+                              />
+                              <span className="text-sm">Shopping handmade items</span>
+                            </label>
+                            <label className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                name="signup-type"
+                                value="seller"
+                                checked={emailSignupData.type === "seller"}
+                                onChange={(e) => setEmailSignupData(prev => ({ ...prev, type: e.target.value as "general" | "seller" }))}
+                                className="text-primary"
+                              />
+                              <span className="text-sm">Selling my crafts</span>
+                            </label>
+                          </div>
+                        </div>
+                        
+                        <Button 
+                          type="submit" 
+                          className="w-full" 
+                          disabled={emailSignupLoading}
+                        >
+                          {emailSignupLoading ? "Signing up..." : "Notify Me When Registration Opens"}
+                        </Button>
+                      </form>
+                    </div>
+                  </CardContent>
+                </div>
+              ) : (
+                <form onSubmit={handleSignUp}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="h-5 w-5" />
+                      Create an account
+                    </CardTitle>
+                    <CardDescription>
+                      Join our community of local makers and buyers
+                    </CardDescription>
+                  </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">Display Name</Label>
@@ -413,6 +607,7 @@ const Auth = () => {
                   </p>
                 </CardFooter>
               </form>
+              )}
             </TabsContent>
           </Tabs>
         </Card>

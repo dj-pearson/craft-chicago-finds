@@ -7,3 +7,5 @@ export * from "./AnalyticsDashboard";
 export * from "./ContentManager";
 export * from "./AISettingsManager";
 export * from "./SocialMediaManager";
+export * from "./BlogManager";
+export * from "./LaunchControls";
