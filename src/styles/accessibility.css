@@ -1,0 +1,360 @@
+/* Accessibility Styles */
+
+/* High Contrast Mode */
+.high-contrast {
+  --background: hsl(0 0% 0%);
+  --foreground: hsl(0 0% 100%);
+  --muted: hsl(0 0% 15%);
+  --muted-foreground: hsl(0 0% 85%);
+  --popover: hsl(0 0% 5%);
+  --popover-foreground: hsl(0 0% 95%);
+  --card: hsl(0 0% 5%);
+  --card-foreground: hsl(0 0% 95%);
+  --border: hsl(0 0% 25%);
+  --input: hsl(0 0% 15%);
+  --primary: hsl(47 100% 50%);
+  --primary-foreground: hsl(0 0% 0%);
+  --secondary: hsl(0 0% 20%);
+  --secondary-foreground: hsl(0 0% 90%);
+  --accent: hsl(0 0% 20%);
+  --accent-foreground: hsl(0 0% 90%);
+  --destructive: hsl(0 100% 60%);
+  --destructive-foreground: hsl(0 0% 0%);
+  --ring: hsl(47 100% 50%);
+  --radius: 0.5rem;
+}
+
+.high-contrast * {
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.high-contrast img {
+  filter: contrast(1.2) brightness(1.1);
+}
+
+.high-contrast .bg-gradient-to-r,
+.high-contrast .bg-gradient-to-l,
+.high-contrast .bg-gradient-to-t,
+.high-contrast .bg-gradient-to-b {
+  background: var(--background) !important;
+}
+
+/* Enhanced focus visibility */
+.focus-visible *:focus,
+.focus-visible *:focus-visible {
+  outline: 3px solid var(--primary) !important;
+  outline-offset: 2px !important;
+  border-radius: 4px;
+}
+
+.focus-visible button:focus,
+.focus-visible a:focus,
+.focus-visible input:focus,
+.focus-visible textarea:focus,
+.focus-visible select:focus {
+  box-shadow: 0 0 0 3px var(--primary) !important;
+}
+
+/* Reduced Motion */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.reduce-motion .animate-spin,
+.reduce-motion .animate-pulse,
+.reduce-motion .animate-bounce {
+  animation: none !important;
+}
+
+.reduce-motion .transition-all,
+.reduce-motion .transition-opacity,
+.reduce-motion .transition-transform {
+  transition: none !important;
+}
+
+/* Large Text Mode */
+.large-text {
+  font-size: 18px;
+}
+
+.large-text .text-xs {
+  font-size: 0.875rem;
+}
+
+.large-text .text-sm {
+  font-size: 1rem;
+}
+
+.large-text .text-base {
+  font-size: 1.125rem;
+}
+
+.large-text .text-lg {
+  font-size: 1.25rem;
+}
+
+.large-text .text-xl {
+  font-size: 1.5rem;
+}
+
+.large-text .text-2xl {
+  font-size: 1.875rem;
+}
+
+.large-text .text-3xl {
+  font-size: 2.25rem;
+}
+
+.large-text button,
+.large-text input,
+.large-text textarea,
+.large-text select {
+  min-height: 48px;
+  padding: 12px 16px;
+}
+
+.large-text .h-4 {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.large-text .h-5 {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.large-text .h-6 {
+  height: 1.75rem;
+  width: 1.75rem;
+}
+
+/* Screen Reader Optimizations */
+.screen-reader .sr-only {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+.screen-reader img:not([alt]) {
+  outline: 2px solid red;
+}
+
+.screen-reader img:not([alt])::after {
+  content: "Missing alt text";
+  display: block;
+  color: red;
+  font-weight: bold;
+}
+
+/* Skip Links */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 9999;
+  font-weight: bold;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Keyboard Navigation Indicators */
+.keyboard-nav-active *:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.keyboard-nav-active button:focus,
+.keyboard-nav-active a:focus {
+  background-color: var(--accent);
+}
+
+/* High Hit Area for Touch */
+@media (pointer: coarse) {
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .large-text button,
+  .large-text a,
+  .large-text input,
+  .large-text textarea,
+  .large-text select {
+    min-height: 56px;
+  }
+}
+
+/* Color-blind friendly indicators */
+.high-contrast .text-red-500,
+.high-contrast .text-destructive {
+  text-decoration: underline;
+}
+
+.high-contrast .text-green-500,
+.high-contrast .bg-green-100 {
+  font-weight: bold;
+}
+
+.high-contrast .text-yellow-500,
+.high-contrast .bg-yellow-100 {
+  font-style: italic;
+}
+
+/* Loading states with reduced motion */
+.reduce-motion .loading-shimmer {
+  background: var(--muted);
+  animation: none;
+}
+
+.reduce-motion .loading-spinner {
+  border: 2px solid var(--muted);
+  border-top: 2px solid var(--primary);
+  animation: none;
+}
+
+.reduce-motion .loading-spinner::after {
+  content: "Loading...";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+}
+
+/* Shimmer animation for skeleton loading */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+.reduce-motion .animate-shimmer {
+  animation: none;
+  background: var(--muted);
+}
+
+/* Ensure text remains readable during font swaps */
+@font-face {
+  font-display: swap;
+}
+
+/* Improve focus for form elements */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-color: var(--primary);
+}
+
+/* Better error state visibility */
+.high-contrast .text-destructive,
+.high-contrast .border-destructive {
+  border-style: dashed !important;
+  border-width: 2px !important;
+}
+
+/* Improved button states */
+.high-contrast button:hover {
+  transform: none !important;
+  box-shadow: inset 0 0 0 2px var(--primary) !important;
+}
+
+.high-contrast button:active {
+  transform: none !important;
+  box-shadow: inset 0 0 0 4px var(--primary) !important;
+}
+
+/* Better table accessibility */
+.high-contrast table {
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+
+.high-contrast th,
+.high-contrast td {
+  border: 1px solid var(--border);
+  padding: 8px;
+}
+
+/* Improved form labels */
+.screen-reader label {
+  font-weight: bold;
+}
+
+.screen-reader .required::after {
+  content: " (required)";
+  color: var(--destructive);
+}
+
+/* Better modal/dialog accessibility */
+.high-contrast [role="dialog"],
+.high-contrast [role="alertdialog"] {
+  border: 3px solid var(--primary);
+}
+
+/* Improved list accessibility */
+.screen-reader ul,
+.screen-reader ol {
+  padding-left: 2rem;
+}
+
+.screen-reader li {
+  margin-bottom: 0.25rem;
+}
+
+/* Better link accessibility */
+.high-contrast a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.high-contrast a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Improved card accessibility */
+.high-contrast .card {
+  border-width: 2px;
+}
+
+.high-contrast .card:hover {
+  border-color: var(--primary);
+}
+
+/* Better badge/tag visibility */
+.high-contrast .badge {
+  border: 1px solid var(--border);
+  font-weight: bold;
+}

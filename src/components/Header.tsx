@@ -17,6 +17,7 @@ import { CitySelector } from "@/components/CitySelector";
 import { NotificationCenter } from "@/components/notifications";
 import { CartIndicator } from "@/components/cart/CartIndicator";
 import { QuickSearch } from "@/components/browse/QuickSearch";
+import { AccessibilityPanel } from "@/components/accessibility/AccessibilityPanel";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -76,6 +77,9 @@ export const Header = () => {
             <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9 sm:h-10 sm:w-10">
               <Search className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
+
+            {/* Accessibility */}
+            <AccessibilityPanel />
 
             {/* Notifications */}
             {user && <NotificationCenter />}

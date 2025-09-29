@@ -9,8 +9,10 @@ import { CityProvider } from "./hooks/useCityContext";
 import { StripeProvider } from "./hooks/useStripe";
 import { CartProvider } from "./hooks/useCart";
 import { PlansProvider } from "./hooks/usePlans";
+import { AccessibilityProvider } from "./components/accessibility/AccessibilityProvider";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import "./styles/accessibility.css";
 
 // Lazy load pages for better performance
 const Landing = lazy(() => import("./pages/Landing"));
@@ -47,12 +49,13 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <StripeProvider>
-      <AuthProvider>
-        <PlansProvider>
-          <CartProvider>
-            <AdminProvider>
-              <TooltipProvider>
+    <AccessibilityProvider>
+      <StripeProvider>
+        <AuthProvider>
+          <PlansProvider>
+            <CartProvider>
+              <AdminProvider>
+                <TooltipProvider>
                 <Toaster />
                 <Sonner />
           <BrowserRouter>
@@ -90,6 +93,7 @@ const App = () => (
         </PlansProvider>
       </AuthProvider>
     </StripeProvider>
+    </AccessibilityProvider>
   </QueryClientProvider>
 );
 
