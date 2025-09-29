@@ -167,36 +167,36 @@ Two or more buyers can chip in at checkout, useful for bigger items (holiday gro
 Seller empowerment
 
 Auto cross-post
-Optional push of listings to Instagram/Facebook/TikTok shop feeds. Saves time and makes CraftLocal the seller’s hub.
+Optional push of listings to Instagram/Facebook/TikTok shop feeds. Saves time and makes CraftLocal the seller's hub.
 
 Inventory sync with Square or Shopify Lite
 Many small vendors already use Square at markets — syncing stock prevents oversells.
 
-In-person QR shop
+✅ In-person QR shop
 Vendors get a QR code they can display at craft fairs or coffee shops; scanning takes buyers straight to their CraftLocal shop.
 
-Seller “micro insights”
-Instead of big dashboards, quick daily nudges like: “Your soy candles got 42 views yesterday. Try adding holiday keywords.”
+Seller "micro insights"
+Instead of big dashboards, quick daily nudges like: "Your soy candles got 42 views yesterday. Try adding holiday keywords."
 
 Automated seasonal prompts
 Platform reminds sellers 6–8 weeks before big holidays to list themed stock, with templates for fast creation.
 
 Social & community
 
-Maker livestreams / craft demos
+✅ Maker livestreams / craft demos
 Sellers can schedule a 20-min live stream to show their process; buyers can buy during/after.
 
 Shop-with-friends mode
 Two people can browse together in sync (like Spotify group sessions). Great for holiday shopping.
 
 Community challenges
-Monthly theme (e.g., “Chicago Winter Warmth”) where makers upload new items; winners get featured on the homepage.
+Monthly theme (e.g., "Chicago Winter Warmth") where makers upload new items; winners get featured on the homepage.
 
-Local pickup meetups
-Optional “CraftLocal pickup days” at coffee shops or coworking spaces. Builds community and saves on shipping.
+✅ Local pickup meetups
+Optional "CraftLocal pickup days" at coffee shops or coworking spaces. Builds community and saves on shipping.
 
 Buyer favorites leaderboard
-Showcase trending items by neighborhood — e.g., “Most wishlisted this week in Wicker Park”.
+Showcase trending items by neighborhood — e.g., "Most wishlisted this week in Wicker Park".
 
 Delightful polish
 
@@ -204,13 +204,13 @@ Unboxing experience rating
 Buyers can rate just the packaging/unboxing separately. Encourages sellers to step up presentation.
 
 Mood-based browsing
-Simple toggle like “Cozy / Festive / Minimalist / Bold” that adjusts product grid colors and curation.
+Simple toggle like "Cozy / Festive / Minimalist / Bold" that adjusts product grid colors and curation.
 
-One-click re-order
+✅ One-click re-order
 For consumables (candles, soaps, teas). Makes repeat sales painless.
 
 AI-powered gift recommender
-Ask a few questions (“budget,” “who is it for?”), and the system curates picks. Great during holidays.
+Ask a few questions ("budget," "who is it for?"), and the system curates picks. Great during holidays.
 
 Seasonal site skins
 Subtle design themes (autumn leaves, winter snow) applied to the site to keep it feeling alive without being overwhelming.
