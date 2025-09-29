@@ -105,9 +105,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
     console.log("Creating order from checkout session:", session.id);
 
-    // Check if this is a cart checkout
+    // Check checkout type
     if (metadata.is_cart_checkout === "true") {
       await handleCartCheckout(session, metadata);
+    } else if (metadata.type === "guest_cart_checkout") {
+      await handleGuestCartCheckout(session, metadata);
     } else {
       await handleSingleItemCheckout(session, metadata);
     }
@@ -231,8 +233,142 @@ async function handleCartCheckout(
           inventoryError
         );
       }
-    }
   }
+}
+
+async function handleGuestCartCheckout(session: Stripe.Checkout.Session, metadata: any) {
+  console.log('Processing guest cart checkout:', session.id);
+  
+  try {
+    // Parse metadata
+    const guestName = metadata.guest_name;
+    const guestEmail = metadata.guest_email;
+    const guestPhone = metadata.guest_phone;
+    const fulfillmentMethod = metadata.fulfillment_method;
+    const shippingAddress = metadata.shipping_address ? JSON.parse(metadata.shipping_address) : null;
+    const notes = metadata.notes;
+    const sendMagicLink = metadata.send_magic_link === 'true';
+    
+    console.log('Guest info:', { guestName, guestEmail, sendMagicLink });
+
+    // Get line items from the session
+    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+      expand: ['data.price.product']
+    });
+
+    // Group items by seller (exclude platform fee)
+    const sellerGroups: Record<string, any[]> = {};
+    
+    for (const item of lineItems.data) {
+      const product = item.price?.product as Stripe.Product;
+      if (product?.metadata?.type === 'platform_fee') continue;
+      
+      const sellerId = product?.metadata?.seller_id;
+      if (!sellerId) continue;
+      
+      if (!sellerGroups[sellerId]) {
+        sellerGroups[sellerId] = [];
+      }
+      
+      sellerGroups[sellerId].push({
+        listing_id: product.metadata.listing_id,
+        seller_name: product.metadata.seller_name,
+        quantity: item.quantity,
+        price: (item.price?.unit_amount || 0) / 100,
+        title: product.name
+      });
+    }
+
+    console.log('Seller groups:', Object.keys(sellerGroups));
+
+    // Create orders for each seller
+    const orderPromises = Object.entries(sellerGroups).map(async ([sellerId, items]) => {
+      const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const commissionAmount = totalAmount * 0.1; // 10% platform fee
+
+      const { data: order, error } = await supabaseClient
+        .from('orders')
+        .insert([{
+          buyer_id: null, // Guest order
+          seller_id: sellerId,
+          listing_id: items[0].listing_id, // Use first item as primary listing
+          quantity: items.reduce((sum, item) => sum + item.quantity, 0),
+          total_amount: totalAmount,
+          commission_amount: commissionAmount,
+          fulfillment_method: fulfillmentMethod,
+          shipping_address: shippingAddress ? JSON.stringify({
+            ...shippingAddress,
+            guest_name: guestName,
+            guest_email: guestEmail,
+            guest_phone: guestPhone
+          }) : null,
+          notes: notes || null,
+          payment_status: 'completed',
+          stripe_payment_intent_id: session.payment_intent,
+          status: 'confirmed'
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating guest order:', error);
+        throw error;
+      }
+
+      console.log('Created guest order:', order.id);
+
+      // Update inventory for each item
+      for (const item of items) {
+        await supabaseClient.rpc('decrement_inventory', {
+          listing_uuid: item.listing_id,
+          quantity: item.quantity
+        });
+      }
+
+      // Send notifications to seller
+      await supabaseClient.rpc('create_notification', {
+        _user_id: sellerId,
+        _type: 'new_order',
+        _title: 'New guest order received',
+        _content: `You have a new order from ${guestName} (${guestEmail})`,
+        _action_url: `/seller/orders/${order.id}`,
+        _related_id: order.id
+      });
+
+      return order;
+    });
+
+    const orders = await Promise.all(orderPromises);
+    console.log('Created guest orders:', orders.map(o => o.id));
+
+    // Send magic link if requested
+    if (sendMagicLink && guestEmail) {
+      try {
+        // Create a temporary "guest" session using Supabase auth
+        await supabaseClient.auth.signInWithOtp({
+          email: guestEmail,
+          options: {
+            data: {
+              guest_checkout: true,
+              guest_name: guestName,
+              order_ids: orders.map(o => o.id)
+            },
+            emailRedirectTo: `${Deno.env.get('SUPABASE_URL')}/guest-orders`
+          }
+        });
+        
+        console.log('Magic link sent to:', guestEmail);
+      } catch (linkError) {
+        console.error('Error sending magic link:', linkError);
+        // Don't fail the order if magic link fails
+      }
+    }
+
+  } catch (error) {
+    console.error('Error handling guest cart checkout:', error);
+    throw error;
+  }
+}
 
   console.log("Cart orders created successfully");
 }
@@ -448,6 +584,140 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     console.log("Subscription cancelled successfully");
   } catch (error) {
     console.error("Error handling subscription deleted:", error);
+    throw error;
+  }
+}
+
+async function handleGuestCartCheckout(session: Stripe.Checkout.Session, metadata: any) {
+  console.log('Processing guest cart checkout:', session.id);
+  
+  try {
+    // Parse metadata
+    const guestName = metadata.guest_name;
+    const guestEmail = metadata.guest_email;
+    const guestPhone = metadata.guest_phone;
+    const fulfillmentMethod = metadata.fulfillment_method;
+    const shippingAddress = metadata.shipping_address ? JSON.parse(metadata.shipping_address) : null;
+    const notes = metadata.notes;
+    const sendMagicLink = metadata.send_magic_link === 'true';
+    
+    console.log('Guest info:', { guestName, guestEmail, sendMagicLink });
+
+    // Get line items from the session
+    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+      expand: ['data.price.product']
+    });
+
+    // Group items by seller (exclude platform fee)
+    const sellerGroups: Record<string, any[]> = {};
+    
+    for (const item of lineItems.data) {
+      const product = item.price?.product as Stripe.Product;
+      if (product?.metadata?.listing_id === 'platform_fee') continue;
+      
+      const sellerId = product?.metadata?.seller_id;
+      if (!sellerId) continue;
+      
+      if (!sellerGroups[sellerId]) {
+        sellerGroups[sellerId] = [];
+      }
+      
+      sellerGroups[sellerId].push({
+        listing_id: product.metadata.listing_id,
+        seller_name: product.metadata.seller_name,
+        quantity: item.quantity,
+        price: (item.price?.unit_amount || 0) / 100,
+        title: product.name
+      });
+    }
+
+    console.log('Seller groups:', Object.keys(sellerGroups));
+
+    // Create orders for each seller
+    const orderPromises = Object.entries(sellerGroups).map(async ([sellerId, items]) => {
+      const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const commissionAmount = totalAmount * 0.1; // 10% platform fee
+
+      const { data: order, error } = await supabaseClient
+        .from('orders')
+        .insert([{
+          buyer_id: null, // Guest order
+          seller_id: sellerId,
+          listing_id: items[0].listing_id, // Use first item as primary listing
+          quantity: items.reduce((sum, item) => sum + item.quantity, 0),
+          total_amount: totalAmount,
+          commission_amount: commissionAmount,
+          fulfillment_method: fulfillmentMethod,
+          shipping_address: shippingAddress ? JSON.stringify({
+            ...shippingAddress,
+            guest_name: guestName,
+            guest_email: guestEmail,
+            guest_phone: guestPhone
+          }) : null,
+          notes: notes || null,
+          payment_status: 'completed',
+          stripe_payment_intent_id: session.payment_intent,
+          status: 'confirmed'
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating guest order:', error);
+        throw error;
+      }
+
+      console.log('Created guest order:', order.id);
+
+      // Update inventory for each item
+      for (const item of items) {
+        await supabaseClient.rpc('decrement_inventory', {
+          listing_uuid: item.listing_id,
+          quantity: item.quantity
+        });
+      }
+
+      // Send notifications to seller
+      await supabaseClient.rpc('create_notification', {
+        _user_id: sellerId,
+        _type: 'new_order',
+        _title: 'New guest order received',
+        _content: `You have a new order from ${guestName} (${guestEmail})`,
+        _action_url: `/seller/orders/${order.id}`,
+        _related_id: order.id
+      });
+
+      return order;
+    });
+
+    const orders = await Promise.all(orderPromises);
+    console.log('Created guest orders:', orders.map(o => o.id));
+
+    // Send magic link if requested
+    if (sendMagicLink && guestEmail) {
+      try {
+        // Create a temporary "guest" session using Supabase auth
+        await supabaseClient.auth.signInWithOtp({
+          email: guestEmail,
+          options: {
+            data: {
+              guest_checkout: true,
+              guest_name: guestName,
+              order_ids: orders.map(o => o.id)
+            },
+            emailRedirectTo: `${Deno.env.get('SUPABASE_URL')}/guest-orders`
+          }
+        });
+        
+        console.log('Magic link sent to:', guestEmail);
+      } catch (linkError) {
+        console.error('Error sending magic link:', linkError);
+        // Don't fail the order if magic link fails
+      }
+    }
+
+  } catch (error) {
+    console.error('Error handling guest cart checkout:', error);
     throw error;
   }
 }

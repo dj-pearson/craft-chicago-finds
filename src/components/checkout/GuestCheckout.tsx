@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useCart } from '@/hooks/useCart';
-import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,29 +10,32 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, CreditCard, ArrowLeft, Package, Truck, MapPin, UserX } from 'lucide-react';
+import { Loader2, CreditCard, ArrowLeft, Package, Truck, MapPin, Mail, Smartphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { AppleGooglePayButton } from '@/components/checkout/AppleGooglePayButton';
 
 interface ShippingAddress {
   name: string;
+  email: string;
+  phone?: string;
   address: string;
   city: string;
   state: string;
   zip: string;
 }
 
-export const CheckoutPage = () => {
+export const GuestCheckout = () => {
   const { items, clearCart, totalAmount, itemCount } = useCart();
-  const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   
   const [loading, setLoading] = useState(false);
+  const [sendMagicLink, setSendMagicLink] = useState(false);
   const [fulfillmentMethod, setFulfillmentMethod] = useState<'mixed' | 'shipping' | 'local_pickup'>('mixed');
   const [notes, setNotes] = useState('');
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     name: '',
+    email: '',
+    phone: '',
     address: '',
     city: '',
     state: '',
@@ -62,12 +64,7 @@ export const CheckoutPage = () => {
   const hasShippingItems = items.some(item => item.shipping_available);
   const hasPickupItems = items.some(item => item.local_pickup_available);
 
-  const handleCheckout = async () => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-
+  const handleGuestCheckout = async () => {
     if (items.length === 0) {
       toast({
         title: 'Cart is empty',
@@ -77,38 +74,48 @@ export const CheckoutPage = () => {
       return;
     }
 
+    // Validate required fields
+    const requiredFields = ['name', 'email'];
+    if (fulfillmentMethod === 'shipping' || (fulfillmentMethod === 'mixed' && hasShippingItems)) {
+      requiredFields.push('address', 'city', 'state', 'zip');
+    }
+    
+    const missingFields = requiredFields.filter(field => !shippingAddress[field as keyof ShippingAddress]);
+    
+    if (missingFields.length > 0) {
+      toast({
+        title: 'Missing information',
+        description: 'Please fill in all required fields.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      // Validate shipping address if needed
-      if (fulfillmentMethod === 'shipping' || (fulfillmentMethod === 'mixed' && hasShippingItems)) {
-        const requiredFields = ['name', 'address', 'city', 'state', 'zip'];
-        const missingFields = requiredFields.filter(field => !shippingAddress[field as keyof ShippingAddress]);
-        
-        if (missingFields.length > 0) {
-          toast({
-            title: 'Missing shipping information',
-            description: 'Please fill in all shipping address fields.',
-            variant: 'destructive'
-          });
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Create checkout session for cart
-      const { data: sessionData, error } = await supabase.functions.invoke('create-cart-checkout', {
+      // Create guest checkout session
+      const { data: sessionData, error } = await supabase.functions.invoke('create-guest-checkout', {
         body: {
           cart_items: items,
+          guest_info: shippingAddress,
           fulfillment_method: fulfillmentMethod,
           shipping_address: (fulfillmentMethod === 'shipping' || fulfillmentMethod === 'mixed') ? shippingAddress : null,
           notes: notes || null,
-          success_url: `${window.location.origin}/orders?checkout=success`,
+          send_magic_link: sendMagicLink,
+          success_url: `${window.location.origin}/orders?checkout=success&guest=true`,
           cancel_url: `${window.location.origin}/cart`
         }
       });
 
       if (error || !sessionData?.url) {
         throw new Error(error?.message || 'Failed to create checkout session');
+      }
+
+      if (sendMagicLink) {
+        toast({
+          title: 'Magic link sent!',
+          description: 'Check your email for a link to track your order without creating an account.',
+        });
       }
 
       // Clear cart and redirect to Stripe Checkout
@@ -126,12 +133,6 @@ export const CheckoutPage = () => {
     }
   };
 
-  if (!user) {
-    // Redirect to guest checkout instead of auth
-    navigate('/guest-checkout');
-    return null;
-  }
-
   if (items.length === 0) {
     navigate('/cart');
     return null;
@@ -145,52 +146,67 @@ export const CheckoutPage = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Cart
           </Button>
-          <h1 className="text-3xl font-bold">Checkout</h1>
+          <h1 className="text-3xl font-bold">Guest Checkout</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Order Details */}
+          {/* Checkout Form */}
           <div className="space-y-6">
-            {/* Order Summary */}
+            {/* Contact Information */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5" />
-                  Order Summary
+                  <Mail className="h-5 w-5" />
+                  Contact Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {Object.entries(itemsBySeller).map(([sellerId, { seller_name, items: sellerItems, subtotal }]) => (
-                  <div key={sellerId} className="space-y-3">
-                    <div className="font-semibold text-primary">From {seller_name}</div>
-                    {sellerItems.map((item) => (
-                      <div key={item.listing_id} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                        <div className="w-12 h-12 bg-muted rounded overflow-hidden flex-shrink-0">
-                          {item.image ? (
-                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Package className="h-6 w-6 text-muted-foreground" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium truncate">{item.title}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            ${item.price} × {item.quantity}
-                          </p>
-                        </div>
-                        <div className="font-semibold">
-                          ${(item.price * item.quantity).toFixed(2)}
-                        </div>
-                      </div>
-                    ))}
-                    <div className="text-right font-semibold">
-                      Subtotal: ${subtotal.toFixed(2)}
-                    </div>
-                    <Separator />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <Label htmlFor="name">Full Name *</Label>
+                    <Input
+                      id="name"
+                      value={shippingAddress.name}
+                      onChange={(e) => setShippingAddress(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="John Doe"
+                      required
+                    />
                   </div>
-                ))}
+                  <div className="col-span-2">
+                    <Label htmlFor="email">Email Address *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={shippingAddress.email}
+                      onChange={(e) => setShippingAddress(prev => ({ ...prev, email: e.target.value }))}
+                      placeholder="john@example.com"
+                      required
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label htmlFor="phone">Phone (Optional)</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={shippingAddress.phone}
+                      onChange={(e) => setShippingAddress(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="+1 (555) 123-4567"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2 p-3 bg-muted/50 rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="magic-link"
+                    checked={sendMagicLink}
+                    onChange={(e) => setSendMagicLink(e.target.checked)}
+                    className="rounded"
+                  />
+                  <Label htmlFor="magic-link" className="text-sm cursor-pointer">
+                    Send me a magic link to track my order (no password required)
+                  </Label>
+                </div>
               </CardContent>
             </Card>
 
@@ -246,48 +262,43 @@ export const CheckoutPage = () => {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-2">
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input
-                        id="name"
-                        value={shippingAddress.name}
-                        onChange={(e) => setShippingAddress(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder="John Doe"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <Label htmlFor="address">Address</Label>
+                      <Label htmlFor="address">Address *</Label>
                       <Input
                         id="address"
                         value={shippingAddress.address}
                         onChange={(e) => setShippingAddress(prev => ({ ...prev, address: e.target.value }))}
                         placeholder="123 Main St, Apt 4B"
+                        required
                       />
                     </div>
                     <div>
-                      <Label htmlFor="city">City</Label>
+                      <Label htmlFor="city">City *</Label>
                       <Input
                         id="city"
                         value={shippingAddress.city}
                         onChange={(e) => setShippingAddress(prev => ({ ...prev, city: e.target.value }))}
                         placeholder="Chicago"
+                        required
                       />
                     </div>
                     <div>
-                      <Label htmlFor="state">State</Label>
+                      <Label htmlFor="state">State *</Label>
                       <Input
                         id="state"
                         value={shippingAddress.state}
                         onChange={(e) => setShippingAddress(prev => ({ ...prev, state: e.target.value }))}
                         placeholder="IL"
+                        required
                       />
                     </div>
                     <div className="col-span-2">
-                      <Label htmlFor="zip">ZIP Code</Label>
+                      <Label htmlFor="zip">ZIP Code *</Label>
                       <Input
                         id="zip"
                         value={shippingAddress.zip}
                         onChange={(e) => setShippingAddress(prev => ({ ...prev, zip: e.target.value }))}
                         placeholder="60601"
+                        required
                       />
                     </div>
                   </div>
@@ -311,8 +322,52 @@ export const CheckoutPage = () => {
             </Card>
           </div>
 
-          {/* Payment Summary */}
+          {/* Order Summary */}
           <div>
+            {/* Order Items */}
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  Order Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {Object.entries(itemsBySeller).map(([sellerId, { seller_name, items: sellerItems, subtotal }]) => (
+                  <div key={sellerId} className="space-y-3">
+                    <div className="font-semibold text-primary">From {seller_name}</div>
+                    {sellerItems.map((item) => (
+                      <div key={item.listing_id} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                        <div className="w-12 h-12 bg-muted rounded overflow-hidden flex-shrink-0">
+                          {item.image ? (
+                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package className="h-6 w-6 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium truncate">{item.title}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            ${item.price} × {item.quantity}
+                          </p>
+                        </div>
+                        <div className="font-semibold">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                    <div className="text-right font-semibold">
+                      Subtotal: ${subtotal.toFixed(2)}
+                    </div>
+                    <Separator />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Payment Summary */}
             <Card className="sticky top-4">
               <CardHeader>
                 <CardTitle>Payment Summary</CardTitle>
@@ -334,19 +389,8 @@ export const CheckoutPage = () => {
                   </div>
                 </div>
 
-                {/* Apple Pay / Google Pay */}
-                <AppleGooglePayButton 
-                  onSuccess={(orderId) => {
-                    navigate(`/orders?order=${orderId}`);
-                  }}
-                  onError={(error) => {
-                    console.error('Express payment error:', error);
-                  }}
-                  disabled={loading}
-                />
-
                 <Button 
-                  onClick={handleCheckout}
+                  onClick={handleGuestCheckout}
                   disabled={loading}
                   className="w-full"
                   size="lg"
@@ -359,26 +403,15 @@ export const CheckoutPage = () => {
                   ) : (
                     <>
                       <CreditCard className="h-4 w-4 mr-2" />
-                      Continue to Payment
+                      Pay ${finalTotal.toFixed(2)}
                     </>
                   )}
                 </Button>
 
-                <div className="text-center">
-                  <Button 
-                    variant="link" 
-                    onClick={() => navigate('/guest-checkout')}
-                    className="text-sm text-muted-foreground"
-                  >
-                    <UserX className="h-3 w-3 mr-1" />
-                    Checkout as guest
-                  </Button>
-                </div>
-
                 <div className="text-xs text-muted-foreground space-y-1">
                   <p>• Secure payment with Stripe</p>
-                  <p>• Apple Pay / Google Pay supported</p>
-                  <p>• Orders split by seller automatically</p>
+                  <p>• Apple Pay / Google Pay available</p>
+                  <p>• No account required</p>
                   <p>• Individual tracking for each seller</p>
                 </div>
               </CardContent>
@@ -390,4 +423,4 @@ export const CheckoutPage = () => {
   );
 };
 
-export default CheckoutPage;
+export default GuestCheckout;
