@@ -89,11 +89,10 @@ function generateSitemapIndex(domain: string): string {
     'sitemap-blog.xml'
   ];
 
-  const sitemapEntries = sitemaps.map(sitemap => `
-  <sitemap>
+  const sitemapEntries = sitemaps.map(sitemap => `  <sitemap>
     <loc>${domain}/${sitemap}</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
-  </sitemap>`).join('');
+  </sitemap>`).join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -120,13 +119,12 @@ function generateStaticSitemap(domain: string): string {
     { url: '/terms', priority: '0.3', changefreq: 'yearly' },
   ];
 
-  const urlEntries = staticPages.map(page => `
-  <url>
+  const urlEntries = staticPages.map(page => `  <url>
     <loc>${domain}${page.url}</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
-  </url>`).join('');
+  </url>`).join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -146,18 +144,21 @@ async function generateProductsSitemap(supabaseClient: any, domain: string): Pro
     throw new Error(`Failed to fetch products: ${error.message}`);
   }
 
-  const urlEntries = products.map((product: any) => `
-  <url>
+  const urlEntries = products.map((product: any) => {
+    const imageXml = product.images && product.images.length > 0 
+      ? `    <image:image>
+      <image:loc>${product.images[0]}</image:loc>
+      <image:title>${product.title || ''}</image:title>
+    </image:image>` 
+      : '';
+    
+    return `  <url>
     <loc>${domain}/products/${product.slug}</loc>
     <lastmod>${product.updated_at}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    ${product.images && product.images.length > 0 ? `
-    <image:image>
-      <image:loc>${product.images[0]}</image:loc>
-      <image:title>${product.title || ''}</image:title>
-    </image:image>` : ''}
-  </url>`).join('');
+    <priority>0.7</priority>${imageXml ? '\n' + imageXml : ''}
+  </url>`;
+  }).join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
