@@ -134,7 +134,7 @@ export const generateMetaTags = (options: {
   const {
     title = 'Craft Local - Local Marketplace',
     description = 'Discover local artisans and crafters in your city',
-    image = '/Logo.png',
+    image = '/Logo.png', // Default logo, can be overridden for specific pages
     url = '/',
     type = 'website'
   } = options;

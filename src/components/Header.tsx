@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +25,12 @@ export const Header = () => {
   const { user, profile, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine which logo to show based on current page
+  const isChicagoPage = location.pathname.includes('/chicago') || location.pathname === '/cities/chicago';
+  const logoSrc = isChicagoPage ? '/Chicago.png' : '/Logo.png';
+  const logoAlt = isChicagoPage ? 'CraftLocal Chicago' : 'CraftLocal';
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -33,11 +39,17 @@ export const Header = () => {
           {/* Logo & City Selector */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate("/")}>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xs sm:text-sm">CL</span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center">
+                <img 
+                  src={logoSrc} 
+                  alt={logoAlt} 
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-lg xl:text-xl font-bold text-foreground">Craft Local</h1>
+                <h1 className="text-lg xl:text-xl font-bold text-foreground">
+                  {isChicagoPage ? 'CraftLocal Chicago' : 'Craft Local'}
+                </h1>
                 <p className="text-xs text-muted-foreground -mt-1">Local Handmade Marketplace</p>
               </div>
             </div>
