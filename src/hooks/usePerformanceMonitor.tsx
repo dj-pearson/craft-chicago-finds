@@ -1,272 +1,474 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PerformanceMetrics {
-  lcp?: number; // Largest Contentful Paint
-  fid?: number; // First Input Delay
-  cls?: number; // Cumulative Layout Shift
-  fcp?: number; // First Contentful Paint
-  ttfb?: number; // Time to First Byte
-  domContentLoaded?: number;
-  loadComplete?: number;
-  navigationTiming?: PerformanceNavigationTiming;
+  // Core Web Vitals
+  lcp: number | null; // Largest Contentful Paint
+  fid: number | null; // First Input Delay
+  cls: number | null; // Cumulative Layout Shift
+  fcp: number | null; // First Contentful Paint
+  ttfb: number | null; // Time to First Byte
+
+  // Custom metrics
+  pageLoadTime: number | null;
+  domContentLoaded: number | null;
+  resourceLoadTime: number | null;
+  jsHeapSize: number | null;
+  connectionType: string | null;
+
+  // User experience metrics
+  timeOnPage: number;
+  scrollDepth: number;
+  clickCount: number;
+  errorCount: number;
 }
 
-interface PerformanceThresholds {
-  lcp: { good: number; needsImprovement: number };
-  fid: { good: number; needsImprovement: number };
-  cls: { good: number; needsImprovement: number };
-  fcp: { good: number; needsImprovement: number };
-  ttfb: { good: number; needsImprovement: number };
+interface PerformanceEntry {
+  id: string;
+  page_url: string;
+  user_agent: string;
+  metrics: PerformanceMetrics;
+  timestamp: string;
+  session_id: string;
 }
 
-const PERFORMANCE_THRESHOLDS: PerformanceThresholds = {
-  lcp: { good: 2500, needsImprovement: 4000 },
-  fid: { good: 100, needsImprovement: 300 },
-  cls: { good: 0.1, needsImprovement: 0.25 },
-  fcp: { good: 1800, needsImprovement: 3000 },
-  ttfb: { good: 800, needsImprovement: 1800 },
+interface PerformanceAlert {
+  type: "warning" | "error" | "info";
+  metric: keyof PerformanceMetrics;
+  value: number;
+  threshold: number;
+  message: string;
+}
+
+const PERFORMANCE_THRESHOLDS = {
+  lcp: { good: 2500, poor: 4000 }, // ms
+  fid: { good: 100, poor: 300 }, // ms
+  cls: { good: 0.1, poor: 0.25 }, // score
+  fcp: { good: 1800, poor: 3000 }, // ms
+  ttfb: { good: 800, poor: 1800 }, // ms
+  pageLoadTime: { good: 3000, poor: 5000 }, // ms
 };
 
-export const usePerformanceMonitor = (enabled: boolean = true) => {
-  const [metrics, setMetrics] = useState<PerformanceMetrics>({});
-  const [isLoading, setIsLoading] = useState(true);
+export const usePerformanceMonitor = (
+  options: {
+    enableAutoReporting?: boolean;
+    reportingInterval?: number; // ms
+    enableRealTimeAlerts?: boolean;
+  } = {}
+) => {
+  const { user } = useAuth();
+  const {
+    enableAutoReporting = true,
+    reportingInterval = 30000, // 30 seconds
+    enableRealTimeAlerts = true,
+  } = options;
 
-  // Measure Core Web Vitals
+  const [metrics, setMetrics] = useState<PerformanceMetrics>({
+    lcp: null,
+    fid: null,
+    cls: null,
+    fcp: null,
+    ttfb: null,
+    pageLoadTime: null,
+    domContentLoaded: null,
+    resourceLoadTime: null,
+    jsHeapSize: null,
+    connectionType: null,
+    timeOnPage: 0,
+    scrollDepth: 0,
+    clickCount: 0,
+    errorCount: 0,
+  });
+
+  const [alerts, setAlerts] = useState<PerformanceAlert[]>([]);
+  const [isMonitoring, setIsMonitoring] = useState(false);
+  const [sessionId] = useState(
+    () => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  );
+
+  const startTimeRef = useRef(Date.now());
+  const observersRef = useRef<PerformanceObserver[]>([]);
+  const reportingIntervalRef = useRef<NodeJS.Timeout>();
+  const maxScrollDepthRef = useRef(0);
+
   useEffect(() => {
-    if (!enabled || typeof window === 'undefined') return;
-
-    let lcpObserver: PerformanceObserver;
-    let fidObserver: PerformanceObserver;
-    let clsObserver: PerformanceObserver;
-
-    // Largest Contentful Paint (LCP)
-    try {
-      lcpObserver = new PerformanceObserver((entryList) => {
-        const entries = entryList.getEntries();
-        const lastEntry = entries[entries.length - 1] as PerformanceEntry;
-        
-        setMetrics(prev => ({
-          ...prev,
-          lcp: lastEntry.startTime,
-        }));
-      });
-      lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
-    } catch (error) {
-      console.warn('LCP measurement not supported:', error);
-    }
-
-    // First Input Delay (FID)
-    try {
-      fidObserver = new PerformanceObserver((entryList) => {
-        const entries = entryList.getEntries();
-        entries.forEach((entry: any) => {
-          setMetrics(prev => ({
-            ...prev,
-            fid: entry.processingStart - entry.startTime,
-          }));
-        });
-      });
-      fidObserver.observe({ entryTypes: ['first-input'] });
-    } catch (error) {
-      console.warn('FID measurement not supported:', error);
-    }
-
-    // Cumulative Layout Shift (CLS)
-    try {
-      let clsValue = 0;
-      clsObserver = new PerformanceObserver((entryList) => {
-        const entries = entryList.getEntries();
-        entries.forEach((entry: any) => {
-          if (!entry.hadRecentInput) {
-            clsValue += entry.value;
-            setMetrics(prev => ({
-              ...prev,
-              cls: clsValue,
-            }));
-          }
-        });
-      });
-      clsObserver.observe({ entryTypes: ['layout-shift'] });
-    } catch (error) {
-      console.warn('CLS measurement not supported:', error);
+    if (enableAutoReporting) {
+      startMonitoring();
     }
 
     return () => {
-      lcpObserver?.disconnect();
-      fidObserver?.disconnect();
-      clsObserver?.disconnect();
+      stopMonitoring();
     };
-  }, [enabled]);
+  }, [enableAutoReporting]);
 
-  // Measure Navigation Timing
-  useEffect(() => {
-    if (!enabled || typeof window === 'undefined') return;
+  const startMonitoring = useCallback(() => {
+    if (isMonitoring) return;
 
-    const measureNavigationTiming = () => {
-      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-      
+    setIsMonitoring(true);
+    startTimeRef.current = Date.now();
+
+    // Initialize Core Web Vitals monitoring
+    initializeCoreWebVitals();
+
+    // Initialize custom metrics monitoring
+    initializeCustomMetrics();
+
+    // Initialize user interaction monitoring
+    initializeUserInteractionTracking();
+
+    // Initialize error tracking
+    initializeErrorTracking();
+
+    // Start periodic reporting
+    if (enableAutoReporting && reportingInterval > 0) {
+      reportingIntervalRef.current = setInterval(() => {
+        reportMetrics();
+      }, reportingInterval);
+    }
+  }, [isMonitoring, enableAutoReporting, reportingInterval]);
+
+  const stopMonitoring = useCallback(() => {
+    setIsMonitoring(false);
+
+    // Disconnect all observers
+    observersRef.current.forEach((observer) => observer.disconnect());
+    observersRef.current = [];
+
+    // Clear reporting interval
+    if (reportingIntervalRef.current) {
+      clearInterval(reportingIntervalRef.current);
+    }
+
+    // Remove event listeners
+    window.removeEventListener("click", trackClick);
+    window.removeEventListener("scroll", trackScroll);
+    window.removeEventListener("error", trackError);
+    window.removeEventListener("unhandledrejection", trackUnhandledRejection);
+  }, []);
+
+  const initializeCoreWebVitals = () => {
+    // LCP (Largest Contentful Paint)
+    if ("PerformanceObserver" in window) {
+      try {
+        const lcpObserver = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          const lastEntry = entries[entries.length - 1] as any;
+          const lcpValue = lastEntry.startTime;
+
+          setMetrics((prev) => ({ ...prev, lcp: lcpValue }));
+          checkThreshold("lcp", lcpValue);
+        });
+
+        lcpObserver.observe({ entryTypes: ["largest-contentful-paint"] });
+        observersRef.current.push(lcpObserver);
+      } catch (error) {
+        console.warn("LCP observer not supported:", error);
+      }
+
+      // FID (First Input Delay)
+      try {
+        const fidObserver = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          entries.forEach((entry: any) => {
+            const fidValue = entry.processingStart - entry.startTime;
+            setMetrics((prev) => ({ ...prev, fid: fidValue }));
+            checkThreshold("fid", fidValue);
+          });
+        });
+
+        fidObserver.observe({ entryTypes: ["first-input"] });
+        observersRef.current.push(fidObserver);
+      } catch (error) {
+        console.warn("FID observer not supported:", error);
+      }
+
+      // CLS (Cumulative Layout Shift)
+      try {
+        let clsValue = 0;
+        const clsObserver = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          entries.forEach((entry: any) => {
+            if (!entry.hadRecentInput) {
+              clsValue += entry.value;
+            }
+          });
+
+          setMetrics((prev) => ({ ...prev, cls: clsValue }));
+          checkThreshold("cls", clsValue);
+        });
+
+        clsObserver.observe({ entryTypes: ["layout-shift"] });
+        observersRef.current.push(clsObserver);
+      } catch (error) {
+        console.warn("CLS observer not supported:", error);
+      }
+
+      // FCP (First Contentful Paint)
+      try {
+        const fcpObserver = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          entries.forEach((entry: any) => {
+            if (entry.name === "first-contentful-paint") {
+              const fcpValue = entry.startTime;
+              setMetrics((prev) => ({ ...prev, fcp: fcpValue }));
+              checkThreshold("fcp", fcpValue);
+            }
+          });
+        });
+
+        fcpObserver.observe({ entryTypes: ["paint"] });
+        observersRef.current.push(fcpObserver);
+      } catch (error) {
+        console.warn("FCP observer not supported:", error);
+      }
+    }
+  };
+
+  const initializeCustomMetrics = () => {
+    // Navigation timing
+    if ("performance" in window && window.performance.timing) {
+      const timing = window.performance.timing;
+      const navigation = window.performance.getEntriesByType(
+        "navigation"
+      )[0] as PerformanceNavigationTiming;
+
       if (navigation) {
         const ttfb = navigation.responseStart - navigation.requestStart;
-        const fcp = performance.getEntriesByType('paint')
-          .find(entry => entry.name === 'first-contentful-paint')?.startTime || 0;
-        const domContentLoaded = navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart;
-        const loadComplete = navigation.loadEventEnd - navigation.loadEventStart;
+        const domContentLoaded =
+          navigation.domContentLoadedEventEnd - navigation.navigationStart;
+        const pageLoadTime =
+          navigation.loadEventEnd - navigation.navigationStart;
 
-        setMetrics(prev => ({
+        setMetrics((prev) => ({
           ...prev,
           ttfb,
-          fcp,
           domContentLoaded,
-          loadComplete,
-          navigationTiming: navigation,
+          pageLoadTime,
         }));
+
+        checkThreshold("ttfb", ttfb);
+        checkThreshold("pageLoadTime", pageLoadTime);
       }
-      
-      setIsLoading(false);
+    }
+
+    // Memory usage
+    if ("memory" in performance) {
+      const memory = (performance as any).memory;
+      setMetrics((prev) => ({
+        ...prev,
+        jsHeapSize: memory.usedJSHeapSize,
+      }));
+    }
+
+    // Connection type
+    if ("connection" in navigator) {
+      const connection = (navigator as any).connection;
+      setMetrics((prev) => ({
+        ...prev,
+        connectionType:
+          connection.effectiveType || connection.type || "unknown",
+      }));
+    }
+  };
+
+  const initializeUserInteractionTracking = () => {
+    // Click tracking
+    window.addEventListener("click", trackClick);
+
+    // Scroll tracking
+    window.addEventListener("scroll", trackScroll);
+  };
+
+  const initializeErrorTracking = () => {
+    window.addEventListener("error", trackError);
+    window.addEventListener("unhandledrejection", trackUnhandledRejection);
+  };
+
+  const trackClick = () => {
+    setMetrics((prev) => ({ ...prev, clickCount: prev.clickCount + 1 }));
+  };
+
+  const trackScroll = () => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const scrollDepth = Math.round(
+      ((scrollTop + windowHeight) / documentHeight) * 100
+    );
+
+    if (scrollDepth > maxScrollDepthRef.current) {
+      maxScrollDepthRef.current = scrollDepth;
+      setMetrics((prev) => ({ ...prev, scrollDepth }));
+    }
+  };
+
+  const trackError = (event: ErrorEvent) => {
+    setMetrics((prev) => ({ ...prev, errorCount: prev.errorCount + 1 }));
+    console.error("Performance Monitor - JavaScript Error:", event.error);
+  };
+
+  const trackUnhandledRejection = (event: PromiseRejectionEvent) => {
+    setMetrics((prev) => ({ ...prev, errorCount: prev.errorCount + 1 }));
+    console.error(
+      "Performance Monitor - Unhandled Promise Rejection:",
+      event.reason
+    );
+  };
+
+  const checkThreshold = (
+    metric: keyof typeof PERFORMANCE_THRESHOLDS,
+    value: number
+  ) => {
+    if (!enableRealTimeAlerts) return;
+
+    const threshold = PERFORMANCE_THRESHOLDS[metric];
+    if (!threshold) return;
+
+    let alertType: PerformanceAlert["type"] = "info";
+    let message = "";
+
+    if (value > threshold.poor) {
+      alertType = "error";
+      message = `${metric.toUpperCase()} is poor (${value.toFixed(2)}ms > ${
+        threshold.poor
+      }ms)`;
+    } else if (value > threshold.good) {
+      alertType = "warning";
+      message = `${metric.toUpperCase()} needs improvement (${value.toFixed(
+        2
+      )}ms > ${threshold.good}ms)`;
+    } else {
+      alertType = "info";
+      message = `${metric.toUpperCase()} is good (${value.toFixed(2)}ms)`;
+    }
+
+    const alert: PerformanceAlert = {
+      type: alertType,
+      metric,
+      value,
+      threshold: alertType === "error" ? threshold.poor : threshold.good,
+      message,
     };
 
-    if (document.readyState === 'complete') {
-      measureNavigationTiming();
-    } else {
-      window.addEventListener('load', measureNavigationTiming);
-      return () => window.removeEventListener('load', measureNavigationTiming);
-    }
-  }, [enabled]);
+    setAlerts((prev) => [...prev.slice(-9), alert]); // Keep last 10 alerts
+  };
 
-  // Get performance score for a metric
-  const getMetricScore = useCallback((
-    metricName: keyof PerformanceThresholds,
-    value: number
-  ): 'good' | 'needs-improvement' | 'poor' => {
-    const thresholds = PERFORMANCE_THRESHOLDS[metricName];
-    if (value <= thresholds.good) return 'good';
-    if (value <= thresholds.needsImprovement) return 'needs-improvement';
-    return 'poor';
+  const updateTimeOnPage = useCallback(() => {
+    const timeOnPage = Date.now() - startTimeRef.current;
+    setMetrics((prev) => ({ ...prev, timeOnPage }));
   }, []);
 
-  // Get overall performance score
-  const getOverallScore = useCallback((): 'good' | 'needs-improvement' | 'poor' => {
-    const scores: Array<'good' | 'needs-improvement' | 'poor'> = [];
-    
-    if (metrics.lcp) scores.push(getMetricScore('lcp', metrics.lcp));
-    if (metrics.fid) scores.push(getMetricScore('fid', metrics.fid));
-    if (metrics.cls) scores.push(getMetricScore('cls', metrics.cls));
-    if (metrics.fcp) scores.push(getMetricScore('fcp', metrics.fcp));
-    if (metrics.ttfb) scores.push(getMetricScore('ttfb', metrics.ttfb));
+  const reportMetrics = useCallback(async () => {
+    updateTimeOnPage();
 
-    if (scores.length === 0) return 'good';
+    const currentMetrics = { ...metrics };
 
-    const poorCount = scores.filter(s => s === 'poor').length;
-    const needsImprovementCount = scores.filter(s => s === 'needs-improvement').length;
-
-    if (poorCount > 0) return 'poor';
-    if (needsImprovementCount > 0) return 'needs-improvement';
-    return 'good';
-  }, [metrics, getMetricScore]);
-
-  // Send metrics to analytics (optional)
-  const sendMetrics = useCallback(async (endpoint?: string) => {
-    if (!endpoint || Object.keys(metrics).length === 0) return;
+    // Don't report if no meaningful data
+    if (
+      !currentMetrics.lcp &&
+      !currentMetrics.fcp &&
+      !currentMetrics.pageLoadTime
+    ) {
+      return;
+    }
 
     try {
-      await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          metrics,
-          timestamp: Date.now(),
-          url: window.location.href,
-          userAgent: navigator.userAgent,
-          connection: (navigator as any).connection?.effectiveType,
-        }),
-      });
-    } catch (error) {
-      console.error('Failed to send performance metrics:', error);
-    }
-  }, [metrics]);
+      const entry: Omit<PerformanceEntry, "id"> = {
+        page_url: window.location.href,
+        user_agent: navigator.userAgent,
+        metrics: currentMetrics,
+        timestamp: new Date().toISOString(),
+        session_id: sessionId,
+      };
 
-  // Get performance recommendations
-  const getRecommendations = useCallback((): string[] => {
-    const recommendations: string[] = [];
+      // Store in Supabase
+      const { error } = await supabase
+        .from("performance_metrics")
+        .insert(entry);
 
-    if (metrics.lcp && metrics.lcp > PERFORMANCE_THRESHOLDS.lcp.needsImprovement) {
-      recommendations.push(
-        'Optimize Largest Contentful Paint by reducing image sizes and using modern formats like WebP'
-      );
-    }
-
-    if (metrics.fid && metrics.fid > PERFORMANCE_THRESHOLDS.fid.needsImprovement) {
-      recommendations.push(
-        'Reduce First Input Delay by minimizing JavaScript execution time'
-      );
-    }
-
-    if (metrics.cls && metrics.cls > PERFORMANCE_THRESHOLDS.cls.needsImprovement) {
-      recommendations.push(
-        'Improve Cumulative Layout Shift by setting dimensions for images and ads'
-      );
-    }
-
-    if (metrics.fcp && metrics.fcp > PERFORMANCE_THRESHOLDS.fcp.needsImprovement) {
-      recommendations.push(
-        'Optimize First Contentful Paint by reducing render-blocking resources'
-      );
-    }
-
-    if (metrics.ttfb && metrics.ttfb > PERFORMANCE_THRESHOLDS.ttfb.needsImprovement) {
-      recommendations.push(
-        'Improve Time to First Byte by optimizing server response time'
-      );
-    }
-
-    return recommendations;
-  }, [metrics]);
-
-  // Resource timing analysis
-  const analyzeResourceTiming = useCallback(() => {
-    const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
-    
-    const analysis = {
-      totalResources: resources.length,
-      slowResources: resources.filter(r => r.duration > 1000),
-      largeResources: resources.filter(r => r.transferSize > 100000),
-      blockedResources: resources.filter(r => r.requestStart > r.startTime),
-      cacheHitRatio: resources.filter(r => r.transferSize === 0).length / resources.length,
-      resourceTypes: resources.reduce((acc, r) => {
-        const type = r.initiatorType || 'other';
-        acc[type] = (acc[type] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>),
-    };
-
-    return analysis;
-  }, []);
-
-  // Performance budget check
-  const checkPerformanceBudget = useCallback((budget: Partial<PerformanceThresholds>) => {
-    const violations: string[] = [];
-
-    Object.entries(budget).forEach(([metric, threshold]) => {
-      const value = metrics[metric as keyof PerformanceMetrics];
-      if (typeof value === 'number' && value > threshold.good) {
-        violations.push(`${metric.toUpperCase()} exceeded budget: ${value}ms > ${threshold.good}ms`);
+      if (error) {
+        console.error("Error reporting performance metrics:", error);
       }
-    });
+    } catch (error) {
+      console.error("Error reporting performance metrics:", error);
+    }
+  }, [metrics, sessionId, updateTimeOnPage]);
 
-    return violations;
+  const getPerformanceScore = useCallback(() => {
+    const scores = [];
+
+    if (metrics.lcp !== null) {
+      const lcpScore =
+        metrics.lcp <= PERFORMANCE_THRESHOLDS.lcp.good
+          ? 100
+          : metrics.lcp <= PERFORMANCE_THRESHOLDS.lcp.poor
+          ? 50
+          : 0;
+      scores.push(lcpScore);
+    }
+
+    if (metrics.fid !== null) {
+      const fidScore =
+        metrics.fid <= PERFORMANCE_THRESHOLDS.fid.good
+          ? 100
+          : metrics.fid <= PERFORMANCE_THRESHOLDS.fid.poor
+          ? 50
+          : 0;
+      scores.push(fidScore);
+    }
+
+    if (metrics.cls !== null) {
+      const clsScore =
+        metrics.cls <= PERFORMANCE_THRESHOLDS.cls.good
+          ? 100
+          : metrics.cls <= PERFORMANCE_THRESHOLDS.cls.poor
+          ? 50
+          : 0;
+      scores.push(clsScore);
+    }
+
+    return scores.length > 0
+      ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+      : null;
   }, [metrics]);
+
+  const getMetricStatus = (
+    metric: keyof typeof PERFORMANCE_THRESHOLDS,
+    value: number | null
+  ) => {
+    if (value === null) return "unknown";
+
+    const threshold = PERFORMANCE_THRESHOLDS[metric];
+    if (!threshold) return "unknown";
+
+    if (value <= threshold.good) return "good";
+    if (value <= threshold.poor) return "needs-improvement";
+    return "poor";
+  };
+
+  const clearAlerts = () => {
+    setAlerts([]);
+  };
 
   return {
+    // Data
     metrics,
-    isLoading,
-    getMetricScore,
-    getOverallScore,
-    sendMetrics,
-    getRecommendations,
-    analyzeResourceTiming,
-    checkPerformanceBudget,
-    thresholds: PERFORMANCE_THRESHOLDS,
+    alerts,
+    sessionId,
+
+    // State
+    isMonitoring,
+
+    // Actions
+    startMonitoring,
+    stopMonitoring,
+    reportMetrics,
+    clearAlerts,
+
+    // Utilities
+    getPerformanceScore,
+    getMetricStatus,
+    updateTimeOnPage,
   };
 };

@@ -1,275 +1,445 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SavedItem {
   id: string;
-  type: 'favorite' | 'recent_view';
-  listing_id: string;
-  listing_data?: {
-    title: string;
-    price: number;
-    images?: string[];
-    seller_name?: string;
-  };
-  timestamp: number;
-  synced?: boolean;
+  title: string;
+  price: number;
+  images: string[];
+  seller_name: string;
+  saved_at: string;
+  is_synced: boolean;
 }
 
-interface SmartSaveState {
+interface RecommendedItem {
+  id: string;
+  title: string;
+  price: number;
+  images: string[];
+  seller_name: string;
+  reason: string;
+  score: number;
+}
+
+interface SmartSaveData {
   favorites: SavedItem[];
   recentViews: SavedItem[];
-  isLoading: boolean;
-  hasPendingSync: boolean;
+  recommendations: RecommendedItem[];
 }
 
 const STORAGE_KEYS = {
-  favorites: 'craft_local_favorites',
-  recentViews: 'craft_local_recent_views',
-  syncToken: 'craft_local_sync_token',
-} as const;
-
-const MAX_RECENT_VIEWS = 50;
-const MAX_FAVORITES = 200;
+  FAVORITES: "craft_local_favorites",
+  RECENT_VIEWS: "craft_local_recent_views",
+  LAST_SYNC: "craft_local_last_sync",
+  MAGIC_LINK_SENT: "craft_local_magic_link_sent",
+};
 
 export const useSmartSave = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  
-  const [state, setState] = useState<SmartSaveState>({
-    favorites: [],
-    recentViews: [],
-    isLoading: false,
-    hasPendingSync: false,
-  });
+
+  const [favorites, setFavorites] = useState<SavedItem[]>([]);
+  const [recentViews, setRecentViews] = useState<SavedItem[]>([]);
+  const [recommendations, setRecommendations] = useState<RecommendedItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<
+    "idle" | "syncing" | "synced" | "error"
+  >("idle");
 
   // Load data from localStorage on mount
   useEffect(() => {
-    loadFromStorage();
+    loadLocalData();
   }, []);
 
-  // Sync with server when user logs in (stub for now)
+  // Sync with server when user logs in
   useEffect(() => {
-    if (user && state.hasPendingSync) {
-      // TODO: Implement server sync when user_favorites and user_recent_views tables exist
-      console.log('Smart save sync not yet implemented');
+    if (user) {
+      syncWithServer();
     }
-  }, [user, state.hasPendingSync]);
+  }, [user]);
 
-  const loadFromStorage = useCallback(() => {
+  // Generate recommendations based on favorites and views
+  useEffect(() => {
+    if (favorites.length > 0 || recentViews.length > 0) {
+      generateRecommendations();
+    }
+  }, [favorites, recentViews]);
+
+  const loadLocalData = () => {
     try {
-      const favorites = JSON.parse(
-        localStorage.getItem(STORAGE_KEYS.favorites) || '[]'
-      ) as SavedItem[];
-      
-      const recentViews = JSON.parse(
-        localStorage.getItem(STORAGE_KEYS.recentViews) || '[]'
-      ) as SavedItem[];
+      const savedFavorites = localStorage.getItem(STORAGE_KEYS.FAVORITES);
+      const savedViews = localStorage.getItem(STORAGE_KEYS.RECENT_VIEWS);
 
-      const hasPendingSync = favorites.some(f => !f.synced) || recentViews.some(r => !r.synced);
-
-      setState(prev => ({
-        ...prev,
-        favorites,
-        recentViews,
-        hasPendingSync,
-      }));
-    } catch (error) {
-      console.error('Error loading from storage:', error);
-    }
-  }, []);
-
-  const saveToStorage = useCallback((newState: Partial<SmartSaveState>) => {
-    if (newState.favorites) {
-      localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(newState.favorites));
-    }
-    if (newState.recentViews) {
-      localStorage.setItem(STORAGE_KEYS.recentViews, JSON.stringify(newState.recentViews));
-    }
-  }, []);
-
-  // Add to favorites
-  const addFavorite = useCallback(async (
-    listingId: string, 
-    listingData?: SavedItem['listing_data']
-  ) => {
-    const newFavorite: SavedItem = {
-      id: `fav_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      type: 'favorite',
-      listing_id: listingId,
-      listing_data: listingData,
-      timestamp: Date.now(),
-      synced: false, // Mark as not synced since we don't have server integration yet
-    };
-
-    setState(prev => {
-      const existingIndex = prev.favorites.findIndex(f => f.listing_id === listingId);
-      let newFavorites;
-      
-      if (existingIndex >= 0) {
-        // Update existing favorite
-        newFavorites = [...prev.favorites];
-        newFavorites[existingIndex] = { ...newFavorites[existingIndex], ...newFavorite };
-      } else {
-        // Add new favorite (limit to MAX_FAVORITES)
-        newFavorites = [newFavorite, ...prev.favorites].slice(0, MAX_FAVORITES);
+      if (savedFavorites) {
+        setFavorites(JSON.parse(savedFavorites));
       }
 
-      const newState = {
-        ...prev,
-        favorites: newFavorites,
-        hasPendingSync: true,
+      if (savedViews) {
+        setRecentViews(JSON.parse(savedViews));
+      }
+    } catch (error) {
+      console.error("Error loading local data:", error);
+    }
+  };
+
+  const saveToLocal = (key: string, data: any) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (error) {
+      console.error("Error saving to localStorage:", error);
+    }
+  };
+
+  const addToFavorites = useCallback(
+    async (item: Omit<SavedItem, "saved_at" | "is_synced">) => {
+      const newItem: SavedItem = {
+        ...item,
+        saved_at: new Date().toISOString(),
+        is_synced: false,
       };
 
-      saveToStorage({ favorites: newFavorites });
-      return newState;
-    });
+      const updatedFavorites = [
+        ...favorites.filter((f) => f.id !== item.id),
+        newItem,
+      ];
+      setFavorites(updatedFavorites);
+      saveToLocal(STORAGE_KEYS.FAVORITES, updatedFavorites);
 
-    toast({
-      title: "Added to favorites",
-      description: "Saved locally. Server sync coming soon!",
-      duration: 3000,
-    });
-  }, [toast, saveToStorage]);
+      // Sync to server if user is logged in
+      if (user) {
+        try {
+          await supabase.from("user_favorites").upsert({
+            user_id: user.id,
+            listing_id: item.id,
+          });
 
-  // Remove from favorites
-  const removeFavorite = useCallback(async (listingId: string) => {
-    setState(prev => {
-      const newFavorites = prev.favorites.filter(f => f.listing_id !== listingId);
-      saveToStorage({ favorites: newFavorites });
-      
-      return {
-        ...prev,
-        favorites: newFavorites,
+          // Mark as synced
+          const syncedFavorites = updatedFavorites.map((f) =>
+            f.id === item.id ? { ...f, is_synced: true } : f
+          );
+          setFavorites(syncedFavorites);
+          saveToLocal(STORAGE_KEYS.FAVORITES, syncedFavorites);
+        } catch (error) {
+          console.error("Error syncing favorite to server:", error);
+        }
+      } else {
+        // Show magic link prompt for first-time users
+        showMagicLinkPrompt();
+      }
+
+      toast({
+        title: "Added to favorites",
+        description: user
+          ? "Item saved to your account"
+          : "Item saved locally. Sign in to sync across devices.",
+        duration: 3000,
+      });
+    },
+    [favorites, user, toast]
+  );
+
+  const removeFromFavorites = useCallback(
+    async (itemId: string) => {
+      const updatedFavorites = favorites.filter((f) => f.id !== itemId);
+      setFavorites(updatedFavorites);
+      saveToLocal(STORAGE_KEYS.FAVORITES, updatedFavorites);
+
+      // Remove from server if user is logged in
+      if (user) {
+        try {
+          await supabase
+            .from("user_favorites")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("listing_id", itemId);
+        } catch (error) {
+          console.error("Error removing favorite from server:", error);
+        }
+      }
+
+      toast({
+        title: "Removed from favorites",
+        description: "Item removed from your saved items",
+        duration: 2000,
+      });
+    },
+    [favorites, user, toast]
+  );
+
+  const addToRecentViews = useCallback(
+    async (item: Omit<SavedItem, "saved_at" | "is_synced">) => {
+      const newItem: SavedItem = {
+        ...item,
+        saved_at: new Date().toISOString(),
+        is_synced: false,
       };
-    });
 
-    toast({
-      title: "Removed from favorites",
-      duration: 2000,
-    });
-  }, [toast, saveToStorage]);
+      // Keep only last 20 recent views
+      const updatedViews = [
+        newItem,
+        ...recentViews.filter((v) => v.id !== item.id),
+      ].slice(0, 20);
+      setRecentViews(updatedViews);
+      saveToLocal(STORAGE_KEYS.RECENT_VIEWS, updatedViews);
 
-  // Add to recent views
-  const addRecentView = useCallback((
-    listingId: string, 
-    listingData?: SavedItem['listing_data']
-  ) => {
-    const newView: SavedItem = {
-      id: `view_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      type: 'recent_view',
-      listing_id: listingId,
-      listing_data: listingData,
-      timestamp: Date.now(),
-      synced: false,
-    };
+      // Sync to server if user is logged in
+      if (user) {
+        try {
+          await supabase.rpc("track_listing_view", {
+            listing_uuid: item.id,
+            user_uuid: user.id,
+          });
 
-    setState(prev => {
-      // Remove existing view of the same listing and add to top
-      const filteredViews = prev.recentViews.filter(v => v.listing_id !== listingId);
-      const newRecentViews = [newView, ...filteredViews].slice(0, MAX_RECENT_VIEWS);
+          // Mark as synced
+          const syncedViews = updatedViews.map((v) =>
+            v.id === item.id ? { ...v, is_synced: true } : v
+          );
+          setRecentViews(syncedViews);
+          saveToLocal(STORAGE_KEYS.RECENT_VIEWS, syncedViews);
+        } catch (error) {
+          console.error("Error syncing view to server:", error);
+        }
+      }
+    },
+    [recentViews, user]
+  );
 
-      saveToStorage({ recentViews: newRecentViews });
-
-      return {
-        ...prev,
-        recentViews: newRecentViews,
-        hasPendingSync: true,
-      };
-    });
-  }, [saveToStorage]);
-
-  // Clear recent views
-  const clearRecentViews = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      recentViews: [],
-    }));
-    
-    localStorage.removeItem(STORAGE_KEYS.recentViews);
-  }, []);
-
-  // Sync with server (stub)
   const syncWithServer = useCallback(async () => {
     if (!user) return;
 
-    setState(prev => ({ ...prev, isLoading: true }));
+    setSyncStatus("syncing");
+    setLoading(true);
 
     try {
-      // TODO: Implement server sync when user_favorites and user_recent_views tables exist
-      console.log('Server sync not yet implemented');
-      
+      // Sync favorites to server
+      const unsyncedFavorites = favorites.filter((f) => !f.is_synced);
+      if (unsyncedFavorites.length > 0) {
+        const favoritesToSync = unsyncedFavorites.map((f) => ({
+          user_id: user.id,
+          listing_id: f.id,
+        }));
+
+        await supabase.from("user_favorites").upsert(favoritesToSync);
+      }
+
+      // Sync recent views to server
+      const unsyncedViews = recentViews.filter((v) => !v.is_synced);
+      for (const view of unsyncedViews) {
+        await supabase.rpc("track_listing_view", {
+          listing_uuid: view.id,
+          user_uuid: user.id,
+        });
+      }
+
+      // Fetch server data and merge
+      const [serverFavorites, serverViews] = await Promise.all([
+        supabase.rpc("get_user_favorites", { user_uuid: user.id }),
+        supabase.rpc("get_user_recent_views", { user_uuid: user.id }),
+      ]);
+
+      if (serverFavorites.data) {
+        const mergedFavorites = mergeWithServerData(
+          favorites,
+          serverFavorites.data,
+          "favorites"
+        );
+        setFavorites(mergedFavorites);
+        saveToLocal(STORAGE_KEYS.FAVORITES, mergedFavorites);
+      }
+
+      if (serverViews.data) {
+        const mergedViews = mergeWithServerData(
+          recentViews,
+          serverViews.data,
+          "views"
+        );
+        setRecentViews(mergedViews);
+        saveToLocal(STORAGE_KEYS.RECENT_VIEWS, mergedViews);
+      }
+
+      setSyncStatus("synced");
+      localStorage.setItem(STORAGE_KEYS.LAST_SYNC, new Date().toISOString());
+
       toast({
-        title: "Feature coming soon",
-        description: "Server sync will be available soon!",
+        title: "Data synced",
+        description:
+          "Your favorites and recent views have been synced across devices.",
         duration: 3000,
       });
     } catch (error) {
-      console.error('Error syncing with server:', error);
+      console.error("Error syncing with server:", error);
+      setSyncStatus("error");
       toast({
-        title: "Sync failed",
-        description: "Unable to sync your data. Please try again later.",
+        title: "Sync error",
+        description: "Failed to sync your data. Your local data is safe.",
         variant: "destructive",
         duration: 4000,
       });
     } finally {
-      setState(prev => ({ ...prev, isLoading: false }));
+      setLoading(false);
     }
-  }, [user, toast]);
+  }, [user, favorites, recentViews, toast]);
 
-  // Send magic link for syncing (stub)
-  const sendSyncMagicLink = useCallback(async (email: string) => {
+  const mergeWithServerData = (
+    localData: SavedItem[],
+    serverData: any[],
+    type: "favorites" | "views"
+  ): SavedItem[] => {
+    const serverItems: SavedItem[] = serverData.map((item) => ({
+      id: item.listing_id,
+      title: item.title,
+      price: item.price,
+      images: item.images || [],
+      seller_name: item.seller_name || "Unknown",
+      saved_at: type === "favorites" ? item.favorited_at : item.viewed_at,
+      is_synced: true,
+    }));
+
+    // Merge local and server data, preferring server data for conflicts
+    const merged = new Map<string, SavedItem>();
+
+    // Add local items first
+    localData.forEach((item) => merged.set(item.id, item));
+
+    // Override with server items (they're more authoritative)
+    serverItems.forEach((item) => merged.set(item.id, item));
+
+    return Array.from(merged.values()).sort(
+      (a, b) => new Date(b.saved_at).getTime() - new Date(a.saved_at).getTime()
+    );
+  };
+
+  const generateRecommendations = useCallback(async () => {
+    if (!user) {
+      // Generate simple local recommendations based on categories
+      generateLocalRecommendations();
+      return;
+    }
+
     try {
-      // TODO: Implement magic link when auth system supports it
-      console.log('Magic link not yet implemented:', email);
-      
-      toast({
-        title: "Feature coming soon",
-        description: "Magic link sync will be available soon!",
-        duration: 3000,
+      const { data, error } = await supabase.rpc("get_smart_recommendations", {
+        user_uuid: user.id,
+        rec_limit: 10,
       });
+
+      if (error) throw error;
+
+      const recs: RecommendedItem[] = (data || []).map((item: any) => ({
+        id: item.listing_id,
+        title: item.title,
+        price: item.price,
+        images: item.images || [],
+        seller_name: item.seller_name || "Unknown",
+        reason: item.reason || "Recommended for you",
+        score: item.score || 0,
+      }));
+
+      setRecommendations(recs);
     } catch (error) {
-      console.error('Error sending magic link:', error);
-      toast({
-        title: "Failed to send magic link",
-        description: "Please try again or contact support",
-        variant: "destructive",
-        duration: 4000,
-      });
+      console.error("Error generating recommendations:", error);
+      generateLocalRecommendations();
     }
-  }, [toast]);
+  }, [user, favorites, recentViews]);
 
-  // Check if item is favorited
-  const isFavorited = useCallback((listingId: string) => {
-    return state.favorites.some(f => f.listing_id === listingId);
-  }, [state.favorites]);
+  const generateLocalRecommendations = () => {
+    // Simple local recommendation logic
+    // In a real app, this would be more sophisticated
+    const mockRecommendations: RecommendedItem[] = [
+      {
+        id: "rec-1",
+        title: "Similar to your favorites",
+        price: 25.0,
+        images: ["/placeholder.svg"],
+        seller_name: "Local Artisan",
+        reason: "Based on your recent activity",
+        score: 0.8,
+      },
+    ];
 
-  // Check if item was recently viewed
-  const wasRecentlyViewed = useCallback((listingId: string) => {
-    return state.recentViews.some(v => v.listing_id === listingId);
-  }, [state.recentViews]);
+    setRecommendations(mockRecommendations);
+  };
+
+  const showMagicLinkPrompt = () => {
+    const lastPrompt = localStorage.getItem(STORAGE_KEYS.MAGIC_LINK_SENT);
+    const daysSinceLastPrompt = lastPrompt
+      ? (Date.now() - new Date(lastPrompt).getTime()) / (1000 * 60 * 60 * 24)
+      : 999;
+
+    // Only show prompt once per week
+    if (daysSinceLastPrompt > 7) {
+      toast({
+        title: "Save across devices?",
+        description:
+          "Sign in to sync your favorites and get personalized recommendations.",
+        duration: 8000,
+        action: {
+          label: "Sign In",
+          onClick: () => {
+            // This would trigger the auth modal
+            window.location.href = "/auth";
+          },
+        },
+      });
+
+      localStorage.setItem(
+        STORAGE_KEYS.MAGIC_LINK_SENT,
+        new Date().toISOString()
+      );
+    }
+  };
+
+  const clearLocalData = () => {
+    localStorage.removeItem(STORAGE_KEYS.FAVORITES);
+    localStorage.removeItem(STORAGE_KEYS.RECENT_VIEWS);
+    localStorage.removeItem(STORAGE_KEYS.LAST_SYNC);
+    setFavorites([]);
+    setRecentViews([]);
+    setRecommendations([]);
+    setSyncStatus("idle");
+  };
+
+  const isFavorited = useCallback(
+    (itemId: string) => {
+      return favorites.some((f) => f.id === itemId);
+    },
+    [favorites]
+  );
+
+  const getStats = () => {
+    const unsyncedCount =
+      favorites.filter((f) => !f.is_synced).length +
+      recentViews.filter((v) => !v.is_synced).length;
+
+    return {
+      favoritesCount: favorites.length,
+      recentViewsCount: recentViews.length,
+      recommendationsCount: recommendations.length,
+      unsyncedCount,
+      lastSync: localStorage.getItem(STORAGE_KEYS.LAST_SYNC),
+    };
+  };
 
   return {
-    // State
-    favorites: state.favorites,
-    recentViews: state.recentViews,
-    isLoading: state.isLoading,
-    hasPendingSync: state.hasPendingSync,
-    
+    // Data
+    favorites,
+    recentViews,
+    recommendations,
+
     // Actions
-    addFavorite,
-    removeFavorite,
-    addRecentView,
-    clearRecentViews,
+    addToFavorites,
+    removeFromFavorites,
+    addToRecentViews,
     syncWithServer,
-    sendSyncMagicLink,
-    
-    // Helpers
+    clearLocalData,
+
+    // Utilities
     isFavorited,
-    wasRecentlyViewed,
-    
-    // Counts
-    favoriteCount: state.favorites.length,
-    recentViewCount: state.recentViews.length,
+    getStats,
+
+    // State
+    loading,
+    syncStatus,
   };
 };
