@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 import { MessageStarter } from "@/components/messaging";
 import { BuyNowButton } from "./BuyNowButton";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
+import { PersonalizationPreview } from "./PersonalizationPreview";
+import { CustomOrderChat } from "./CustomOrderChat";
+import { BundleBuilder } from "./BundleBuilder";
+import { supabase } from "@/integrations/supabase/client";
 import type { Listing } from "@/pages/Browse";
 
 interface ProductInfoProps {
@@ -21,7 +25,48 @@ interface ProductInfoProps {
 
 export const ProductInfo = ({ listing }: ProductInfoProps) => {
   const [isFavorited, setIsFavorited] = useState(false);
+  const [personalizationOptions, setPersonalizationOptions] = useState<any[]>([]);
+  const [personalizations, setPersonalizations] = useState<Record<string, any>>({});
+  const [personalizationCost, setPersonalizationCost] = useState(0);
+  const [personalizationValid, setPersonalizationValid] = useState(true);
   const { toast } = useToast();
+
+  // Fetch personalization options for this listing
+  useEffect(() => {
+    const fetchPersonalizationOptions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('personalization_options')
+          .select('*')
+          .eq('listing_id', listing.id)
+          .order('option_type', { ascending: true });
+
+        if (error) {
+          console.error('Error fetching personalization options:', error);
+          return;
+        }
+
+        setPersonalizationOptions(data || []);
+      } catch (error) {
+        console.error('Error fetching personalization options:', error);
+      }
+    };
+
+    fetchPersonalizationOptions();
+  }, [listing.id]);
+
+  const handlePersonalizationChange = (data: any) => {
+    setPersonalizations(data.personalizations || {});
+    setPersonalizationCost(data.additionalCost || 0);
+    
+    // Validate required fields
+    const requiredOptions = personalizationOptions.filter(opt => opt.is_required);
+    const isValid = requiredOptions.every(opt => 
+      data.personalizations?.[opt.option_key] && 
+      data.personalizations[opt.option_key].trim() !== ''
+    );
+    setPersonalizationValid(isValid);
+  };
 
   const handleFavorite = () => {
     setIsFavorited(!isFavorited);
@@ -111,6 +156,19 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
           </div>
         )}
 
+        {/* Personalization Options */}
+        {personalizationOptions.length > 0 && (
+          <>
+            <Separator />
+            <PersonalizationPreview
+              productImage={listing.images?.[0] || ''}
+              productTitle={listing.title}
+              personalizationOptions={personalizationOptions}
+              onPersonalizationChange={handlePersonalizationChange}
+            />
+          </>
+        )}
+
         <Separator />
 
         {/* Fulfillment Options */}
@@ -141,18 +199,61 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
 
         {/* Actions */}
         <div className="space-y-3">
+          {/* Show total price including personalization */}
+          {personalizationCost > 0 && (
+            <div className="text-sm space-y-1">
+              <div className="flex justify-between">
+                <span>Base price:</span>
+                <span>${listing.price.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Personalization:</span>
+                <span>+${personalizationCost.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between font-semibold border-t pt-1">
+                <span>Total:</span>
+                <span>${(listing.price + personalizationCost).toFixed(2)}</span>
+              </div>
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <AddToCartButton listing={listing} />
+            <AddToCartButton 
+              listing={listing} 
+              personalizations={personalizations}
+              personalizationCost={personalizationCost}
+              disabled={!personalizationValid}
+            />
             <BuyNowButton listing={listing} />
           </div>
           {listing.seller && (
-            <MessageStarter
-              sellerId={listing.seller_id}
-              listingId={listing.id}
-              sellerName={listing.seller.display_name || "Seller"}
-              buttonText="Send Message"
-              variant="outline"
-            />
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <MessageStarter
+                  sellerId={listing.seller_id}
+                  listingId={listing.id}
+                  sellerName={listing.seller.display_name || "Seller"}
+                  buttonText="Send Message"
+                  variant="outline"
+                />
+                <CustomOrderChat
+                  listingId={listing.id}
+                  sellerId={listing.seller_id}
+                  productTitle={listing.title}
+                />
+              </div>
+              <BundleBuilder
+                currentListing={{
+                  id: listing.id,
+                  title: listing.title,
+                  price: listing.price,
+                  image: listing.images?.[0],
+                  seller_id: listing.seller_id,
+                  seller_name: listing.seller.display_name || "Seller",
+                  inventory_count: listing.inventory_count || 0
+                }}
+              />
+            </div>
           )}
         </div>
 

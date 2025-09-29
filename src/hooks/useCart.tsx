@@ -15,6 +15,9 @@ export interface CartItem {
   shipping_available: boolean;
   local_pickup_available: boolean;
   pickup_location?: string;
+  personalizations?: Record<string, any>;
+  personalization_cost?: number;
+  bundle_id?: string;
 }
 
 interface CartContextType {
@@ -138,7 +141,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
-  const totalAmount = items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const totalAmount = items.reduce((total, item) => {
+    const basePrice = item.price * item.quantity;
+    const personalizationCost = (item.personalization_cost || 0) * item.quantity;
+    return total + basePrice + personalizationCost;
+  }, 0);
 
   return (
     <CartContext.Provider value={{

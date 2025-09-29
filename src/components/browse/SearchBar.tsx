@@ -2,9 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, X, Clock, TrendingUp } from "lucide-react";
+import { Search, X, Clock, TrendingUp, Lightbulb } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  parseNaturalLanguageSearch,
+  getSearchSuggestions,
+} from "@/lib/search-utils";
 
 interface SearchBarProps {
   value: string;
@@ -14,12 +18,17 @@ interface SearchBarProps {
 }
 
 interface SearchSuggestion {
-  type: 'recent' | 'category' | 'tag' | 'popular';
+  type: "recent" | "category" | "tag" | "popular" | "correction";
   text: string;
   count?: number;
 }
 
-export const SearchBar = ({ value, onChange, onSearch, cityId }: SearchBarProps) => {
+export const SearchBar = ({
+  value,
+  onChange,
+  onSearch,
+  cityId,
+}: SearchBarProps) => {
   const [localValue, setLocalValue] = useState(value);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
@@ -29,7 +38,7 @@ export const SearchBar = ({ value, onChange, onSearch, cityId }: SearchBarProps)
 
   // Load recent searches from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('recentSearches');
+    const saved = localStorage.getItem("recentSearches");
     if (saved) {
       setRecentSearches(JSON.parse(saved));
     }
@@ -58,82 +67,33 @@ export const SearchBar = ({ value, onChange, onSearch, cityId }: SearchBarProps)
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const fetchSuggestions = async (query: string) => {
     if (!cityId) return;
 
     try {
-      // Get category matches
-      const { data: categories } = await supabase
-        .from('categories')
-        .select('name')
-        .eq('city_id', cityId)
-        .eq('is_active', true)
-        .ilike('name', `%${query}%`)
-        .limit(3);
-
-      // Get popular search terms from listing titles and tags
-      const { data: listings } = await supabase
-        .from('listings')
-        .select('title, tags')
-        .eq('city_id', cityId)
-        .eq('status', 'active')
-        .or(`title.ilike.%${query}%, tags.cs.{${query}}`)
-        .limit(5);
-
-      const newSuggestions: SearchSuggestion[] = [];
-
-      // Add category suggestions
-      if (categories) {
-        categories.forEach(cat => {
-          newSuggestions.push({
-            type: 'category',
-            text: cat.name
-          });
-        });
-      }
-
-      // Add tag suggestions from listings
-      if (listings) {
-        const tagMatches = new Set<string>();
-        listings.forEach(listing => {
-          if (listing.tags && Array.isArray(listing.tags)) {
-            listing.tags.forEach((tag: string) => {
-              if (tag && tag.toLowerCase().includes(query.toLowerCase())) {
-                tagMatches.add(tag);
-              }
-            });
-          }
-        });
-        
-        Array.from(tagMatches).slice(0, 3).forEach(tag => {
-          newSuggestions.push({
-            type: 'tag',
-            text: tag
-          });
-        });
-      }
-
-      setSuggestions(newSuggestions);
+      // Use enhanced search suggestions with natural language processing
+      const enhancedSuggestions = await getSearchSuggestions(query, cityId, 8);
+      setSuggestions(enhancedSuggestions as SearchSuggestion[]);
     } catch (error) {
-      console.error('Error fetching suggestions:', error);
+      console.error("Error fetching suggestions:", error);
     }
   };
 
   const loadDefaultSuggestions = () => {
     const defaultSuggestions: SearchSuggestion[] = [
-      ...recentSearches.slice(0, 3).map(search => ({
-        type: 'recent' as const,
-        text: search
+      ...recentSearches.slice(0, 3).map((search) => ({
+        type: "recent" as const,
+        text: search,
       })),
-      { type: 'popular', text: 'jewelry' },
-      { type: 'popular', text: 'home decor' },
-      { type: 'popular', text: 'art prints' },
-      { type: 'popular', text: 'candles' },
-      { type: 'popular', text: 'ceramics' }
+      { type: "popular", text: "jewelry" },
+      { type: "popular", text: "home decor" },
+      { type: "popular", text: "art prints" },
+      { type: "popular", text: "candles" },
+      { type: "popular", text: "ceramics" },
     ];
     setSuggestions(defaultSuggestions);
   };
@@ -157,9 +117,12 @@ export const SearchBar = ({ value, onChange, onSearch, cityId }: SearchBarProps)
   };
 
   const saveRecentSearch = (search: string) => {
-    const updated = [search, ...recentSearches.filter(s => s !== search)].slice(0, 5);
+    const updated = [
+      search,
+      ...recentSearches.filter((s) => s !== search),
+    ].slice(0, 5);
     setRecentSearches(updated);
-    localStorage.setItem('recentSearches', JSON.stringify(updated));
+    localStorage.setItem("recentSearches", JSON.stringify(updated));
   };
 
   const handleClear = () => {
@@ -169,29 +132,33 @@ export const SearchBar = ({ value, onChange, onSearch, cityId }: SearchBarProps)
     onSearch();
   };
 
-  const getSuggestionIcon = (type: SearchSuggestion['type']) => {
+  const getSuggestionIcon = (type: SearchSuggestion["type"]) => {
     switch (type) {
-      case 'recent':
+      case "recent":
         return <Clock className="h-4 w-4" />;
-      case 'popular':
+      case "popular":
         return <TrendingUp className="h-4 w-4" />;
+      case "correction":
+        return <Lightbulb className="h-4 w-4" />;
       default:
         return <Search className="h-4 w-4" />;
     }
   };
 
-  const getSuggestionLabel = (type: SearchSuggestion['type']) => {
+  const getSuggestionLabel = (type: SearchSuggestion["type"]) => {
     switch (type) {
-      case 'recent':
-        return 'Recent';
-      case 'category':
-        return 'Category';
-      case 'tag':
-        return 'Tag';
-      case 'popular':
-        return 'Popular';
+      case "recent":
+        return "Recent";
+      case "category":
+        return "Category";
+      case "tag":
+        return "Tag";
+      case "popular":
+        return "Popular";
+      case "correction":
+        return "Did you mean?";
       default:
-        return '';
+        return "";
     }
   };
 
@@ -203,7 +170,7 @@ export const SearchBar = ({ value, onChange, onSearch, cityId }: SearchBarProps)
           <Input
             ref={inputRef}
             type="text"
-            placeholder="Search for products, makers, or categories..."
+            placeholder="Try 'under $50 soy candle with cedar' or 'vintage wooden jewelry'"
             value={localValue}
             onChange={(e) => setLocalValue(e.target.value)}
             onFocus={() => setShowSuggestions(true)}
@@ -227,7 +194,10 @@ export const SearchBar = ({ value, onChange, onSearch, cityId }: SearchBarProps)
 
       {/* Search Suggestions */}
       {showSuggestions && suggestions.length > 0 && (
-        <Card ref={suggestionRef} className="absolute top-full left-1/2 transform -translate-x-1/2 w-full max-w-2xl mt-2 z-50 shadow-lg">
+        <Card
+          ref={suggestionRef}
+          className="absolute top-full left-1/2 transform -translate-x-1/2 w-full max-w-2xl mt-2 z-50 shadow-lg"
+        >
           <CardContent className="p-0">
             <div className="max-h-80 overflow-y-auto">
               {suggestions.map((suggestion, index) => (
@@ -242,7 +212,9 @@ export const SearchBar = ({ value, onChange, onSearch, cityId }: SearchBarProps)
                   <div className="flex-1">
                     <span className="text-foreground">{suggestion.text}</span>
                     {suggestion.count && (
-                      <span className="text-muted-foreground ml-2">({suggestion.count} results)</span>
+                      <span className="text-muted-foreground ml-2">
+                        ({suggestion.count} results)
+                      </span>
                     )}
                   </div>
                   <Badge variant="outline" className="text-xs">

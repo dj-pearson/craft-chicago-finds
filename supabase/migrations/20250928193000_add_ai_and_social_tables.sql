@@ -63,7 +63,7 @@ CREATE TABLE public.social_media_templates (
   hashtag_template TEXT[],
   variables JSONB DEFAULT '{}'::jsonb,
   is_active BOOLEAN NOT NULL DEFAULT true,
-  created_by UUID NOT NULL,
+  created_by UUID,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
@@ -250,8 +250,7 @@ INSERT INTO public.social_media_templates (
   content_template,
   hashtag_template,
   variables,
-  is_active,
-  created_by
+  is_active
 ) VALUES 
 (
   'Countdown Launch Template',
@@ -261,8 +260,7 @@ INSERT INTO public.social_media_templates (
   '🎉 Only {days_left} days until {city_name} Makers Marketplace launches! {description} Are you ready to discover amazing local crafts? {call_to_action}',
   ARRAY['#{city_slug}Makers', '#CraftLocal', '#ShopLocal', '#SupportSmallBusiness', '#HandmadeGifts'],
   '{"days_left": "number", "city_name": "string", "description": "string", "call_to_action": "string"}'::jsonb,
-  true,
-  (SELECT id FROM auth.users LIMIT 1)
+  true
 ),
 (
   'Vendor Spotlight Template',
@@ -272,8 +270,7 @@ INSERT INTO public.social_media_templates (
   '✨ Vendor Spotlight: Meet {vendor_name}! {vendor_description} You can find their amazing {product_types} on {marketplace_name} starting {launch_date}. {vendor_story}',
   ARRAY['#{city_slug}Makers', '#VendorSpotlight', '#LocalArtisan', '#HandmadeCrafts', '#SupportLocal'],
   '{"vendor_name": "string", "vendor_description": "string", "product_types": "string", "marketplace_name": "string", "launch_date": "string", "vendor_story": "string"}'::jsonb,
-  true,
-  (SELECT id FROM auth.users LIMIT 1)
+  true
 ),
 (
   'Community Engagement Template',
@@ -283,6 +280,5 @@ INSERT INTO public.social_media_templates (
   '💬 {city_name} crafters and makers! {question} Share your thoughts in the comments and tag a friend who loves {craft_type}! {community_message}',
   ARRAY['#{city_slug}Community', '#CraftLocal', '#LocalMakers', '#CommunityLove'],
   '{"city_name": "string", "question": "string", "craft_type": "string", "community_message": "string"}'::jsonb,
-  true,
-  (SELECT id FROM auth.users LIMIT 1)
+  true
 );

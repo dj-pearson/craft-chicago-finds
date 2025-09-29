@@ -20,16 +20,22 @@ interface AddToCartButtonProps {
       display_name: string;
     };
   };
+  personalizations?: Record<string, any>;
+  personalizationCost?: number;
   className?: string;
   variant?: "default" | "outline" | "secondary";
   size?: "sm" | "default" | "lg";
+  disabled?: boolean;
 }
 
 export const AddToCartButton = ({ 
   listing, 
+  personalizations,
+  personalizationCost = 0,
   className = "", 
   variant = "default",
-  size = "default" 
+  size = "default",
+  disabled = false
 }: AddToCartButtonProps) => {
   const { addItem, isInCart, getCartItem, updateQuantity } = useCart();
   const [quantity, setQuantity] = useState(1);
@@ -56,7 +62,9 @@ export const AddToCartButton = ({
       seller_name: listing.seller?.display_name || 'Unknown Seller',
       shipping_available: listing.shipping_available,
       local_pickup_available: listing.local_pickup_available,
-      pickup_location: listing.pickup_location
+      pickup_location: listing.pickup_location,
+      personalizations,
+      personalization_cost: personalizationCost
     };
 
     addItem(item, Math.min(quantity, availableToAdd));
@@ -147,7 +155,7 @@ export const AddToCartButton = ({
       
       <Button 
         onClick={handleAddToCart}
-        disabled={!canAddMore}
+        disabled={!canAddMore || disabled}
         variant={variant}
         size={size}
       >

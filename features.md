@@ -6,21 +6,21 @@ Cut steps. Remember email + address with a magic link for next time (no password
 ✅ Multi-seller cart with one charge
 One receipt, split payouts via Stripe Connect on the back end.
 
-Gift mode
+✅Gift mode
 Gift message, no prices on packing slip, schedule ship date, “send to friend by email” with a nice card.
 
-“Ready today” filters
+✅“Ready today” filters
 Badges and filters for in stock, ships today, pickup today. Big help for last-minute buyers.
 
 Search & discovery
 
-Natural-language search
+✅Natural-language search
 “Under $50 soy candle with cedar” should work. Add typo tolerance and synonyms.
 
-Visual search & “shop similar”
+✅Visual search & “shop similar”
 Upload a photo or tap “show more like this” on any product (image embeddings).
 
-Material/style filters
+✅Material/style filters
 Filters like recycled, vegan, hypoallergenic, minimal, boho, etc.
 
 Curated lists & drops
