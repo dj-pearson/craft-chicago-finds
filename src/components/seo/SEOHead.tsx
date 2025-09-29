@@ -81,8 +81,7 @@ export const SEOHead = ({ config, children }: SEOHeadProps) => {
       <meta name="AI-indexable" content="true" />
       
       {/* Preload Critical Resources */}
-      <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-      <link rel="preload" href="/images/logo.webp" as="image" />
+      <link rel="preload" href="/Logo.png" as="image" />
       
       {/* DNS Prefetch for External Resources */}
       <link rel="dns-prefetch" href="//images.unsplash.com" />
