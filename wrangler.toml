@@ -1,18 +1,9 @@
-# Cloudflare Pages configuration
-# This file is only needed for local development with Wrangler
-# Cloudflare Pages uses its dashboard configuration for builds
-
 name = "craft-chicago-finds"
 compatibility_date = "2024-12-19"
+pages_build_output_dir = "dist"
 
-# Force npm usage (Pages should ignore this but adding for completeness)
-[build]
-command = "npm run build"
-cwd = "."
-
-# For local development only
-[env.development]
+[env.production]
 compatibility_date = "2024-12-19"
 
-# Note: Build configuration is handled by Cloudflare Pages dashboard
-# Environment variables are set in the Pages dashboard, not here
+[env.preview]
+compatibility_date = "2024-12-19"
