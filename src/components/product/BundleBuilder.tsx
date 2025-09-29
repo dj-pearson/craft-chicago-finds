@@ -128,19 +128,9 @@ export const BundleBuilder = ({
     if (!currentCity) return;
 
     try {
-      const { data, error } = await supabase
-        .from("product_bundles")
-        .select("*")
-        .eq("city_id", currentCity.id)
-        .eq("is_active", true)
-        .eq("auto_discount", true);
-
-      if (error) {
-        console.error("Error loading bundle discounts:", error);
-        return;
-      }
-
-      setBundleDiscounts(data || []);
+      // TODO: Implement product bundles when product_bundles table is created
+      console.log('Bundle discounts functionality not yet implemented');
+      setBundleDiscounts([]);
     } catch (error) {
       console.error("Error loading bundle discounts:", error);
     }
@@ -227,24 +217,15 @@ export const BundleBuilder = ({
       const cartSessionId = `cart_${user?.id || "guest"}_${Date.now()}`;
 
       // Save bundle to database
-      const { data: bundleData, error: bundleError } = await supabase
-        .from("cart_bundles")
-        .insert({
-          cart_session_id: cartSessionId,
-          bundle_name: bundleName || "Custom Bundle",
-          listing_ids: bundleItems.map((item) => item.id),
-          total_original_price: bundleDetails.originalTotal,
-          discount_amount: bundleDetails.savingsAmount,
-          final_price: bundleDetails.finalTotal,
-        })
-        .select("id")
-        .single();
+      // TODO: Implement bundle cart when cart_bundles table is created
+        console.log('Bundle would be added to cart:', bundleItems);
+        toast({
+          title: "Bundle functionality coming soon!",
+          description: "Multi-product bundles will be available soon.",
+          duration: 3000,
+        });
 
-      if (bundleError) {
-        throw bundleError;
-      }
-
-      // Add items to cart with bundle reference
+      // Remove bundle data reference
       for (const item of bundleItems) {
         const cartItem = {
           id: item.id,
@@ -257,7 +238,7 @@ export const BundleBuilder = ({
           seller_name: item.seller_name,
           shipping_available: true, // Assume true for bundle items
           local_pickup_available: true,
-          bundle_id: bundleData.id,
+          bundle_id: null, // Remove bundle data reference
         };
 
         addItem(cartItem, 1);

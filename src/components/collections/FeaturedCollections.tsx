@@ -50,32 +50,9 @@ export const FeaturedCollections = ({
       setLoading(true);
       setError(null);
 
-      const { data, error } = await supabase
-        .rpc('get_featured_collections', { collection_limit: limit });
-
-      if (error) {
-        throw error;
-      }
-
-      // Transform the data to match our interface
-      const transformedData: Collection[] = (data || []).map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        description: item.description,
-        slug: item.slug,
-        cover_image_url: item.cover_image_url,
-        creator_id: '', // We'll need to add this to the RPC function
-        creator_name: item.creator_name,
-        creator_avatar: null, // We'll need to add this to the RPC function
-        category: null, // We'll need to add this to the RPC function
-        is_featured: true,
-        item_count: item.item_count,
-        follow_count: item.follow_count,
-        view_count: 0, // We'll need to add this to the RPC function
-        created_at: item.created_at,
-      }));
-
-      setCollections(transformedData);
+      // TODO: Implement featured collections when get_featured_collections function exists
+      console.log('Featured collections functionality not yet implemented');
+      setCollections([]);
     } catch (error: any) {
       console.error('Error fetching featured collections:', error);
       setError(error.message || 'Failed to load featured collections');

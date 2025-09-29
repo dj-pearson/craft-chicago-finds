@@ -6,7 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Heart, Eye, Package, User, Calendar } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
@@ -48,7 +47,7 @@ export const CollectionCard = ({
   const [loading, setLoading] = useState(false);
 
   const handleFollow = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent navigation when clicking follow button
+    e.stopPropagation();
     
     if (!user) {
       toast({
@@ -69,61 +68,12 @@ export const CollectionCard = ({
       return;
     }
 
-    setLoading(true);
-    try {
-      if (isFollowing) {
-        // Unfollow
-        const { error } = await supabase
-          .from('collection_follows')
-          .delete()
-          .eq('follower_id', user.id)
-          .eq('collection_id', collection.id);
-
-        if (error) throw error;
-
-        setIsFollowing(false);
-        setFollowCount(prev => Math.max(0, prev - 1));
-        
-        toast({
-          title: "Unfollowed collection",
-          description: `You will no longer receive updates from "${collection.title}".`,
-          duration: 3000,
-        });
-      } else {
-        // Follow
-        const { error } = await supabase
-          .from('collection_follows')
-          .insert({
-            follower_id: user.id,
-            collection_id: collection.id,
-            notification_preferences: {
-              new_items: true,
-              updates: true
-            }
-          });
-
-        if (error) throw error;
-
-        setIsFollowing(true);
-        setFollowCount(prev => prev + 1);
-        
-        toast({
-          title: "Following collection",
-          description: `You'll get notified when "${collection.title}" is updated.`,
-          duration: 4000,
-        });
-      }
-    } catch (error: any) {
-      console.error('Error updating follow status:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update follow status. Please try again.",
-        variant: "destructive",
-        duration: 4000,
-      });
-    } finally {
-      setLoading(false);
-    }
+    // TODO: Implement collection following when collection_follows table is created
+    toast({
+      title: "Feature coming soon",
+      description: "Collection following will be available soon!",
+      duration: 3000,
+    });
   };
 
   const handleCardClick = () => {

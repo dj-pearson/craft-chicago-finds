@@ -87,7 +87,7 @@ export const MakerLivestreams = ({ className }: MakerLivestreamsProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { currentCity } = useCityContext();
-  const { addToCart } = useCart();
+  const cart = useCart();
   const [loading, setLoading] = useState(true);
   const [streams, setStreams] = useState<LiveStream[]>([]);
   const [selectedStream, setSelectedStream] = useState<LiveStream | null>(null);

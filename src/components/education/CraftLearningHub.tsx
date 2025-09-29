@@ -105,7 +105,7 @@ interface CraftLearningHubProps {
 export const CraftLearningHub = ({ className }: CraftLearningHubProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
-  const { addToCart } = useCart();
+  const cart = useCart();
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<Course[]>([]);
   const [challenges, setChallenges] = useState<Challenge[]>([]);

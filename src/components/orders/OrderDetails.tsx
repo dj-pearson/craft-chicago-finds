@@ -556,7 +556,7 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
                         <ProtectionClaimForm
                           orderId={order.id}
                           sellerId={order.seller_id}
-                          productTitle={order.listings.title}
+                          productTitle={order.listing?.title || 'Product'}
                           orderAmount={order.total_amount}
                           onSubmit={() => {
                             setShowProtectionForm(false);
@@ -585,7 +585,7 @@ export const OrderDetails = ({ orderId, onBack }: OrderDetailsProps) => {
                             orderId={order.id}
                             sellerId={order.seller_id}
                             buyerId={order.buyer_id}
-                            productTitle={order.listings.title}
+                            productTitle={order.listing?.title || 'Product'}
                             onSubmit={() => {
                               setShowReviewForm(false);
                               // Refresh reviews

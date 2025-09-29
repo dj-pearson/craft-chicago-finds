@@ -276,7 +276,7 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
                 />
                 <CustomOrderChat
                   listingId={listing.id}
-                  sellerId={listing.seller_id}
+          sellerName={listing.seller?.display_name || 'Seller'}
                   productTitle={listing.title}
                 />
               </div>
