@@ -6,16 +6,22 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  Package, 
-  Plus, 
-  Minus, 
-  X, 
-  ShoppingCart, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Package,
+  Plus,
+  Minus,
+  X,
+  ShoppingCart,
   Gift,
   Percent,
-  DollarSign
+  DollarSign,
 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
@@ -37,7 +43,7 @@ interface BundleDiscount {
   id: string;
   name: string;
   description: string;
-  discount_type: 'percentage' | 'fixed';
+  discount_type: "percentage" | "fixed";
   discount_value: number;
   min_items: number;
   max_items?: number;
@@ -48,12 +54,15 @@ interface BundleBuilderProps {
   className?: string;
 }
 
-export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderProps) => {
+export const BundleBuilder = ({
+  currentListing,
+  className = "",
+}: BundleBuilderProps) => {
   const { user } = useAuth();
   const { currentCity } = useCityContext();
   const { addItem } = useCart();
   const { toast } = useToast();
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [bundleItems, setBundleItems] = useState<BundleItem[]>([]);
   const [availableItems, setAvailableItems] = useState<BundleItem[]>([]);
@@ -76,8 +85,9 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
 
     try {
       const { data, error } = await supabase
-        .from('listings')
-        .select(`
+        .from("listings")
+        .select(
+          `
           id,
           title,
           price,
@@ -85,31 +95,32 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
           seller_id,
           inventory_count,
           seller:seller_id(display_name)
-        `)
-        .eq('city_id', currentCity.id)
-        .eq('status', 'active')
-        .neq('id', currentListing?.id || '')
-        .gt('inventory_count', 0)
+        `
+        )
+        .eq("city_id", currentCity.id)
+        .eq("status", "active")
+        .neq("id", currentListing?.id || "")
+        .gt("inventory_count", 0)
         .limit(20);
 
       if (error) {
-        console.error('Error loading available items:', error);
+        console.error("Error loading available items:", error);
         return;
       }
 
-      const formattedItems: BundleItem[] = data.map(item => ({
+      const formattedItems: BundleItem[] = data.map((item) => ({
         id: item.id,
         title: item.title,
         price: item.price,
         image: item.images?.[0],
         seller_id: item.seller_id,
-        seller_name: (item.seller as any)?.display_name || 'Unknown Seller',
-        inventory_count: item.inventory_count || 0
+        seller_name: (item.seller as any)?.display_name || "Unknown Seller",
+        inventory_count: item.inventory_count || 0,
       }));
 
       setAvailableItems(formattedItems);
     } catch (error) {
-      console.error('Error loading available items:', error);
+      console.error("Error loading available items:", error);
     }
   };
 
@@ -118,57 +129,62 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
 
     try {
       const { data, error } = await supabase
-        .from('product_bundles')
-        .select('*')
-        .eq('city_id', currentCity.id)
-        .eq('is_active', true)
-        .eq('auto_discount', true);
+        .from("product_bundles")
+        .select("*")
+        .eq("city_id", currentCity.id)
+        .eq("is_active", true)
+        .eq("auto_discount", true);
 
       if (error) {
-        console.error('Error loading bundle discounts:', error);
+        console.error("Error loading bundle discounts:", error);
         return;
       }
 
       setBundleDiscounts(data || []);
     } catch (error) {
-      console.error('Error loading bundle discounts:', error);
+      console.error("Error loading bundle discounts:", error);
     }
   };
 
   const addToBundleItems = (item: BundleItem) => {
-    if (bundleItems.find(bundleItem => bundleItem.id === item.id)) {
+    if (bundleItems.find((bundleItem) => bundleItem.id === item.id)) {
       toast({
         title: "Item already in bundle",
         description: "This item is already part of your bundle",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
-    setBundleItems(prev => [...prev, item]);
+    setBundleItems((prev) => [...prev, item]);
   };
 
   const removeFromBundleItems = (itemId: string) => {
-    setBundleItems(prev => prev.filter(item => item.id !== itemId));
+    setBundleItems((prev) => prev.filter((item) => item.id !== itemId));
   };
 
   const calculateBundleDetails = () => {
-    const originalTotal = bundleItems.reduce((sum, item) => sum + item.price, 0);
-    
+    const originalTotal = bundleItems.reduce(
+      (sum, item) => sum + item.price,
+      0
+    );
+
     // Find applicable discounts
-    const applicableDiscounts = bundleDiscounts.filter(discount => {
+    const applicableDiscounts = bundleDiscounts.filter((discount) => {
       const itemCount = bundleItems.length;
-      return itemCount >= discount.min_items && 
-             (!discount.max_items || itemCount <= discount.max_items);
+      return (
+        itemCount >= discount.min_items &&
+        (!discount.max_items || itemCount <= discount.max_items)
+      );
     });
 
     // Apply the best discount
     let bestDiscount = 0;
-    let appliedDiscountName = '';
+    let appliedDiscountName = "";
 
-    applicableDiscounts.forEach(discount => {
+    applicableDiscounts.forEach((discount) => {
       let discountAmount = 0;
-      if (discount.discount_type === 'percentage') {
+      if (discount.discount_type === "percentage") {
         discountAmount = originalTotal * (discount.discount_value / 100);
       } else {
         discountAmount = discount.discount_value;
@@ -182,7 +198,8 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
 
     const finalTotal = Math.max(0, originalTotal - bestDiscount);
     const savingsAmount = originalTotal - finalTotal;
-    const savingsPercentage = originalTotal > 0 ? (savingsAmount / originalTotal) * 100 : 0;
+    const savingsPercentage =
+      originalTotal > 0 ? (savingsAmount / originalTotal) * 100 : 0;
 
     return {
       originalTotal,
@@ -190,7 +207,7 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
       savingsAmount,
       savingsPercentage,
       appliedDiscountName,
-      itemCount: bundleItems.length
+      itemCount: bundleItems.length,
     };
   };
 
@@ -199,7 +216,7 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
       toast({
         title: "Bundle too small",
         description: "A bundle must contain at least 2 items",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -207,20 +224,20 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
     setLoading(true);
     try {
       const bundleDetails = calculateBundleDetails();
-      const cartSessionId = `cart_${user?.id || 'guest'}_${Date.now()}`;
+      const cartSessionId = `cart_${user?.id || "guest"}_${Date.now()}`;
 
       // Save bundle to database
       const { data: bundleData, error: bundleError } = await supabase
-        .from('cart_bundles')
+        .from("cart_bundles")
         .insert({
           cart_session_id: cartSessionId,
-          bundle_name: bundleName || 'Custom Bundle',
-          listing_ids: bundleItems.map(item => item.id),
+          bundle_name: bundleName || "Custom Bundle",
+          listing_ids: bundleItems.map((item) => item.id),
           total_original_price: bundleDetails.originalTotal,
           discount_amount: bundleDetails.savingsAmount,
-          final_price: bundleDetails.finalTotal
+          final_price: bundleDetails.finalTotal,
         })
-        .select('id')
+        .select("id")
         .single();
 
       if (bundleError) {
@@ -240,7 +257,7 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
           seller_name: item.seller_name,
           shipping_available: true, // Assume true for bundle items
           local_pickup_available: true,
-          bundle_id: bundleData.id
+          bundle_id: bundleData.id,
         };
 
         addItem(cartItem, 1);
@@ -248,7 +265,11 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
 
       toast({
         title: "Bundle added to cart",
-        description: `${bundleItems.length} items added with ${bundleDetails.savingsPercentage.toFixed(0)}% savings!`
+        description: `${
+          bundleItems.length
+        } items added with ${bundleDetails.savingsPercentage.toFixed(
+          0
+        )}% savings!`,
       });
 
       // Reset and close
@@ -256,11 +277,11 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
       setBundleName("");
       setIsOpen(false);
     } catch (error) {
-      console.error('Error adding bundle to cart:', error);
+      console.error("Error adding bundle to cart:", error);
       toast({
         title: "Error",
         description: "Failed to add bundle to cart",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -281,7 +302,7 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
         <DialogHeader>
           <DialogTitle>Build Your Gift Bundle</DialogTitle>
         </DialogHeader>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[70vh]">
           {/* Available Items */}
           <div className="flex flex-col">
@@ -299,14 +320,22 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
                         />
                       )}
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm truncate">{item.title}</h4>
-                        <p className="text-sm text-muted-foreground">{item.seller_name}</p>
-                        <p className="font-semibold">${item.price.toFixed(2)}</p>
+                        <h4 className="font-medium text-sm truncate">
+                          {item.title}
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          {item.seller_name}
+                        </p>
+                        <p className="font-semibold">
+                          ${item.price.toFixed(2)}
+                        </p>
                       </div>
                       <Button
                         size="sm"
                         onClick={() => addToBundleItems(item)}
-                        disabled={bundleItems.some(bundleItem => bundleItem.id === item.id)}
+                        disabled={bundleItems.some(
+                          (bundleItem) => bundleItem.id === item.id
+                        )}
                       >
                         <Plus className="h-3 w-3" />
                       </Button>
@@ -337,7 +366,10 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
                 <ScrollArea className="h-48">
                   <div className="space-y-2">
                     {bundleItems.map((item) => (
-                      <div key={item.id} className="flex items-center gap-2 p-2 border rounded">
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-2 p-2 border rounded"
+                      >
                         {item.image && (
                           <img
                             src={item.image}
@@ -346,8 +378,12 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
                           />
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{item.title}</p>
-                          <p className="text-xs text-muted-foreground">${item.price.toFixed(2)}</p>
+                          <p className="text-sm font-medium truncate">
+                            {item.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            ${item.price.toFixed(2)}
+                          </p>
                         </div>
                         <Button
                           size="sm"
@@ -374,7 +410,9 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
                       <>
                         <div className="flex justify-between text-sm text-green-600">
                           <span>Bundle Savings:</span>
-                          <span>-${bundleDetails.savingsAmount.toFixed(2)}</span>
+                          <span>
+                            -${bundleDetails.savingsAmount.toFixed(2)}
+                          </span>
                         </div>
                         {bundleDetails.appliedDiscountName && (
                           <div className="text-xs text-muted-foreground">
@@ -390,7 +428,10 @@ export const BundleBuilder = ({ currentListing, className = "" }: BundleBuilderP
                     </div>
                     {bundleDetails.savingsPercentage > 0 && (
                       <div className="text-center">
-                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        <Badge
+                          variant="secondary"
+                          className="bg-green-100 text-green-800"
+                        >
                           <Percent className="h-3 w-3 mr-1" />
                           {bundleDetails.savingsPercentage.toFixed(0)}% Off
                         </Badge>
