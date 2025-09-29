@@ -61,7 +61,7 @@ interface OneClickReorderProps {
 export const OneClickReorder = ({ userId, className }: OneClickReorderProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
-  const { addToCart } = useCart();
+  const cart = useCart();
   const [loading, setLoading] = useState(true);
   const [previousOrders, setPreviousOrders] = useState<PreviousOrder[]>([]);
   const [subscriptions, setSubscriptions] = useState<ReorderSubscription[]>([]);
@@ -197,7 +197,18 @@ export const OneClickReorder = ({ userId, className }: OneClickReorderProps) => 
     setReordering(order.id);
     try {
       // Add to cart with the same quantity as before
-      await addToCart(order.listing.id, order.quantity);
+      await cart.addItem({
+        id: order.listing.id,
+        listing_id: order.listing.id,
+        title: order.listing.title,
+        price: order.listing.price,
+        max_quantity: 10, // Default fallback
+        seller_id: 'order-seller', // Default fallback  
+        seller_name: order.listing.seller_name,
+        shipping_available: true, // Default fallback
+        local_pickup_available: true, // Default fallback
+        pickup_location: undefined // Default fallback
+      }, order.quantity);
       
       toast({
         title: "Added to cart!",

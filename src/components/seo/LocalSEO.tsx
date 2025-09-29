@@ -168,13 +168,11 @@ export const LocalSEO = ({ pageType = 'city', pageData, additionalSchema = [] }:
 
   return (
     <SEOHead config={seoConfig}>
-      {/* City-specific geo tags */}
+      {/* City-specific meta tags - simplified since geo properties not available */}
       {currentCity && (
         <>
-          <meta name="geo.region" content={`US-${currentCity.state_code}`} />
+          <meta name="geo.region" content={`US-${currentCity.state}`} />
           <meta name="geo.placename" content={`${currentCity.name}, ${currentCity.state}`} />
-          <meta name="geo.position" content={`${currentCity.latitude};${currentCity.longitude}`} />
-          <meta name="ICBM" content={`${currentCity.latitude}, ${currentCity.longitude}`} />
         </>
       )}
       

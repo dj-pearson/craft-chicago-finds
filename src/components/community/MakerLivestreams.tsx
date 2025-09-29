@@ -350,7 +350,17 @@ export const MakerLivestreams = ({ className }: MakerLivestreamsProps) => {
 
   const addToCartFromStream = async (productId: string, price: number, title: string) => {
     try {
-      await addToCart(productId, 1);
+      await cart.addItem({
+        id: productId,
+        listing_id: productId,
+        title: title,
+        price: price,
+        max_quantity: 10,
+        seller_id: 'stream-seller',
+        seller_name: 'Stream Seller',
+        shipping_available: true,
+        local_pickup_available: true
+      }, 1);
       toast({
         title: "Added to cart!",
         description: `${title} added to your cart`,

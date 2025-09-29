@@ -41,20 +41,12 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
   useEffect(() => {
     const fetchPersonalizationOptions = async () => {
       try {
-        const { data, error } = await supabase
-          .from("personalization_options")
-          .select("*")
-          .eq("listing_id", listing.id)
-          .order("option_type", { ascending: true });
-
-        if (error) {
-          console.error("Error fetching personalization options:", error);
-          return;
-        }
-
-        setPersonalizationOptions(data || []);
-      } catch (error) {
-        console.error("Error fetching personalization options:", error);
+        // TODO: Implement personalization when personalization_options table exists
+        console.log('Personalization options not yet implemented');
+        setPersonalizationOptions([]);
+      } catch (fetchError) {
+        console.error('Error fetching personalization options:', fetchError);
+        setPersonalizationOptions([]);
       }
     };
 
@@ -172,8 +164,8 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
 
         {/* Delivery Promise */}
         <DeliveryPromiseBar
-          processingTimeDays={listing.processing_time_days || 3}
-          shippingTimeDays={listing.shipping_time_days || 3}
+          processingTimeDays={3}
+          shippingTimeDays={7}
           fulfillmentMethod={
             listing.local_pickup_available && listing.shipping_available
               ? "both"
@@ -276,7 +268,8 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
                 />
                 <CustomOrderChat
                   listingId={listing.id}
-          sellerName={listing.seller?.display_name || 'Seller'}
+                  sellerId={listing.seller_id}
+                  sellerName={listing.seller?.display_name || 'Seller'}
                   productTitle={listing.title}
                 />
               </div>
