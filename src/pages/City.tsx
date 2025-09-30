@@ -100,7 +100,7 @@ const City = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/marketplace")}
                   className="text-muted-foreground hover:text-primary h-auto p-1 -ml-1"
                 >
                   National Marketplace
