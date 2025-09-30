@@ -56,32 +56,35 @@ export const CategoryGrid = () => {
     if (!currentCity) return;
 
     try {
-      // Fetch categories with listing counts
-      const { data, error } = await supabase
+      // Fetch categories
+      const { data: categoriesData, error: categoriesError } = await supabase
         .from("categories")
-        .select(`
-          id,
-          name,
-          slug,
-          description,
-          image_url,
-          listings!inner(count)
-        `)
+        .select("id, name, slug, description, image_url")
         .eq("city_id", currentCity.id)
         .eq("is_active", true)
-        .eq("listings.status", "active")
         .order("sort_order", { ascending: true });
 
-      if (error) {
-        console.error("Error fetching categories:", error);
+      if (categoriesError) {
+        console.error("Error fetching categories:", categoriesError);
+        setLoading(false);
         return;
       }
 
-      // Transform data to include listing counts
-      const categoriesWithCounts = data?.map(category => ({
-        ...category,
-        listing_count: category.listings?.length || 0
-      })) || [];
+      // For each category, count the active listings
+      const categoriesWithCounts = await Promise.all(
+        (categoriesData || []).map(async (category) => {
+          const { count } = await supabase
+            .from("listings")
+            .select("*", { count: "exact", head: true })
+            .eq("category_id", category.id)
+            .eq("status", "active");
+
+          return {
+            ...category,
+            listing_count: count || 0
+          };
+        })
+      );
 
       setCategories(categoriesWithCounts);
     } catch (error) {
