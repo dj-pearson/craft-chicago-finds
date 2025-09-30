@@ -117,27 +117,27 @@ ON public.blog_articles
 FOR SELECT
 USING (status = 'published' AND (publish_date IS NULL OR publish_date <= now()));
 
-CREATE POLICY "Admins and content creators can manage blog articles"
+CREATE POLICY "Admins can manage blog articles"
 ON public.blog_articles
 FOR ALL
 USING (
   EXISTS (
     SELECT 1 FROM public.user_roles
     WHERE user_id = auth.uid()
-    AND role IN ('admin', 'content_creator')
+    AND role = 'admin'
     AND is_active = true
   )
 );
 
 -- Create policies for blog_article_templates
-CREATE POLICY "Admins and content creators can view templates"
+CREATE POLICY "Admins can view templates"
 ON public.blog_article_templates
 FOR SELECT
 USING (
   EXISTS (
     SELECT 1 FROM public.user_roles
     WHERE user_id = auth.uid()
-    AND role IN ('admin', 'content_creator')
+    AND role = 'admin'
     AND is_active = true
   )
 );
@@ -155,14 +155,14 @@ USING (
 );
 
 -- Create policies for blog_seo_keywords
-CREATE POLICY "Admins and content creators can view keywords"
+CREATE POLICY "Admins can view keywords"
 ON public.blog_seo_keywords
 FOR SELECT
 USING (
   EXISTS (
     SELECT 1 FROM public.user_roles
     WHERE user_id = auth.uid()
-    AND role IN ('admin', 'content_creator')
+    AND role = 'admin'
     AND is_active = true
   )
 );
@@ -180,14 +180,14 @@ USING (
 );
 
 -- Create policies for blog_analytics
-CREATE POLICY "Admins and content creators can view analytics"
+CREATE POLICY "Admins can view analytics"
 ON public.blog_analytics
 FOR SELECT
 USING (
   EXISTS (
     SELECT 1 FROM public.user_roles
     WHERE user_id = auth.uid()
-    AND role IN ('admin', 'content_creator')
+    AND role = 'admin'
     AND is_active = true
   )
 );

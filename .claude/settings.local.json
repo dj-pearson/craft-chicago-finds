@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(supabase:*)"
+      "Bash(supabase:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

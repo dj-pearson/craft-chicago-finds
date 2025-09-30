@@ -44,18 +44,13 @@ serve(async (req) => {
       throw new Error("User not authenticated");
     }
 
-    // Check permissions
+    // Check permissions - only admins can generate blog content
     const { data: hasPermission } = await supabaseClient.rpc("has_role", {
       _user_id: user.id,
       _role: "admin",
     });
 
-    const { data: isContentCreator } = await supabaseClient.rpc("has_role", {
-      _user_id: user.id,
-      _role: "content_creator",
-    });
-
-    if (!hasPermission && !isContentCreator) {
+    if (!hasPermission) {
       throw new Error("Insufficient permissions");
     }
 
