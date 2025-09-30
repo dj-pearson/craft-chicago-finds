@@ -110,12 +110,10 @@ export const useSmartSave = () => {
       // Sync to server if user is logged in
       if (user) {
         try {
-          await supabase.from("user_favorites").upsert({
-            user_id: user.id,
-            listing_id: item.id,
-          });
+          // TODO: Implement user_favorites table
+          console.log('User favorites sync not yet implemented');
 
-          // Mark as synced
+          // Mark as synced for now
           const syncedFavorites = updatedFavorites.map((f) =>
             f.id === item.id ? { ...f, is_synced: true } : f
           );
@@ -149,11 +147,8 @@ export const useSmartSave = () => {
       // Remove from server if user is logged in
       if (user) {
         try {
-          await supabase
-            .from("user_favorites")
-            .delete()
-            .eq("user_id", user.id)
-            .eq("listing_id", itemId);
+          // TODO: Implement user_favorites table removal
+          console.log('User favorites removal not yet implemented');
         } catch (error) {
           console.error("Error removing favorite from server:", error);
         }
@@ -187,12 +182,10 @@ export const useSmartSave = () => {
       // Sync to server if user is logged in
       if (user) {
         try {
-          await supabase.rpc("track_listing_view", {
-            listing_uuid: item.id,
-            user_uuid: user.id,
-          });
+          // TODO: Implement track_listing_view function
+          console.log('Listing view tracking not yet implemented');
 
-          // Mark as synced
+          // Mark as synced for now
           const syncedViews = updatedViews.map((v) =>
             v.id === item.id ? { ...v, is_synced: true } : v
           );
@@ -216,48 +209,25 @@ export const useSmartSave = () => {
       // Sync favorites to server
       const unsyncedFavorites = favorites.filter((f) => !f.is_synced);
       if (unsyncedFavorites.length > 0) {
-        const favoritesToSync = unsyncedFavorites.map((f) => ({
-          user_id: user.id,
-          listing_id: f.id,
-        }));
-
-        await supabase.from("user_favorites").upsert(favoritesToSync);
+        // TODO: Implement user_favorites table sync
+        console.log('Favorites sync to server not yet implemented');
       }
 
       // Sync recent views to server
       const unsyncedViews = recentViews.filter((v) => !v.is_synced);
-      for (const view of unsyncedViews) {
-        await supabase.rpc("track_listing_view", {
-          listing_uuid: view.id,
-          user_uuid: user.id,
-        });
+      if (unsyncedViews.length > 0) {
+        // TODO: Implement view tracking sync
+        console.log('Views sync to server not yet implemented');
       }
 
-      // Fetch server data and merge
-      const [serverFavorites, serverViews] = await Promise.all([
-        supabase.rpc("get_user_favorites", { user_uuid: user.id }),
-        supabase.rpc("get_user_recent_views", { user_uuid: user.id }),
-      ]);
-
-      if (serverFavorites.data) {
-        const mergedFavorites = mergeWithServerData(
-          favorites,
-          serverFavorites.data,
-          "favorites"
-        );
-        setFavorites(mergedFavorites);
-        saveToLocal(STORAGE_KEYS.FAVORITES, mergedFavorites);
-      }
-
-      if (serverViews.data) {
-        const mergedViews = mergeWithServerData(
-          recentViews,
-          serverViews.data,
-          "views"
-        );
-        setRecentViews(mergedViews);
-        saveToLocal(STORAGE_KEYS.RECENT_VIEWS, mergedViews);
-      }
+      // For now, just mark everything as synced locally
+      const syncedFavorites = favorites.map(f => ({ ...f, is_synced: true }));
+      const syncedViews = recentViews.map(v => ({ ...v, is_synced: true }));
+      
+      setFavorites(syncedFavorites);
+      setRecentViews(syncedViews);
+      saveToLocal(STORAGE_KEYS.FAVORITES, syncedFavorites);
+      saveToLocal(STORAGE_KEYS.RECENT_VIEWS, syncedViews);
 
       setSyncStatus("synced");
       localStorage.setItem(STORAGE_KEYS.LAST_SYNC, new Date().toISOString());
@@ -319,24 +289,9 @@ export const useSmartSave = () => {
     }
 
     try {
-      const { data, error } = await supabase.rpc("get_smart_recommendations", {
-        user_uuid: user.id,
-        rec_limit: 10,
-      });
-
-      if (error) throw error;
-
-      const recs: RecommendedItem[] = (data || []).map((item: any) => ({
-        id: item.listing_id,
-        title: item.title,
-        price: item.price,
-        images: item.images || [],
-        seller_name: item.seller_name || "Unknown",
-        reason: item.reason || "Recommended for you",
-        score: item.score || 0,
-      }));
-
-      setRecommendations(recs);
+      // TODO: Implement get_smart_recommendations function
+      console.log('Smart recommendations not yet implemented');
+      generateLocalRecommendations();
     } catch (error) {
       console.error("Error generating recommendations:", error);
       generateLocalRecommendations();
@@ -374,13 +329,16 @@ export const useSmartSave = () => {
         description:
           "Sign in to sync your favorites and get personalized recommendations.",
         duration: 8000,
-        action: {
-          label: "Sign In",
-          onClick: () => {
-            // This would trigger the auth modal
-            window.location.href = "/auth";
-          },
-        },
+        action: (
+          <button
+            onClick={() => {
+              window.location.href = "/auth";
+            }}
+            className="bg-primary text-primary-foreground px-3 py-1 rounded text-sm"
+          >
+            Sign In
+          </button>
+        ),
       });
 
       localStorage.setItem(

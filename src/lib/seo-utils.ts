@@ -59,14 +59,13 @@ export const generateUniqueSlug = async (
   excludeId?: string
 ): Promise<string> => {
   try {
-    const { data, error } = await supabase.rpc("generate_unique_slug", {
-      base_text: baseText,
-      table_name: tableName,
-      column_name: columnName,
-    });
-
-    if (error) throw error;
-    return data || generateSlug(baseText);
+    // TODO: Implement generate_unique_slug function
+    console.log('Unique slug generation not yet implemented');
+    
+    // Fallback to simple slug generation with timestamp
+    const baseSlug = generateSlug(baseText);
+    const timestamp = Date.now();
+    return `${baseSlug}-${timestamp}`;
   } catch (error) {
     console.error("Error generating unique slug:", error);
     // Fallback to simple slug generation
@@ -365,7 +364,7 @@ export const applySEOMetadata = (metadata: SEOMetadata) => {
 
   // Structured data
   if (metadata.structuredData) {
-    let script = document.querySelector('script[type="application/ld+json"]');
+    let script = document.querySelector('script[type="application/ld+json"]') as HTMLScriptElement;
     if (!script) {
       script = document.createElement("script");
       script.type = "application/ld+json";
@@ -413,14 +412,14 @@ export const generateSitemapUrls = async (): Promise<
     // Cities
     const { data: cities } = await supabase
       .from("cities")
-      .select("name, updated_at")
+      .select("name, created_at")
       .eq("is_active", true);
 
     if (cities) {
       cities.forEach((city) => {
         urls.push({
           url: `${baseUrl}/city/${generateSlug(city.name)}`,
-          lastmod: city.updated_at,
+          lastmod: city.created_at || new Date().toISOString(),
           changefreq: "weekly",
           priority: "0.8",
         });
@@ -430,14 +429,14 @@ export const generateSitemapUrls = async (): Promise<
     // Categories
     const { data: categories } = await supabase
       .from("categories")
-      .select("name, updated_at")
+      .select("name, created_at")
       .eq("is_active", true);
 
     if (categories) {
       categories.forEach((category) => {
         urls.push({
           url: `${baseUrl}/category/${generateSlug(category.name)}`,
-          lastmod: category.updated_at,
+          lastmod: category.created_at || new Date().toISOString(),
           changefreq: "weekly",
           priority: "0.7",
         });
@@ -447,20 +446,19 @@ export const generateSitemapUrls = async (): Promise<
     // Active listings
     const { data: listings } = await supabase
       .from("listings")
-      .select("slug, updated_at")
+      .select("id, title, created_at")
       .eq("status", "active")
       .limit(1000); // Limit for performance
 
     if (listings) {
       listings.forEach((listing) => {
-        if (listing.slug) {
-          urls.push({
-            url: `${baseUrl}/listing/${listing.slug}`,
-            lastmod: listing.updated_at,
-            changefreq: "weekly",
-            priority: "0.6",
-          });
-        }
+        const slug = generateSlug(listing.title);
+        urls.push({
+          url: `${baseUrl}/listing/${slug}`,
+          lastmod: listing.created_at || new Date().toISOString(),
+          changefreq: "weekly",
+          priority: "0.6",
+        });
       });
     }
 
