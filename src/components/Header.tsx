@@ -34,100 +34,128 @@ export const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      <div className="container mx-auto px-3 sm:px-4">
-        <div className="flex h-14 sm:h-16 items-center justify-between">
+      <div className="container mx-auto px-4 lg:px-6">
+        <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo & City Selector */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center gap-3">
             <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
               <img 
                 src={logoSrc} 
                 alt={logoAlt} 
-                className="h-8 sm:h-10 w-auto object-contain"
+                className="h-9 w-auto object-contain"
               />
             </div>
-            <div className="hidden sm:block">
+            <div className="hidden md:block">
               <CitySelector />
             </div>
           </div>
 
           {/* Search Bar - Desktop */}
-          <div className="hidden lg:flex flex-1 max-w-xl xl:max-w-2xl mx-6 xl:mx-8">
+          <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
             <QuickSearch className="w-full" />
           </div>
 
           {/* Navigation - Desktop */}
-          <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6">
-            <Button 
-              variant="ghost" 
-              className="text-sm font-medium h-auto p-2 hover:text-primary transition-colors"
-              onClick={() => navigate("/marketplace")}
-            >
-              National Marketplace
-            </Button>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Browse
-            </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Sell
-            </a>
-            <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              About
-            </a>
+          <nav className="hidden lg:flex items-center">
+            <div className="flex items-center gap-1">
+              <Button 
+                variant="ghost" 
+                className="h-10 px-4 text-sm font-medium hover:text-primary transition-colors"
+                onClick={() => navigate("/marketplace")}
+              >
+                National Marketplace
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="h-10 px-4 text-sm font-medium hover:text-primary transition-colors"
+                onClick={() => navigate("/browse")}
+              >
+                Browse
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="h-10 px-4 text-sm font-medium hover:text-primary transition-colors"
+                onClick={() => navigate("/sell")}
+              >
+                Sell
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="h-10 px-4 text-sm font-medium hover:text-primary transition-colors"
+                onClick={() => navigate("/about")}
+              >
+                About
+              </Button>
+            </div>
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center space-x-1 sm:space-x-2">
+          <div className="flex items-center gap-1">
             {/* Search - Mobile */}
-            <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9 sm:h-10 sm:w-10">
-              <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+            <Button variant="ghost" size="icon" className="lg:hidden h-10 w-10">
+              <Search className="h-5 w-5" />
+              <span className="sr-only">Search</span>
             </Button>
 
             {/* Accessibility */}
-            <AccessibilityPanel />
+            <div className="h-10 flex items-center">
+              <AccessibilityPanel />
+            </div>
 
             {/* Notifications */}
-            {user && <NotificationCenter />}
+            {user && (
+              <div className="h-10 flex items-center">
+                <NotificationCenter />
+              </div>
+            )}
 
             {/* Cart */}
-            <CartIndicator showLabel={false} />
+            <div className="h-10 flex items-center">
+              <CartIndicator showLabel={false} />
+            </div>
 
             {/* User */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
-                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <Button variant="ghost" size="icon" className="h-10 w-10">
+                    <User className="h-5 w-5" />
+                    <span className="sr-only">User menu</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="w-56">
                   <div className="px-2 py-1.5">
-                    <p className="text-sm font-medium">{profile?.display_name || "User"}</p>
-                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                    <p className="text-sm font-medium truncate">{profile?.display_name || "User"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     {profile?.is_seller && (
                       <Badge variant="secondary" className="text-xs mt-1">Seller</Badge>
                     )}
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate("/profile")}>
+                    <Settings className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem onClick={() => navigate("/admin")}>
+                      <Settings className="mr-2 h-4 w-4" />
                       Admin Dashboard
                     </DropdownMenuItem>
                   )}
                   {profile?.is_seller && (
                     <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                      <Settings className="mr-2 h-4 w-4" />
                       Seller Dashboard
                     </DropdownMenuItem>
-                   )}
-                   <DropdownMenuItem onClick={() => navigate("/messages")}>
-                     <MessageCircle className="mr-2 h-4 w-4" />
-                     Messages
-                   </DropdownMenuItem>
-                   <DropdownMenuItem onClick={() => navigate("/orders")}>
-                     My Orders
-                   </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={() => navigate("/messages")}>
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Messages
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/orders")}>
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    My Orders
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut}>
                     <LogOut className="mr-2 h-4 w-4" />
@@ -140,10 +168,9 @@ export const Header = () => {
                 variant="default" 
                 size="sm"
                 onClick={() => navigate("/auth")}
-                className="text-xs sm:text-sm px-3 sm:px-4"
+                className="h-10 px-4 text-sm font-medium"
               >
-                <span className="hidden sm:inline">Sign In</span>
-                <span className="sm:hidden">Sign In</span>
+                Sign In
               </Button>
             )}
 
@@ -151,10 +178,11 @@ export const Header = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="lg:hidden h-9 w-9 sm:h-10 sm:w-10"
+              className="lg:hidden h-10 w-10"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {isMenuOpen ? <X className="h-4 w-4 sm:h-5 sm:w-5" /> : <Menu className="h-4 w-4 sm:h-5 sm:w-5" />}
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <span className="sr-only">Toggle menu</span>
             </Button>
           </div>
         </div>
