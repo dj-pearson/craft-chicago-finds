@@ -236,9 +236,9 @@ export const usePerformanceMonitor = (
       if (navigation) {
         const ttfb = navigation.responseStart - navigation.requestStart;
         const domContentLoaded =
-          navigation.domContentLoadedEventEnd - navigation.navigationStart;
+          navigation.domContentLoadedEventEnd - navigation.startTime;
         const pageLoadTime =
-          navigation.loadEventEnd - navigation.navigationStart;
+          navigation.loadEventEnd - navigation.startTime;
 
         setMetrics((prev) => ({
           ...prev,
@@ -374,7 +374,7 @@ export const usePerformanceMonitor = (
     }
 
     try {
-      const entry: Omit<PerformanceEntry, "id"> = {
+      const entry: any = {
         page_url: window.location.href,
         user_agent: navigator.userAgent,
         metrics: currentMetrics,
@@ -383,8 +383,8 @@ export const usePerformanceMonitor = (
       };
 
       // Store in Supabase
-      const { error } = await supabase
-        .from("performance_metrics")
+      const { error } = await (supabase as any)
+        .from('performance_metrics')
         .insert(entry);
 
       if (error) {

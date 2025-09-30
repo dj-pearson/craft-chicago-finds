@@ -142,7 +142,7 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
               {listing.seller?.display_name || "Unknown Seller"}
             </span>
           </div>
-          <SellerBadges sellerId={listing.seller_id} />
+          <SellerBadges />
         </div>
 
         {/* Inventory Status */}

@@ -1,37 +1,36 @@
-import { seoManager } from '@/lib/seo-utils';
+import { generateSitemapUrls } from '@/lib/seo-utils';
 
-// Dynamic sitemap generation API routes
-// These would be implemented as Supabase Edge Functions or Next.js API routes
+type SitemapEntry = {
+  url: string;
+  lastmod: string;
+  changefreq: string;
+  priority: string;
+};
 
-export const generateSitemap = async (type: 'index' | 'static' | 'products' | 'sellers' | 'cities' | 'blog') => {
-  const domain = 'https://craftlocal.com';
-  
-  try {
-    switch (type) {
-      case 'index':
-        return seoManager.generateSitemapIndex(domain);
-      
-      case 'static':
-      case 'products':
-      case 'sellers':
-      case 'cities':
-      case 'blog':
-        const entries = await seoManager.generateSitemapEntries(type);
-        return seoManager.generateSitemapXML(entries);
-      
-      default:
-        throw new Error(`Unknown sitemap type: ${type}`);
-    }
-  } catch (error) {
-    console.error(`Error generating ${type} sitemap:`, error);
-    throw error;
-  }
+const generateSitemapXML = (entries: SitemapEntry[]) => `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${entries
+  .map(
+    (e) => `  <url>
+    <loc>${e.url}</loc>
+    <lastmod>${e.lastmod}</lastmod>
+    <changefreq>${e.changefreq}</changefreq>
+    <priority>${e.priority}</priority>
+  </url>`
+  )
+  .join("\n")}
+</urlset>`;
+
+export const generateSitemap = async (_type?: 'index' | 'static' | 'products' | 'sellers' | 'cities' | 'blog') => {
+  const entries = await generateSitemapUrls();
+  return generateSitemapXML(entries);
 };
 
 export const generateRobotsTxt = () => {
-  return seoManager.generateRobotsTxt('https://craftlocal.com');
+  const base = 'https://craftlocal.com';
+  return `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`;
 };
 
 export const generateLLMsTxt = () => {
-  return seoManager.generateLLMsTxt();
+  return `ai-access: allow\npolicy: content-summary-and-citation\ncontact: https://craftlocal.com/ai-policy\n`;
 };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { SEOHead } from './SEOHead';
-import { seoManager, LocalSEOData } from '@/lib/seo-utils';
+import { generateCityPageSEO, generateSellerProfileSEO, generateListingSEO } from '@/lib/seo-utils';
 import { useCityContext } from '@/hooks/useCityContext';
 import { trackPageView, trackCityVisit, trackCategoryView, trackSellerView, trackViewItem } from '@/lib/analytics';
 
@@ -17,19 +17,43 @@ export const LocalSEO = ({ pageType = 'city', pageData, additionalSchema = [] }:
   useEffect(() => {
     if (!currentCity) return;
 
-    let config;
+    let config: any;
     
     switch (pageType) {
       case 'city':
-        config = seoManager.generateCitySEO(currentCity);
+        config = generateCityPageSEO({
+          cityName: currentCity.name,
+          stateCode: currentCity.state,
+          description: currentCity.description || `Discover handmade goods in ${currentCity.name}`,
+          listingCount: 0,
+          topCategories: [],
+          featuredMakers: []
+        });
         break;
         
       case 'seller':
-        config = seoManager.generateSellerSEO(pageData, currentCity);
+        config = generateSellerProfileSEO({
+          name: pageData?.name || pageData?.shop_name || 'Local Seller',
+          bio: pageData?.bio || 'Handmade artisan at CraftLocal',
+          location: currentCity.name,
+          specialties: pageData?.specialties || pageData?.tags || ['Handmade'],
+          itemCount: pageData?.itemCount || 0,
+          rating: pageData?.rating || undefined,
+        });
         break;
         
       case 'product':
-        config = seoManager.generateProductSEO(pageData.product, pageData.seller, currentCity);
+        config = generateListingSEO({
+          title: pageData?.product?.title || 'Handmade Product',
+          description: pageData?.product?.description || '',
+          keywords: pageData?.product?.tags || [],
+          slug: pageData?.product?.slug || '',
+          images: pageData?.product?.images || [],
+          price: pageData?.product?.price || 0,
+          seller: { name: pageData?.seller?.shop_name || pageData?.seller?.name || 'Seller', location: currentCity.name },
+          category: pageData?.product?.category || 'Handmade',
+          tags: pageData?.product?.tags || [],
+        });
         break;
         
       case 'category':
@@ -37,7 +61,14 @@ export const LocalSEO = ({ pageType = 'city', pageData, additionalSchema = [] }:
         break;
         
       default:
-        config = seoManager.generateCitySEO(currentCity);
+        config = generateCityPageSEO({
+          cityName: currentCity.name,
+          stateCode: currentCity.state,
+          description: currentCity.description || `Discover handmade goods in ${currentCity.name}`,
+          listingCount: 0,
+          topCategories: [],
+          featuredMakers: []
+        });
     }
 
     // Add additional schema if provided
@@ -116,13 +147,6 @@ export const LocalSEO = ({ pageType = 'city', pageData, additionalSchema = [] }:
         type: "website"
       },
       schema: [
-        seoManager.generateSchema("BreadcrumbList", {
-          breadcrumbs: [
-            { name: "Home", url: "https://craftlocal.com" },
-            { name: cityName, url: `https://craftlocal.com/cities/${city.slug}` },
-            { name: categoryName, url: `https://craftlocal.com/cities/${city.slug}/categories/${categoryData.slug}` }
-          ]
-        }),
         {
           "@context": "https://schema.org",
           "@type": "CollectionPage",
@@ -137,24 +161,9 @@ export const LocalSEO = ({ pageType = 'city', pageData, additionalSchema = [] }:
           "breadcrumb": {
             "@type": "BreadcrumbList",
             "itemListElement": [
-              {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": "https://craftlocal.com"
-              },
-              {
-                "@type": "ListItem", 
-                "position": 2,
-                "name": cityName,
-                "item": `https://craftlocal.com/cities/${city.slug}`
-              },
-              {
-                "@type": "ListItem",
-                "position": 3,
-                "name": categoryName,
-                "item": `https://craftlocal.com/cities/${city.slug}/categories/${categoryData.slug}`
-              }
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://craftlocal.com" },
+              { "@type": "ListItem", "position": 2, "name": cityName, "item": `https://craftlocal.com/cities/${city.slug}` },
+              { "@type": "ListItem", "position": 3, "name": categoryName, "item": `https://craftlocal.com/cities/${city.slug}/categories/${categoryData.slug}` }
             ]
           }
         }

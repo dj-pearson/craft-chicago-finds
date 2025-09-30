@@ -62,6 +62,7 @@ interface BlogPost {
   readability_score: number;
   word_count: number;
   estimated_reading_time: number;
+  webhook_sent_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -138,7 +139,7 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('blog_articles')
         .select(`
           *,
@@ -167,7 +168,7 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
 
   const fetchTemplates = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('blog_article_templates')
         .select('*')
         .eq('is_active', true)
@@ -324,7 +325,7 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
 
       if (selectedPost) {
         // Update existing post
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('blog_articles')
           .update(postData)
           .eq('id', selectedPost.id);
@@ -332,7 +333,7 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
         if (error) throw error;
       } else {
         // Create new post
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('blog_articles')
           .insert([postData]);
 
@@ -364,7 +365,7 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
     }
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('blog_articles')
         .delete()
         .eq('id', postId);

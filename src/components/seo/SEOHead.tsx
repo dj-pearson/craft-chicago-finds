@@ -1,5 +1,32 @@
 import { Helmet } from 'react-helmet-async';
-import { SEOConfig } from '@/lib/seo-utils';
+
+interface OpenGraphConfig {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: string;
+  url?: string;
+}
+
+interface TwitterConfig {
+  card?: string;
+  site?: string;
+  creator?: string;
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+export interface SEOConfig {
+  title: string;
+  description: string;
+  keywords?: string[];
+  canonical?: string;
+  robots?: string;
+  openGraph?: OpenGraphConfig;
+  twitter?: TwitterConfig;
+  schema?: any[];
+}
 
 interface SEOHeadProps {
   config: SEOConfig;
