@@ -139,6 +139,235 @@ export type Database = {
           },
         ]
       }
+      blog_analytics: {
+        Row: {
+          article_id: string
+          avg_time_on_page: number
+          bounce_rate: number
+          conversion_rate: number
+          created_at: string
+          date: string
+          id: string
+          referral_sources: Json | null
+          signups_attributed: number
+          unique_visitors: number
+          views: number
+        }
+        Insert: {
+          article_id: string
+          avg_time_on_page?: number
+          bounce_rate?: number
+          conversion_rate?: number
+          created_at?: string
+          date?: string
+          id?: string
+          referral_sources?: Json | null
+          signups_attributed?: number
+          unique_visitors?: number
+          views?: number
+        }
+        Update: {
+          article_id?: string
+          avg_time_on_page?: number
+          bounce_rate?: number
+          conversion_rate?: number
+          created_at?: string
+          date?: string
+          id?: string
+          referral_sources?: Json | null
+          signups_attributed?: number
+          unique_visitors?: number
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_analytics_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "blog_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_article_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          prompt_template: string
+          required_sections: string[]
+          seo_focus: string[]
+          target_word_count: number
+          template_type: string
+          tone: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          prompt_template: string
+          required_sections?: string[]
+          seo_focus?: string[]
+          target_word_count?: number
+          template_type: string
+          tone?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          prompt_template?: string
+          required_sections?: string[]
+          seo_focus?: string[]
+          target_word_count?: number
+          template_type?: string
+          tone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      blog_articles: {
+        Row: {
+          ai_generated: boolean
+          ai_prompt: string | null
+          author_id: string
+          category: string
+          city_id: string | null
+          content: string
+          created_at: string
+          estimated_reading_time: number
+          excerpt: string
+          featured_image: string | null
+          id: string
+          keywords: string[]
+          meta_description: string
+          meta_title: string
+          publish_date: string | null
+          readability_score: number
+          seo_score: number
+          slug: string
+          status: string
+          tags: string[]
+          title: string
+          updated_at: string
+          view_count: number
+          webhook_response: Json | null
+          webhook_sent_at: string | null
+          word_count: number
+        }
+        Insert: {
+          ai_generated?: boolean
+          ai_prompt?: string | null
+          author_id: string
+          category: string
+          city_id?: string | null
+          content: string
+          created_at?: string
+          estimated_reading_time?: number
+          excerpt: string
+          featured_image?: string | null
+          id?: string
+          keywords?: string[]
+          meta_description: string
+          meta_title: string
+          publish_date?: string | null
+          readability_score?: number
+          seo_score?: number
+          slug: string
+          status?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+          view_count?: number
+          webhook_response?: Json | null
+          webhook_sent_at?: string | null
+          word_count?: number
+        }
+        Update: {
+          ai_generated?: boolean
+          ai_prompt?: string | null
+          author_id?: string
+          category?: string
+          city_id?: string | null
+          content?: string
+          created_at?: string
+          estimated_reading_time?: number
+          excerpt?: string
+          featured_image?: string | null
+          id?: string
+          keywords?: string[]
+          meta_description?: string
+          meta_title?: string
+          publish_date?: string | null
+          readability_score?: number
+          seo_score?: number
+          slug?: string
+          status?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          view_count?: number
+          webhook_response?: Json | null
+          webhook_sent_at?: string | null
+          word_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_articles_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_seo_keywords: {
+        Row: {
+          category: string | null
+          city_specific: boolean
+          created_at: string
+          difficulty_score: number | null
+          id: string
+          keyword: string
+          last_updated: string
+          related_keywords: string[] | null
+          search_volume: number | null
+        }
+        Insert: {
+          category?: string | null
+          city_specific?: boolean
+          created_at?: string
+          difficulty_score?: number | null
+          id?: string
+          keyword: string
+          last_updated?: string
+          related_keywords?: string[] | null
+          search_volume?: number | null
+        }
+        Update: {
+          category?: string | null
+          city_specific?: boolean
+          created_at?: string
+          difficulty_score?: number | null
+          id?: string
+          keyword?: string
+          last_updated?: string
+          related_keywords?: string[] | null
+          search_volume?: number | null
+        }
+        Relationships: []
+      }
       campaign_automation: {
         Row: {
           automation_status: string
@@ -1619,52 +1848,60 @@ export type Database = {
       }
       webhook_logs: {
         Row: {
+          content_id: string
+          content_type: string | null
           error_message: string | null
           id: string
-          post_id: string
-          request_payload: Json
+          payload: Json
           response_body: string | null
           response_status: number | null
           sent_at: string
           success: boolean
+          webhook_settings_id: string | null
           webhook_url: string
         }
         Insert: {
+          content_id: string
+          content_type?: string | null
           error_message?: string | null
           id?: string
-          post_id: string
-          request_payload: Json
+          payload: Json
           response_body?: string | null
           response_status?: number | null
           sent_at?: string
           success?: boolean
+          webhook_settings_id?: string | null
           webhook_url: string
         }
         Update: {
+          content_id?: string
+          content_type?: string | null
           error_message?: string | null
           id?: string
-          post_id?: string
-          request_payload?: Json
+          payload?: Json
           response_body?: string | null
           response_status?: number | null
           sent_at?: string
           success?: boolean
+          webhook_settings_id?: string | null
           webhook_url?: string
         }
         Relationships: [
           {
-            foreignKeyName: "webhook_logs_post_id_fkey"
-            columns: ["post_id"]
+            foreignKeyName: "webhook_logs_webhook_settings_id_fkey"
+            columns: ["webhook_settings_id"]
             isOneToOne: false
-            referencedRelation: "social_media_posts"
+            referencedRelation: "webhook_settings"
             referencedColumns: ["id"]
           },
         ]
       }
       webhook_settings: {
         Row: {
+          content_types: string[] | null
           created_at: string
           created_by: string
+          headers: Json | null
           id: string
           is_active: boolean
           name: string
@@ -1674,8 +1911,10 @@ export type Database = {
           webhook_url: string
         }
         Insert: {
+          content_types?: string[] | null
           created_at?: string
           created_by: string
+          headers?: Json | null
           id?: string
           is_active?: boolean
           name: string
@@ -1685,8 +1924,10 @@ export type Database = {
           webhook_url: string
         }
         Update: {
+          content_types?: string[] | null
           created_at?: string
           created_by?: string
+          headers?: Json | null
           id?: string
           is_active?: boolean
           name?: string
@@ -1702,6 +1943,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_blog_seo_score: {
+        Args: {
+          p_content: string
+          p_featured_image: string
+          p_keywords: string[]
+          p_meta_description: string
+          p_meta_title: string
+          p_title: string
+        }
+        Returns: number
+      }
       calculate_category_growth_rate: {
         Args: { category_uuid: string; days_back?: number }
         Returns: number
@@ -1735,6 +1987,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_blog_view_count: {
+        Args: { article_slug: string }
+        Returns: undefined
+      }
       increment_listing_views: {
         Args: { listing_uuid: string }
         Returns: undefined
@@ -1754,6 +2010,10 @@ export type Database = {
       mark_notification_read: {
         Args: { notification_id: string }
         Returns: undefined
+      }
+      seed_mock_seller_data: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       update_last_seen: {
         Args: { _user_id: string }
