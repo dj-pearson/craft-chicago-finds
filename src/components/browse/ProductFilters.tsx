@@ -135,14 +135,14 @@ export const ProductFilters = ({ categories, filters, onFiltersChange }: Product
         <div className="space-y-2">
           <Label htmlFor="category">Category</Label>
           <Select
-            value={filters.category || ""}
-            onValueChange={(value) => handleFilterChange('category', value || undefined)}
+            value={filters.category || "all"}
+            onValueChange={(value) => handleFilterChange('category', value === 'all' ? undefined : value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="All categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All categories</SelectItem>
+              <SelectItem value="all">All categories</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category.id} value={category.slug}>
                   {category.name}
@@ -195,14 +195,14 @@ export const ProductFilters = ({ categories, filters, onFiltersChange }: Product
         <div className="space-y-2">
           <Label htmlFor="fulfillment">Fulfillment</Label>
           <Select
-            value={filters.fulfillment || ""}
-            onValueChange={(value) => handleFilterChange('fulfillment', value || undefined)}
+            value={filters.fulfillment || "any"}
+            onValueChange={(value) => handleFilterChange('fulfillment', value === 'any' ? undefined : value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Any method" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any method</SelectItem>
+              <SelectItem value="any">Any method</SelectItem>
               <SelectItem value="pickup">Local pickup only</SelectItem>
               <SelectItem value="shipping">Shipping available</SelectItem>
               <SelectItem value="both">Both pickup & shipping</SelectItem>

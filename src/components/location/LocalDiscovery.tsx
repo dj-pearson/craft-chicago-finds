@@ -256,14 +256,14 @@ export const LocalDiscovery = ({ userLocation, onLocationRequest }: LocalDiscove
                 value={filters.neighborhood || ''}
                 onValueChange={(value) => setFilters(prev => ({ 
                   ...prev, 
-                  neighborhood: value || undefined 
+                  neighborhood: value === 'all' ? undefined : value 
                 }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="All neighborhoods" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All neighborhoods</SelectItem>
+                  <SelectItem value="all">All neighborhoods</SelectItem>
                   {neighborhoods.map(neighborhood => (
                     <SelectItem key={neighborhood} value={neighborhood}>
                       {neighborhood}

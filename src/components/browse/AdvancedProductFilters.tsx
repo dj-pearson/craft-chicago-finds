@@ -362,14 +362,14 @@ export const AdvancedProductFilters = ({
           <Select
             value={filters.category || ""}
             onValueChange={(value) =>
-              handleFilterChange("category", value || undefined)
+              handleFilterChange("category", value === 'all' ? undefined : value)
             }
           >
             <SelectTrigger>
               <SelectValue placeholder="All categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All categories</SelectItem>
+              <SelectItem value="all">All categories</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category.id} value={category.slug}>
                   {category.name}
@@ -499,14 +499,14 @@ export const AdvancedProductFilters = ({
               <Select
                 value={filters.fulfillment || ""}
                 onValueChange={(value) =>
-                  handleFilterChange("fulfillment", value || undefined)
+                  handleFilterChange("fulfillment", value === 'any' ? undefined : value)
                 }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Any method" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any method</SelectItem>
+                  <SelectItem value="any">Any method</SelectItem>
                   <SelectItem value="pickup">Local pickup only</SelectItem>
                   <SelectItem value="shipping">Shipping available</SelectItem>
                   <SelectItem value="both">Both pickup & shipping</SelectItem>
@@ -520,14 +520,14 @@ export const AdvancedProductFilters = ({
               <Select
                 value={filters.availability || ""}
                 onValueChange={(value) =>
-                  handleFilterChange("availability", value || undefined)
+                  handleFilterChange("availability", value === 'all' ? undefined : value)
                 }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="All items" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All items</SelectItem>
+                  <SelectItem value="all">All items</SelectItem>
                   <SelectItem value="in_stock">In stock</SelectItem>
                   <SelectItem value="low_stock">Low stock</SelectItem>
                 </SelectContent>
