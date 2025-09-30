@@ -70,11 +70,16 @@ interface AIArticleTemplate {
   id: string;
   name: string;
   description: string;
-  type: 'guide' | 'comparison' | 'listicle' | 'local_spotlight' | 'seasonal' | 'faq' | 'how_to';
+  template_type: 'guide' | 'comparison' | 'listicle' | 'local_spotlight' | 'seasonal' | 'faq' | 'how_to';
   prompt_template: string;
   target_word_count: number;
   seo_focus: string[];
   required_sections: string[];
+  tone?: string;
+  is_active?: boolean;
+  created_by?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface BlogManagerProps {
@@ -1073,30 +1078,30 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
                           <div className="space-y-3">
                             <div>
                               <Label className="text-xs text-muted-foreground">Template Type</Label>
-                              <p className="capitalize">{template.type.replace('_', ' ')}</p>
+                              <p className="capitalize">{template.template_type?.replace(/_/g, ' ') || 'N/A'}</p>
                             </div>
                             <div>
                               <Label className="text-xs text-muted-foreground">Target Word Count</Label>
-                              <p>{template.target_word_count} words</p>
+                              <p>{template.target_word_count || 1000} words</p>
                             </div>
                             <div>
                               <Label className="text-xs text-muted-foreground">SEO Focus Areas</Label>
                               <div className="flex flex-wrap gap-1 mt-1">
-                                {template.seo_focus.map((focus) => (
+                                {template.seo_focus?.map((focus) => (
                                   <Badge key={focus} variant="outline" className="text-xs">
                                     {focus}
                                   </Badge>
-                                ))}
+                                )) || <span className="text-xs text-muted-foreground">None</span>}
                               </div>
                             </div>
                             <div>
                               <Label className="text-xs text-muted-foreground">Required Sections</Label>
                               <div className="flex flex-wrap gap-1 mt-1">
-                                {template.required_sections.map((section) => (
+                                {template.required_sections?.map((section) => (
                                   <Badge key={section} variant="outline" className="text-xs">
                                     {section}
                                   </Badge>
-                                ))}
+                                )) || <span className="text-xs text-muted-foreground">None</span>}
                               </div>
                             </div>
                           </div>
