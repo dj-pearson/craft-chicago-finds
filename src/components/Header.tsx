@@ -29,7 +29,8 @@ export const Header = () => {
 
   // Determine which logo to show based on current page
   const isChicagoPage = location.pathname.includes('/chicago') || location.pathname === '/cities/chicago';
-  const logoSrc = isChicagoPage ? '/Chicago.png' : '/Logo.png';
+  const logoSrcWebP = isChicagoPage ? '/Chicago.png' : '/logo-optimized.webp';
+  const logoSrcFallback = isChicagoPage ? '/Chicago.png' : '/Logo.png';
   const logoAlt = isChicagoPage ? 'CraftLocal Chicago' : 'CraftLocal';
 
   return (
@@ -39,11 +40,17 @@ export const Header = () => {
           {/* Logo & City Selector */}
           <div className="flex items-center gap-3">
             <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
-              <img 
-                src={logoSrc} 
-                alt={logoAlt} 
-                className="h-9 w-auto object-contain"
-              />
+              <picture>
+                <source srcSet={logoSrcWebP} type="image/webp" />
+                <img 
+                  src={logoSrcFallback} 
+                  alt={logoAlt} 
+                  className="h-9 w-auto object-contain"
+                  width="96"
+                  height="33"
+                  loading="eager"
+                />
+              </picture>
             </div>
             <div className="hidden md:block">
               <CitySelector />
