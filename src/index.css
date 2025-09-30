@@ -132,6 +132,7 @@ All colors MUST be HSL. Chicago-inspired palette with artisanal warmth.
 
   body {
     @apply bg-background text-foreground;
+    font-display: swap;
   }
 
   /* Mobile-first touch targets */
