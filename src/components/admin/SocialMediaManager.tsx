@@ -1033,7 +1033,7 @@ Please generate engaging social media content that follows the 30-day social med
                         variant="outline"
                         size="sm"
                         onClick={() => handleSendWebhook(post.id)}
-                        disabled={!!post.webhook_sent_at}
+                        title={post.webhook_sent_at ? `Last sent: ${new Date(post.webhook_sent_at).toLocaleString()}` : "Send to webhook"}
                       >
                         <Globe className="h-4 w-4" />
                       </Button>

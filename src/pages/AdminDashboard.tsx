@@ -23,12 +23,14 @@ import {
   ArrowLeft,
   Brain,
   Share2,
+  FileText,
 } from "lucide-react";
 import { CityManager } from "@/components/admin/CityManager";
 import { UserManager } from "@/components/admin/UserManager";
 import { ContentManager } from "@/components/admin/ContentManager";
 import { AISettingsManager } from "@/components/admin/AISettingsManager";
 import { SocialMediaManager } from "@/components/admin/SocialMediaManager";
+import { BlogManager } from "@/components/admin/BlogManager";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 
 const AdminDashboard = () => {
@@ -131,57 +133,65 @@ const AdminDashboard = () => {
         <Tabs defaultValue="overview" className="w-full">
           {/* Mobile-optimized TabsList with horizontal scroll */}
           <div className="relative mb-6">
-            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-7 lg:grid-cols-7 gap-1 sm:gap-0 bg-muted/50">
-              <TabsTrigger 
-                value="overview" 
+            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-8 lg:grid-cols-8 gap-1 sm:gap-0 bg-muted/50">
+              <TabsTrigger
+                value="overview"
                 className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
               >
                 <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Overview</span>
                 <span className="sm:hidden">Over</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="cities" 
+              <TabsTrigger
+                value="cities"
                 className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
               >
                 <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Cities</span>
                 <span className="sm:hidden">Cities</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="users" 
+              <TabsTrigger
+                value="users"
                 className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
               >
                 <Users className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Users</span>
                 <span className="sm:hidden">Users</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="content" 
+              <TabsTrigger
+                value="content"
                 className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
               >
                 <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Content</span>
                 <span className="sm:hidden">Cont</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="ai" 
+              <TabsTrigger
+                value="blog"
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Blog</span>
+                <span className="sm:hidden">Blog</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="ai"
                 className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
               >
                 <Brain className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">AI Settings</span>
                 <span className="sm:hidden">AI</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="social" 
+              <TabsTrigger
+                value="social"
                 className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
               >
                 <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Social</span>
                 <span className="sm:hidden">Soc</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="analytics" 
+              <TabsTrigger
+                value="analytics"
                 className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
               >
                 <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -323,6 +333,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="ai">
             <AISettingsManager />
+          </TabsContent>
+
+          <TabsContent value="blog">
+            <BlogManager />
           </TabsContent>
 
           <TabsContent value="social">

@@ -133,9 +133,21 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      // In production, this would fetch from Supabase
-      const mockPosts = generateMockPosts();
-      setPosts(mockPosts);
+      const { data, error } = await supabase
+        .from('blog_articles')
+        .select(`
+          *,
+          cities (
+            id,
+            name,
+            slug
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setPosts(data || []);
     } catch (error) {
       console.error("Error fetching posts:", error);
       toast({
@@ -150,8 +162,15 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
 
   const fetchTemplates = async () => {
     try {
-      const mockTemplates = generateMockTemplates();
-      setTemplates(mockTemplates);
+      const { data, error } = await supabase
+        .from('blog_article_templates')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) throw error;
+
+      setTemplates(data || []);
     } catch (error) {
       console.error("Error fetching templates:", error);
     }
@@ -291,7 +310,7 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
   };
 
   const generateAIArticle = async () => {
-    if (!selectedTemplate || !aiGenerationForm.topic || !aiGenerationForm.target_keyword) {
+    if (!aiGenerationForm.template_id || !aiGenerationForm.topic || !aiGenerationForm.target_keyword) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields for AI generation",
@@ -302,29 +321,39 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
 
     setAiGenerating(true);
     try {
-      const template = templates.find(t => t.id === aiGenerationForm.template_id);
-      if (!template) return;
+      const response = await supabase.functions.invoke('ai-generate-blog', {
+        body: {
+          template_id: aiGenerationForm.template_id,
+          topic: aiGenerationForm.topic,
+          target_keyword: aiGenerationForm.target_keyword,
+          city_focus: aiGenerationForm.city_focus,
+          additional_context: aiGenerationForm.additional_context,
+          word_count: aiGenerationForm.word_count,
+          tone: aiGenerationForm.tone,
+          include_local_references: aiGenerationForm.include_local_references,
+          include_faqs: aiGenerationForm.include_faqs,
+          include_call_to_action: aiGenerationForm.include_call_to_action,
+        }
+      });
 
-      // In production, this would call the AI generation API
-      await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate API call
+      if (response.error) {
+        throw new Error(response.error.message || 'AI generation failed');
+      }
 
-      const generatedPost = {
-        title: `${aiGenerationForm.topic} in ${aiGenerationForm.city_focus}`,
-        content: generateMockContent(template, aiGenerationForm),
-        excerpt: `Discover ${aiGenerationForm.topic.toLowerCase()} in ${aiGenerationForm.city_focus}. A comprehensive guide for local craft enthusiasts.`,
-        meta_title: `${aiGenerationForm.topic} in ${aiGenerationForm.city_focus} | CraftLocal`,
-        meta_description: `${aiGenerationForm.topic} guide for ${aiGenerationForm.city_focus}. Expert insights and local recommendations for craft lovers.`,
-        keywords: [aiGenerationForm.target_keyword, aiGenerationForm.city_focus.toLowerCase(), template.seo_focus[0]].join(', '),
-        category: template.type === 'guide' ? 'Guides' : template.type === 'comparison' ? 'Comparisons' : 'Articles',
-        tags: [aiGenerationForm.topic.toLowerCase(), aiGenerationForm.city_focus.toLowerCase(), template.type].join(', '),
-        word_count: aiGenerationForm.word_count,
-        ai_generated: true
-      };
+      const result = response.data;
 
       setPostForm(prev => ({
         ...prev,
-        ...generatedPost,
-        slug: generateSlug(generatedPost.title)
+        title: result.title,
+        slug: result.slug,
+        content: result.content,
+        excerpt: result.excerpt,
+        meta_title: result.meta_title,
+        meta_description: result.meta_description,
+        keywords: Array.isArray(result.keywords) ? result.keywords.join(', ') : result.keywords,
+        category: result.category,
+        tags: Array.isArray(result.tags) ? result.tags.join(', ') : result.tags,
+        city_id: currentCity?.id || '',
       }));
 
       setIsEditing(true);
@@ -332,13 +361,13 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
 
       toast({
         title: "Article Generated!",
-        description: "Your AI-generated article is ready for review and editing",
+        description: `AI-generated article ready for review (${result.tokens_used} tokens used)`,
       });
     } catch (error) {
       console.error("Error generating article:", error);
       toast({
         title: "Generation Failed",
-        description: "Failed to generate article. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to generate article. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -429,41 +458,63 @@ Ready to explore ${formData.topic.toLowerCase()} in ${formData.city_focus}? Brow
 
   const savePost = async () => {
     try {
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      const wordCount = postForm.content.split(/\s+/).length;
+      const estimatedReadingTime = Math.ceil(wordCount / 200);
+      const keywords = postForm.keywords.split(',').map(k => k.trim()).filter(k => k);
+      const tags = postForm.tags.split(',').map(t => t.trim()).filter(t => t);
+
       const postData = {
-        ...postForm,
-        keywords: postForm.keywords.split(',').map(k => k.trim()),
-        tags: postForm.tags.split(',').map(t => t.trim()),
-        word_count: postForm.content.split(' ').length,
-        estimated_reading_time: Math.ceil(postForm.content.split(' ').length / 200),
-        seo_score: calculateSEOScore(postForm),
-        slug: postForm.slug || generateSlug(postForm.title)
+        title: postForm.title,
+        slug: postForm.slug || generateSlug(postForm.title),
+        content: postForm.content,
+        excerpt: postForm.excerpt,
+        featured_image: postForm.featured_image || null,
+        meta_title: postForm.meta_title,
+        meta_description: postForm.meta_description,
+        keywords,
+        status: postForm.status,
+        publish_date: postForm.status === 'scheduled' ? postForm.publish_date :
+                     postForm.status === 'published' ? new Date().toISOString() : null,
+        author_id: user.id,
+        city_id: postForm.city_id || null,
+        category: postForm.category,
+        tags,
+        word_count: wordCount,
+        estimated_reading_time: estimatedReadingTime,
+        seo_score: calculateSEOScore({
+          ...postForm,
+          keywords: keywords.join(', '),
+          word_count: wordCount,
+        }),
+        readability_score: 85, // TODO: Implement readability calculation
+        ai_generated: selectedPost?.ai_generated || false,
       };
 
       if (selectedPost) {
         // Update existing post
-        setPosts(prev => prev.map(p => 
-          p.id === selectedPost.id 
-            ? { ...p, ...postData, updated_at: new Date().toISOString() }
-            : p
-        ));
+        const { error } = await supabase
+          .from('blog_articles')
+          .update(postData)
+          .eq('id', selectedPost.id);
+
+        if (error) throw error;
       } else {
         // Create new post
-        const newPost: BlogPost = {
-          id: `post-${Date.now()}`,
-          ...postData,
-          author_id: user?.id || '',
-          view_count: 0,
-          readability_score: 85, // Would be calculated by readability algorithm
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        } as BlogPost;
-        
-        setPosts(prev => [newPost, ...prev]);
+        const { error } = await supabase
+          .from('blog_articles')
+          .insert([postData]);
+
+        if (error) throw error;
       }
 
       setIsEditing(false);
       setSelectedPost(null);
       resetForm();
+      fetchPosts(); // Refresh the list
 
       toast({
         title: "Post Saved!",
@@ -473,14 +524,25 @@ Ready to explore ${formData.topic.toLowerCase()} in ${formData.city_focus}? Brow
       console.error("Error saving post:", error);
       toast({
         title: "Save Failed",
-        description: "Failed to save post. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to save post. Please try again.",
         variant: "destructive",
       });
     }
   };
 
   const deletePost = async (postId: string) => {
+    if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+      return;
+    }
+
     try {
+      const { error } = await supabase
+        .from('blog_articles')
+        .delete()
+        .eq('id', postId);
+
+      if (error) throw error;
+
       setPosts(prev => prev.filter(p => p.id !== postId));
       toast({
         title: "Post Deleted",
@@ -490,7 +552,35 @@ Ready to explore ${formData.topic.toLowerCase()} in ${formData.city_focus}? Brow
       console.error("Error deleting post:", error);
       toast({
         title: "Delete Failed",
-        description: "Failed to delete post. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to delete post. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSendWebhook = async (articleId: string) => {
+    try {
+      const response = await supabase.functions.invoke('send-blog-webhook', {
+        body: {
+          article_id: articleId,
+        }
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || 'Webhook sending failed');
+      }
+
+      toast({
+        title: "Webhook Sent!",
+        description: `Sent to ${response.data.successful_webhooks}/${response.data.webhooks_sent} webhooks`,
+      });
+
+      fetchPosts(); // Refresh to show webhook status
+    } catch (error) {
+      console.error("Error sending webhook:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to send webhook",
         variant: "destructive",
       });
     }
@@ -711,14 +801,22 @@ Ready to explore ${formData.topic.toLowerCase()} in ${formData.city_focus}? Brow
                           )}
 
                           <div className="flex flex-col gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleSendWebhook(post.id)}
+                              title={post.webhook_sent_at ? `Last sent: ${new Date(post.webhook_sent_at).toLocaleString()}` : "Send to webhook"}
+                            >
+                              <Globe className="h-3 w-3" />
+                            </Button>
                             <Button size="sm" variant="outline" onClick={() => editPost(post)}>
                               <Edit className="h-3 w-3" />
                             </Button>
                             <Button size="sm" variant="outline">
                               <Eye className="h-3 w-3" />
                             </Button>
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="outline"
                               onClick={() => deletePost(post.id)}
                             >
