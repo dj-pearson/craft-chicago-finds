@@ -20,10 +20,10 @@ All colors MUST be HSL. Chicago-inspired palette with artisanal warmth.
     --popover-foreground: 215 25% 15%;
 
     /* Chicago blue primary - inspired by city flag */
-    --primary: 204 86% 45%;
+    --primary: 204 86% 38%;
     --primary-foreground: 0 0% 100%;
     --primary-light: 204 86% 65%;
-    --primary-dark: 204 86% 35%;
+    --primary-dark: 204 86% 30%;
 
     /* Warm earth secondary - artisan crafts */
     --secondary: 28 45% 92%;
@@ -31,7 +31,7 @@ All colors MUST be HSL. Chicago-inspired palette with artisanal warmth.
 
     /* Muted tones */
     --muted: 20 15% 95%;
-    --muted-foreground: 215 15% 45%;
+    --muted-foreground: 215 20% 35%;
 
     /* Accent - warm terracotta */
     --accent: 12 65% 60%;
@@ -50,20 +50,20 @@ All colors MUST be HSL. Chicago-inspired palette with artisanal warmth.
     /* Borders and inputs */
     --border: 20 15% 88%;
     --input: 20 15% 88%;
-    --ring: 204 86% 45%;
+    --ring: 204 86% 38%;
 
     /* Design tokens */
     --radius: 0.75rem;
 
     /* Gradients - Chicago sky and warmth */
-    --gradient-primary: linear-gradient(135deg, hsl(204 86% 45%), hsl(204 86% 65%));
+    --gradient-primary: linear-gradient(135deg, hsl(204 86% 38%), hsl(204 86% 65%));
     --gradient-warm: linear-gradient(135deg, hsl(28 45% 92%), hsl(20 35% 88%));
-    --gradient-hero: linear-gradient(135deg, hsl(204 86% 45%) 0%, hsl(12 65% 60%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(204 86% 38%) 0%, hsl(12 65% 60%) 100%);
 
     /* Shadows */
     --shadow-soft: 0 4px 20px -2px hsl(215 25% 15% / 0.08);
     --shadow-elevated: 0 8px 30px -4px hsl(215 25% 15% / 0.12);
-    --shadow-glow: 0 0 40px hsl(204 86% 45% / 0.15);
+    --shadow-glow: 0 0 40px hsl(204 86% 38% / 0.15);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
