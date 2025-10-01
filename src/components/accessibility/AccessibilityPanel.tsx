@@ -98,7 +98,7 @@ export const AccessibilityPanel = ({ className = "" }: AccessibilityPanelProps) 
           variant="outline"
           size="sm"
           className={`gap-2 relative ${className}`}
-          aria-label={`Accessibility settings${activeSettingsCount > 0 ? ` (${activeSettingsCount} active)` : ''}`}
+          aria-label={activeSettingsCount > 0 ? `Accessibility - ${activeSettingsCount} active` : undefined}
         >
           <Accessibility className="h-4 w-4" />
           <span className="hidden sm:inline">Accessibility</span>
@@ -106,6 +106,7 @@ export const AccessibilityPanel = ({ className = "" }: AccessibilityPanelProps) 
             <Badge 
               variant="secondary" 
               className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs flex items-center justify-center"
+              aria-hidden="true"
             >
               {activeSettingsCount}
             </Badge>
