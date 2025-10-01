@@ -45,8 +45,8 @@ export const Header = () => {
                 <img 
                   src={logoSrcFallback} 
                   alt={logoAlt} 
-                  className="h-9 w-[105px] object-contain"
-                  style={{ aspectRatio: '96/33' }}
+                  className="h-9 object-contain"
+                  style={{ width: '105px', aspectRatio: '96/33' }}
                   width="96"
                   height="33"
                   loading="eager"
