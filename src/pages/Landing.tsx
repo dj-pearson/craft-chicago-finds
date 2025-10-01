@@ -84,12 +84,12 @@ const Landing = () => {
           <div className="container mx-auto">
             <h2 className="text-3xl font-bold text-center mb-12">Available Cities</h2>
             {loading ? (
-              <div className="text-center py-8">
+              <div className="text-center py-8" style={{ minHeight: '400px' }}>
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                 <p className="mt-4 text-muted-foreground">Loading cities...</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto" style={{ minHeight: '400px' }}>
                 {cities.map((city) => (
                   <Card 
                     key={city.id} 
