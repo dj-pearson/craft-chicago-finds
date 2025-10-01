@@ -55,9 +55,9 @@ const Landing = () => {
 
       <main>
         {/* Hero Section */}
-        <section className="py-20 px-4" style={{ contentVisibility: 'auto' }}>
+        <section className="py-20 px-4">
           <div className="container mx-auto text-center max-w-4xl">
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6" style={{ contain: 'layout style' }}>
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
               Discover Local Makers
               <span className="text-primary block">In Your City</span>
             </h1>
