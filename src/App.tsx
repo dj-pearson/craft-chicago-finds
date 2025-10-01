@@ -50,49 +50,50 @@ const queryClient = new QueryClient({
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AccessibilityProvider>
-      <StripeProvider>
-        <AuthProvider>
-          <PlansProvider>
-            <CartProvider>
-              <AdminProvider>
-                <TooltipProvider>
-                <Toaster />
-                <Sonner />
-          
-            <CityProvider>
-              <Suspense fallback={<LoadingSpinner />}>
-                <Routes>
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/marketplace" element={<NationalMarketplace />} />
-                  <Route path="/browse" element={<NationalBrowse />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/dashboard" element={<SellerDashboard />} />
-                  <Route path="/dashboard/listing/new" element={<CreateEditListing />} />
-                  <Route path="/dashboard/listing/:id/edit" element={<CreateEditListing />} />
-                  <Route path="/messages" element={<Messages />} />
-                  <Route path="/orders" element={<Orders />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/guest-checkout" element={<GuestCheckout />} />
-                  <Route path="/pricing" element={<Pricing />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/disputes" element={<Disputes />} />
-                  <Route path="/:city/browse" element={<Browse />} />
-                  <Route path="/:city/product/:id" element={<ProductDetail />} />
-                  <Route path="/:city" element={<City />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-            </CityProvider>
-          
-              </TooltipProvider>
-            </AdminProvider>
-          </CartProvider>
-        </PlansProvider>
-      </AuthProvider>
-    </StripeProvider>
+      <AuthProvider>
+        <PlansProvider>
+          <CartProvider>
+            <AdminProvider>
+              <TooltipProvider>
+              <Toaster />
+              <Sonner />
+        
+          <CityProvider>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/marketplace" element={<NationalMarketplace />} />
+                <Route path="/browse" element={<NationalBrowse />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/dashboard" element={<SellerDashboard />} />
+                <Route path="/dashboard/listing/new" element={<CreateEditListing />} />
+                <Route path="/dashboard/listing/:id/edit" element={<CreateEditListing />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/orders" element={<Orders />} />
+                
+                {/* Stripe-wrapped routes */}
+                <Route path="/cart" element={<StripeProvider><Cart /></StripeProvider>} />
+                <Route path="/checkout" element={<StripeProvider><Checkout /></StripeProvider>} />
+                <Route path="/guest-checkout" element={<StripeProvider><GuestCheckout /></StripeProvider>} />
+                <Route path="/pricing" element={<StripeProvider><Pricing /></StripeProvider>} />
+                
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/disputes" element={<Disputes />} />
+                <Route path="/:city/browse" element={<Browse />} />
+                <Route path="/:city/product/:id" element={<ProductDetail />} />
+                <Route path="/:city" element={<City />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </CityProvider>
+        
+            </TooltipProvider>
+          </AdminProvider>
+        </CartProvider>
+      </PlansProvider>
+    </AuthProvider>
     </AccessibilityProvider>
   </QueryClientProvider>
 );
