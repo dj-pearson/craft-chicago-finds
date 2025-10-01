@@ -15,7 +15,7 @@ export const CartIndicator = ({ className = "", showLabel = true }: CartIndicato
 
   if (itemCount === 0 && !showLabel) {
     return (
-      <Button variant="ghost" size="sm" onClick={() => navigate('/cart')} className={className}>
+      <Button variant="ghost" size="sm" onClick={() => navigate('/cart')} className={className} aria-label="Shopping cart">
         <ShoppingCart className="h-5 w-5" />
       </Button>
     );
@@ -27,6 +27,7 @@ export const CartIndicator = ({ className = "", showLabel = true }: CartIndicato
       size="sm" 
       onClick={() => navigate('/cart')} 
       className={`relative ${className}`}
+      aria-label={showLabel ? undefined : `Shopping cart with ${itemCount} items`}
     >
       <ShoppingCart className="h-5 w-5" />
       {showLabel && <span className="ml-2">Cart</span>}
@@ -36,6 +37,7 @@ export const CartIndicator = ({ className = "", showLabel = true }: CartIndicato
           <Badge 
             variant="destructive" 
             className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+            aria-hidden="true"
           >
             {itemCount > 99 ? '99+' : itemCount}
           </Badge>

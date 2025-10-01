@@ -171,13 +171,14 @@ export const QuickSearch = ({ className = "", compact = false }: QuickSearchProp
               size="sm"
               onClick={handleClear}
               className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 z-10"
+              aria-label="Clear search"
             >
               <X className="h-3 w-3" />
             </Button>
           )}
         </div>
         {!compact && (
-          <Button type="submit" size="sm">
+          <Button type="submit" size="sm" aria-label="Search">
             <Search className="h-4 w-4" />
           </Button>
         )}
