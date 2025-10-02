@@ -16,7 +16,8 @@ import {
   DialogTrigger 
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Edit, MapPin, Calendar, Settings, Loader2 } from "lucide-react";
+import { Plus, Edit, MapPin, Calendar, Settings, Loader2, Sparkles, Copy } from "lucide-react";
+import { CityReplicationWizard } from "./CityReplicationWizard";
 
 interface City {
   id: string;
@@ -37,6 +38,7 @@ export const CityManager = () => {
   const [editingCity, setEditingCity] = useState<City | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   // Form state
@@ -222,21 +224,39 @@ export const CityManager = () => {
           <h2 className="text-2xl font-bold">City Management</h2>
           <p className="text-muted-foreground">Manage marketplace cities and launch new locations</p>
         </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add New City
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Add New City</DialogTitle>
-              <DialogDescription>
-                Create a new marketplace city. Categories will be auto-generated.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            className="gap-2"
+            onClick={() => setIsCreateDialogOpen(true)}
+          >
+            <Plus className="h-4 w-4" />
+            Quick Add
+          </Button>
+          <Button className="gap-2" onClick={() => setIsWizardOpen(true)}>
+            <Sparkles className="h-4 w-4" />
+            Launch New City
+          </Button>
+        </div>
+      </div>
+
+      {/* City Replication Wizard */}
+      <CityReplicationWizard 
+        open={isWizardOpen}
+        onOpenChange={setIsWizardOpen}
+        onSuccess={fetchCities}
+      />
+
+      {/* Quick Add Dialog (original simple form) */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Quick Add City</DialogTitle>
+            <DialogDescription>
+              Create a new city quickly. Use "Launch New City" for full template replication.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">City Name</Label>
                 <Input
@@ -301,7 +321,6 @@ export const CityManager = () => {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cities.map((city) => (

@@ -7,7 +7,7 @@ const corsHeaders = {
 }
 
 interface CitySetupRequest {
-  action: 'create' | 'setup-infrastructure';
+  action: 'create' | 'setup-infrastructure' | 'replicate';
   cityData?: {
     name: string;
     slug: string;
@@ -18,6 +18,11 @@ interface CitySetupRequest {
     hero_image_url?: string;
   };
   cityId?: string;
+  replicationOptions?: {
+    templateCitySlug: string;
+    includeCategories: boolean;
+    includeFeaturedSlots: boolean;
+  };
 }
 
 serve(async (req) => {
@@ -181,6 +186,118 @@ serve(async (req) => {
           success: true, 
           city,
           message: 'City created successfully with default categories'
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+
+    } else if (requestData.action === 'replicate') {
+      if (!requestData.cityData) {
+        return new Response(
+          JSON.stringify({ error: 'City data is required for replicate action' }),
+          { 
+            status: 400, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+
+      console.log('Replicating city from template:', requestData.replicationOptions?.templateCitySlug);
+
+      // Create the city
+      const { data: city, error: cityError } = await supabaseClient
+        .from('cities')
+        .insert([requestData.cityData])
+        .select()
+        .single();
+
+      if (cityError) {
+        console.error('Error creating city:', cityError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to create city', details: cityError }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+
+      console.log('City created:', city);
+      const results: any = { city, replicated: [] };
+
+      // Get template city
+      if (requestData.replicationOptions?.templateCitySlug) {
+        const { data: templateCity } = await supabaseClient
+          .from('cities')
+          .select('id')
+          .eq('slug', requestData.replicationOptions.templateCitySlug)
+          .single();
+
+        if (templateCity) {
+          // Replicate categories
+          if (requestData.replicationOptions.includeCategories) {
+            const { data: categories } = await supabaseClient
+              .from('categories')
+              .select('name, slug, description, image_url, sort_order, parent_id')
+              .eq('city_id', templateCity.id);
+
+            if (categories && categories.length > 0) {
+              const newCategories = categories.map(cat => ({
+                ...cat,
+                city_id: city.id,
+                parent_id: null // Reset parent references for now
+              }));
+
+              const { error: catError } = await supabaseClient
+                .from('categories')
+                .insert(newCategories);
+
+              if (!catError) {
+                results.replicated.push({ type: 'categories', count: newCategories.length });
+                console.log(`Replicated ${newCategories.length} categories`);
+              }
+            }
+          }
+
+          // Replicate featured slots (as templates)
+          if (requestData.replicationOptions.includeFeaturedSlots) {
+            const { data: slots } = await supabaseClient
+              .from('featured_slots')
+              .select('slot_type, title, description, sort_order, action_text')
+              .eq('city_id', templateCity.id)
+              .eq('is_active', true);
+
+            if (slots && slots.length > 0) {
+              const newSlots = slots.map(slot => ({
+                ...slot,
+                city_id: city.id,
+                is_active: false, // Start inactive for customization
+                image_url: null,
+                action_url: null,
+                listing_id: null,
+                category_id: null
+              }));
+
+              const { error: slotError } = await supabaseClient
+                .from('featured_slots')
+                .insert(newSlots);
+
+              if (!slotError) {
+                results.replicated.push({ type: 'featured_slots', count: newSlots.length });
+                console.log(`Replicated ${newSlots.length} featured slots`);
+              }
+            }
+          }
+        }
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          ...results,
+          message: `${city.name} marketplace created successfully with replicated content!`
         }),
         { 
           status: 200, 
