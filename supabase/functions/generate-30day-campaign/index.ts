@@ -256,16 +256,17 @@ serve(async (req) => {
 
     for (const dayInfo of allDays) {
       try {
-        // Check if posts already exist for this day
-        const { data: existingPosts } = await supabaseClient
+        // Check if post already exists for this day
+        const { data: existingPost } = await supabaseClient
           .from("social_media_posts")
           .select("id")
           .eq("campaign_id", campaign_id)
-          .eq("campaign_day", dayInfo.day);
+          .eq("campaign_day", dayInfo.day)
+          .single();
 
-        if (existingPosts && existingPosts.length >= 4) {
-          console.log(`Day ${dayInfo.day} already has posts, skipping`);
-          postsGenerated += existingPosts.length;
+        if (existingPost) {
+          console.log(`Day ${dayInfo.day} already has a post, skipping`);
+          postsGenerated += 1;
           continue;
         }
 
@@ -387,68 +388,36 @@ Format your response as JSON:
           ? new Date(postDate.getTime() + 9 * 60 * 60 * 1000) // 9 AM on the day
           : null;
 
-        // Define platforms and content mapping
-        const platforms = ["facebook", "instagram", "twitter", "linkedin"];
-        const createdPosts = [];
+        // Create ONE post with both long and short versions
+        const { data: newPost, error: postError } = await supabaseClient
+          .from("social_media_posts")
+          .insert({
+            campaign_id,
+            city_id,
+            platform: "all", // Single post for all platforms
+            post_type: "text",
+            title: dayInfo.title,
+            content: postContent.long_description, // Default to long version
+            short_description: postContent.short_description,
+            long_description: postContent.long_description,
+            hashtags: [`#CraftLocal`, `#${city.slug}Makers`, `#ShopLocal`],
+            scheduled_for: scheduledTime?.toISOString(),
+            status: auto_schedule ? "scheduled" : "draft",
+            ai_generated: true,
+            auto_generated: true,
+            campaign_day: dayInfo.day,
+            post_theme: dayInfo.theme,
+            ai_prompt: aiPrompt,
+            created_by: user.id,
+          })
+          .select()
+          .single();
 
-        // Create platform-specific posts using appropriate version
-        for (const platform of platforms) {
-          // Map platform to content version
-          let content;
-          let platformHashtags = [`#CraftLocal`, `#${city.slug}Makers`, `#ShopLocal`];
-          
-          if (platform === "twitter") {
-            // Twitter: Use short version (already includes hashtags)
-            content = postContent.short_description;
-          } else if (platform === "instagram") {
-            // Instagram: Use long version with extra hashtags
-            content = postContent.long_description;
-            platformHashtags = [...platformHashtags, `#Handmade`, `#LocalBusiness`, `#SupportLocal`];
-          } else if (platform === "linkedin") {
-            // LinkedIn: Use long version (professional)
-            content = postContent.long_description;
-          } else if (platform === "facebook") {
-            // Facebook: Use long version (community-focused)
-            content = postContent.long_description;
-          }
-
-          const { data: newPost, error: postError } = await supabaseClient
-            .from("social_media_posts")
-            .insert({
-              campaign_id,
-              city_id,
-              platform: platform,
-              post_type: "text",
-              title: dayInfo.title,
-              content: content,
-              short_description: postContent.short_description,
-              long_description: postContent.long_description,
-              hashtags: platformHashtags,
-              scheduled_for: scheduledTime?.toISOString(),
-              status: auto_schedule ? "scheduled" : "draft",
-              ai_generated: true,
-              auto_generated: true,
-              campaign_day: dayInfo.day,
-              post_theme: dayInfo.theme,
-              ai_prompt: platform === platforms[0] ? aiPrompt : null,
-              created_by: user.id,
-            })
-            .select()
-            .single();
-
-          if (postError) {
-            console.error(
-              `Failed to create ${platform} post for day ${dayInfo.day}:`,
-              postError
-            );
-            continue;
-          }
-
-          createdPosts.push(newPost);
-        }
-
-        if (createdPosts.length === 0) {
-          console.error(`Failed to create any posts for day ${dayInfo.day}`);
+        if (postError) {
+          console.error(
+            `Failed to create post for day ${dayInfo.day}:`,
+            postError
+          );
           continue;
         }
 
@@ -456,12 +425,11 @@ Format your response as JSON:
           day: dayInfo.day,
           theme: dayInfo.theme,
           title: dayInfo.title,
-          post_ids: createdPosts.map((p) => p.id),
-          platforms: createdPosts.map((p) => p.platform),
+          post_id: newPost.id,
           scheduled_for: scheduledTime?.toISOString(),
         });
 
-        postsGenerated += createdPosts.length;
+        postsGenerated += 1;
 
         // Update progress
         await supabaseClient
@@ -477,9 +445,7 @@ Format your response as JSON:
           .eq("id", automation.id);
 
         console.log(
-          `Generated ${createdPosts.length} posts for day ${dayInfo.day}: ${
-            dayInfo.theme
-          } (${createdPosts.map((p) => p.platform).join(", ")})`
+          `Generated post for day ${dayInfo.day}: ${dayInfo.theme}`
         );
       } catch (dayError) {
         console.error(`Error generating day ${dayInfo.day}:`, dayError);
@@ -515,7 +481,7 @@ Format your response as JSON:
       .eq("id", automation.id);
 
     console.log(
-      `Campaign generation completed: ${postsGenerated} posts created across ${completedDays} days (expected 30 days with 4 platforms each = 120 posts)`
+      `Campaign generation completed: ${postsGenerated} posts created for ${completedDays} days (expected 30 days = 30 posts)`
     );
 
     if (completedDays < 30) {
@@ -532,7 +498,7 @@ Format your response as JSON:
         days_completed: completedDays,
         generated_posts: generatedPosts,
         message: completedDays === 30 
-          ? `Successfully generated all 120 posts for 30-day campaign`
+          ? `Successfully generated all 30 posts for 30-day campaign`
           : `Generated ${postsGenerated} posts for ${completedDays} days. Call again to complete remaining ${30 - completedDays} days.`,
         status: completedDays === 30 ? "completed" : "partial",
       }),
