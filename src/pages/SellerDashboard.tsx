@@ -13,6 +13,7 @@ import { TaxDocuments } from "@/components/seller/TaxDocuments";
 import { PerformanceMetrics } from "@/components/seller/PerformanceMetrics";
 import { PublicDisclosure } from "@/components/seller/PublicDisclosure";
 import { ComplianceOverview } from "@/components/seller/ComplianceOverview";
+import { ComplianceNotifications } from "@/components/seller/ComplianceNotifications";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -235,6 +236,11 @@ export default function SellerDashboard() {
               </Button>
             </div>
           </div>
+        </div>
+
+        {/* Compliance Notifications */}
+        <div className="mb-8">
+          <ComplianceNotifications />
         </div>
 
         {/* Stripe Onboarding Modal */}

@@ -4,3 +4,4 @@ export { TaxDocuments } from './TaxDocuments';
 export { PerformanceMetrics } from './PerformanceMetrics';
 export { PublicDisclosure } from './PublicDisclosure';
 export { ComplianceOverview } from './ComplianceOverview';
+export { ComplianceNotifications } from './ComplianceNotifications';
