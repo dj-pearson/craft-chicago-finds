@@ -436,6 +436,13 @@ Format your response as JSON:
         );
       } catch (dayError) {
         console.error(`Error generating day ${dayInfo.day}:`, dayError);
+        // Log detailed error information
+        console.error(`Day ${dayInfo.day} error details:`, {
+          theme: dayInfo.theme,
+          title: dayInfo.title,
+          error: dayError instanceof Error ? dayError.message : String(dayError),
+        });
+        // Continue to next day instead of stopping
         continue;
       }
     }
@@ -458,8 +465,14 @@ Format your response as JSON:
       .eq("id", automation.id);
 
     console.log(
-      `Campaign generation completed: ${postsGenerated} posts created across ${generatedPosts.length} days`
+      `Campaign generation completed: ${postsGenerated} posts created across ${generatedPosts.length} days (expected 30 days with 4 platforms each = 120 posts)`
     );
+
+    if (generatedPosts.length < 30) {
+      console.warn(
+        `WARNING: Only generated ${generatedPosts.length} days out of 30 expected. This may be due to timeout or errors.`
+      );
+    }
 
     return new Response(
       JSON.stringify({

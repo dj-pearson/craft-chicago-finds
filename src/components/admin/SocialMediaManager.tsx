@@ -100,6 +100,7 @@ export const SocialMediaManager = () => {
   const [activeTab, setActiveTab] = useState("campaigns");
   const [isCreateCampaignOpen, setIsCreateCampaignOpen] = useState(false);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [generatingContent, setGeneratingContent] = useState(false);
   const [generating30DayCampaign, setGenerating30DayCampaign] = useState(false);
   const [webhookSettings, setWebhookSettings] = useState<any[]>([]);
@@ -258,6 +259,37 @@ export const SocialMediaManager = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const resetPostForm = () => {
+    setPostForm({
+      campaign_id: "",
+      platform: "facebook",
+      post_type: "text",
+      title: "",
+      content: "",
+      hashtags: "",
+      scheduled_for: "",
+      ai_prompt: "",
+    });
+    setEditingPostId(null);
+  };
+
+  const handleEditPost = (post: SocialMediaPost) => {
+    setPostForm({
+      campaign_id: post.campaign_id || "",
+      platform: post.platform,
+      post_type: post.post_type,
+      title: post.title || "",
+      content: post.content,
+      hashtags: post.hashtags?.join(", ") || "",
+      scheduled_for: post.scheduled_for
+        ? new Date(post.scheduled_for).toISOString().slice(0, 16)
+        : "",
+      ai_prompt: post.ai_prompt || "",
+    });
+    setEditingPostId(post.id);
+    setIsCreatePostOpen(true);
   };
 
   const handleCreatePost = async () => {
@@ -635,19 +667,6 @@ Please generate engaging social media content that follows the 30-day social med
       target_audience: "",
       goals: "",
       hashtags: "",
-    });
-  };
-
-  const resetPostForm = () => {
-    setPostForm({
-      campaign_id: "",
-      platform: "facebook",
-      post_type: "text",
-      title: "",
-      content: "",
-      hashtags: "",
-      scheduled_for: "",
-      ai_prompt: "",
     });
   };
 
@@ -1144,11 +1163,16 @@ Please generate engaging social media content that follows the 30-day social med
                   <div className="flex justify-end gap-2">
                     <Button
                       variant="outline"
-                      onClick={() => setIsCreatePostOpen(false)}
+                      onClick={() => {
+                        setIsCreatePostOpen(false);
+                        resetPostForm();
+                      }}
                     >
                       Cancel
                     </Button>
-                    <Button onClick={handleCreatePost}>Create Post</Button>
+                    <Button onClick={handleCreatePost}>
+                      {editingPostId ? 'Update' : 'Create'} Post
+                    </Button>
                   </div>
                 </div>
               </DialogContent>
@@ -1199,7 +1223,11 @@ Please generate engaging social media content that follows the 30-day social med
                       >
                         <Globe className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditPost(post)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button variant="outline" size="sm">
