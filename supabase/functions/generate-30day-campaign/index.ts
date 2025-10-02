@@ -357,12 +357,25 @@ Format your response as JSON:
         const platforms = ["facebook", "instagram", "twitter", "linkedin"];
         const createdPosts = [];
 
-        // Create a separate post for each platform
+        // Create platform-specific posts from the master content
         for (const platform of platforms) {
-          // Choose appropriate content based on platform
+          // Adapt content for each platform
           let content = postContent.long_description;
+          let platformHashtags = [`#CraftLocal`, `#${city.slug}Makers`, `#ShopLocal`];
+          
           if (platform === "twitter") {
-            content = postContent.short_description; // Twitter has character limits
+            // Twitter: Keep it short and punchy
+            content = postContent.short_description;
+          } else if (platform === "instagram") {
+            // Instagram: Add more emojis and hashtags
+            content = postContent.long_description;
+            platformHashtags = [...platformHashtags, `#Handmade`, `#LocalBusiness`, `#SupportLocal`];
+          } else if (platform === "linkedin") {
+            // LinkedIn: More professional tone
+            content = postContent.long_description;
+          } else if (platform === "facebook") {
+            // Facebook: Community-focused
+            content = postContent.long_description;
           }
 
           const { data: newPost, error: postError } = await supabaseClient
@@ -376,14 +389,14 @@ Format your response as JSON:
               content: content,
               short_description: postContent.short_description,
               long_description: postContent.long_description,
-              hashtags: [`#CraftLocal`, `#${city.slug}Makers`, `#ShopLocal`],
+              hashtags: platformHashtags,
               scheduled_for: scheduledTime?.toISOString(),
               status: auto_schedule ? "scheduled" : "draft",
               ai_generated: true,
               auto_generated: true,
               campaign_day: dayInfo.day,
               post_theme: dayInfo.theme,
-              ai_prompt: aiPrompt,
+              ai_prompt: platform === platforms[0] ? aiPrompt : null, // Only store prompt for first platform
               created_by: user.id,
             })
             .select()
