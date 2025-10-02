@@ -120,6 +120,12 @@ export const Footer = () => {
               <Link to="/prohibited-items" className="text-background/60 hover:text-background transition-colors">
                 Prohibited Items
               </Link>
+              <Link to="/fee-schedule" className="text-background/60 hover:text-background transition-colors">
+                Fee Schedule
+              </Link>
+              <Link to="/seller-standards" className="text-background/60 hover:text-background transition-colors">
+                Seller Standards
+              </Link>
               <a href="#" className="text-background/60 hover:text-background transition-colors">
                 Do Not Sell My Info
               </a>

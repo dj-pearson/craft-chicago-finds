@@ -7,6 +7,10 @@ import { SellerListings } from "@/components/seller/SellerListings";
 import { StripeOnboarding } from "@/components/seller/StripeOnboarding";
 import { ShippingSettings } from "@/components/seller/ShippingSettings";
 import { ReadyTodaySettings } from "@/components/seller/ReadyTodaySettings";
+import { SellerVerification } from "@/components/seller/SellerVerification";
+import { W9FormSubmission } from "@/components/seller/W9FormSubmission";
+import { TaxDocuments } from "@/components/seller/TaxDocuments";
+import { PerformanceMetrics } from "@/components/seller/PerformanceMetrics";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +28,10 @@ import {
   Star,
   BarChart3,
   CreditCard,
-  Truck
+  Truck,
+  ShieldCheck,
+  FileText,
+  Scale
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -362,31 +369,38 @@ export default function SellerDashboard() {
 
         {/* Main Content */}
         <Tabs defaultValue="listings" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-5">
-            <TabsTrigger value="listings" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-              <Package className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">My Listings</span>
-              <span className="sm:hidden">Items</span>
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1">
+            <TabsTrigger value="listings" className="flex items-center gap-1 text-xs">
+              <Package className="h-3 w-3" />
+              <span className="hidden sm:inline">Listings</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
+            <TabsTrigger value="analytics" className="flex items-center gap-1 text-xs">
+              <BarChart3 className="h-3 w-3" />
               <span className="hidden sm:inline">Analytics</span>
-              <span className="sm:hidden">Stats</span>
             </TabsTrigger>
-            <TabsTrigger value="shipping" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-              <Truck className="h-3 w-3 sm:h-4 sm:w-4" />
+            <TabsTrigger value="shipping" className="flex items-center gap-1 text-xs">
+              <Truck className="h-3 w-3" />
               <span className="hidden sm:inline">Shipping</span>
-              <span className="sm:hidden">Ship</span>
             </TabsTrigger>
-            <TabsTrigger value="ready-today" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-              <Package className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Ready Today</span>
-              <span className="sm:hidden">Ready</span>
+            <TabsTrigger value="ready-today" className="flex items-center gap-1 text-xs">
+              <Package className="h-3 w-3" />
+              <span className="hidden sm:inline">Ready</span>
             </TabsTrigger>
-            <TabsTrigger value="payments" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-              <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
+            <TabsTrigger value="payments" className="flex items-center gap-1 text-xs">
+              <CreditCard className="h-3 w-3" />
               <span className="hidden sm:inline">Payments</span>
-              <span className="sm:hidden">Pay</span>
+            </TabsTrigger>
+            <TabsTrigger value="verification" className="flex items-center gap-1 text-xs">
+              <ShieldCheck className="h-3 w-3" />
+              <span className="hidden sm:inline">Verify</span>
+            </TabsTrigger>
+            <TabsTrigger value="taxes" className="flex items-center gap-1 text-xs">
+              <FileText className="h-3 w-3" />
+              <span className="hidden sm:inline">Taxes</span>
+            </TabsTrigger>
+            <TabsTrigger value="compliance" className="flex items-center gap-1 text-xs">
+              <Scale className="h-3 w-3" />
+              <span className="hidden sm:inline">Standards</span>
             </TabsTrigger>
           </TabsList>
 
@@ -409,6 +423,21 @@ export default function SellerDashboard() {
 
           <TabsContent value="payments">
             <StripeOnboarding />
+          </TabsContent>
+
+          <TabsContent value="verification">
+            <SellerVerification />
+          </TabsContent>
+
+          <TabsContent value="taxes">
+            <div className="space-y-6">
+              <W9FormSubmission />
+              <TaxDocuments />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="compliance">
+            <PerformanceMetrics />
           </TabsContent>
         </Tabs>
       </main>
