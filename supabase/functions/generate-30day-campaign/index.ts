@@ -199,26 +199,44 @@ serve(async (req) => {
       throw new Error("City not found");
     }
 
-    // Create campaign automation record
-    const { data: automation, error: automationError } = await supabaseClient
+    // Check for existing automation or create new one
+    let automation;
+    const { data: existingAutomation } = await supabaseClient
       .from("campaign_automation")
-      .insert({
-        campaign_id,
-        total_days: 30,
-        automation_status: "generating",
-        webhook_settings_id,
-        created_by: user.id,
-      })
-      .select()
+      .select("*")
+      .eq("campaign_id", campaign_id)
       .single();
 
-    if (automationError) {
-      throw new Error(
-        `Failed to create automation: ${automationError.message}`
-      );
-    }
+    if (existingAutomation) {
+      automation = existingAutomation;
+      console.log("Resuming existing automation:", automation.id);
+      
+      // Update status to generating
+      await supabaseClient
+        .from("campaign_automation")
+        .update({ automation_status: "generating" })
+        .eq("id", automation.id);
+    } else {
+      const { data: newAutomation, error: automationError } = await supabaseClient
+        .from("campaign_automation")
+        .insert({
+          campaign_id,
+          total_days: 30,
+          automation_status: "generating",
+          webhook_settings_id,
+          created_by: user.id,
+        })
+        .select()
+        .single();
 
-    console.log("Created automation record:", automation.id);
+      if (automationError) {
+        throw new Error(
+          `Failed to create automation: ${automationError.message}`
+        );
+      }
+      automation = newAutomation;
+      console.log("Created automation record:", automation.id);
+    }
 
     // Generate posts for all 30 days
     const launchDate = new Date(launch_date);
@@ -234,10 +252,23 @@ serve(async (req) => {
     ];
 
     const generatedPosts = [];
-    let postsGenerated = 0;
+    let postsGenerated = automation.posts_generated || 0;
 
     for (const dayInfo of allDays) {
       try {
+        // Check if posts already exist for this day
+        const { data: existingPosts } = await supabaseClient
+          .from("social_media_posts")
+          .select("id")
+          .eq("campaign_id", campaign_id)
+          .eq("campaign_day", dayInfo.day);
+
+        if (existingPosts && existingPosts.length >= 4) {
+          console.log(`Day ${dayInfo.day} already has posts, skipping`);
+          postsGenerated += existingPosts.length;
+          continue;
+        }
+
         const postDate = new Date(
           campaignStartDate.getTime() + (dayInfo.day - 1) * 24 * 60 * 60 * 1000
         );
@@ -460,17 +491,20 @@ Format your response as JSON:
       }
     }
 
+    // Count completed days
+    const completedDays = generatedPosts.length;
+
     // Mark automation as completed
     await supabaseClient
       .from("campaign_automation")
       .update({
-        automation_status: "completed",
+        automation_status: completedDays === 30 ? "completed" : "generating",
         posts_generated: postsGenerated,
         generation_progress: {
-          current_day: generatedPosts.length,
+          current_day: completedDays,
           total_days: 30,
-          percentage: Math.round((generatedPosts.length / 30) * 100),
-          completed_at: new Date().toISOString(),
+          percentage: Math.round((completedDays / 30) * 100),
+          completed_at: completedDays === 30 ? new Date().toISOString() : null,
           total_posts_created: postsGenerated,
           platforms_per_day: 4,
         },
@@ -478,12 +512,12 @@ Format your response as JSON:
       .eq("id", automation.id);
 
     console.log(
-      `Campaign generation completed: ${postsGenerated} posts created across ${generatedPosts.length} days (expected 30 days with 4 platforms each = 120 posts)`
+      `Campaign generation completed: ${postsGenerated} posts created across ${completedDays} days (expected 30 days with 4 platforms each = 120 posts)`
     );
 
-    if (generatedPosts.length < 30) {
+    if (completedDays < 30) {
       console.warn(
-        `WARNING: Only generated ${generatedPosts.length} days out of 30 expected. This may be due to timeout or errors.`
+        `WARNING: Only generated ${completedDays} days out of 30 expected. Run the generator again to complete remaining days.`
       );
     }
 
@@ -492,9 +526,12 @@ Format your response as JSON:
         success: true,
         automation_id: automation.id,
         posts_generated: postsGenerated,
-        days_completed: generatedPosts.length,
+        days_completed: completedDays,
         generated_posts: generatedPosts,
-        message: `Successfully generated ${postsGenerated} posts across ${generatedPosts.length} days for 30-day campaign`,
+        message: completedDays === 30 
+          ? `Successfully generated all 120 posts for 30-day campaign`
+          : `Generated ${postsGenerated} posts for ${completedDays} days. Call again to complete remaining ${30 - completedDays} days.`,
+        status: completedDays === 30 ? "completed" : "partial",
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
