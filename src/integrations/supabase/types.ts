@@ -478,6 +478,7 @@ export type Database = {
       }
       cities: {
         Row: {
+          city_logo_url: string | null
           created_at: string
           description: string | null
           hero_image_url: string | null
@@ -490,6 +491,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          city_logo_url?: string | null
           created_at?: string
           description?: string | null
           hero_image_url?: string | null
@@ -502,6 +504,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          city_logo_url?: string | null
           created_at?: string
           description?: string | null
           hero_image_url?: string | null
@@ -625,7 +628,7 @@ export type Database = {
           specialty: string
           tags: string[] | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -647,7 +650,7 @@ export type Database = {
           specialty: string
           tags?: string[] | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -669,7 +672,7 @@ export type Database = {
           specialty?: string
           tags?: string[] | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
