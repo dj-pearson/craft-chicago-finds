@@ -6,11 +6,13 @@ import { ProductImages } from "@/components/product/ProductImages";
 import { ProductInfo } from "@/components/product/ProductInfo";
 import { SellerInfo } from "@/components/product/SellerInfo";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
+import { ReportListingButton } from "@/components/product/ReportListingButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { Listing } from "./Browse";
 import { Card } from "@/components/ui/card";
 
@@ -154,24 +156,25 @@ const ProductDetail = () => {
           <ProductImages images={listing.images} title={listing.title} />
 
           {/* Product Info */}
-          <div className="space-y-8">
+          <div className="space-y-6">
             <ProductInfo listing={listing} />
             <SellerInfo seller={null} />
             
             {/* Platform Disclaimer */}
-            <Card className="p-4 bg-muted/50">
-              <p className="text-sm text-muted-foreground">
+            <Alert className="bg-muted/50 border-muted">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
                 <strong>Marketplace Notice:</strong> This item is sold by an independent seller. 
                 Craft Local is not the seller and is not responsible for this product. 
                 Please review the seller's shop policies before purchasing.
-              </p>
-            </Card>
+              </AlertDescription>
+            </Alert>
 
             {/* Report Button */}
-            <Button variant="outline" size="sm" className="w-full">
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              Report Suspicious Activity
-            </Button>
+            <ReportListingButton 
+              listingId={listing.id} 
+              sellerId={listing.seller_id} 
+            />
           </div>
         </div>
 
