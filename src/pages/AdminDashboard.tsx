@@ -24,6 +24,7 @@ import {
   Brain,
   Share2,
   FileText,
+  ShieldAlert,
 } from "lucide-react";
 import { CityManager } from "@/components/admin/CityManager";
 import { UserManager } from "@/components/admin/UserManager";
@@ -32,6 +33,7 @@ import { AISettingsManager } from "@/components/admin/AISettingsManager";
 import { SocialMediaManager } from "@/components/admin/SocialMediaManager";
 import { BlogManager } from "@/components/admin/BlogManager";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
+import { ModerationQueue } from "@/components/admin/ModerationQueue";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -133,7 +135,7 @@ const AdminDashboard = () => {
         <Tabs defaultValue="overview" className="w-full">
           {/* Mobile-optimized TabsList with horizontal scroll */}
           <div className="relative mb-6">
-            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-8 lg:grid-cols-8 gap-1 sm:gap-0 bg-muted/50">
+            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-9 lg:grid-cols-9 gap-1 sm:gap-0 bg-muted/50">
               <TabsTrigger
                 value="overview"
                 className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
@@ -197,6 +199,14 @@ const AdminDashboard = () => {
                 <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Analytics</span>
                 <span className="sm:hidden">Anal</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="moderation"
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <ShieldAlert className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Moderation</span>
+                <span className="sm:hidden">Mod</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -345,6 +355,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="analytics">
             <AnalyticsDashboard />
+          </TabsContent>
+
+          <TabsContent value="moderation">
+            <ModerationQueue />
           </TabsContent>
         </Tabs>
       </main>

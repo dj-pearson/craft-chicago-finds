@@ -11,6 +11,8 @@ import { SellerVerification } from "@/components/seller/SellerVerification";
 import { W9FormSubmission } from "@/components/seller/W9FormSubmission";
 import { TaxDocuments } from "@/components/seller/TaxDocuments";
 import { PerformanceMetrics } from "@/components/seller/PerformanceMetrics";
+import { PublicDisclosure } from "@/components/seller/PublicDisclosure";
+import { ComplianceOverview } from "@/components/seller/ComplianceOverview";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -405,7 +407,10 @@ export default function SellerDashboard() {
           </TabsList>
 
           <TabsContent value="listings">
-            <SellerListings />
+            <div className="space-y-6">
+              <ComplianceOverview />
+              <SellerListings />
+            </div>
           </TabsContent>
 
           <TabsContent value="analytics">
@@ -426,7 +431,10 @@ export default function SellerDashboard() {
           </TabsContent>
 
           <TabsContent value="verification">
-            <SellerVerification />
+            <div className="space-y-6">
+              <SellerVerification />
+              <PublicDisclosure />
+            </div>
           </TabsContent>
 
           <TabsContent value="taxes">
