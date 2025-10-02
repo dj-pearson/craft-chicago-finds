@@ -675,6 +675,84 @@ export type Database = {
         }
         Relationships: []
       }
+      dmca_notices: {
+        Row: {
+          claimant_address: string | null
+          claimant_email: string
+          claimant_name: string
+          claimant_signature: string | null
+          counter_notice_id: string | null
+          created_at: string
+          id: string
+          infringing_url: string
+          listing_id: string | null
+          notice_type: string
+          original_work_description: string
+          responded_at: string | null
+          response_action: string | null
+          response_deadline: string
+          response_notes: string | null
+          restoration_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          claimant_address?: string | null
+          claimant_email: string
+          claimant_name: string
+          claimant_signature?: string | null
+          counter_notice_id?: string | null
+          created_at?: string
+          id?: string
+          infringing_url: string
+          listing_id?: string | null
+          notice_type: string
+          original_work_description: string
+          responded_at?: string | null
+          response_action?: string | null
+          response_deadline: string
+          response_notes?: string | null
+          restoration_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          claimant_address?: string | null
+          claimant_email?: string
+          claimant_name?: string
+          claimant_signature?: string | null
+          counter_notice_id?: string | null
+          created_at?: string
+          id?: string
+          infringing_url?: string
+          listing_id?: string | null
+          notice_type?: string
+          original_work_description?: string
+          responded_at?: string | null
+          response_action?: string | null
+          response_deadline?: string
+          response_notes?: string | null
+          restoration_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dmca_notices_counter_notice_id_fkey"
+            columns: ["counter_notice_id"]
+            isOneToOne: false
+            referencedRelation: "dmca_notices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dmca_notices_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       featured_makers: {
         Row: {
           avatar_url: string | null
@@ -1134,6 +1212,72 @@ export type Database = {
           },
         ]
       }
+      moderation_queue: {
+        Row: {
+          assigned_to: string | null
+          auto_flagged: boolean
+          confidence_score: number | null
+          content_id: string
+          content_type: string
+          created_at: string
+          flag_reasons: Json | null
+          id: string
+          priority: string
+          reviewed_at: string | null
+          reviewer_notes: string | null
+          seller_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          auto_flagged?: boolean
+          confidence_score?: number | null
+          content_id: string
+          content_type: string
+          created_at?: string
+          flag_reasons?: Json | null
+          id?: string
+          priority?: string
+          reviewed_at?: string | null
+          reviewer_notes?: string | null
+          seller_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          auto_flagged?: boolean
+          confidence_score?: number | null
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          flag_reasons?: Json | null
+          id?: string
+          priority?: string
+          reviewed_at?: string | null
+          reviewer_notes?: string | null
+          seller_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_queue_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "moderation_queue_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           action_url: string | null
@@ -1552,6 +1696,63 @@ export type Database = {
           },
         ]
       }
+      sales_tax_nexus: {
+        Row: {
+          created_at: string
+          current_revenue: number
+          current_transactions: number
+          filing_frequency: string | null
+          has_nexus: boolean
+          id: string
+          last_filing_date: string | null
+          next_filing_date: string | null
+          nexus_established_date: string | null
+          registered_for_tax: boolean
+          registration_date: string | null
+          revenue_threshold: number
+          state: string
+          tax_registration_number: string | null
+          transaction_threshold: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_revenue?: number
+          current_transactions?: number
+          filing_frequency?: string | null
+          has_nexus?: boolean
+          id?: string
+          last_filing_date?: string | null
+          next_filing_date?: string | null
+          nexus_established_date?: string | null
+          registered_for_tax?: boolean
+          registration_date?: string | null
+          revenue_threshold?: number
+          state: string
+          tax_registration_number?: string | null
+          transaction_threshold?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_revenue?: number
+          current_transactions?: number
+          filing_frequency?: string | null
+          has_nexus?: boolean
+          id?: string
+          last_filing_date?: string | null
+          next_filing_date?: string | null
+          nexus_established_date?: string | null
+          registered_for_tax?: boolean
+          registration_date?: string | null
+          revenue_threshold?: number
+          state?: string
+          tax_registration_number?: string | null
+          transaction_threshold?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       search_analytics: {
         Row: {
           city_id: string | null
@@ -1587,6 +1788,293 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "cities"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_performance_metrics: {
+        Row: {
+          average_rating: number | null
+          canceled_orders: number
+          chargebacks: number
+          communication_score: number | null
+          created_at: string
+          disputes_filed: number
+          disputes_lost: number
+          id: string
+          late_shipments: number
+          meets_standards: boolean
+          messages_responded_24h: number
+          on_time_shipments: number
+          overall_score: number | null
+          period_end: string
+          period_start: string
+          quality_score: number | null
+          response_time_avg_hours: number | null
+          restriction_applied: boolean
+          seller_id: string
+          shipping_score: number | null
+          total_messages: number
+          total_orders: number
+          total_reviews: number
+          updated_at: string
+          warning_sent: boolean
+        }
+        Insert: {
+          average_rating?: number | null
+          canceled_orders?: number
+          chargebacks?: number
+          communication_score?: number | null
+          created_at?: string
+          disputes_filed?: number
+          disputes_lost?: number
+          id?: string
+          late_shipments?: number
+          meets_standards?: boolean
+          messages_responded_24h?: number
+          on_time_shipments?: number
+          overall_score?: number | null
+          period_end: string
+          period_start: string
+          quality_score?: number | null
+          response_time_avg_hours?: number | null
+          restriction_applied?: boolean
+          seller_id: string
+          shipping_score?: number | null
+          total_messages?: number
+          total_orders?: number
+          total_reviews?: number
+          updated_at?: string
+          warning_sent?: boolean
+        }
+        Update: {
+          average_rating?: number | null
+          canceled_orders?: number
+          chargebacks?: number
+          communication_score?: number | null
+          created_at?: string
+          disputes_filed?: number
+          disputes_lost?: number
+          id?: string
+          late_shipments?: number
+          meets_standards?: boolean
+          messages_responded_24h?: number
+          on_time_shipments?: number
+          overall_score?: number | null
+          period_end?: string
+          period_start?: string
+          quality_score?: number | null
+          response_time_avg_hours?: number | null
+          restriction_applied?: boolean
+          seller_id?: string
+          shipping_score?: number | null
+          total_messages?: number
+          total_orders?: number
+          total_reviews?: number
+          updated_at?: string
+          warning_sent?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_performance_metrics_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      seller_public_disclosures: {
+        Row: {
+          business_address: string
+          business_name: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          disclosure_required_since: string
+          id: string
+          is_active: boolean
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          business_address: string
+          business_name: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          created_at?: string
+          disclosure_required_since: string
+          id?: string
+          is_active?: boolean
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          business_address?: string
+          business_name?: string
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string
+          disclosure_required_since?: string
+          id?: string
+          is_active?: boolean
+          seller_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_public_disclosures_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      seller_tax_info: {
+        Row: {
+          backup_withholding_exempt: boolean
+          backup_withholding_rate: number | null
+          business_entity_type: string | null
+          created_at: string
+          id: string
+          legal_name: string | null
+          seller_id: string
+          tax_address: Json | null
+          tax_id_last_4: string | null
+          tax_id_type: string | null
+          tin_verification_date: string | null
+          tin_verified: boolean
+          updated_at: string
+          w9_approved_at: string | null
+          w9_form_url: string | null
+          w9_submitted_at: string | null
+        }
+        Insert: {
+          backup_withholding_exempt?: boolean
+          backup_withholding_rate?: number | null
+          business_entity_type?: string | null
+          created_at?: string
+          id?: string
+          legal_name?: string | null
+          seller_id: string
+          tax_address?: Json | null
+          tax_id_last_4?: string | null
+          tax_id_type?: string | null
+          tin_verification_date?: string | null
+          tin_verified?: boolean
+          updated_at?: string
+          w9_approved_at?: string | null
+          w9_form_url?: string | null
+          w9_submitted_at?: string | null
+        }
+        Update: {
+          backup_withholding_exempt?: boolean
+          backup_withholding_rate?: number | null
+          business_entity_type?: string | null
+          created_at?: string
+          id?: string
+          legal_name?: string | null
+          seller_id?: string
+          tax_address?: Json | null
+          tax_id_last_4?: string | null
+          tax_id_type?: string | null
+          tin_verification_date?: string | null
+          tin_verified?: boolean
+          updated_at?: string
+          w9_approved_at?: string | null
+          w9_form_url?: string | null
+          w9_submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_tax_info_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      seller_verifications: {
+        Row: {
+          created_at: string
+          government_id_url: string | null
+          id: string
+          last_warning_sent_at: string | null
+          next_recertification_date: string | null
+          phone_number: string | null
+          revenue_30_day: number
+          revenue_annual: number
+          seller_id: string
+          stripe_verification_session_id: string | null
+          stripe_verification_status: string | null
+          suspension_date: string | null
+          transaction_count: number
+          updated_at: string
+          verification_deadline: string | null
+          verification_status: string
+          verification_triggered_at: string | null
+          verification_type: string
+          verified_address: Json | null
+          verified_at: string | null
+          verified_email: string | null
+        }
+        Insert: {
+          created_at?: string
+          government_id_url?: string | null
+          id?: string
+          last_warning_sent_at?: string | null
+          next_recertification_date?: string | null
+          phone_number?: string | null
+          revenue_30_day?: number
+          revenue_annual?: number
+          seller_id: string
+          stripe_verification_session_id?: string | null
+          stripe_verification_status?: string | null
+          suspension_date?: string | null
+          transaction_count?: number
+          updated_at?: string
+          verification_deadline?: string | null
+          verification_status?: string
+          verification_triggered_at?: string | null
+          verification_type: string
+          verified_address?: Json | null
+          verified_at?: string | null
+          verified_email?: string | null
+        }
+        Update: {
+          created_at?: string
+          government_id_url?: string | null
+          id?: string
+          last_warning_sent_at?: string | null
+          next_recertification_date?: string | null
+          phone_number?: string | null
+          revenue_30_day?: number
+          revenue_annual?: number
+          seller_id?: string
+          stripe_verification_session_id?: string | null
+          stripe_verification_status?: string | null
+          suspension_date?: string | null
+          transaction_count?: number
+          updated_at?: string
+          verification_deadline?: string | null
+          verification_status?: string
+          verification_triggered_at?: string | null
+          verification_type?: string
+          verified_address?: Json | null
+          verified_at?: string | null
+          verified_email?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_verifications_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1876,6 +2364,65 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "plans"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_form_1099k: {
+        Row: {
+          created_at: string
+          form_data: Json | null
+          form_filed_with_irs_at: string | null
+          form_generated_at: string | null
+          form_pdf_url: string | null
+          form_required: boolean
+          form_sent_to_seller_at: string | null
+          gross_revenue: number
+          id: string
+          irs_filing_status: string | null
+          seller_id: string
+          tax_year: number
+          total_transactions: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          form_data?: Json | null
+          form_filed_with_irs_at?: string | null
+          form_generated_at?: string | null
+          form_pdf_url?: string | null
+          form_required?: boolean
+          form_sent_to_seller_at?: string | null
+          gross_revenue?: number
+          id?: string
+          irs_filing_status?: string | null
+          seller_id: string
+          tax_year: number
+          total_transactions?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          form_data?: Json | null
+          form_filed_with_irs_at?: string | null
+          form_generated_at?: string | null
+          form_pdf_url?: string | null
+          form_required?: boolean
+          form_sent_to_seller_at?: string | null
+          gross_revenue?: number
+          id?: string
+          irs_filing_status?: string | null
+          seller_id?: string
+          tax_year?: number
+          total_transactions?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_form_1099k_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
