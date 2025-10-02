@@ -422,6 +422,15 @@ export const CheckoutPage = () => {
                   disabled={loading}
                 />
 
+                {/* Platform Disclaimer */}
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+                  <p className="text-xs text-blue-900">
+                    <strong>Important:</strong> Your payment will be processed by Stripe. 
+                    Craft Local is a marketplace platform - each seller is an independent business 
+                    responsible for fulfilling your order. Orders will be split by seller.
+                  </p>
+                </div>
+
                 <Button
                   onClick={handleCheckout}
                   disabled={loading}
@@ -453,10 +462,11 @@ export const CheckoutPage = () => {
                 </div>
 
                 <div className="text-xs text-muted-foreground space-y-1">
-                  <p>• Secure payment with Stripe</p>
+                  <p>• Secure payment processed by Stripe</p>
                   <p>• Apple Pay / Google Pay supported</p>
                   <p>• Orders split by seller automatically</p>
                   <p>• Individual tracking for each seller</p>
+                  <p>• Each seller responsible for their items</p>
                 </div>
               </CardContent>
             </Card>

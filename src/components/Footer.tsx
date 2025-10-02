@@ -1,6 +1,7 @@
 import { MapPin, Mail, Phone, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 
 export const Footer = () => {
   return (
@@ -91,21 +92,36 @@ export const Footer = () => {
           </div>
         </div>
 
+        {/* Platform Disclaimer */}
+        <div className="border-t border-background/20 mt-12 pt-6">
+          <p className="text-sm text-background/70 text-center mb-6 max-w-3xl mx-auto">
+            <strong className="text-background/90">Marketplace Notice:</strong> Craft Local is a marketplace platform connecting independent sellers with buyers. 
+            We are not the seller of products listed on our platform. Each seller is an independent business operator 
+            responsible for their own products, services, pricing, and fulfillment. All transactions are between buyers and individual sellers.
+          </p>
+        </div>
+
         {/* Bottom Bar */}
-        <div className="border-t border-background/20 mt-12 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
+        <div className="border-t border-background/20 pt-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-background/60 text-sm">
               © 2024 Craft Local. All rights reserved.
             </p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-background/60 hover:text-background transition-colors text-sm">
-                Privacy Policy
-              </a>
-              <a href="#" className="text-background/60 hover:text-background transition-colors text-sm">
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm">
+              <Link to="/terms" className="text-background/60 hover:text-background transition-colors">
                 Terms of Service
-              </a>
-              <a href="#" className="text-background/60 hover:text-background transition-colors text-sm">
-                Help Center
+              </Link>
+              <Link to="/privacy" className="text-background/60 hover:text-background transition-colors">
+                Privacy Policy
+              </Link>
+              <Link to="/dmca" className="text-background/60 hover:text-background transition-colors">
+                DMCA Policy
+              </Link>
+              <Link to="/prohibited-items" className="text-background/60 hover:text-background transition-colors">
+                Prohibited Items
+              </Link>
+              <a href="#" className="text-background/60 hover:text-background transition-colors">
+                Do Not Sell My Info
               </a>
             </div>
           </div>

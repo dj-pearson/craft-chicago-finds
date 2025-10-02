@@ -10,8 +10,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertTriangle } from "lucide-react";
 import type { Listing } from "./Browse";
+import { Card } from "@/components/ui/card";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -156,6 +157,21 @@ const ProductDetail = () => {
           <div className="space-y-8">
             <ProductInfo listing={listing} />
             <SellerInfo seller={null} />
+            
+            {/* Platform Disclaimer */}
+            <Card className="p-4 bg-muted/50">
+              <p className="text-sm text-muted-foreground">
+                <strong>Marketplace Notice:</strong> This item is sold by an independent seller. 
+                Craft Local is not the seller and is not responsible for this product. 
+                Please review the seller's shop policies before purchasing.
+              </p>
+            </Card>
+
+            {/* Report Button */}
+            <Button variant="outline" size="sm" className="w-full">
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Report Suspicious Activity
+            </Button>
           </div>
         </div>
 

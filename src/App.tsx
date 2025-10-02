@@ -34,6 +34,10 @@ const Pricing = lazy(() => import("./pages/Pricing"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Disputes = lazy(() => import("./pages/Disputes"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const DMCA = lazy(() => import("./pages/DMCA"));
+const ProhibitedItems = lazy(() => import("./pages/ProhibitedItems"));
 
 // Configure React Query with caching optimizations
 const queryClient = new QueryClient({
@@ -80,6 +84,10 @@ const App = () => (
                 
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/disputes" element={<Disputes />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/dmca" element={<DMCA />} />
+                <Route path="/prohibited-items" element={<ProhibitedItems />} />
                 <Route path="/:city/browse" element={<Browse />} />
                 <Route path="/:city/product/:id" element={<ProductDetail />} />
                 <Route path="/:city" element={<City />} />

@@ -54,6 +54,9 @@ const Auth = () => {
     confirmPassword: "",
     displayName: "",
     isSeller: false,
+    agreeToTerms: false,
+    agreeToPrivacy: false,
+    marketingOptIn: false,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -586,12 +589,70 @@ const Auth = () => {
                       I want to sell handmade items
                     </Label>
                   </div>
+
+                  {/* Legal Agreements */}
+                  <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="age-verification"
+                        checked={signUpData.agreeToTerms}
+                        onCheckedChange={(checked) => 
+                          setSignUpData(prev => ({ ...prev, agreeToTerms: checked as boolean }))
+                        }
+                        required
+                      />
+                      <Label htmlFor="age-verification" className="text-sm leading-relaxed cursor-pointer">
+                        I confirm that I am 18 years of age or older and agree to the{" "}
+                        <a href="/terms" target="_blank" className="text-primary hover:underline">
+                          Terms of Service
+                        </a>
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="privacy-agreement"
+                        checked={signUpData.agreeToPrivacy}
+                        onCheckedChange={(checked) => 
+                          setSignUpData(prev => ({ ...prev, agreeToPrivacy: checked as boolean }))
+                        }
+                        required
+                      />
+                      <Label htmlFor="privacy-agreement" className="text-sm leading-relaxed cursor-pointer">
+                        I have read and agree to the{" "}
+                        <a href="/privacy" target="_blank" className="text-primary hover:underline">
+                          Privacy Policy
+                        </a>
+                      </Label>
+                    </div>
+
+                    <div className="flex items-start space-x-2">
+                      <Checkbox
+                        id="marketing-opt-in"
+                        checked={signUpData.marketingOptIn}
+                        onCheckedChange={(checked) => 
+                          setSignUpData(prev => ({ ...prev, marketingOptIn: checked as boolean }))
+                        }
+                      />
+                      <Label htmlFor="marketing-opt-in" className="text-sm leading-relaxed cursor-pointer">
+                        Send me updates about new makers and local events (optional)
+                      </Label>
+                    </div>
+                  </div>
+
+                  {/* Intermediary Notice */}
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-xs text-blue-900">
+                      <strong>Notice:</strong> Craft Local is a marketplace platform connecting buyers and sellers. 
+                      We are not the seller of products listed. Each seller is responsible for their products and fulfillment.
+                    </p>
+                  </div>
                 </CardContent>
                 <CardFooter className="flex flex-col space-y-4">
                   <Button 
                     type="submit" 
                     className="w-full" 
-                    disabled={formLoading}
+                    disabled={formLoading || !signUpData.agreeToTerms || !signUpData.agreeToPrivacy}
                   >
                     {formLoading ? "Creating account..." : "Create Account"}
                   </Button>
