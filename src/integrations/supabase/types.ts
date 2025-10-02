@@ -56,6 +56,63 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_models: {
+        Row: {
+          api_endpoint: string
+          created_at: string | null
+          description: string | null
+          display_name: string
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          max_tokens: number | null
+          metadata: Json | null
+          model_name: string
+          model_type: string
+          provider: string
+          sort_order: number | null
+          supports_streaming: boolean | null
+          supports_vision: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          api_endpoint: string
+          created_at?: string | null
+          description?: string | null
+          display_name: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          max_tokens?: number | null
+          metadata?: Json | null
+          model_name: string
+          model_type?: string
+          provider: string
+          sort_order?: number | null
+          supports_streaming?: boolean | null
+          supports_vision?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          api_endpoint?: string
+          created_at?: string | null
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          max_tokens?: number | null
+          metadata?: Json | null
+          model_name?: string
+          model_type?: string
+          provider?: string
+          sort_order?: number | null
+          supports_streaming?: boolean | null
+          supports_vision?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ai_settings: {
         Row: {
           api_endpoint: string
@@ -63,6 +120,7 @@ export type Database = {
           id: string
           is_active: boolean
           max_tokens: number
+          model_id: string | null
           model_name: string
           model_provider: string
           system_prompt: string | null
@@ -75,6 +133,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_tokens?: number
+          model_id?: string | null
           model_name?: string
           model_provider?: string
           system_prompt?: string | null
@@ -87,13 +146,22 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_tokens?: number
+          model_id?: string | null
           model_name?: string
           model_provider?: string
           system_prompt?: string | null
           temperature?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ai_settings_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "ai_models"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       analytics_trends: {
         Row: {

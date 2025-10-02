@@ -33,13 +33,35 @@ import {
   XCircle,
   Zap,
   History,
+  Plus,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const supabase: any = supabaseClient;
 
+interface AIModel {
+  id: string;
+  model_name: string;
+  display_name: string;
+  provider: string;
+  api_endpoint: string;
+  model_type: string;
+  description: string;
+  max_tokens: number;
+  supports_vision: boolean;
+  supports_streaming: boolean;
+  is_active: boolean;
+  is_default: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 interface AISettings {
   id: string;
+  model_id: string;
   model_name: string;
   model_provider: string;
   api_endpoint: string;
@@ -68,9 +90,12 @@ export const AISettingsManager = () => {
   const { user } = useAuth();
   const [settings, setSettings] = useState<AISettings | null>(null);
   const [logs, setLogs] = useState<AILog[]>([]);
+  const [models, setModels] = useState<AIModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [showModelDialog, setShowModelDialog] = useState(false);
+  const [editingModel, setEditingModel] = useState<AIModel | null>(null);
   const [testResult, setTestResult] = useState<{
     success: boolean;
     content?: string;
@@ -79,13 +104,26 @@ export const AISettingsManager = () => {
   } | null>(null);
 
   const [formData, setFormData] = useState({
-    model_name: "claude-sonnet-4-20250514",
+    model_id: "",
+    model_name: "claude-sonnet-4-5-20250929",
     model_provider: "anthropic",
     api_endpoint: "https://api.anthropic.com/v1/messages",
     max_tokens: 4000,
     temperature: 0.7,
     system_prompt: "",
     is_active: true,
+  });
+
+  const [modelFormData, setModelFormData] = useState({
+    model_name: "",
+    display_name: "",
+    provider: "anthropic",
+    api_endpoint: "https://api.anthropic.com/v1/messages",
+    description: "",
+    max_tokens: 4000,
+    supports_vision: false,
+    is_active: true,
+    is_default: false,
   });
 
   useEffect(() => {
@@ -95,6 +133,19 @@ export const AISettingsManager = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+
+      // Fetch AI models
+      const { data: modelsData, error: modelsError } = await supabase
+        .from("ai_models")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+
+      if (modelsError) {
+        console.error("Error fetching models:", modelsError);
+      } else {
+        setModels(modelsData || []);
+      }
 
       // Fetch current AI settings
       const { data: settingsData, error: settingsError } = await supabase
@@ -112,6 +163,7 @@ export const AISettingsManager = () => {
       if (settingsData) {
         setSettings(settingsData);
         setFormData({
+          model_id: settingsData.model_id || "",
           model_name: settingsData.model_name,
           model_provider: settingsData.model_provider,
           api_endpoint: settingsData.api_endpoint,
@@ -149,20 +201,35 @@ export const AISettingsManager = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
+      // Get selected model details
+      const selectedModel = models.find((m) => m.id === formData.model_id);
+      if (!selectedModel) {
+        throw new Error("Please select a model");
+      }
+
+      const updateData = {
+        model_id: formData.model_id,
+        model_name: selectedModel.model_name,
+        model_provider: selectedModel.provider,
+        api_endpoint: selectedModel.api_endpoint,
+        max_tokens: formData.max_tokens,
+        temperature: formData.temperature,
+        system_prompt: formData.system_prompt,
+        is_active: formData.is_active,
+        updated_at: new Date().toISOString(),
+      };
+
       if (settings) {
         // Update existing settings
         const { error } = await supabase
           .from("ai_settings")
-          .update({
-            ...formData,
-            updated_at: new Date().toISOString(),
-          })
+          .update(updateData)
           .eq("id", settings.id);
 
         if (error) throw error;
       } else {
         // Create new settings
-        const { error } = await supabase.from("ai_settings").insert(formData);
+        const { error } = await supabase.from("ai_settings").insert(updateData);
 
         if (error) throw error;
       }
@@ -177,11 +244,128 @@ export const AISettingsManager = () => {
       console.error("Error saving AI settings:", error);
       toast({
         title: "Error",
-        description: "Failed to save AI settings",
+        description: error instanceof Error ? error.message : "Failed to save AI settings",
         variant: "destructive",
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveModel = async () => {
+    try {
+      if (editingModel) {
+        // Update existing model
+        const { error } = await supabase
+          .from("ai_models")
+          .update({
+            ...modelFormData,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", editingModel.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Model updated successfully",
+        });
+      } else {
+        // Create new model
+        const { error } = await supabase.from("ai_models").insert({
+          ...modelFormData,
+          model_type: "chat",
+          supports_streaming: true,
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Model added successfully",
+        });
+      }
+
+      setShowModelDialog(false);
+      setEditingModel(null);
+      setModelFormData({
+        model_name: "",
+        display_name: "",
+        provider: "anthropic",
+        api_endpoint: "https://api.anthropic.com/v1/messages",
+        description: "",
+        max_tokens: 4000,
+        supports_vision: false,
+        is_active: true,
+        is_default: false,
+      });
+      fetchData();
+    } catch (error) {
+      console.error("Error saving model:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save model",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteModel = async (modelId: string) => {
+    if (!confirm("Are you sure you want to delete this model?")) return;
+
+    try {
+      const { error } = await supabase
+        .from("ai_models")
+        .delete()
+        .eq("id", modelId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Model deleted successfully",
+      });
+
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting model:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete model",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSetDefaultModel = async (modelId: string) => {
+    try {
+      // Remove default from all models
+      await supabase
+        .from("ai_models")
+        .update({ is_default: false })
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+
+      // Set the selected model as default
+      const { error } = await supabase
+        .from("ai_models")
+        .update({ is_default: true })
+        .eq("id", modelId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Default model updated",
+      });
+
+      fetchData();
+    } catch (error) {
+      console.error("Error setting default model:", error);
+      toast({
+        title: "Error",
+        description: "Failed to set default model",
+        variant: "destructive",
+      });
     }
   };
 
@@ -300,43 +484,28 @@ export const AISettingsManager = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="model_name">Model Name</Label>
+              <Label htmlFor="model_id">Model</Label>
               <Select
-                value={formData.model_name}
+                value={formData.model_id}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, model_name: value })
+                  setFormData({ ...formData, model_id: value })
                 }
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select a model" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="claude-sonnet-4-20250514">
-                    Claude Sonnet 4 (Latest)
-                  </SelectItem>
-                  <SelectItem value="claude-3-5-sonnet-20241022">
-                    Claude 3.5 Sonnet
-                  </SelectItem>
-                  <SelectItem value="claude-3-sonnet-20240229">
-                    Claude 3 Sonnet
-                  </SelectItem>
-                  <SelectItem value="claude-3-haiku-20240307">
-                    Claude 3 Haiku
-                  </SelectItem>
+                  {models.map((model) => (
+                    <SelectItem key={model.id} value={model.id}>
+                      {model.display_name}
+                      {model.is_default && " (Default)"}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="api_endpoint">API Endpoint</Label>
-              <Input
-                id="api_endpoint"
-                value={formData.api_endpoint}
-                onChange={(e) =>
-                  setFormData({ ...formData, api_endpoint: e.target.value })
-                }
-                placeholder="https://api.anthropic.com/v1/messages"
-              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {models.find((m) => m.id === formData.model_id)?.description}
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -489,6 +658,120 @@ export const AISettingsManager = () => {
         </Card>
       </div>
 
+      {/* AI Models Management */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5" />
+              Available AI Models
+            </CardTitle>
+            <Button
+              onClick={() => {
+                setEditingModel(null);
+                setModelFormData({
+                  model_name: "",
+                  display_name: "",
+                  provider: "anthropic",
+                  api_endpoint: "https://api.anthropic.com/v1/messages",
+                  description: "",
+                  max_tokens: 4000,
+                  supports_vision: false,
+                  is_active: true,
+                  is_default: false,
+                });
+                setShowModelDialog(true);
+              }}
+              size="sm"
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Add Model
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {models.length === 0 ? (
+            <p className="text-muted-foreground text-center py-4">
+              No models available
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {models.map((model) => (
+                <div
+                  key={model.id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium">{model.display_name}</span>
+                      {model.is_default && (
+                        <Badge variant="default" className="text-xs">
+                          Default
+                        </Badge>
+                      )}
+                      {model.supports_vision && (
+                        <Badge variant="outline" className="text-xs">
+                          Vision
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-1">
+                      {model.model_name}
+                    </p>
+                    {model.description && (
+                      <p className="text-sm text-muted-foreground">
+                        {model.description}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {!model.is_default && (
+                      <Button
+                        onClick={() => handleSetDefaultModel(model.id)}
+                        size="sm"
+                        variant="ghost"
+                      >
+                        Set Default
+                      </Button>
+                    )}
+                    <Button
+                      onClick={() => {
+                        setEditingModel(model);
+                        setModelFormData({
+                          model_name: model.model_name,
+                          display_name: model.display_name,
+                          provider: model.provider,
+                          api_endpoint: model.api_endpoint,
+                          description: model.description || "",
+                          max_tokens: model.max_tokens,
+                          supports_vision: model.supports_vision,
+                          is_active: model.is_active,
+                          is_default: model.is_default,
+                        });
+                        setShowModelDialog(true);
+                      }}
+                      size="sm"
+                      variant="ghost"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      onClick={() => handleDeleteModel(model.id)}
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Recent AI Generation Logs */}
       <Card>
         <CardHeader>
@@ -542,6 +825,165 @@ export const AISettingsManager = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Model Dialog */}
+      <Dialog open={showModelDialog} onOpenChange={setShowModelDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editingModel ? "Edit Model" : "Add New Model"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="modal_model_name">Model Name</Label>
+                <Input
+                  id="modal_model_name"
+                  value={modelFormData.model_name}
+                  onChange={(e) =>
+                    setModelFormData({
+                      ...modelFormData,
+                      model_name: e.target.value,
+                    })
+                  }
+                  placeholder="claude-sonnet-4-5-20250929"
+                />
+              </div>
+              <div>
+                <Label htmlFor="modal_display_name">Display Name</Label>
+                <Input
+                  id="modal_display_name"
+                  value={modelFormData.display_name}
+                  onChange={(e) =>
+                    setModelFormData({
+                      ...modelFormData,
+                      display_name: e.target.value,
+                    })
+                  }
+                  placeholder="Claude Sonnet 4.5"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="modal_description">Description</Label>
+              <Textarea
+                id="modal_description"
+                value={modelFormData.description}
+                onChange={(e) =>
+                  setModelFormData({
+                    ...modelFormData,
+                    description: e.target.value,
+                  })
+                }
+                placeholder="Brief description of the model's capabilities"
+                rows={2}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="modal_provider">Provider</Label>
+                <Select
+                  value={modelFormData.provider}
+                  onValueChange={(value) =>
+                    setModelFormData({ ...modelFormData, provider: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="anthropic">Anthropic</SelectItem>
+                    <SelectItem value="openai">OpenAI</SelectItem>
+                    <SelectItem value="google">Google</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="modal_max_tokens">Max Tokens</Label>
+                <Input
+                  id="modal_max_tokens"
+                  type="number"
+                  value={modelFormData.max_tokens}
+                  onChange={(e) =>
+                    setModelFormData({
+                      ...modelFormData,
+                      max_tokens: parseInt(e.target.value) || 4000,
+                    })
+                  }
+                  min="100"
+                  max="200000"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="modal_api_endpoint">API Endpoint</Label>
+              <Input
+                id="modal_api_endpoint"
+                value={modelFormData.api_endpoint}
+                onChange={(e) =>
+                  setModelFormData({
+                    ...modelFormData,
+                    api_endpoint: e.target.value,
+                  })
+                }
+                placeholder="https://api.anthropic.com/v1/messages"
+              />
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="modal_supports_vision"
+                  checked={modelFormData.supports_vision}
+                  onCheckedChange={(checked) =>
+                    setModelFormData({
+                      ...modelFormData,
+                      supports_vision: checked,
+                    })
+                  }
+                />
+                <Label htmlFor="modal_supports_vision">Supports Vision</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="modal_is_active"
+                  checked={modelFormData.is_active}
+                  onCheckedChange={(checked) =>
+                    setModelFormData({ ...modelFormData, is_active: checked })
+                  }
+                />
+                <Label htmlFor="modal_is_active">Active</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="modal_is_default"
+                  checked={modelFormData.is_default}
+                  onCheckedChange={(checked) =>
+                    setModelFormData({ ...modelFormData, is_default: checked })
+                  }
+                />
+                <Label htmlFor="modal_is_default">Set as Default</Label>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowModelDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleSaveModel}>
+                {editingModel ? "Update" : "Add"} Model
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

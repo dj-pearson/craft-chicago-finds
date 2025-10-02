@@ -25,12 +25,21 @@ interface AIRequest {
 }
 
 interface AISettings {
+  model_id: string;
   model_name: string;
   model_provider: string;
   api_endpoint: string;
   max_tokens: number;
   temperature: number;
   system_prompt: string;
+}
+
+interface AIModel {
+  id: string;
+  model_name: string;
+  provider: string;
+  api_endpoint: string;
+  max_tokens: number;
 }
 
 serve(async (req) => {
@@ -90,7 +99,16 @@ serve(async (req) => {
     // Get AI settings from database
     const { data: aiSettings, error: settingsError } = await supabaseClient
       .from("ai_settings")
-      .select("*")
+      .select(`
+        *,
+        ai_models!ai_settings_model_id_fkey (
+          id,
+          model_name,
+          provider,
+          api_endpoint,
+          max_tokens
+        )
+      `)
       .eq("is_active", true)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -100,15 +118,22 @@ serve(async (req) => {
       throw new Error("No active AI settings found");
     }
 
+    // Get model details
+    const model = aiSettings.ai_models as unknown as AIModel;
+    if (!model) {
+      throw new Error("No model configuration found");
+    }
+
     // Merge with override settings if provided
     const finalSettings: AISettings = {
-      model_name: override_settings?.model_name || aiSettings.model_name,
-      model_provider: aiSettings.model_provider,
-      api_endpoint: aiSettings.api_endpoint,
+      model_id: aiSettings.model_id,
+      model_name: override_settings?.model_name || model.model_name,
+      model_provider: model.provider,
+      api_endpoint: model.api_endpoint,
       max_tokens: override_settings?.max_tokens || aiSettings.max_tokens,
       temperature: override_settings?.temperature || aiSettings.temperature,
       system_prompt:
-        override_settings?.system_prompt || aiSettings.system_prompt,
+        override_settings?.system_prompt || aiSettings.system_prompt || "",
     };
 
     // Get Claude API key from Supabase secrets
