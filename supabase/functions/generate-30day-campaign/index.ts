@@ -288,11 +288,17 @@ CAMPAIGN CONTEXT:
 - Post Title: ${dayInfo.title}
 
 REQUIREMENTS:
-Create THREE versions of the same message:
+Create TWO versions of the same message:
 
-1. TITLE: A compelling headline (max 60 characters)
-2. SHORT VERSION: Perfect for Twitter/X and Threads (max 280 characters, include hashtags)
-3. LONG VERSION: Detailed version for Facebook and LinkedIn (300-500 characters, more context)
+1. LONG VERSION: For Facebook and LinkedIn (300-500 characters)
+   - Detailed, community-focused message
+   - More context and storytelling
+   - Professional yet warm tone
+
+2. SHORT VERSION: For Twitter/X and Threads (max 280 characters including hashtags)
+   - Concise, punchy message
+   - Same core message but condensed
+   - Must include hashtags within the 280 char limit
 
 CONTENT GUIDELINES:
 - Warm, creative, and supportive tone
@@ -321,9 +327,8 @@ CONTENT GUIDELINES:
 
 Format your response as JSON:
 {
-  "title": "Compelling headline",
-  "short_description": "Twitter/X version with hashtags",
-  "long_description": "Facebook/LinkedIn version with more detail"
+  "long_description": "Detailed Facebook/LinkedIn version (300-500 chars)",
+  "short_description": "Concise Twitter/Threads version with hashtags (max 280 chars)"
 }
 `;
 
@@ -362,9 +367,8 @@ Format your response as JSON:
           } else {
             // Fallback if JSON parsing fails
             postContent = {
-              title: dayInfo.title,
+              long_description: aiResponse.data.content.substring(0, 400),
               short_description: aiResponse.data.content.substring(0, 280),
-              long_description: aiResponse.data.content.substring(0, 500),
             };
           }
         } catch (parseError) {
@@ -373,9 +377,8 @@ Format your response as JSON:
             parseError
           );
           postContent = {
-            title: dayInfo.title,
+            long_description: aiResponse.data.content.substring(0, 400),
             short_description: aiResponse.data.content.substring(0, 280),
-            long_description: aiResponse.data.content.substring(0, 500),
           };
         }
 
@@ -384,28 +387,28 @@ Format your response as JSON:
           ? new Date(postDate.getTime() + 9 * 60 * 60 * 1000) // 9 AM on the day
           : null;
 
-        // Define platforms to create posts for
+        // Define platforms and content mapping
         const platforms = ["facebook", "instagram", "twitter", "linkedin"];
         const createdPosts = [];
 
-        // Create platform-specific posts from the master content
+        // Create platform-specific posts using appropriate version
         for (const platform of platforms) {
-          // Adapt content for each platform
-          let content = postContent.long_description;
+          // Map platform to content version
+          let content;
           let platformHashtags = [`#CraftLocal`, `#${city.slug}Makers`, `#ShopLocal`];
           
           if (platform === "twitter") {
-            // Twitter: Keep it short and punchy
+            // Twitter: Use short version (already includes hashtags)
             content = postContent.short_description;
           } else if (platform === "instagram") {
-            // Instagram: Add more emojis and hashtags
+            // Instagram: Use long version with extra hashtags
             content = postContent.long_description;
             platformHashtags = [...platformHashtags, `#Handmade`, `#LocalBusiness`, `#SupportLocal`];
           } else if (platform === "linkedin") {
-            // LinkedIn: More professional tone
+            // LinkedIn: Use long version (professional)
             content = postContent.long_description;
           } else if (platform === "facebook") {
-            // Facebook: Community-focused
+            // Facebook: Use long version (community-focused)
             content = postContent.long_description;
           }
 
@@ -416,7 +419,7 @@ Format your response as JSON:
               city_id,
               platform: platform,
               post_type: "text",
-              title: postContent.title,
+              title: dayInfo.title,
               content: content,
               short_description: postContent.short_description,
               long_description: postContent.long_description,
@@ -427,7 +430,7 @@ Format your response as JSON:
               auto_generated: true,
               campaign_day: dayInfo.day,
               post_theme: dayInfo.theme,
-              ai_prompt: platform === platforms[0] ? aiPrompt : null, // Only store prompt for first platform
+              ai_prompt: platform === platforms[0] ? aiPrompt : null,
               created_by: user.id,
             })
             .select()
@@ -452,7 +455,7 @@ Format your response as JSON:
         generatedPosts.push({
           day: dayInfo.day,
           theme: dayInfo.theme,
-          title: postContent.title,
+          title: dayInfo.title,
           post_ids: createdPosts.map((p) => p.id),
           platforms: createdPosts.map((p) => p.platform),
           scheduled_for: scheduledTime?.toISOString(),
