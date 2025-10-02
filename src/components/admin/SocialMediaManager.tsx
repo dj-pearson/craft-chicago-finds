@@ -104,6 +104,7 @@ export const SocialMediaManager = () => {
   const [generating30DayCampaign, setGenerating30DayCampaign] = useState(false);
   const [webhookSettings, setWebhookSettings] = useState<any[]>([]);
   const [isWebhookConfigOpen, setIsWebhookConfigOpen] = useState(false);
+  const [editingWebhookId, setEditingWebhookId] = useState<string | null>(null);
 
   const [campaignForm, setCampaignForm] = useState({
     name: "",
@@ -408,29 +409,91 @@ Please generate engaging social media content that follows the 30-day social med
     }
 
     try {
-      const { error } = await supabase.from("webhook_settings").insert({
-        name: webhookForm.name,
-        webhook_url: webhookForm.webhook_url,
-        secret_key: webhookForm.secret_key || null,
-        platforms: webhookForm.platforms.length > 0 ? webhookForm.platforms : ["all"],
-        created_by: user?.id,
+      if (editingWebhookId) {
+        // Update existing webhook
+        const { error } = await supabase
+          .from("webhook_settings")
+          .update({
+            name: webhookForm.name,
+            webhook_url: webhookForm.webhook_url,
+            secret_key: webhookForm.secret_key || null,
+            platforms: webhookForm.platforms.length > 0 ? webhookForm.platforms : ["all"],
+          })
+          .eq("id", editingWebhookId);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Webhook configuration updated successfully",
+        });
+      } else {
+        // Create new webhook
+        const { error } = await supabase.from("webhook_settings").insert({
+          name: webhookForm.name,
+          webhook_url: webhookForm.webhook_url,
+          secret_key: webhookForm.secret_key || null,
+          platforms: webhookForm.platforms.length > 0 ? webhookForm.platforms : ["all"],
+          created_by: user?.id,
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Webhook configuration created successfully",
+        });
+      }
+
+      setIsWebhookConfigOpen(false);
+      resetWebhookForm();
+      setEditingWebhookId(null);
+      fetchData();
+    } catch (error) {
+      console.error("Error saving webhook:", error);
+      toast({
+        title: "Error",
+        description: `Failed to ${editingWebhookId ? 'update' : 'create'} webhook configuration`,
+        variant: "destructive",
       });
+    }
+  };
+
+  const handleEditWebhook = (webhook: any) => {
+    setWebhookForm({
+      name: webhook.name,
+      webhook_url: webhook.webhook_url,
+      secret_key: webhook.secret_key || "",
+      platforms: webhook.platforms || [],
+    });
+    setEditingWebhookId(webhook.id);
+    setIsWebhookConfigOpen(true);
+  };
+
+  const handleDeleteWebhook = async (webhookId: string) => {
+    if (!confirm("Are you sure you want to delete this webhook?")) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("webhook_settings")
+        .delete()
+        .eq("id", webhookId);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Webhook configuration created successfully",
+        description: "Webhook deleted successfully",
       });
 
-      setIsWebhookConfigOpen(false);
-      resetWebhookForm();
       fetchData();
     } catch (error) {
-      console.error("Error creating webhook:", error);
+      console.error("Error deleting webhook:", error);
       toast({
         title: "Error",
-        description: "Failed to create webhook configuration",
+        description: "Failed to delete webhook",
         variant: "destructive",
       });
     }
@@ -497,6 +560,7 @@ Please generate engaging social media content that follows the 30-day social med
       secret_key: "",
       platforms: [],
     });
+    setEditingWebhookId(null);
   };
 
   const getPlatformIcon = (platform: string) => {
@@ -1176,7 +1240,7 @@ Please generate engaging social media content that follows the 30-day social med
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Configure Webhook</DialogTitle>
+                  <DialogTitle>{editingWebhookId ? 'Edit' : 'Configure'} Webhook</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
@@ -1246,11 +1310,16 @@ Please generate engaging social media content that follows the 30-day social med
                   <div className="flex justify-end gap-2">
                     <Button
                       variant="outline"
-                      onClick={() => setIsWebhookConfigOpen(false)}
+                      onClick={() => {
+                        setIsWebhookConfigOpen(false);
+                        resetWebhookForm();
+                      }}
                     >
                       Cancel
                     </Button>
-                    <Button onClick={handleCreateWebhook}>Create Webhook</Button>
+                    <Button onClick={handleCreateWebhook}>
+                      {editingWebhookId ? 'Update' : 'Create'} Webhook
+                    </Button>
                   </div>
                 </div>
               </DialogContent>
@@ -1277,10 +1346,18 @@ Please generate engaging social media content that follows the 30-day social med
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEditWebhook(webhook)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleDeleteWebhook(webhook.id)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
