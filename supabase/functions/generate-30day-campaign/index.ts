@@ -238,7 +238,7 @@ serve(async (req) => {
       console.log("Created automation record:", automation.id);
     }
 
-    // Generate posts for all 30 days
+    // Generate posts for all 30 days with a SINGLE AI call to avoid timeouts
     const launchDate = new Date(launch_date);
     const campaignStartDate = new Date(
       launchDate.getTime() - 30 * 24 * 60 * 60 * 1000
@@ -251,235 +251,165 @@ serve(async (req) => {
       ...CAMPAIGN_STRUCTURE.week4.days,
     ];
 
-    const generatedPosts = [];
-    let postsGenerated = automation.posts_generated || 0;
+    // Fetch existing days for this campaign so we don't recreate them
+    const { data: existingRows, error: existingErr } = await supabaseClient
+      .from("social_media_posts")
+      .select("campaign_day")
+      .eq("campaign_id", campaign_id);
 
-    for (const dayInfo of allDays) {
-      try {
-        // Check if post already exists for this day
-        const { data: existingPost } = await supabaseClient
-          .from("social_media_posts")
-          .select("id")
-          .eq("campaign_id", campaign_id)
-          .eq("campaign_day", dayInfo.day)
-          .single();
-
-        if (existingPost) {
-          console.log(`Day ${dayInfo.day} already has a post, skipping`);
-          postsGenerated += 1;
-          continue;
-        }
-
-        const postDate = new Date(
-          campaignStartDate.getTime() + (dayInfo.day - 1) * 24 * 60 * 60 * 1000
-        );
-        const daysUntilLaunch = 30 - dayInfo.day + 1;
-
-        // Generate AI content for this day
-        const aiPrompt = `
-Generate social media content for Day ${dayInfo.day} of a 30-day ${
-          city.name
-        } craft marketplace launch campaign.
-
-CAMPAIGN CONTEXT:
-- City: ${city.name} (${city.slug})
-- Launch Date: ${launch_date}
-- Days Until Launch: ${daysUntilLaunch}
-- Post Theme: ${dayInfo.theme}
-- Post Title: ${dayInfo.title}
-
-REQUIREMENTS:
-Create TWO versions of the same message:
-
-1. LONG VERSION: For Facebook and LinkedIn (300-500 characters)
-   - Detailed, community-focused message
-   - More context and storytelling
-   - Professional yet warm tone
-
-2. SHORT VERSION: For Twitter/X and Threads (max 280 characters including hashtags)
-   - Concise, punchy message
-   - Same core message but condensed
-   - Must include hashtags within the 280 char limit
-
-CONTENT GUIDELINES:
-- Warm, creative, and supportive tone
-- Community-oriented language ("we," "together," "local family")
-- Include relevant hashtags: #CraftLocal, #${city.slug}Makers, #ShopLocal
-- ${
-          dayInfo.theme === "launch_day"
-            ? "MAXIMUM EXCITEMENT - This is the big day!"
-            : ""
-        }
-- ${
-          dayInfo.theme.includes("countdown")
-            ? `Emphasize ${daysUntilLaunch} days remaining`
-            : ""
-        }
-- ${
-          dayInfo.theme.includes("vendor")
-            ? "Focus on benefits for local makers and artisans"
-            : ""
-        }
-- ${
-          dayInfo.theme.includes("community")
-            ? "Encourage engagement and community participation"
-            : ""
-        }
-
-CRITICAL: Return ONLY valid JSON with double quotes. No extra text before or after.
-Format:
-{
-  "long_description": "Detailed Facebook/LinkedIn version (300-500 chars)",
-  "short_description": "Concise Twitter/Threads version with hashtags (max 280 chars)"
-}
-`;
-
-        const aiResponse = await supabaseClient.functions.invoke(
-          "ai-generate-content",
-          {
-            body: {
-              prompt: aiPrompt,
-              generation_type: "social_post",
-              context: {
-                campaign_id,
-                city_name: city.name,
-                city_slug: city.slug,
-                day: dayInfo.day,
-                theme: dayInfo.theme,
-                days_until_launch: daysUntilLaunch,
-              },
-            },
-          }
-        );
-
-        if (aiResponse.error) {
-          console.error(
-            `AI generation failed for day ${dayInfo.day}:`,
-            aiResponse.error
-          );
-          continue;
-        }
-
-        // Parse AI response with improved JSON extraction
-        let postContent;
-        try {
-          let cleanedContent = aiResponse.data.content.trim();
-          
-          // Remove markdown code blocks if present
-          cleanedContent = cleanedContent.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-          
-          // Extract JSON object - find first { and last }
-          const firstBrace = cleanedContent.indexOf('{');
-          const lastBrace = cleanedContent.lastIndexOf('}');
-          
-          if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-            const jsonString = cleanedContent.substring(firstBrace, lastBrace + 1);
-            postContent = JSON.parse(jsonString);
-            
-            // Validate required fields
-            if (!postContent.long_description || !postContent.short_description) {
-              throw new Error('Missing required fields in AI response');
-            }
-          } else {
-            throw new Error('No valid JSON object found in AI response');
-          }
-        } catch (parseError) {
-          console.error(
-            `JSON parsing failed for day ${dayInfo.day}:`,
-            parseError
-          );
-          console.error('Raw AI response:', aiResponse.data.content);
-          
-          // Fallback if JSON parsing fails
-          const rawContent = aiResponse.data.content.replace(/[{}"]/g, '').trim();
-          postContent = {
-            long_description: rawContent.substring(0, 400),
-            short_description: rawContent.substring(0, 280),
-          };
-        }
-
-        // Create the post record
-        const scheduledTime = auto_schedule
-          ? new Date(postDate.getTime() + 9 * 60 * 60 * 1000) // 9 AM on the day
-          : null;
-
-        // Create ONE post with both long and short versions
-        // Using 'facebook' as platform for database record-keeping (webhook handles all platforms)
-        const { data: newPost, error: postError } = await supabaseClient
-          .from("social_media_posts")
-          .insert({
-            campaign_id,
-            city_id,
-            platform: "facebook", // Database requirement - webhook distributes to all platforms
-            post_type: "text",
-            title: dayInfo.title,
-            content: postContent.long_description, // Default to long version
-            short_description: postContent.short_description,
-            long_description: postContent.long_description,
-            hashtags: [`#CraftLocal`, `#${city.slug}Makers`, `#ShopLocal`],
-            scheduled_for: scheduledTime?.toISOString(),
-            status: auto_schedule ? "scheduled" : "draft",
-            ai_generated: true,
-            auto_generated: true,
-            campaign_day: dayInfo.day,
-            post_theme: dayInfo.theme,
-            ai_prompt: aiPrompt,
-            created_by: user.id,
-          })
-          .select()
-          .single();
-
-        if (postError) {
-          console.error(
-            `Failed to create post for day ${dayInfo.day}:`,
-            postError
-          );
-          continue;
-        }
-
-        generatedPosts.push({
-          day: dayInfo.day,
-          theme: dayInfo.theme,
-          title: dayInfo.title,
-          post_id: newPost.id,
-          scheduled_for: scheduledTime?.toISOString(),
-        });
-
-        postsGenerated += 1;
-
-        // Update progress
-        await supabaseClient
-          .from("campaign_automation")
-          .update({
-            posts_generated: postsGenerated,
-            generation_progress: {
-              current_day: dayInfo.day,
-              total_days: 30,
-              percentage: Math.round((dayInfo.day / 30) * 100),
-            },
-          })
-          .eq("id", automation.id);
-
-        console.log(
-          `Generated post for day ${dayInfo.day}: ${dayInfo.theme}`
-        );
-      } catch (dayError) {
-        console.error(`Error generating day ${dayInfo.day}:`, dayError);
-        // Log detailed error information
-        console.error(`Day ${dayInfo.day} error details:`, {
-          theme: dayInfo.theme,
-          title: dayInfo.title,
-          error: dayError instanceof Error ? dayError.message : String(dayError),
-        });
-        // Continue to next day instead of stopping
-        continue;
-      }
+    if (existingErr) {
+      console.error("Failed to fetch existing posts:", existingErr);
     }
 
-    // Count completed days
-    const completedDays = generatedPosts.length;
+    const existingDays = new Set<number>((existingRows || []).map((r: any) => r.campaign_day as number));
 
-    // Mark automation as completed
+    const generatedPosts: Array<{ day: number; theme: string; title: string; post_id: string; scheduled_for?: string | null }>= [];
+    let postsGenerated = automation.posts_generated || 0;
+
+    // Build a compact spec for all days to guide the AI
+    const daysSpec = allDays
+      .map((d) => `{"day": ${d.day}, "theme": "${d.theme}", "title": "${d.title}"}`)
+      .join(",\n");
+
+    const aiPrompt = `You are creating a full 30-day social media campaign for ${city.name} (${city.slug}).\n\n` +
+      `Return ONE JSON object only. No prose. Use exactly this schema:\n` +
+      `{"days": [ { "day": 1, "long_description": "...", "short_description": "..." }, ... up to day 30 ]}\n\n` +
+      `Rules:\n` +
+      `- long_description: 300-500 chars (Facebook/LinkedIn)\n` +
+      `- short_description: <=280 chars incl. hashtags (Twitter/Threads)\n` +
+      `- Tone: warm, community-first. Use hashtags #CraftLocal, #${city.slug}Makers, #ShopLocal\n` +
+      `- If a countdown applies, emphasize days remaining to ${launch_date}.\n` +
+      `- STRICT: Output must be valid JSON with double quotes. No markdown fences. No extra text.\n\n` +
+      `Campaign Days Spec (read-only):\n[\n${daysSpec}\n]`;
+
+    console.log("Invoking AI once for all 30 days...");
+    const aiResponse = await supabaseClient.functions.invoke("ai-generate-content", {
+      body: {
+        prompt: aiPrompt,
+        generation_type: "campaign_content",
+        context: {
+          campaign_id,
+          city_name: city.name,
+          city_slug: city.slug,
+          launch_date,
+          days: allDays,
+        },
+        override_settings: {
+          // Encourage larger outputs in a single call
+          max_tokens: 4000,
+        },
+      },
+    });
+
+    if (aiResponse.error) {
+      console.error("AI generation failed:", aiResponse.error);
+      throw new Error("AI generation failed");
+    }
+
+    // Robust parse: strip code fences, grab JSON array/object
+    let parsedDays: Array<{ day: number; long_description: string; short_description: string }> = [];
+    try {
+      let cleaned = (aiResponse.data.content || "").trim();
+      cleaned = cleaned.replace(/```json\s*/g, "").replace(/```\s*/g, "");
+
+      // Try object with days[] first
+      const firstBrace = cleaned.indexOf("{");
+      const lastBrace = cleaned.lastIndexOf("}");
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        const jsonStr = cleaned.substring(firstBrace, lastBrace + 1);
+        const obj = JSON.parse(jsonStr);
+        if (Array.isArray(obj?.days)) {
+          parsedDays = obj.days as typeof parsedDays;
+        } else {
+          // Try direct array fallback
+          const firstBracket = cleaned.indexOf("[");
+          const lastBracket = cleaned.lastIndexOf("]");
+          if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+            parsedDays = JSON.parse(cleaned.substring(firstBracket, lastBracket + 1));
+          } else {
+            throw new Error("No parsable JSON days array found");
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Failed to parse AI JSON for 30-day content:", e);
+      console.error("Raw AI output:", aiResponse.data.content);
+      throw new Error("Invalid AI JSON output");
+    }
+
+    // Validate and clamp outputs
+    parsedDays = parsedDays
+      .filter((d) => typeof d?.day === "number" && d.day >= 1 && d.day <= 30)
+      .map((d) => ({
+        day: d.day,
+        long_description: String(d.long_description || "").slice(0, 600),
+        short_description: String(d.short_description || "").slice(0, 280),
+      }));
+
+    // Build rows to insert (skip days that already exist)
+    const rowsToInsert = parsedDays
+      .filter((d) => !existingDays.has(d.day))
+      .map((d) => {
+        const postDate = new Date(
+          campaignStartDate.getTime() + (d.day - 1) * 24 * 60 * 60 * 1000
+        );
+        const scheduledTime = auto_schedule
+          ? new Date(postDate.getTime() + 9 * 60 * 60 * 1000).toISOString()
+          : null;
+        const dayInfo = allDays.find((x) => x.day === d.day)!;
+        return {
+          campaign_id,
+          city_id,
+          platform: "facebook", // Representative platform; webhook handles distribution to all
+          post_type: "text",
+          title: dayInfo.title,
+          content: d.long_description,
+          short_description: d.short_description,
+          long_description: d.long_description,
+          hashtags: [`#CraftLocal`, `#${city.slug}Makers`, `#ShopLocal`],
+          scheduled_for: scheduledTime,
+          status: auto_schedule ? "scheduled" : "draft",
+          ai_generated: true,
+          auto_generated: true,
+          campaign_day: d.day,
+          post_theme: dayInfo.theme,
+          ai_prompt: aiResponse.data?.model_used ? `BULK_GENERATION:${aiResponse.data.model_used}` : "BULK_GENERATION",
+          created_by: user.id,
+        };
+      });
+
+    let inserted: any[] = [];
+    if (rowsToInsert.length > 0) {
+      const { data: insertedRows, error: insertError } = await supabaseClient
+        .from("social_media_posts")
+        .insert(rowsToInsert)
+        .select();
+      if (insertError) {
+        console.error("Bulk insert error:", insertError);
+        throw new Error("Failed to insert generated posts");
+      }
+      inserted = insertedRows || [];
+
+      for (const row of inserted) {
+        generatedPosts.push({
+          day: row.campaign_day,
+          theme: row.post_theme,
+          title: row.title,
+          post_id: row.id,
+          scheduled_for: row.scheduled_for,
+        });
+      }
+
+      postsGenerated = (automation.posts_generated || 0) + inserted.length;
+    } else {
+      console.log("No new days to insert; all 30 days already exist.");
+    }
+
+    // Count completed days (existing + newly inserted)
+    const completedDays = existingDays.size + inserted.length;
+
+    // Mark automation as completed/partial below
+
     await supabaseClient
       .from("campaign_automation")
       .update({
@@ -491,7 +421,7 @@ Format:
           percentage: Math.round((completedDays / 30) * 100),
           completed_at: completedDays === 30 ? new Date().toISOString() : null,
           total_posts_created: postsGenerated,
-          platforms_per_day: 4,
+          platforms_per_day: 1,
         },
       })
       .eq("id", automation.id);
