@@ -41,6 +41,7 @@ const ProhibitedItems = lazy(() => import("./pages/ProhibitedItems"));
 const FeeSchedule = lazy(() => import("./pages/FeeSchedule"));
 const FoodSafetyGuidelines = lazy(() => import("./pages/FoodSafetyGuidelines"));
 const SellerStandards = lazy(() => import("./pages/SellerStandards"));
+const DMCANotice = lazy(() => import("./pages/DMCANotice"));
 
 // Configure React Query with caching optimizations
 const queryClient = new QueryClient({
@@ -94,6 +95,7 @@ const App = () => (
                 <Route path="/fee-schedule" element={<FeeSchedule />} />
                 <Route path="/food-safety" element={<FoodSafetyGuidelines />} />
                 <Route path="/seller-standards" element={<SellerStandards />} />
+                <Route path="/dmca-notice" element={<DMCANotice />} />
                 <Route path="/:city/browse" element={<Browse />} />
                 <Route path="/:city/product/:id" element={<ProductDetail />} />
                 <Route path="/:city" element={<City />} />
