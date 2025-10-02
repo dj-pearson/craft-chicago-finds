@@ -306,11 +306,17 @@ serve(async (req) => {
       throw new Error("AI generation failed");
     }
 
-    // Robust parse: strip code fences, grab JSON array/object
+    // Robust parse: strip code fences, grab JSON array/object, salvage if needed
     let parsedDays: Array<{ day: number; long_description: string; short_description: string }> = [];
     try {
       let cleaned = (aiResponse.data.content || "").trim();
-      cleaned = cleaned.replace(/```json\s*/g, "").replace(/```\s*/g, "");
+      cleaned = cleaned
+        .replace(/```json\s*/gi, "")
+        .replace(/```\s*/g, "")
+        .replace(/[\u2018\u2019\u201C\u201D]/g, '"'); // smart quotes -> straight
+
+      // Remove trailing commas before ] or }
+      cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
 
       // Try object with days[] first
       const firstBrace = cleaned.indexOf("{");
@@ -320,21 +326,52 @@ serve(async (req) => {
         const obj = JSON.parse(jsonStr);
         if (Array.isArray(obj?.days)) {
           parsedDays = obj.days as typeof parsedDays;
-        } else {
-          // Try direct array fallback
-          const firstBracket = cleaned.indexOf("[");
-          const lastBracket = cleaned.lastIndexOf("]");
-          if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
-            parsedDays = JSON.parse(cleaned.substring(firstBracket, lastBracket + 1));
-          } else {
-            throw new Error("No parsable JSON days array found");
-          }
         }
+      }
+
+      // Fallback: try direct array
+      if (parsedDays.length === 0) {
+        const firstBracket = cleaned.indexOf("[");
+        const lastBracket = cleaned.lastIndexOf("]");
+        if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+          parsedDays = JSON.parse(cleaned.substring(firstBracket, lastBracket + 1));
+        }
+      }
+
+      // Fallback: extract day objects individually
+      if (parsedDays.length === 0) {
+        const matches = cleaned.match(/\{[^{}]*\"day\"\s*:\s*\d+[^{}]*\}/g) || [];
+        const items: typeof parsedDays = [];
+        for (const m of matches) {
+          const safe = m.replace(/,\s*([\]}])/g, '$1');
+          try {
+            const obj = JSON.parse(safe);
+            if (typeof obj.day === 'number') {
+              items.push({
+                day: obj.day,
+                long_description: String(obj.long_description || obj.content || '').slice(0, 600),
+                short_description: String(obj.short_description || '').slice(0, 280),
+              });
+            }
+          } catch { /* skip bad chunk */ }
+        }
+        parsedDays = items;
       }
     } catch (e) {
       console.error("Failed to parse AI JSON for 30-day content:", e);
       console.error("Raw AI output:", aiResponse.data.content);
-      throw new Error("Invalid AI JSON output");
+      // Continue with empty parsedDays to trigger placeholder fallback below
+      parsedDays = [];
+    }
+
+    // Placeholder fallback if AI parsing failed entirely
+    if (parsedDays.length === 0) {
+      console.warn("AI output invalid; generating minimal placeholders for all days");
+      parsedDays = allDays.map((d) => ({
+        day: d.day,
+        long_description: `${city.name} makers unite! Countdown to launch continues — ${d.title}. Join #CraftLocal and support #${city.slug}Makers #ShopLocal`.slice(0, 600),
+        short_description: `${d.title} — #CraftLocal #${city.slug}Makers #ShopLocal`.slice(0, 280),
+      }));
     }
 
     // Validate and clamp outputs
