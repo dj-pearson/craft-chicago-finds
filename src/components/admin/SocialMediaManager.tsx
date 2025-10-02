@@ -142,6 +142,16 @@ export const SocialMediaManager = () => {
     auto_schedule: false,
   });
 
+  const [generatingBulkPosts, setGeneratingBulkPosts] = useState(false);
+  const [bulkPostForm, setBulkPostForm] = useState({
+    topic: '',
+    num_posts: 5,
+    start_date: new Date().toISOString().split('T')[0],
+    schedule_time: '09:00',
+    interval_days: 1,
+    platforms: ['facebook', 'instagram', 'twitter', 'linkedin'] as string[],
+  });
+
   useEffect(() => {
     fetchData();
   }, [selectedCity]);
@@ -354,7 +364,87 @@ Please generate engaging social media content that follows the 30-day social med
     }
   };
 
-  const handleGenerate30DayCampaign = async () => {
+  const handleGenerateBulkPosts = async () => {
+    if (!selectedCity) {
+      toast({
+        title: "Error",
+        description: "Please select a city first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!bulkPostForm.topic.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a topic",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (bulkPostForm.platforms.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please select at least one platform",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setGeneratingBulkPosts(true);
+    console.log('Generating bulk posts:', bulkPostForm);
+
+    try {
+      const { data: functionData, error: functionError } = await supabase.functions.invoke(
+        'generate-bulk-topic-posts',
+        {
+          body: {
+            city_id: selectedCity,
+            topic: bulkPostForm.topic,
+            num_posts: bulkPostForm.num_posts,
+            start_date: bulkPostForm.start_date,
+            schedule_time: bulkPostForm.schedule_time,
+            interval_days: bulkPostForm.interval_days,
+            platforms: bulkPostForm.platforms,
+          },
+        }
+      );
+
+      if (functionError) throw functionError;
+
+      console.log('Bulk posts generation response:', functionData);
+
+      toast({
+        title: "Success",
+        description: `Generated ${functionData.posts_created} posts successfully`,
+      });
+
+      // Refresh posts
+      await fetchData();
+
+      // Reset form
+      setBulkPostForm({
+        topic: '',
+        num_posts: 5,
+        start_date: new Date().toISOString().split('T')[0],
+        schedule_time: '09:00',
+        interval_days: 1,
+        platforms: ['facebook', 'instagram', 'twitter', 'linkedin'],
+      });
+    } catch (error) {
+      console.error('Error generating bulk posts:', error);
+      toast({
+        title: "Error",
+        description: (error as Error).message || "Failed to generate posts",
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingBulkPosts(false);
+    }
+  };
+
+  const handleGenerate30DayCampaign = async () {
     if (!selectedCity || !campaignGenForm.campaign_id || !campaignGenForm.launch_date) {
       toast({
         title: "Error",
@@ -1232,6 +1322,123 @@ Please generate engaging social media content that follows the 30-day social med
                   <Sparkles className="h-4 w-4 mr-2" />
                 )}
                 Generate 30-Day Campaign
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Plus className="h-5 w-5" />
+                Bulk Topic-Based Post Generator
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="topic">Topic</Label>
+                <Input
+                  id="topic"
+                  value={bulkPostForm.topic}
+                  onChange={(e) =>
+                    setBulkPostForm({ ...bulkPostForm, topic: e.target.value })
+                  }
+                  placeholder="e.g., Holiday Gift Ideas, Spring Collection"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="num_posts">Number of Posts</Label>
+                  <Input
+                    id="num_posts"
+                    type="number"
+                    min="1"
+                    max="30"
+                    value={bulkPostForm.num_posts}
+                    onChange={(e) =>
+                      setBulkPostForm({ ...bulkPostForm, num_posts: parseInt(e.target.value) || 1 })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="start_schedule_date">Start Date</Label>
+                  <Input
+                    id="start_schedule_date"
+                    type="date"
+                    value={bulkPostForm.start_date}
+                    onChange={(e) =>
+                      setBulkPostForm({ ...bulkPostForm, start_date: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="schedule_time">Schedule Time</Label>
+                  <Input
+                    id="schedule_time"
+                    type="time"
+                    value={bulkPostForm.schedule_time}
+                    onChange={(e) =>
+                      setBulkPostForm({ ...bulkPostForm, schedule_time: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="interval_days">Interval (Days)</Label>
+                  <Input
+                    id="interval_days"
+                    type="number"
+                    min="1"
+                    max="7"
+                    value={bulkPostForm.interval_days}
+                    onChange={(e) =>
+                      setBulkPostForm({ ...bulkPostForm, interval_days: parseInt(e.target.value) || 1 })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>Platforms</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {["facebook", "instagram", "twitter", "linkedin"].map((platform) => (
+                    <label key={platform} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={bulkPostForm.platforms.includes(platform)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setBulkPostForm({
+                              ...bulkPostForm,
+                              platforms: [...bulkPostForm.platforms, platform],
+                            });
+                          } else {
+                            setBulkPostForm({
+                              ...bulkPostForm,
+                              platforms: bulkPostForm.platforms.filter((p) => p !== platform),
+                            });
+                          }
+                        }}
+                      />
+                      <span className="capitalize">{platform}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                onClick={handleGenerateBulkPosts}
+                disabled={generatingBulkPosts}
+                className="w-full"
+              >
+                {generatingBulkPosts ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4 mr-2" />
+                )}
+                Generate Posts
               </Button>
             </CardContent>
           </Card>
