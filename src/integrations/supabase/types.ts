@@ -2633,6 +2633,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      send_compliance_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       update_last_seen: {
         Args: { _user_id: string }
         Returns: undefined
