@@ -29,3 +29,6 @@ verify_jwt = true
 
 [functions.generate-platform-marketing-post]
 verify_jwt = false
+
+[functions.get-scheduled-posts]
+verify_jwt = false
