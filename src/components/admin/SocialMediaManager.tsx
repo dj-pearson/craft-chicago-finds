@@ -476,12 +476,20 @@ Please generate engaging social media content that follows the 30-day social med
     }
 
     try {
-      const { error } = await supabase
+      console.log("Attempting to delete webhook:", webhookId);
+      
+      const { error, data } = await supabase
         .from("webhook_settings")
         .delete()
-        .eq("id", webhookId);
+        .eq("id", webhookId)
+        .select();
 
-      if (error) throw error;
+      console.log("Delete response:", { data, error });
+
+      if (error) {
+        console.error("Delete error details:", error);
+        throw error;
+      }
 
       toast({
         title: "Success",
@@ -489,11 +497,11 @@ Please generate engaging social media content that follows the 30-day social med
       });
 
       fetchData();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting webhook:", error);
       toast({
         title: "Error",
-        description: "Failed to delete webhook",
+        description: error?.message || "Failed to delete webhook",
         variant: "destructive",
       });
     }
