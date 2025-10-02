@@ -22,6 +22,7 @@ interface CitySetupRequest {
     templateCitySlug: string;
     includeCategories: boolean;
     includeFeaturedSlots: boolean;
+    includeFeaturedMakersTemplates: boolean;
   };
 }
 
@@ -287,6 +288,40 @@ serve(async (req) => {
               if (!slotError) {
                 results.replicated.push({ type: 'featured_slots', count: newSlots.length });
                 console.log(`Replicated ${newSlots.length} featured slots`);
+              }
+            }
+          }
+
+          // Replicate featured makers (as empty templates for admins to assign later)
+          if (requestData.replicationOptions.includeFeaturedMakersTemplates) {
+            const { data: makers } = await supabaseClient
+              .from('featured_makers')
+              .select('shop_name, specialty, featured_description, bio, tags, sort_order')
+              .eq('city_id', templateCity.id)
+              .eq('is_featured', true);
+
+            if (makers && makers.length > 0) {
+              const newMakers = makers.map(maker => ({
+                shop_name: `${maker.shop_name} (Template)`,
+                specialty: maker.specialty,
+                featured_description: maker.featured_description,
+                bio: maker.bio,
+                tags: maker.tags,
+                sort_order: maker.sort_order,
+                city_id: city.id,
+                user_id: null, // Will be assigned later by admin
+                is_featured: false, // Start inactive until assigned
+                rating: 0,
+                review_count: 0
+              }));
+
+              const { error: makerError } = await supabaseClient
+                .from('featured_makers')
+                .insert(newMakers);
+
+              if (!makerError) {
+                results.replicated.push({ type: 'featured_makers_templates', count: newMakers.length });
+                console.log(`Replicated ${newMakers.length} featured maker templates`);
               }
             }
           }

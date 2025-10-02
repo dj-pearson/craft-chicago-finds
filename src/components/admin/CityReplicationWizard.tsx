@@ -39,6 +39,7 @@ interface CityReplicationWizardProps {
 interface TemplateData {
   categories: Array<{ name: string; slug: string; description: string | null }>;
   featuredSlots: Array<{ slot_type: string; title: string; description: string | null }>;
+  featuredMakers: Array<{ shop_name: string; specialty: string; featured_description: string | null }>;
 }
 
 export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityReplicationWizardProps) => {
@@ -56,9 +57,11 @@ export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityRep
     is_active: false,
     launch_date: "",
     hero_image_url: "",
+    city_logo_url: "",
     replicate_from_chicago: true,
     include_categories: true,
     include_featured_slots: true,
+    include_featured_makers_templates: true,
   });
 
   // Load Chicago template data
@@ -75,7 +78,7 @@ export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityRep
           .single();
 
         if (chicagoCity.data) {
-          const [categoriesRes, slotsRes] = await Promise.all([
+          const [categoriesRes, slotsRes, makersRes] = await Promise.all([
             supabase
               .from("categories")
               .select("name, slug, description")
@@ -86,12 +89,18 @@ export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityRep
               .select("slot_type, title, description")
               .eq("city_id", chicagoCity.data.id)
               .eq("is_active", true)
-              .order("sort_order")
+              .order("sort_order"),
+            supabase
+              .from("featured_makers")
+              .select("shop_name, specialty, featured_description")
+              .eq("city_id", chicagoCity.data.id)
+              .eq("is_featured", true)
           ]);
 
           setTemplateData({
             categories: categoriesRes.data || [],
             featuredSlots: slotsRes.data || [],
+            featuredMakers: makersRes.data || [],
           });
         }
       } catch (error) {
@@ -113,9 +122,11 @@ export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityRep
       is_active: false,
       launch_date: "",
       hero_image_url: "",
+      city_logo_url: "",
       replicate_from_chicago: true,
       include_categories: true,
       include_featured_slots: true,
+      include_featured_makers_templates: true,
     });
     setStep(1);
   };
@@ -151,11 +162,13 @@ export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityRep
             is_active: formData.is_active,
             launch_date: formData.launch_date || null,
             hero_image_url: formData.hero_image_url || null,
+            city_logo_url: formData.city_logo_url || null,
           },
           replicationOptions: {
             templateCitySlug: 'chicago',
             includeCategories: formData.include_categories,
             includeFeaturedSlots: formData.include_featured_slots,
+            includeFeaturedMakersTemplates: formData.include_featured_makers_templates,
           }
         }
       });
@@ -269,6 +282,38 @@ export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityRep
                         placeholder="Describe the city's maker community and unique character..."
                         rows={4}
                       />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="hero_image_url" className="flex items-center gap-2">
+                        <ImageIcon className="h-4 w-4" />
+                        Hero Image URL
+                      </Label>
+                      <Input
+                        id="hero_image_url"
+                        value={formData.hero_image_url}
+                        onChange={(e) => setFormData(prev => ({ ...prev, hero_image_url: e.target.value }))}
+                        placeholder="https://example.com/city-hero.jpg"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Main banner image for the city marketplace page
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="city_logo_url" className="flex items-center gap-2">
+                        <ImageIcon className="h-4 w-4" />
+                        City Logo URL
+                      </Label>
+                      <Input
+                        id="city_logo_url"
+                        value={formData.city_logo_url}
+                        onChange={(e) => setFormData(prev => ({ ...prev, city_logo_url: e.target.value }))}
+                        placeholder="https://example.com/city-logo.png"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        City-specific logo or branding image
+                      </p>
                     </div>
 
                     <div className="space-y-2">
@@ -387,9 +432,46 @@ export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityRep
                       )}
                     </div>
 
+                    <Separator />
+
+                    {/* Featured Makers */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Star className="h-5 w-5 text-primary" />
+                          <h4 className="font-semibold">Featured Makers Templates</h4>
+                          <Badge variant="secondary">{templateData?.featuredMakers.length || 0}</Badge>
+                        </div>
+                        <Switch
+                          checked={formData.include_featured_makers_templates}
+                          onCheckedChange={(checked) => setFormData(prev => ({ ...prev, include_featured_makers_templates: checked }))}
+                        />
+                      </div>
+                      {formData.include_featured_makers_templates && templateData?.featuredMakers && (
+                        <div className="space-y-2 pl-7">
+                          {templateData.featuredMakers.length > 0 ? (
+                            templateData.featuredMakers.map((maker, idx) => (
+                              <div key={idx} className="flex items-start gap-2 text-sm">
+                                <Check className="h-3 w-3 text-green-600 mt-1" />
+                                <div>
+                                  <p className="font-medium">{maker.shop_name}</p>
+                                  <p className="text-muted-foreground text-xs">Specialty: {maker.specialty}</p>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No featured makers configured yet in Chicago</p>
+                          )}
+                        </div>
+                      )}
+                      <p className="text-xs text-muted-foreground pl-7">
+                        Creates placeholder featured maker slots that you can assign to actual sellers later
+                      </p>
+                    </div>
+
                     <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-900">
                       <p className="text-sm text-blue-900 dark:text-blue-100">
-                        <strong>Note:</strong> Content will be duplicated as templates. You can customize categories, featured content, and other settings after launch from the admin dashboard.
+                        <strong>Auto-Replicates:</strong> All infrastructure, categories, and content templates from Chicago. Only products, shops, and city-specific branding stay unique to each city.
                       </p>
                     </div>
                   </CardContent>
@@ -466,12 +548,30 @@ export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityRep
                             {templateData.featuredSlots.length} featured content slots
                           </li>
                         )}
+                        {formData.include_featured_makers_templates && templateData?.featuredMakers && templateData.featuredMakers.length > 0 && (
+                          <li className="text-sm flex items-center gap-2">
+                            <Check className="h-3 w-3 text-green-600" />
+                            {templateData.featuredMakers.length} featured maker templates
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+
+                    <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg border border-green-200 dark:border-green-900">
+                      <h4 className="font-semibold text-sm text-green-900 dark:text-green-100 mb-2">
+                        What stays unique per city:
+                      </h4>
+                      <ul className="space-y-1 text-sm text-green-900 dark:text-green-100">
+                        <li className="flex items-center gap-2">• City name, description, and branding</li>
+                        <li className="flex items-center gap-2">• Hero images and logos</li>
+                        <li className="flex items-center gap-2">• Actual products and listings</li>
+                        <li className="flex items-center gap-2">• Sellers and shops in the area</li>
                       </ul>
                     </div>
 
                     <div className="bg-amber-50 dark:bg-amber-950/20 p-4 rounded-lg border border-amber-200 dark:border-amber-900">
                       <p className="text-sm text-amber-900 dark:text-amber-100">
-                        <strong>Ready to go!</strong> Your new marketplace will be fully set up and ready for sellers to join.
+                        <strong>Ready to go!</strong> Your new marketplace will have all of Chicago&apos;s infrastructure, ready for local sellers to join.
                       </p>
                     </div>
                   </CardContent>
