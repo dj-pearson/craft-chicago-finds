@@ -2637,6 +2637,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      trigger_compliance_check: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       update_last_seen: {
         Args: { _user_id: string }
         Returns: undefined
