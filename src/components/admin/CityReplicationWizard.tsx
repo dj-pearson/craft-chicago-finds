@@ -27,7 +27,8 @@ import {
   Sparkles,
   Grid3x3,
   Star,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Wand2
 } from "lucide-react";
 
 interface CityReplicationWizardProps {
@@ -46,6 +47,7 @@ export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityRep
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [generatingAI, setGeneratingAI] = useState(false);
   const [templateData, setTemplateData] = useState<TemplateData | null>(null);
 
   // Form state
@@ -141,6 +143,61 @@ export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityRep
       name,
       slug: generateSlug(name)
     }));
+  };
+
+  const handleAIGenerate = async (contentType: 'description' | 'all') => {
+    if (!formData.name || !formData.state) {
+      toast.error("Please enter city name and state first");
+      return;
+    }
+
+    setGeneratingAI(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-generate-city-content', {
+        body: {
+          cityName: formData.name,
+          state: formData.state,
+          contentType: contentType
+        }
+      });
+
+      if (error) {
+        console.error("AI generation error:", error);
+        toast.error("Failed to generate content. Please try again.");
+        return;
+      }
+
+      if (data.error) {
+        if (data.error.includes('Rate limit')) {
+          toast.error("AI rate limit reached. Please try again in a moment.");
+        } else if (data.error.includes('credits')) {
+          toast.error("AI credits depleted. Please add credits in Settings.");
+        } else {
+          toast.error(data.error);
+        }
+        return;
+      }
+
+      if (contentType === 'description') {
+        setFormData(prev => ({
+          ...prev,
+          description: data.content
+        }));
+        toast.success("Description generated!");
+      } else if (contentType === 'all') {
+        const content = typeof data.content === 'string' ? JSON.parse(data.content) : data.content;
+        setFormData(prev => ({
+          ...prev,
+          description: content.description || prev.description
+        }));
+        toast.success("City content generated! Review and customize as needed.");
+      }
+    } catch (error) {
+      console.error("Error generating content:", error);
+      toast.error("Failed to generate content");
+    } finally {
+      setGeneratingAI(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -274,7 +331,29 @@ export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityRep
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="description">Description</Label>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="description">Description</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAIGenerate('description')}
+                          disabled={!formData.name || !formData.state || generatingAI}
+                          className="gap-2"
+                        >
+                          {generatingAI ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Wand2 className="h-3 w-3" />
+                              AI Generate
+                            </>
+                          )}
+                        </Button>
+                      </div>
                       <Textarea
                         id="description"
                         value={formData.description}
@@ -282,6 +361,43 @@ export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityRep
                         placeholder="Describe the city's maker community and unique character..."
                         rows={4}
                       />
+                      <p className="text-xs text-muted-foreground">
+                        Use AI to generate a compelling description based on your city name
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 p-4 rounded-lg border border-purple-200 dark:border-purple-900">
+                      <div className="flex items-start gap-3">
+                        <Sparkles className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5" />
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-sm text-purple-900 dark:text-purple-100 mb-1">
+                            AI-Powered Content Generation
+                          </h4>
+                          <p className="text-xs text-purple-700 dark:text-purple-300 mb-3">
+                            Uses your configured AI settings from Admin Dashboard to generate city-specific content
+                          </p>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleAIGenerate('all')}
+                            disabled={!formData.name || !formData.state || generatingAI}
+                            className="gap-2 border-purple-300 dark:border-purple-700"
+                          >
+                            {generatingAI ? (
+                              <>
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                                Generating...
+                              </>
+                            ) : (
+                              <>
+                                <Wand2 className="h-3 w-3" />
+                                Generate All Content with AI
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="space-y-2">
