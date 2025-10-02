@@ -444,7 +444,7 @@ Please generate engaging social media content that follows the 30-day social med
     }
   };
 
-  const handleGenerate30DayCampaign = async () {
+  const handleGenerate30DayCampaign = async () => {
     if (!selectedCity || !campaignGenForm.campaign_id || !campaignGenForm.launch_date) {
       toast({
         title: "Error",
