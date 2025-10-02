@@ -209,10 +209,16 @@ serve(async (req) => {
           Object.assign(headers, webhookSetting.headers);
         }
 
-        // Ensure webhook URL has protocol
-        const webhookUrl = webhookSetting.webhook_url.startsWith("http")
-          ? webhookSetting.webhook_url
-          : `https://${webhookSetting.webhook_url}`;
+        // Ensure webhook URL has protocol and handle Make.com format
+        let webhookUrl = webhookSetting.webhook_url;
+        
+        // Handle Make.com webhook format: token@hook.us1.make.com -> https://hook.us1.make.com/token
+        const makeComMatch = webhookUrl.match(/^([a-z0-9]+)@(hook\.[a-z0-9]+\.make\.com)$/i);
+        if (makeComMatch) {
+          webhookUrl = `https://${makeComMatch[2]}/${makeComMatch[1]}`;
+        } else if (!webhookUrl.startsWith("http")) {
+          webhookUrl = `https://${webhookUrl}`;
+        }
 
         console.log(`Sending blog webhook to: ${webhookUrl}`);
 
