@@ -326,7 +326,8 @@ CONTENT GUIDELINES:
             : ""
         }
 
-Format your response as JSON:
+CRITICAL: Return ONLY valid JSON with double quotes. No extra text before or after.
+Format:
 {
   "long_description": "Detailed Facebook/LinkedIn version (300-500 chars)",
   "short_description": "Concise Twitter/Threads version with hashtags (max 280 chars)"
@@ -359,27 +360,41 @@ Format your response as JSON:
           continue;
         }
 
-        // Parse AI response
+        // Parse AI response with improved JSON extraction
         let postContent;
         try {
-          const jsonMatch = aiResponse.data.content.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            postContent = JSON.parse(jsonMatch[0]);
+          let cleanedContent = aiResponse.data.content.trim();
+          
+          // Remove markdown code blocks if present
+          cleanedContent = cleanedContent.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+          
+          // Extract JSON object - find first { and last }
+          const firstBrace = cleanedContent.indexOf('{');
+          const lastBrace = cleanedContent.lastIndexOf('}');
+          
+          if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            const jsonString = cleanedContent.substring(firstBrace, lastBrace + 1);
+            postContent = JSON.parse(jsonString);
+            
+            // Validate required fields
+            if (!postContent.long_description || !postContent.short_description) {
+              throw new Error('Missing required fields in AI response');
+            }
           } else {
-            // Fallback if JSON parsing fails
-            postContent = {
-              long_description: aiResponse.data.content.substring(0, 400),
-              short_description: aiResponse.data.content.substring(0, 280),
-            };
+            throw new Error('No valid JSON object found in AI response');
           }
         } catch (parseError) {
           console.error(
             `JSON parsing failed for day ${dayInfo.day}:`,
             parseError
           );
+          console.error('Raw AI response:', aiResponse.data.content);
+          
+          // Fallback if JSON parsing fails
+          const rawContent = aiResponse.data.content.replace(/[{}"]/g, '').trim();
           postContent = {
-            long_description: aiResponse.data.content.substring(0, 400),
-            short_description: aiResponse.data.content.substring(0, 280),
+            long_description: rawContent.substring(0, 400),
+            short_description: rawContent.substring(0, 280),
           };
         }
 
@@ -389,12 +404,13 @@ Format your response as JSON:
           : null;
 
         // Create ONE post with both long and short versions
+        // Using 'facebook' as platform for database record-keeping (webhook handles all platforms)
         const { data: newPost, error: postError } = await supabaseClient
           .from("social_media_posts")
           .insert({
             campaign_id,
             city_id,
-            platform: "all", // Single post for all platforms
+            platform: "facebook", // Database requirement - webhook distributes to all platforms
             post_type: "text",
             title: dayInfo.title,
             content: postContent.long_description, // Default to long version
