@@ -17,6 +17,8 @@ import { serviceRegistry } from "./lib/microservices/service-registry";
 import { eventBus } from "./lib/microservices/event-bus";
 import { apiGateway } from "./lib/microservices/api-gateway";
 import { connectionPool } from "./lib/database/connection-pool";
+import { semanticSearchEngine } from "./lib/search/semantic-search-engine";
+import { recommendationEngine } from "./lib/search/recommendation-engine";
 import "./styles/accessibility.css";
 
 // Lazy load pages for better performance
@@ -69,12 +71,13 @@ const App = () => {
   useEffect(() => {
     const initializeMicroservices = async () => {
       try {
-        // Initialize in order: connection pool -> registry -> event bus -> gateway -> cache
+        // Initialize in order: connection pool -> registry -> event bus -> gateway -> cache -> search
         await connectionPool.initialize();
         await serviceRegistry.initialize();
         await eventBus.initialize();
         await apiGateway.initialize();
         cacheManager.initialize();
+        await recommendationEngine.initialize();
         
         console.log('Microservices infrastructure initialized successfully');
       } catch (error) {
@@ -91,6 +94,8 @@ const App = () => {
       eventBus.cleanup();
       apiGateway.cleanup();
       cacheManager.cleanup();
+      semanticSearchEngine.cleanup();
+      recommendationEngine.cleanup();
     };
   }, []);
 

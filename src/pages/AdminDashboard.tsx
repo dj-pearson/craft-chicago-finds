@@ -27,7 +27,8 @@ import {
   ShieldAlert,
   Database,
   Activity,
-  Server
+  Server,
+  Search
 } from "lucide-react";
 import { CityManager } from "@/components/admin/CityManager";
 import { UserManager } from "@/components/admin/UserManager";
@@ -48,6 +49,7 @@ import { PerformanceMonitoringDashboard } from "@/components/admin/PerformanceMo
 import { CacheManagementDashboard } from "@/components/admin/CacheManagementDashboard";
 import { MicroservicesManagementDashboard } from "@/components/admin/MicroservicesManagementDashboard";
 import { DatabaseOptimizationDashboard } from "@/components/admin/DatabaseOptimizationDashboard";
+import { SearchAnalyticsDashboard } from "@/components/admin/SearchAnalyticsDashboard";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -149,7 +151,7 @@ const AdminDashboard = () => {
         <Tabs defaultValue="overview" className="w-full">
           {/* Mobile-optimized TabsList with horizontal scroll */}
           <div className="relative mb-6">
-            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-14 lg:grid-cols-14 gap-1 sm:gap-0 bg-muted/50">
+            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-15 lg:grid-cols-15 gap-1 sm:gap-0 bg-muted/50">
               <TabsTrigger
                 value="overview"
                 className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
@@ -261,6 +263,14 @@ const AdminDashboard = () => {
                 <Database className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Database</span>
                 <span className="sm:hidden">DB</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="search"
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <Search className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Search</span>
+                <span className="sm:hidden">Search</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -439,6 +449,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="database">
             <DatabaseOptimizationDashboard />
+          </TabsContent>
+
+          <TabsContent value="search">
+            <SearchAnalyticsDashboard />
           </TabsContent>
         </Tabs>
       </main>
