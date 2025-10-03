@@ -192,7 +192,7 @@ Format your response as JSON:
     console.log("AI Descriptions generated:", descriptions);
 
     const citySlug = (article.cities as any)?.slug || "blog";
-    const articleUrl = `https://craftlocal.app/${citySlug}/blog/${article.slug}`;
+    const articleUrl = `https://craftlocal.net/${citySlug}/blog/${article.slug}`;
 
     console.log("Generated article URL:", articleUrl);
 
