@@ -96,15 +96,17 @@ serve(async (req) => {
       }
       webhookSettings = [data];
     } else {
-      const { data } = await supabaseClient
+      const { data, error: wsError } = await supabaseClient
         .from("webhook_settings")
         .select("*")
-        .eq("is_active", true);
-      
-      // Filter for webhooks that support blog articles
-      webhookSettings = (data || []).filter((ws: any) => 
-        ws.content_types?.includes("blog_article")
-      );
+        .eq("is_active", true)
+        .contains("content_types", ["blog_article"]);
+
+      if (wsError) {
+        console.error("Error loading webhook_settings:", wsError.message);
+      }
+      webhookSettings = data || [];
+      console.log("Found active blog webhooks:", webhookSettings.length);
     }
 
     if (webhookSettings.length === 0) {
