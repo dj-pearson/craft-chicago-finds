@@ -60,7 +60,7 @@ export function ComplianceReporting() {
       // Get all sellers
       const { data: sellers, error: sellersError } = await supabase
         .from("profiles")
-        .select("user_id, display_name, email")
+        .select("user_id, display_name, email, is_seller, seller_verified")
         .eq("is_seller", true);
 
       if (sellersError) throw sellersError;
@@ -76,12 +76,9 @@ export function ComplianceReporting() {
 
       const w9SellerIds = new Set(w9Data?.map((w) => w.seller_id) || []);
 
-      // Get verifications
-      const { data: verifications, error: verificationsError } = await supabase
-        .from("seller_verifications")
-        .select("*");
-
-      if (verificationsError) throw verificationsError;
+      // Verification is now handled by Stripe - get seller verification status from profiles
+      const verifiedSellers = sellers?.filter(s => s.seller_verified) || [];
+      const pendingSellers = sellers?.filter(s => s.is_seller && !s.seller_verified) || [];
 
       // Get public disclosures
       const { data: disclosures, error: disclosuresError } = await supabase
@@ -93,47 +90,26 @@ export function ComplianceReporting() {
 
       const disclosureSellerIds = new Set(disclosures?.map((d) => d.seller_id) || []);
 
-      // Calculate stats
-      const pendingVerifications = verifications?.filter(
-        (v) => v.verification_status === "pending"
-      ) || [];
-
-      const overdueVerifications = pendingVerifications.filter(
-        (v) => v.verification_deadline && new Date(v.verification_deadline) < new Date()
-      );
-
-      const approvedVerifications = verifications?.filter(
-        (v) => v.verification_status === "approved"
-      ) || [];
-
-      const rejectedVerifications = verifications?.filter(
-        (v) => v.verification_status === "rejected"
-      ) || [];
+      // Calculate stats based on Stripe verification status
+      const pendingVerifications = pendingSellers;
+      const overdueVerifications: any[] = []; // Stripe handles verification timing
+      const approvedVerifications = verifiedSellers;
+      const rejectedVerifications: any[] = []; // Stripe handles rejections
 
       // Build compliance reports
       const complianceReports: ComplianceReport[] = [];
 
       for (const seller of sellers || []) {
-        const verification = verifications?.find((v) => v.seller_id === seller.user_id);
-        const revenueAnnual = verification?.revenue_annual || 0;
-
-        // Determine statuses based on thresholds
-        const needsW9 = revenueAnnual >= 600;
+        // Stripe handles verification - use seller_verified status
         const hasW9 = w9SellerIds.has(seller.user_id);
-        const w9Status = !needsW9 ? "not_required" : hasW9 ? "submitted" : "missing";
+        const w9Status = hasW9 ? "submitted" : "missing";
 
-        const needsIdentity = revenueAnnual >= 5000;
-        const identityStatus = !needsIdentity
-          ? "not_required"
-          : verification?.verification_status || "missing";
+        // Identity verification is handled by Stripe
+        const identityStatus = seller.seller_verified ? "approved" : "pending";
 
-        const needsDisclosure = revenueAnnual >= 20000;
+        // Disclosure requirements (simplified without revenue tracking)
         const hasDisclosure = disclosureSellerIds.has(seller.user_id);
-        const disclosureStatus = !needsDisclosure
-          ? "not_required"
-          : hasDisclosure
-          ? "submitted"
-          : "missing";
+        const disclosureStatus = hasDisclosure ? "submitted" : "missing";
 
         // Apply report type filter
         let includeInReport = false;
@@ -144,12 +120,12 @@ export function ComplianceReporting() {
           case "non_compliant":
             includeInReport =
               w9Status === "missing" ||
-              identityStatus === "missing" ||
               identityStatus === "pending" ||
               disclosureStatus === "missing";
             break;
           case "high_revenue":
-            includeInReport = revenueAnnual >= 5000;
+            // Without revenue tracking, include all verified sellers
+            includeInReport = seller.seller_verified;
             break;
           case "pending_action":
             includeInReport = identityStatus === "pending";
@@ -161,11 +137,11 @@ export function ComplianceReporting() {
             seller_id: seller.user_id,
             seller_name: seller.display_name || "Unknown",
             seller_email: seller.email || "",
-            revenue_annual: revenueAnnual,
+            revenue_annual: 0, // Revenue tracking removed
             w9_status: w9Status,
             identity_status: identityStatus,
             disclosure_status: disclosureStatus,
-            verification_deadline: verification?.verification_deadline,
+            verification_deadline: undefined, // Stripe handles timing
           });
         }
       }

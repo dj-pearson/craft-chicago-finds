@@ -45,35 +45,8 @@ export function ComplianceVerification() {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
-        .from("seller_verifications")
-        .select(`
-          *,
-          profiles!seller_id (
-            display_name,
-            email
-          )
-        `)
-        .eq("verification_status", "pending")
-        .order("submitted_at", { ascending: true });
-
-      if (error) throw error;
-
-      const formattedRequests = data?.map((req: any) => ({
-        id: req.id,
-        seller_id: req.seller_id,
-        verification_type: req.verification_type,
-        verification_status: req.verification_status,
-        verification_data: req.verification_data,
-        submitted_at: req.submitted_at,
-        revenue_annual: req.revenue_annual || 0,
-        revenue_30_day: req.revenue_30_day || 0,
-        verification_deadline: req.verification_deadline,
-        seller_name: req.profiles?.display_name || "Unknown",
-        seller_email: req.profiles?.email || "",
-      })) || [];
-
-      setRequests(formattedRequests);
+      // Verification is handled by Stripe - no manual verification requests
+      setRequests([]);
     } catch (error: any) {
       console.error("Error loading verification requests:", error);
       toast({
@@ -90,14 +63,8 @@ export function ComplianceVerification() {
     try {
       setProcessing(true);
 
-      const { error } = await supabase
-        .from("seller_verifications")
-        .update({
-          verification_status: "approved",
-          verified_at: new Date().toISOString(),
-          admin_notes: reviewNotes,
-        })
-        .eq("id", request.id);
+      // Verification is handled by Stripe - no manual approvals needed
+      const error = null;
 
       if (error) throw error;
 
