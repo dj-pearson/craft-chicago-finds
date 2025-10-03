@@ -42,32 +42,37 @@ serve(async (req) => {
   }
 
   try {
+    const authHeader = req.headers.get("Authorization") || "";
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const isSystem = authHeader === `Bearer ${serviceKey}`;
+
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
+      isSystem ? serviceKey : (Deno.env.get("SUPABASE_ANON_KEY") ?? ""),
+      isSystem ? undefined : {
         global: {
-          headers: { Authorization: req.headers.get("Authorization")! },
+          headers: { Authorization: authHeader },
         },
       }
     );
 
-    const {
-      data: { user },
-    } = await supabaseClient.auth.getUser();
+    if (!isSystem) {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
 
-    if (!user) {
-      throw new Error("User not authenticated");
-    }
+      // Check permissions
+      const { data: hasPermission } = await supabaseClient.rpc("has_role", {
+        _user_id: user.id,
+        _role: "admin",
+      });
 
-    // Check permissions
-    const { data: hasPermission } = await supabaseClient.rpc("has_role", {
-      _user_id: user.id,
-      _role: "admin",
-    });
-
-    if (!hasPermission) {
-      throw new Error("Insufficient permissions");
+      if (!hasPermission) {
+        throw new Error("Insufficient permissions");
+      }
+    } else {
+      console.log("System call authorized with service role");
     }
 
     const requestData: WebhookSendRequest = await req.json();

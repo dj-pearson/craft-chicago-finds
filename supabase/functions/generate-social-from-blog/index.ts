@@ -65,6 +65,27 @@ serve(async (req) => {
     const citySlug = (article.cities as any)?.slug || "chicago";
     const articleUrl = `https://craftlocal.net/${citySlug}/blog/${article.slug}`;
 
+    // Ensure we have a valid city_id (social_media_posts.city_id is NOT NULL)
+    let cityId = article.city_id as string | null;
+    if (!cityId) {
+      const { data: chicago } = await supabaseClient
+        .from("cities")
+        .select("id")
+        .eq("slug", "chicago")
+        .single();
+      if (chicago?.id) {
+        cityId = chicago.id;
+      } else {
+        const { data: anyCity } = await supabaseClient
+          .from("cities")
+          .select("id")
+          .eq("is_active", true)
+          .limit(1)
+          .single();
+        cityId = anyCity?.id || null;
+      }
+    }
+
     const createdPosts = [];
 
     // Generate posts for each platform
@@ -183,7 +204,7 @@ Generate the ${platform} post now:`;
       const { data: socialPost, error: postError } = await supabaseClient
         .from("social_media_posts")
         .insert({
-          city_id: article.city_id,
+          city_id: cityId,
           platform,
           post_type: "blog_promotion",
           status: "draft",
@@ -232,21 +253,27 @@ Generate the ${platform} post now:`;
       // Auto-send to webhook if enabled
       if (auto_send_webhook) {
         try {
-          console.log(`Sending ${platform} post to webhook...`);
-          
-          const { data: webhookResult, error: webhookError } = await supabaseClient.functions.invoke(
-            "send-social-webhook",
-            {
-              body: {
-                post_id: socialPost.id,
-              },
-            }
-          );
+          console.log(`Sending ${platform} post to webhook (system call)...`);
+          const functionUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-social-webhook`;
+          const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-          if (webhookError) {
-            console.error(`Webhook error for ${platform}:`, webhookError);
+          const resp = await fetch(functionUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${serviceKey}`,
+            },
+            body: JSON.stringify({ post_id: socialPost.id }),
+          });
+
+          const text = await resp.text();
+          let json;
+          try { json = JSON.parse(text); } catch { json = { raw: text }; }
+
+          if (!resp.ok) {
+            console.error(`Webhook failed for ${platform}:`, resp.status, json);
           } else {
-            console.log(`Webhook sent for ${platform}:`, webhookResult);
+            console.log(`Webhook sent for ${platform}:`, json);
           }
         } catch (webhookError) {
           console.error(`Failed to send webhook for ${platform}:`, webhookError);
