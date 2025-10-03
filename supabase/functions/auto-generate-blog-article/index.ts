@@ -378,6 +378,32 @@ Generate the complete blog article now:`;
 
     console.log(`Article created successfully: ${savedArticle.id}`);
 
+    // Step 9: Auto-generate social media posts from the blog article
+    try {
+      console.log("Auto-generating social media posts from blog article...");
+      
+      const { data: socialResult, error: socialError } = await supabaseClient.functions.invoke(
+        "generate-social-from-blog",
+        {
+          body: {
+            article_id: savedArticle.id,
+            platforms: ["facebook", "twitter"], // Generate for both platforms
+            auto_send_webhook: true, // Automatically send to webhook
+          },
+        }
+      );
+
+      if (socialError) {
+        console.error("Failed to generate social posts:", socialError);
+        // Don't throw - blog article was created successfully
+      } else {
+        console.log("Social media posts generated:", socialResult);
+      }
+    } catch (socialError) {
+      console.error("Error generating social posts:", socialError);
+      // Continue - this is a non-critical step
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
