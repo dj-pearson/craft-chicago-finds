@@ -99,10 +99,12 @@ serve(async (req) => {
       const { data } = await supabaseClient
         .from("webhook_settings")
         .select("*")
-        .eq("is_active", true)
-        .eq("supports_blog", true);
+        .eq("is_active", true);
       
-      webhookSettings = data || [];
+      // Filter for webhooks that support blog articles
+      webhookSettings = (data || []).filter((ws: any) => 
+        ws.content_types?.includes("blog_article")
+      );
     }
 
     if (webhookSettings.length === 0) {
