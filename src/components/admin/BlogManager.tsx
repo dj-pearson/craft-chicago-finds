@@ -188,7 +188,7 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
   }, [currentCity]);
 
   const fetchWebhookSettings = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("webhook_settings")
       .select("*")
       .eq("is_active", true)
@@ -214,15 +214,15 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
         return;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("webhook_settings")
-        .insert({
+        .insert([{
           name: webhookName,
           webhook_url: webhookUrl,
           webhook_type: "social_media",
           supports_blog: true,
           is_active: true,
-        })
+        }])
         .select()
         .single();
 
