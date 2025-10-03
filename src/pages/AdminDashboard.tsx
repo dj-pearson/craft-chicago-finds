@@ -38,6 +38,7 @@ import { ComplianceControls } from "@/components/admin/ComplianceControls";
 import { ComplianceVerification } from "@/components/admin/ComplianceVerification";
 import { BulkNotifications } from "@/components/admin/BulkNotifications";
 import { ComplianceReporting } from "@/components/admin/ComplianceReporting";
+import { AuditLogViewer } from "@/components/admin/AuditLogViewer";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -365,6 +366,7 @@ const AdminDashboard = () => {
             <ComplianceReporting />
             <ComplianceVerification />
             <BulkNotifications />
+            <AuditLogViewer />
             <ModerationQueue />
             <ComplianceControls />
           </TabsContent>

@@ -586,6 +586,51 @@ export type Database = {
         }
         Relationships: []
       }
+      compliance_audit_log: {
+        Row: {
+          action_type: string
+          actor_id: string | null
+          actor_type: string
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          seller_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action_type: string
+          actor_id?: string | null
+          actor_type?: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          seller_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action_type?: string
+          actor_id?: string | null
+          actor_type?: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          seller_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       dispute_messages: {
         Row: {
           created_at: string
@@ -2579,6 +2624,19 @@ export type Database = {
       check_shipping_availability: {
         Args: { seller_uuid: string; target_state: string }
         Returns: boolean
+      }
+      create_compliance_audit_log: {
+        Args: {
+          _action_type: string
+          _actor_id: string
+          _actor_type: string
+          _details?: Json
+          _entity_id: string
+          _entity_type: string
+          _metadata?: Json
+          _seller_id: string
+        }
+        Returns: string
       }
       create_notification: {
         Args: {
