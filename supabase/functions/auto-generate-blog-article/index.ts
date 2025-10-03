@@ -7,6 +7,28 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Helper function to convert text to title case
+  const toTitleCase = (str: string): string => {
+    const smallWords = /^(a|an|and|as|at|but|by|for|if|in|nor|of|on|or|so|the|to|up|yet|vs)$/i;
+    
+    return str
+      .toLowerCase()
+      .split(' ')
+      .map((word, index, arr) => {
+        // Always capitalize first and last word
+        if (index === 0 || index === arr.length - 1) {
+          return word.charAt(0).toUpperCase() + word.slice(1);
+        }
+        // Don't capitalize small words unless they're first or last
+        if (smallWords.test(word)) {
+          return word;
+        }
+        // Capitalize everything else
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      })
+      .join(' ');
+  };
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -275,7 +297,7 @@ Generate the complete blog article now:`;
 
     console.log("Article generated successfully, tokens used:", tokensUsed);
 
-    // Step 5: Generate metadata
+    // Step 5: Generate metadata with proper title casing
     const slug = primaryKeyword.primary_keyword
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
@@ -283,9 +305,12 @@ Generate the complete blog article now:`;
       .replace(/-+/g, '-')
       .trim();
 
-    const title = `${primaryKeyword.primary_keyword} in ${cityName} | CraftLocal`;
+    // Apply title case to the keyword for better presentation
+    const titleCasedKeyword = toTitleCase(primaryKeyword.primary_keyword);
+    
+    const title = `${titleCasedKeyword} in ${cityName} | CraftLocal`;
     const excerpt = `Discover ${primaryKeyword.primary_keyword.toLowerCase()} in ${cityName}. Expert insights, local recommendations, and everything you need to know about supporting local artisans.`;
-    const metaTitle = `${primaryKeyword.primary_keyword} - ${new Date().getFullYear()} ${cityName} Guide | CraftLocal`;
+    const metaTitle = `${titleCasedKeyword} - ${new Date().getFullYear()} ${cityName} Guide | CraftLocal`;
     const metaDescription = `Complete guide to ${primaryKeyword.primary_keyword.toLowerCase()} in ${cityName}. ${primaryKeyword.blog_angle}. Support local makers and artisans.`.slice(0, 160);
 
     const wordCount = generatedContent.split(/\s+/).length;
