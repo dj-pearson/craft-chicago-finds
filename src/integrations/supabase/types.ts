@@ -1842,6 +1842,69 @@ export type Database = {
         }
         Relationships: []
       }
+      order_items: {
+        Row: {
+          created_at: string
+          customization_options: Json | null
+          id: string
+          listing_id: string | null
+          order_id: string
+          product_description: string | null
+          product_images: string[] | null
+          product_name: string
+          quantity: number
+          seller_id: string | null
+          total_price: number
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customization_options?: Json | null
+          id?: string
+          listing_id?: string | null
+          order_id: string
+          product_description?: string | null
+          product_images?: string[] | null
+          product_name: string
+          quantity?: number
+          seller_id?: string | null
+          total_price: number
+          unit_price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customization_options?: Json | null
+          id?: string
+          listing_id?: string | null
+          order_id?: string
+          product_description?: string | null
+          product_images?: string[] | null
+          product_name?: string
+          quantity?: number
+          seller_id?: string | null
+          total_price?: number
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_reminders: {
         Row: {
           created_at: string | null
@@ -3368,6 +3431,7 @@ export type Database = {
       }
       webhook_settings: {
         Row: {
+          auto_publish: boolean | null
           content_types: string[] | null
           created_at: string
           created_by: string
@@ -3376,11 +3440,14 @@ export type Database = {
           is_active: boolean
           name: string
           platforms: string[]
+          retry_config: Json | null
           secret_key: string | null
           updated_at: string
+          webhook_type: string
           webhook_url: string
         }
         Insert: {
+          auto_publish?: boolean | null
           content_types?: string[] | null
           created_at?: string
           created_by: string
@@ -3389,11 +3456,14 @@ export type Database = {
           is_active?: boolean
           name: string
           platforms?: string[]
+          retry_config?: Json | null
           secret_key?: string | null
           updated_at?: string
+          webhook_type?: string
           webhook_url: string
         }
         Update: {
+          auto_publish?: boolean | null
           content_types?: string[] | null
           created_at?: string
           created_by?: string
@@ -3402,8 +3472,10 @@ export type Database = {
           is_active?: boolean
           name?: string
           platforms?: string[]
+          retry_config?: Json | null
           secret_key?: string | null
           updated_at?: string
+          webhook_type?: string
           webhook_url?: string
         }
         Relationships: []
