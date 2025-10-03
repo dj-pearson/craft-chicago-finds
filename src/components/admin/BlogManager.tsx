@@ -214,15 +214,15 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
         return;
       }
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("webhook_settings")
-        .insert([{
+        .insert({
           name: webhookName,
           webhook_url: webhookUrl,
-          webhook_type: "social_media",
-          supports_blog: true,
+          content_types: ["blog_article"],
           is_active: true,
-        }])
+          created_by: user.id
+        })
         .select()
         .single();
 
@@ -2139,7 +2139,7 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
           {webhookSettings.length > 0 && (
             <div className="space-y-2">
               <Label>Existing Blog Webhooks</Label>
-              {webhookSettings.filter((w: any) => w.supports_blog === true).map((webhook: any) => (
+              {webhookSettings.filter((w: any) => w.content_types?.includes("blog_article")).map((webhook: any) => (
                 <div key={webhook.id} className="flex items-center justify-between p-3 border rounded">
                   <div className="flex-1">
                     <p className="font-medium">{webhook.name}</p>
