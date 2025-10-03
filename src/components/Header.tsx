@@ -168,7 +168,7 @@ export const Header = () => {
                 variant="default" 
                 size="sm"
                 onClick={() => navigate("/auth")}
-                className="h-9 px-3 sm:px-4 text-sm font-medium ml-1"
+                className="h-9 px-3 sm:px-4 text-sm font-medium"
               >
                 Sign In
               </Button>
@@ -178,11 +178,11 @@ export const Header = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="lg:hidden h-9 w-9 ml-0.5"
+              className="lg:hidden h-9 w-9 ml-1 flex-shrink-0"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              <span className="sr-only">Toggle menu</span>
             </Button>
           </div>
         </div>
