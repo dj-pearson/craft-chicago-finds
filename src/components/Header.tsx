@@ -35,18 +35,18 @@ export const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      <div className="container mx-auto px-4 lg:px-6">
-        <div className="flex h-16 items-center justify-between gap-4">
-          {/* Logo & City Selector */}
-          <div className="flex items-center gap-3">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+        <div className="flex h-14 sm:h-16 items-center justify-between gap-2 sm:gap-3">
+          {/* Logo */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
               <picture>
                 <source srcSet={logoSrcWebP} type="image/webp" />
                 <img 
                   src={logoSrcFallback} 
                   alt={logoAlt} 
-                  className="h-9 object-contain"
-                  style={{ width: '105px', aspectRatio: '96/33' }}
+                  className="h-7 sm:h-8 object-contain"
+                  style={{ width: 'auto', aspectRatio: '96/33' }}
                   width="96"
                   height="33"
                   loading="eager"
@@ -60,66 +60,57 @@ export const Header = () => {
           </div>
 
           {/* Search Bar - Desktop */}
-          <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
+          <div className="hidden lg:flex flex-1 max-w-xl mx-4">
             <QuickSearch className="w-full" />
           </div>
 
           {/* Navigation - Desktop */}
-          <nav className="hidden lg:flex items-center">
-            <div className="flex items-center gap-1">
-              <Button 
-                variant="ghost" 
-                className="h-10 px-4 text-sm font-medium hover:text-primary transition-colors"
-                onClick={() => navigate("/marketplace")}
-              >
-                National Marketplace
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="h-10 px-4 text-sm font-medium hover:text-primary transition-colors"
-                onClick={() => navigate("/browse")}
-              >
-                Browse
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="h-10 px-4 text-sm font-medium hover:text-primary transition-colors"
-                onClick={() => navigate("/sell")}
-              >
-                Sell
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="h-10 px-4 text-sm font-medium hover:text-primary transition-colors"
-                onClick={() => navigate("/about")}
-              >
-                About
-              </Button>
-            </div>
+          <nav className="hidden lg:flex items-center gap-1 flex-shrink-0">
+            <Button 
+              variant="ghost" 
+              className="h-9 px-3 text-sm font-medium hover:text-primary transition-colors"
+              onClick={() => navigate("/marketplace")}
+            >
+              Marketplace
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="h-9 px-3 text-sm font-medium hover:text-primary transition-colors"
+              onClick={() => navigate("/browse")}
+            >
+              Browse
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="h-9 px-3 text-sm font-medium hover:text-primary transition-colors"
+              onClick={() => navigate("/sell")}
+            >
+              Sell
+            </Button>
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
             {/* Search - Mobile */}
-            <Button variant="ghost" size="icon" className="lg:hidden h-10 w-10">
-              <Search className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9">
+              <Search className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="sr-only">Search</span>
             </Button>
 
-            {/* Accessibility */}
-            <div className="h-10 flex items-center">
+            {/* Accessibility - Desktop only */}
+            <div className="hidden sm:flex h-9 items-center">
               <AccessibilityPanel />
             </div>
 
-            {/* Notifications */}
+            {/* Notifications - Logged in users only */}
             {user && (
-              <div className="h-10 flex items-center">
+              <div className="h-9 flex items-center">
                 <NotificationCenter />
               </div>
             )}
 
             {/* Cart */}
-            <div className="h-10 flex items-center">
+            <div className="h-9 flex items-center">
               <CartIndicator showLabel={false} />
             </div>
 
@@ -127,12 +118,12 @@ export const Header = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-10 w-10">
-                    <User className="h-5 w-5" />
+                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
                     <span className="sr-only">User menu</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" className="w-56 bg-popover z-[60]">
                   <div className="px-2 py-1.5">
                     <p className="text-sm font-medium truncate">{profile?.display_name || "User"}</p>
                     <p className="text-xs text-muted-foreground truncate">{user.email}</p>
@@ -177,7 +168,7 @@ export const Header = () => {
                 variant="default" 
                 size="sm"
                 onClick={() => navigate("/auth")}
-                className="h-10 px-4 text-sm font-medium"
+                className="h-9 px-3 sm:px-4 text-sm font-medium ml-1"
               >
                 Sign In
               </Button>
@@ -187,7 +178,7 @@ export const Header = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="lg:hidden h-10 w-10"
+              className="lg:hidden h-9 w-9 ml-0.5"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -198,41 +189,49 @@ export const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 px-1 border-t border-border animate-fade-in">
+          <div className="lg:hidden py-3 border-t border-border animate-fade-in">
             {/* City Selector - Mobile */}
-            <div className="mb-4 sm:hidden">
+            <div className="mb-3 sm:hidden">
               <CitySelector />
             </div>
 
             {/* Mobile Search */}
-            <div className="relative mb-6">
+            <div className="relative mb-4">
               <QuickSearch className="w-full" compact />
             </div>
 
             {/* Mobile Navigation */}
-            <nav className="space-y-1">
+            <nav className="space-y-0.5">
               <Button 
                 variant="ghost" 
-                className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium h-auto"
+                className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto"
                 onClick={() => {
                   navigate("/marketplace");
                   setIsMenuOpen(false);
                 }}
               >
-                🌎 National Marketplace
+                National Marketplace
               </Button>
-              <a href="#" className="flex items-center text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto"
+                onClick={() => {
+                  navigate("/browse");
+                  setIsMenuOpen(false);
+                }}
+              >
                 Browse Categories
-              </a>
-              <a href="#" className="flex items-center text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium">
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto"
+                onClick={() => {
+                  navigate("/sell");
+                  setIsMenuOpen(false);
+                }}
+              >
                 Start Selling
-              </a>
-              <a href="#" className="flex items-center text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium">
-                About Craft Local
-              </a>
-              <a href="#" className="flex items-center text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-3 px-3 rounded-lg text-base font-medium">
-                Help & Support
-              </a>
+              </Button>
             </nav>
           </div>
         )}
