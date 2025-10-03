@@ -9,7 +9,7 @@ const corsHeaders = {
 interface GetScheduledPostsRequest {
   city_id?: string;
   platform?: string;
-  mark_as_posted?: boolean;
+  send_through_webhook?: boolean; // New option to trigger webhook sending
   limit?: number;
 }
 
@@ -25,12 +25,12 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const requestData: GetScheduledPostsRequest = await req.json();
-    const { city_id, platform, mark_as_posted = false, limit = 50 } = requestData;
+    const { city_id, platform, send_through_webhook = false, limit = 1 } = requestData; // Default to 1 post
 
     console.log('Fetching scheduled posts:', {
       city_id,
       platform,
-      mark_as_posted,
+      send_through_webhook,
       limit,
       current_time: new Date().toISOString(),
     });
@@ -65,42 +65,111 @@ serve(async (req) => {
 
     console.log(`Found ${posts?.length || 0} overdue scheduled posts`);
 
-    // Optionally mark posts as posted
-    let updatedPosts = posts;
-    if (mark_as_posted && posts && posts.length > 0) {
-      const postIds = posts.map(p => p.id);
-      
-      const { data: updated, error: updateError } = await supabase
-        .from('social_media_posts')
-        .update({
-          status: 'posted',
-          posted_at: new Date().toISOString(),
-        })
-        .in('id', postIds)
-        .select();
+    const results = {
+      success: true,
+      posts: posts || [],
+      posts_count: posts?.length || 0,
+      posts_sent: 0,
+      errors: [] as string[],
+    };
 
-      if (updateError) {
-        console.error('Error updating post status:', updateError);
-      } else {
-        updatedPosts = updated;
-        console.log(`Marked ${updated?.length || 0} posts as posted`);
+    // Send through webhook if requested and posts found
+    if (send_through_webhook && posts && posts.length > 0) {
+      const post = posts[0]; // Send only the first (oldest) post
+      
+      console.log(`Attempting to send post ${post.id} through webhook`);
+
+      try {
+        // Get the webhook settings for this post
+        const { data: webhookSettings, error: webhookError } = await supabase
+          .from('webhook_settings')
+          .select('*')
+          .eq('id', post.webhook_settings_id)
+          .eq('is_active', true)
+          .single();
+
+        if (webhookError || !webhookSettings) {
+          const errorMsg = `No active webhook found for post ${post.id}`;
+          console.error(errorMsg, webhookError);
+          results.errors.push(errorMsg);
+        } else {
+          console.log(`Sending post to webhook: ${webhookSettings.webhook_url}`);
+
+          // Prepare webhook payload
+          const webhookPayload = {
+            post_id: post.id,
+            platform: post.platform,
+            content: post.content,
+            media_urls: post.media_urls || [],
+            scheduled_for: post.scheduled_for,
+            city: post.cities,
+            campaign: post.campaigns,
+            metadata: post.metadata || {},
+          };
+
+          // Send to webhook
+          const webhookResponse = await fetch(webhookSettings.webhook_url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(webhookSettings.auth_header && {
+                [webhookSettings.auth_header]: webhookSettings.auth_value || '',
+              }),
+            },
+            body: JSON.stringify(webhookPayload),
+          });
+
+          const responseText = await webhookResponse.text();
+          console.log(`Webhook response status: ${webhookResponse.status}`);
+          console.log(`Webhook response body:`, responseText);
+
+          if (!webhookResponse.ok) {
+            throw new Error(`Webhook failed with status ${webhookResponse.status}: ${responseText}`);
+          }
+
+          // Mark post as posted/published
+          const { error: updateError } = await supabase
+            .from('social_media_posts')
+            .update({
+              status: 'posted',
+              posted_at: new Date().toISOString(),
+              webhook_response: {
+                status: webhookResponse.status,
+                body: responseText,
+                sent_at: new Date().toISOString(),
+              },
+            })
+            .eq('id', post.id);
+
+          if (updateError) {
+            console.error('Error updating post status:', updateError);
+            results.errors.push(`Failed to update post ${post.id} status: ${updateError.message}`);
+          } else {
+            console.log(`Successfully sent post ${post.id} and updated status to posted`);
+            results.posts_sent = 1;
+          }
+        }
+      } catch (error) {
+        const errorMsg = `Error sending post ${post.id} through webhook: ${(error as Error).message}`;
+        console.error(errorMsg, error);
+        results.errors.push(errorMsg);
+
+        // Mark post as failed
+        await supabase
+          .from('social_media_posts')
+          .update({
+            status: 'failed',
+            webhook_response: {
+              error: (error as Error).message,
+              failed_at: new Date().toISOString(),
+            },
+          })
+          .eq('id', post.id);
       }
     }
 
-    // Get webhook settings for these posts
-    const { data: webhooks } = await supabase
-      .from('webhook_settings')
-      .select('*')
-      .eq('is_active', true);
-
     return new Response(
-      JSON.stringify({
-        success: true,
-        posts: updatedPosts || [],
-        posts_count: updatedPosts?.length || 0,
-        webhooks_available: webhooks || [],
-        marked_as_posted: mark_as_posted,
-      }),
+      JSON.stringify(results),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
@@ -110,6 +179,7 @@ serve(async (req) => {
     console.error('Error in get-scheduled-posts:', error);
     return new Response(
       JSON.stringify({
+        success: false,
         error: (error as Error).message || 'An error occurred',
       }),
       {
