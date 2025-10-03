@@ -5,3 +5,5 @@ export { PerformanceMetrics } from './PerformanceMetrics';
 export { PublicDisclosure } from './PublicDisclosure';
 export { ComplianceOverview } from './ComplianceOverview';
 export { ComplianceNotifications } from './ComplianceNotifications';
+export { ComplianceAlerts } from './ComplianceAlerts';
+export { PerformanceScore } from './PerformanceScore';
