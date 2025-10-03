@@ -18,7 +18,7 @@ import { PerformanceScore } from "@/components/seller/PerformanceScore";
 import { ComplianceAlerts } from "@/components/seller/ComplianceAlerts";
 import { ImprovementPlan } from "@/components/seller/ImprovementPlan";
 import { ComplianceStatus } from "@/components/seller/ComplianceStatus";
-import { IdentityVerification } from "@/components/seller/IdentityVerification";
+// IdentityVerification removed - using Stripe verification only
 import { SellerComplianceGuide } from "@/components/seller/SellerComplianceGuide";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -453,7 +453,9 @@ export default function SellerDashboard() {
           <TabsContent value="verification">
             <div className="space-y-6">
               <ComplianceAlerts />
-              <IdentityVerification />
+              <div className="text-center py-8 text-muted-foreground">
+                Identity verification is handled securely through Stripe during payment setup.
+              </div>
               <SellerVerification />
               <PublicDisclosure />
             </div>
