@@ -10,3 +10,4 @@ export * from "./AISettingsManager";
 export * from "./SocialMediaManager";
 export * from "./BlogManager";
 export * from "./LaunchControls";
+export * from "./ComplianceControls";

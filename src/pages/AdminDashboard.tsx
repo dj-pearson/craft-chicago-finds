@@ -34,6 +34,7 @@ import { SocialMediaManager } from "@/components/admin/SocialMediaManager";
 import { BlogManager } from "@/components/admin/BlogManager";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 import { ModerationQueue } from "@/components/admin/ModerationQueue";
+import { ComplianceControls } from "@/components/admin/ComplianceControls";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -357,8 +358,9 @@ const AdminDashboard = () => {
             <AnalyticsDashboard />
           </TabsContent>
 
-          <TabsContent value="moderation">
+          <TabsContent value="moderation" className="space-y-6">
             <ModerationQueue />
+            <ComplianceControls />
           </TabsContent>
         </Tabs>
       </main>
