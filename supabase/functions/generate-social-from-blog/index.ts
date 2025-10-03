@@ -215,6 +215,22 @@ Generate the ${platform} post now:`;
         };
       }
 
+      // Normalize/sanitize post content
+      const sanitizeHashtags = (tags: any): string[] => {
+        try {
+          const arr = Array.isArray(tags) ? tags : [];
+          return arr
+            .map((t) => (typeof t === "string" ? t.trim() : ""))
+            .filter((t) => !!t)
+            .map((t) => (t.startsWith("#") ? t : `#${t.replace(/^\"|\"$/g, "")}`))
+            .slice(0, 5);
+        } catch { return []; }
+      };
+
+      postContent.hashtags = sanitizeHashtags(postContent.hashtags);
+
+      // Debug creator/city resolution
+      console.log("Resolved IDs:", { createdByUserId, author_id: article.author_id, cityId });
       // Create the social media post
       const { data: socialPost, error: postError } = await supabaseClient
         .from("social_media_posts")
