@@ -194,6 +194,8 @@ Format your response as JSON:
     const citySlug = (article.cities as any)?.slug || "blog";
     const articleUrl = `https://craftlocal.app/${citySlug}/blog/${article.slug}`;
 
+    console.log("Generated article URL:", articleUrl);
+
     const webhookPayload: BlogWebhookPayload = {
       article_id: article.id,
       article_title: article.title,
@@ -205,6 +207,8 @@ Format your response as JSON:
       publish_date: article.publish_date,
       city_name: (article.cities as any)?.name || null,
     };
+
+    console.log("Full webhook payload:", JSON.stringify(webhookPayload, null, 2));
 
     const results = [];
     for (const webhookSetting of webhookSettings) {
