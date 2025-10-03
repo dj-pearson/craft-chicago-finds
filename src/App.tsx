@@ -16,6 +16,7 @@ import { cacheManager } from "./lib/caching-strategy";
 import { serviceRegistry } from "./lib/microservices/service-registry";
 import { eventBus } from "./lib/microservices/event-bus";
 import { apiGateway } from "./lib/microservices/api-gateway";
+import { connectionPool } from "./lib/database/connection-pool";
 import "./styles/accessibility.css";
 
 // Lazy load pages for better performance
@@ -68,7 +69,8 @@ const App = () => {
   useEffect(() => {
     const initializeMicroservices = async () => {
       try {
-        // Initialize in order: registry -> event bus -> gateway -> cache
+        // Initialize in order: connection pool -> registry -> event bus -> gateway -> cache
+        await connectionPool.initialize();
         await serviceRegistry.initialize();
         await eventBus.initialize();
         await apiGateway.initialize();
@@ -84,6 +86,7 @@ const App = () => {
     
     // Cleanup on unmount
     return () => {
+      connectionPool.cleanup();
       serviceRegistry.cleanup();
       eventBus.cleanup();
       apiGateway.cleanup();

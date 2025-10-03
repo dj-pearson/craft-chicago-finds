@@ -47,6 +47,7 @@ import { FraudDetectionDashboard } from "@/components/admin/FraudDetectionDashbo
 import { PerformanceMonitoringDashboard } from "@/components/admin/PerformanceMonitoringDashboard";
 import { CacheManagementDashboard } from "@/components/admin/CacheManagementDashboard";
 import { MicroservicesManagementDashboard } from "@/components/admin/MicroservicesManagementDashboard";
+import { DatabaseOptimizationDashboard } from "@/components/admin/DatabaseOptimizationDashboard";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -148,7 +149,7 @@ const AdminDashboard = () => {
         <Tabs defaultValue="overview" className="w-full">
           {/* Mobile-optimized TabsList with horizontal scroll */}
           <div className="relative mb-6">
-            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-13 lg:grid-cols-13 gap-1 sm:gap-0 bg-muted/50">
+            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-14 lg:grid-cols-14 gap-1 sm:gap-0 bg-muted/50">
               <TabsTrigger
                 value="overview"
                 className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
@@ -252,6 +253,14 @@ const AdminDashboard = () => {
                 <Server className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Services</span>
                 <span className="sm:hidden">Svc</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="database"
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <Database className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Database</span>
+                <span className="sm:hidden">DB</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -426,6 +435,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="microservices">
             <MicroservicesManagementDashboard />
+          </TabsContent>
+
+          <TabsContent value="database">
+            <DatabaseOptimizationDashboard />
           </TabsContent>
         </Tabs>
       </main>
