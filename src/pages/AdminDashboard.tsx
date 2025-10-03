@@ -41,6 +41,7 @@ import { ComplianceReporting } from "@/components/admin/ComplianceReporting";
 import { AuditLogViewer } from "@/components/admin/AuditLogViewer";
 import { AdminComplianceGuide } from "@/components/admin/AdminComplianceGuide";
 import { FraudDetectionDashboard } from "@/components/admin/FraudDetectionDashboard";
+import { PerformanceMonitoringDashboard } from "@/components/admin/PerformanceMonitoringDashboard";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -142,7 +143,7 @@ const AdminDashboard = () => {
         <Tabs defaultValue="overview" className="w-full">
           {/* Mobile-optimized TabsList with horizontal scroll */}
           <div className="relative mb-6">
-            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-10 lg:grid-cols-10 gap-1 sm:gap-0 bg-muted/50">
+            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-11 lg:grid-cols-11 gap-1 sm:gap-0 bg-muted/50">
               <TabsTrigger
                 value="overview"
                 className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
@@ -222,6 +223,14 @@ const AdminDashboard = () => {
                 <ShieldAlert className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Fraud</span>
                 <span className="sm:hidden">Fraud</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="performance"
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Performance</span>
+                <span className="sm:hidden">Perf</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -384,6 +393,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="fraud">
             <FraudDetectionDashboard />
+          </TabsContent>
+
+          <TabsContent value="performance">
+            <PerformanceMonitoringDashboard />
           </TabsContent>
         </Tabs>
       </main>
