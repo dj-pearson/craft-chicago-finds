@@ -17,6 +17,8 @@ import { ComplianceNotifications } from "@/components/seller/ComplianceNotificat
 import { PerformanceScore } from "@/components/seller/PerformanceScore";
 import { ComplianceAlerts } from "@/components/seller/ComplianceAlerts";
 import { ImprovementPlan } from "@/components/seller/ImprovementPlan";
+import { ComplianceStatus } from "@/components/seller/ComplianceStatus";
+import { IdentityVerification } from "@/components/seller/IdentityVerification";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -424,6 +426,8 @@ export default function SellerDashboard() {
 
           <TabsContent value="analytics">
             <div className="space-y-6">
+              <ComplianceStatus />
+              <ImprovementPlan />
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <PerformanceScore />
                 <ComplianceAlerts />
@@ -447,6 +451,7 @@ export default function SellerDashboard() {
 
           <TabsContent value="verification">
             <div className="space-y-6">
+              <IdentityVerification />
               <SellerVerification />
               <PublicDisclosure />
             </div>
