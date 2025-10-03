@@ -340,8 +340,8 @@ Generate the complete blog article now:`;
       meta_title: metaTitle,
       meta_description: metaDescription,
       keywords: allKeywords,
-      status: 'draft', // Save as draft for review
-      publish_date: null,
+      status: 'published', // Publish immediately for automated articles
+      publish_date: new Date().toISOString(),
       author_id: null, // System generated
       city_id: city_id || null,
       category: selectedTemplate.template_type === 'guide' ? 'Guides' :
@@ -383,15 +383,23 @@ Generate the complete blog article now:`;
         .eq("id", keyword.id);
     }
 
-    // Step 8: Log the generation
+    // Step 8: Log the generation (use first active admin as user_id)
+    const { data: adminUser } = await supabaseClient
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "admin")
+      .eq("is_active", true)
+      .limit(1)
+      .single();
+
     await supabaseClient.from("ai_generation_logs").insert({
-      user_id: null,
+      user_id: adminUser?.user_id || null,
       model_used: aiSettings.model_name,
       prompt: userPrompt.substring(0, 1000),
       response: generatedContent.substring(0, 1000),
       tokens_used: tokensUsed,
       success: true,
-      generation_type: "auto_blog_article",
+      generation_type: "blog_article",
       metadata: {
         template_id: selectedTemplate.id,
         template_name: selectedTemplate.name,
