@@ -39,6 +39,7 @@ import { ComplianceVerification } from "@/components/admin/ComplianceVerificatio
 import { BulkNotifications } from "@/components/admin/BulkNotifications";
 import { ComplianceReporting } from "@/components/admin/ComplianceReporting";
 import { AuditLogViewer } from "@/components/admin/AuditLogViewer";
+import { AdminComplianceGuide } from "@/components/admin/AdminComplianceGuide";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -363,6 +364,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="moderation" className="space-y-6">
+            <AdminComplianceGuide />
             <ComplianceReporting />
             <ComplianceVerification />
             <BulkNotifications />

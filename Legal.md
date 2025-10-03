@@ -102,7 +102,7 @@
 ### Documentation
 - ✅ Create seller onboarding guide
 - ✅ Document compliance requirements for sellers
-- ⏳ Create admin guide for compliance management
+- ✅ Create admin guide for compliance management
 - ⏳ Legal review of all disclosure text
 
 ### Admin Tools
