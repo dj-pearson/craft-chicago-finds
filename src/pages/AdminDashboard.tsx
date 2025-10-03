@@ -10,26 +10,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Settings,
   Users,
   MapPin,
-  Plus,
-  Eye,
-  Edit,
-  BarChart3,
   ArrowLeft,
-  Brain,
-  Share2,
-  FileText,
-  ShieldAlert,
-  Database,
-  Activity,
-  Server,
-  Search
+  Eye,
+  Plus,
 } from "lucide-react";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { CityManager } from "@/components/admin/CityManager";
 import { UserManager } from "@/components/admin/UserManager";
 import { ContentManager } from "@/components/admin/ContentManager";
@@ -52,6 +43,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [hasAccess, setHasAccess] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     const verifyAccess = async () => {
@@ -109,168 +101,49 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur">
-        <div className="container mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/")}
-              className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3"
-            >
-              <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Back to Site</span>
-              <span className="sm:hidden">Back</span>
-            </Button>
-            <div className="flex items-center gap-1 sm:gap-2">
-              <Settings className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-              <h1 className="text-lg sm:text-xl font-bold">
-                <span className="hidden sm:inline">Admin Dashboard</span>
-                <span className="sm:hidden">Admin</span>
-              </h1>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        {/* Sidebar */}
+        <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <header className="h-14 sm:h-16 border-b bg-background/95 backdrop-blur flex items-center px-3 sm:px-4">
+            <SidebarTrigger className="mr-2" />
+            <div className="flex items-center justify-between flex-1">
+              <div className="flex items-center gap-2 sm:gap-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate("/")}
+                  className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3"
+                >
+                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Back to Site</span>
+                  <span className="sm:hidden">Back</span>
+                </Button>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Settings className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                  <h1 className="text-lg sm:text-xl font-bold">
+                    <span className="hidden sm:inline">Admin Dashboard</span>
+                    <span className="sm:hidden">Admin</span>
+                  </h1>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Badge variant="destructive" className="text-xs">Admin</Badge>
+                <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline truncate max-w-32">
+                  {user?.email}
+                </span>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Badge variant="destructive" className="text-xs">Admin</Badge>
-            <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline truncate max-w-32">
-              {user?.email}
-            </span>
-          </div>
-        </div>
-      </header>
+          </header>
 
-      {/* Content */}
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <Tabs defaultValue="overview" className="w-full">
-          {/* Mobile-optimized TabsList with horizontal scroll */}
-          <div className="relative mb-6">
-            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-15 lg:grid-cols-15 gap-1 sm:gap-0 bg-muted/50">
-              <TabsTrigger
-                value="overview"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Overview</span>
-                <span className="sm:hidden">Over</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="cities"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Cities</span>
-                <span className="sm:hidden">Cities</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="users"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <Users className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Users</span>
-                <span className="sm:hidden">Users</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="content"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Content</span>
-                <span className="sm:hidden">Cont</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="blog"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Blog</span>
-                <span className="sm:hidden">Blog</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="ai"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <Brain className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">AI Settings</span>
-                <span className="sm:hidden">AI</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="social"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Social</span>
-                <span className="sm:hidden">Soc</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="analytics"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Analytics</span>
-                <span className="sm:hidden">Anal</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="moderation"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <ShieldAlert className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Moderation</span>
-                <span className="sm:hidden">Mod</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="fraud"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <ShieldAlert className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Fraud</span>
-                <span className="sm:hidden">Fraud</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="performance"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Performance</span>
-                <span className="sm:hidden">Perf</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="cache"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <Database className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Cache</span>
-                <span className="sm:hidden">Cache</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="microservices"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <Server className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Services</span>
-                <span className="sm:hidden">Svc</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="database"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <Database className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Database</span>
-                <span className="sm:hidden">DB</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="search"
-                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
-              >
-                <Search className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Search</span>
-                <span className="sm:hidden">Search</span>
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
+          {/* Content */}
+          <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-8">
+            {activeTab === "overview" && (
+            <div className="space-y-4 sm:space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -386,53 +259,42 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
+            </div>
+            )}
 
-          <TabsContent value="cities">
-            <CityManager />
-          </TabsContent>
+            {activeTab === "cities" && <CityManager />}
+            {activeTab === "users" && <UserManager />}
+            {activeTab === "content" && <ContentManager />}
+            {activeTab === "ai" && <AISettingsManager />}
+            {activeTab === "blog" && <BlogManager />}
+            {activeTab === "social" && <SocialMediaManager />}
+            {activeTab === "analytics" && <AnalyticsDashboard />}
+            
+            {activeTab === "moderation" && (
+              <div className="space-y-6">
+                <AdminComplianceGuide />
+                <ComplianceReporting />
+                <ComplianceVerification />
+                <BulkNotifications />
+                <AuditLogViewer />
+                <ModerationQueue />
+                <ComplianceControls />
+              </div>
+            )}
 
-          <TabsContent value="users">
-            <UserManager />
-          </TabsContent>
-
-          <TabsContent value="content">
-            <ContentManager />
-          </TabsContent>
-
-          <TabsContent value="ai">
-            <AISettingsManager />
-          </TabsContent>
-
-          <TabsContent value="blog">
-            <BlogManager />
-          </TabsContent>
-
-          <TabsContent value="social">
-            <SocialMediaManager />
-          </TabsContent>
-
-          <TabsContent value="analytics">
-            <AnalyticsDashboard />
-          </TabsContent>
-
-          <TabsContent value="moderation" className="space-y-6">
-            <AdminComplianceGuide />
-            <ComplianceReporting />
-            <ComplianceVerification />
-            <BulkNotifications />
-            <AuditLogViewer />
-            <ModerationQueue />
-            <ComplianceControls />
-          </TabsContent>
-
-          <TabsContent value="fraud">
-            <FraudDetectionDashboard />
-          </TabsContent>
-
-        </Tabs>
-      </main>
-    </div>
+            {activeTab === "fraud" && <FraudDetectionDashboard />}
+            {activeTab === "performance" && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Performance Monitoring</CardTitle>
+                  <CardDescription>System performance metrics coming soon</CardDescription>
+                </CardHeader>
+              </Card>
+            )}
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
