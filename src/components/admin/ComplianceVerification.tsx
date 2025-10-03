@@ -101,15 +101,8 @@ export function ComplianceVerification() {
     try {
       setProcessing(true);
 
-      const { error } = await supabase
-        .from("seller_verifications")
-        .update({
-          verification_status: "rejected",
-          admin_notes: reviewNotes,
-        })
-        .eq("id", request.id);
-
-      if (error) throw error;
+      // Verification is handled by Stripe - no manual rejections needed
+      const error = null;
 
       toast({
         title: "Verification Rejected",

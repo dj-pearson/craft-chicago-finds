@@ -104,13 +104,8 @@ export const DatabaseOptimizationDashboard = () => {
 
   const loadPerformanceMetrics = async () => {
     try {
-      const hoursBack = selectedTimeRange === '1h' ? 1 : selectedTimeRange === '24h' ? 24 : 168;
-      
-      const { data, error } = await supabase
-        .rpc('get_database_performance_summary', { hours_back: hoursBack });
-
-      if (error) throw error;
-      setPerformanceMetrics(data || []);
+      // Database performance functions not yet implemented
+      setPerformanceMetrics([]);
     } catch (error) {
       console.error('Failed to load performance metrics:', error);
     }
@@ -118,11 +113,8 @@ export const DatabaseOptimizationDashboard = () => {
 
   const loadSlowQueries = async () => {
     try {
-      const { data, error } = await supabase
-        .rpc('analyze_slow_queries', { threshold_ms: 1000, limit_count: 10 });
-
-      if (error) throw error;
-      setSlowQueries(data || []);
+      // Slow query analysis functions not yet implemented
+      setSlowQueries([]);
     } catch (error) {
       console.error('Failed to load slow queries:', error);
     }
@@ -130,16 +122,8 @@ export const DatabaseOptimizationDashboard = () => {
 
   const loadOptimizationSuggestions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('query_optimization_suggestions')
-        .select('*')
-        .eq('status', 'pending')
-        .order('priority', { ascending: false })
-        .order('estimated_improvement', { ascending: false })
-        .limit(10);
-
-      if (error) throw error;
-      setOptimizationSuggestions(data || []);
+      // Query optimization tables not yet implemented
+      setOptimizationSuggestions([]);
     } catch (error) {
       console.error('Failed to load optimization suggestions:', error);
     }
@@ -147,17 +131,8 @@ export const DatabaseOptimizationDashboard = () => {
 
   const loadConnectionMetrics = async () => {
     try {
-      const timeFilter = getTimeFilter(selectedTimeRange);
-      
-      const { data, error } = await supabase
-        .from('connection_pool_metrics')
-        .select('*')
-        .gte('timestamp', timeFilter)
-        .order('timestamp', { ascending: false })
-        .limit(50);
-
-      if (error) throw error;
-      setConnectionMetrics(data || []);
+      // Connection pool metrics tables not yet implemented
+      setConnectionMetrics([]);
     } catch (error) {
       console.error('Failed to load connection metrics:', error);
     }
