@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStripe } from '@/hooks/useStripe';
 import { useAuth } from '@/hooks/useAuth';
+import { useFraudDetection } from '@/hooks/useFraudDetection';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,8 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, CreditCard, MapPin, Truck } from 'lucide-react';
+import { Loader2, CreditCard, MapPin, Truck, Shield, AlertTriangle } from 'lucide-react';
 
 interface CheckoutProps {
   listing: {
@@ -37,11 +40,20 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
   const { stripe, isLoading: stripeLoading } = useStripe();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { 
+    analyzeTransaction, 
+    isAnalyzing, 
+    trustScore, 
+    getSecurityStatus,
+    isInitialized 
+  } = useFraudDetection();
   
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [fulfillmentMethod, setFulfillmentMethod] = useState<'local_pickup' | 'shipping'>('local_pickup');
   const [notes, setNotes] = useState('');
+  const [fraudAnalysisResult, setFraudAnalysisResult] = useState<any>(null);
+  const [showFraudWarning, setShowFraudWarning] = useState(false);
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     name: '',
     address: '',
@@ -54,6 +66,31 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
   const subtotal = listing.price * quantity;
   const platformFee = subtotal * PLATFORM_FEE_RATE;
   const total = subtotal + platformFee;
+
+  // Run fraud analysis when transaction details change
+  useEffect(() => {
+    if (isInitialized && user && total > 0) {
+      runFraudAnalysis();
+    }
+  }, [total, fulfillmentMethod, isInitialized, user]);
+
+  const runFraudAnalysis = async () => {
+    if (!user) return;
+
+    try {
+      const result = await analyzeTransaction({
+        amount: total,
+        listingId: listing.id,
+        sellerId: listing.seller_id,
+        shippingAddress: fulfillmentMethod === 'shipping' ? shippingAddress : undefined
+      });
+
+      setFraudAnalysisResult(result);
+      setShowFraudWarning(result.shouldReview || result.shouldBlock);
+    } catch (error) {
+      console.error('Fraud analysis failed:', error);
+    }
+  };
 
   const handleCheckout = async () => {
     if (!stripe || !user) return;
@@ -74,6 +111,33 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
           setLoading(false);
           return;
         }
+      }
+
+      // Run final fraud analysis
+      const fraudResult = await analyzeTransaction({
+        amount: total,
+        listingId: listing.id,
+        sellerId: listing.seller_id,
+        shippingAddress: fulfillmentMethod === 'shipping' ? shippingAddress : undefined
+      });
+
+      // Block transaction if fraud score is too high
+      if (fraudResult.shouldBlock) {
+        toast({
+          title: 'Transaction Blocked',
+          description: 'This transaction has been flagged for security review. Please contact support.',
+          variant: 'destructive'
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Show warning for review-flagged transactions
+      if (fraudResult.shouldReview && !showFraudWarning) {
+        setFraudAnalysisResult(fraudResult);
+        setShowFraudWarning(true);
+        setLoading(false);
+        return;
       }
 
       // Create payment intent
@@ -210,6 +274,74 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Security Status */}
+          {isInitialized && trustScore !== null && (
+            <div className="bg-muted/30 p-3 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Shield className="h-4 w-4" />
+                <span className="text-sm font-medium">Security Status</span>
+                <Badge variant="outline" className={`text-xs ${
+                  getSecurityStatus().color === 'green' ? 'border-green-500 text-green-700' :
+                  getSecurityStatus().color === 'yellow' ? 'border-yellow-500 text-yellow-700' :
+                  getSecurityStatus().color === 'orange' ? 'border-orange-500 text-orange-700' :
+                  getSecurityStatus().color === 'red' ? 'border-red-500 text-red-700' :
+                  'border-gray-500 text-gray-700'
+                }`}>
+                  Trust Score: {trustScore}
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {getSecurityStatus().message}
+              </p>
+            </div>
+          )}
+
+          {/* Fraud Warning */}
+          {showFraudWarning && fraudAnalysisResult && (
+            <Alert className="border-orange-200 bg-orange-50">
+              <AlertTriangle className="h-4 w-4 text-orange-600" />
+              <AlertDescription className="text-orange-800">
+                <div className="space-y-2">
+                  <p className="font-medium">Security Review Required</p>
+                  <p className="text-sm">
+                    This transaction has been flagged for additional security review 
+                    (Risk Score: {fraudAnalysisResult.riskScore}/100). 
+                    {fraudAnalysisResult.recommendation === 'review' 
+                      ? 'You may proceed, but additional verification may be required.'
+                      : 'Please contact support before proceeding.'
+                    }
+                  </p>
+                  {fraudAnalysisResult.signals.length > 0 && (
+                    <details className="text-xs">
+                      <summary className="cursor-pointer">View Security Details</summary>
+                      <ul className="mt-1 space-y-1 list-disc list-inside">
+                        {fraudAnalysisResult.signals.slice(0, 3).map((signal: any, index: number) => (
+                          <li key={index}>{signal.description}</li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
+                  <div className="flex gap-2 mt-3">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setShowFraudWarning(false)}
+                    >
+                      Proceed Anyway
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="default"
+                      onClick={onCancel}
+                    >
+                      Cancel Transaction
+                    </Button>
+                  </div>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Product Summary */}
           <div className="bg-muted/50 p-4 rounded-lg">
             <h3 className="font-semibold mb-2">{listing.title}</h3>

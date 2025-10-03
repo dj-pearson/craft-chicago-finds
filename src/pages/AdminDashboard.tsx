@@ -40,6 +40,7 @@ import { BulkNotifications } from "@/components/admin/BulkNotifications";
 import { ComplianceReporting } from "@/components/admin/ComplianceReporting";
 import { AuditLogViewer } from "@/components/admin/AuditLogViewer";
 import { AdminComplianceGuide } from "@/components/admin/AdminComplianceGuide";
+import { FraudDetectionDashboard } from "@/components/admin/FraudDetectionDashboard";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -141,7 +142,7 @@ const AdminDashboard = () => {
         <Tabs defaultValue="overview" className="w-full">
           {/* Mobile-optimized TabsList with horizontal scroll */}
           <div className="relative mb-6">
-            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-9 lg:grid-cols-9 gap-1 sm:gap-0 bg-muted/50">
+            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-10 lg:grid-cols-10 gap-1 sm:gap-0 bg-muted/50">
               <TabsTrigger
                 value="overview"
                 className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
@@ -213,6 +214,14 @@ const AdminDashboard = () => {
                 <ShieldAlert className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Moderation</span>
                 <span className="sm:hidden">Mod</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="fraud"
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <ShieldAlert className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Fraud</span>
+                <span className="sm:hidden">Fraud</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -371,6 +380,10 @@ const AdminDashboard = () => {
             <AuditLogViewer />
             <ModerationQueue />
             <ComplianceControls />
+          </TabsContent>
+
+          <TabsContent value="fraud">
+            <FraudDetectionDashboard />
           </TabsContent>
         </Tabs>
       </main>
