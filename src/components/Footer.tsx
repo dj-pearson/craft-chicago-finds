@@ -32,11 +32,10 @@ export const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4">Shop</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="text-background/80 hover:text-background transition-colors">All Categories</a></li>
-              <li><a href="#" className="text-background/80 hover:text-background transition-colors">New Arrivals</a></li>
+              <li><Link to="/marketplace" className="text-background/80 hover:text-background transition-colors">Browse Marketplace</Link></li>
+              <li><Link to="/browse" className="text-background/80 hover:text-background transition-colors">All Categories</Link></li>
               <li><a href="#" className="text-background/80 hover:text-background transition-colors">Featured Makers</a></li>
-              <li><a href="#" className="text-background/80 hover:text-background transition-colors">Gift Cards</a></li>
-              <li><a href="#" className="text-background/80 hover:text-background transition-colors">Local Pickup</a></li>
+              <li><Link to="/safety-guidelines" className="text-background/80 hover:text-background transition-colors">Local Pickup Safety</Link></li>
             </ul>
           </div>
 
@@ -44,11 +43,11 @@ export const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4">Sell</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="text-background/80 hover:text-background transition-colors">Start Selling</a></li>
-              <li><a href="#" className="text-background/80 hover:text-background transition-colors">Seller Guidelines</a></li>
-              <li><a href="#" className="text-background/80 hover:text-background transition-colors">Pricing Tips</a></li>
-              <li><a href="#" className="text-background/80 hover:text-background transition-colors">Photography Guide</a></li>
-              <li><a href="#" className="text-background/80 hover:text-background transition-colors">Success Stories</a></li>
+              <li><Link to="/auth" className="text-background/80 hover:text-background transition-colors">Start Selling</Link></li>
+              <li><Link to="/seller-standards" className="text-background/80 hover:text-background transition-colors">Seller Standards</Link></li>
+              <li><Link to="/food-safety" className="text-background/80 hover:text-background transition-colors">Food Safety Guidelines</Link></li>
+              <li><Link to="/fee-schedule" className="text-background/80 hover:text-background transition-colors">Fees & Pricing</Link></li>
+              <li><Link to="/prohibited-items" className="text-background/80 hover:text-background transition-colors">Prohibited Items</Link></li>
             </ul>
           </div>
 
@@ -114,17 +113,20 @@ export const Footer = () => {
               <Link to="/privacy" className="text-background/60 hover:text-background transition-colors">
                 Privacy Policy
               </Link>
+              <Link to="/cookie-policy" className="text-background/60 hover:text-background transition-colors">
+                Cookie Policy
+              </Link>
               <Link to="/dmca" className="text-background/60 hover:text-background transition-colors">
                 DMCA Policy
               </Link>
               <Link to="/prohibited-items" className="text-background/60 hover:text-background transition-colors">
                 Prohibited Items
               </Link>
-              <Link to="/fee-schedule" className="text-background/60 hover:text-background transition-colors">
-                Fee Schedule
-              </Link>
               <Link to="/seller-standards" className="text-background/60 hover:text-background transition-colors">
                 Seller Standards
+              </Link>
+              <Link to="/dispute-resolution" className="text-background/60 hover:text-background transition-colors">
+                Dispute Resolution
               </Link>
               <a href="#" className="text-background/60 hover:text-background transition-colors">
                 Do Not Sell My Info
