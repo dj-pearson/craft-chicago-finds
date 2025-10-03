@@ -16,6 +16,7 @@ import { ComplianceOverview } from "@/components/seller/ComplianceOverview";
 import { ComplianceNotifications } from "@/components/seller/ComplianceNotifications";
 import { PerformanceScore } from "@/components/seller/PerformanceScore";
 import { ComplianceAlerts } from "@/components/seller/ComplianceAlerts";
+import { ImprovementPlan } from "@/components/seller/ImprovementPlan";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

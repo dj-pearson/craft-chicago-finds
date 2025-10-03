@@ -45,6 +45,7 @@ const DMCANotice = lazy(() => import("./pages/DMCANotice"));
 const DisputeResolutionGuide = lazy(() => import("./pages/DisputeResolutionGuide"));
 const SafetyGuidelines = lazy(() => import("./pages/SafetyGuidelines"));
 const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
+const W9Submission = lazy(() => import("./pages/W9Submission"));
 
 // Configure React Query with caching optimizations
 const queryClient = new QueryClient({
@@ -102,6 +103,7 @@ const App = () => (
                 <Route path="/dispute-resolution" element={<DisputeResolutionGuide />} />
                 <Route path="/safety-guidelines" element={<SafetyGuidelines />} />
                 <Route path="/cookie-policy" element={<CookiePolicy />} />
+                <Route path="/w9-submission" element={<W9Submission />} />
                 <Route path="/:city/browse" element={<Browse />} />
                 <Route path="/:city/product/:id" element={<ProductDetail />} />
                 <Route path="/:city" element={<City />} />
