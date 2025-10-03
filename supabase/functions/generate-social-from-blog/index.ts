@@ -238,7 +238,7 @@ Generate the ${platform} post now:`;
           city_id: cityId,
           created_by: createdByUserId,
           platform,
-          post_type: "blog_promotion",
+          post_type: "text",
           status: "draft",
           title: postContent.title,
           content: postContent.long_description,
