@@ -869,10 +869,16 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button onClick={() => setIsEditing(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Post
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => setShowWebhookSettings(true)}>
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Webhooks
+                    </Button>
+                    <Button onClick={() => setIsEditing(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      New Post
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Posts List */}
@@ -2098,6 +2104,77 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
         </Card>
       </div>
     )}
+
+    {/* Webhook Settings Dialog */}
+    <Dialog open={showWebhookSettings} onOpenChange={setShowWebhookSettings}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Webhook Settings for Blog Articles</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="webhook-name">Webhook Name</Label>
+            <Input
+              id="webhook-name"
+              value={webhookName}
+              onChange={(e) => setWebhookName(e.target.value)}
+              placeholder="e.g., Social Media Webhook"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="webhook-url">Webhook URL</Label>
+            <Input
+              id="webhook-url"
+              value={webhookUrl}
+              onChange={(e) => setWebhookUrl(e.target.value)}
+              placeholder="https://hook.us1.make.com/..."
+            />
+            <p className="text-sm text-muted-foreground mt-1">
+              This webhook will receive blog article data with AI-generated social media descriptions (short for Twitter, long for Facebook)
+            </p>
+          </div>
+
+          {webhookSettings.length > 0 && (
+            <div className="space-y-2">
+              <Label>Existing Blog Webhooks</Label>
+              {webhookSettings.filter((w: any) => w.supports_blog === true).map((webhook: any) => (
+                <div key={webhook.id} className="flex items-center justify-between p-3 border rounded">
+                  <div className="flex-1">
+                    <p className="font-medium">{webhook.name}</p>
+                    <p className="text-sm text-muted-foreground truncate max-w-md">
+                      {webhook.webhook_url}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={webhook.id === selectedWebhookId ? "default" : "outline"}>
+                      {webhook.id === selectedWebhookId ? "Selected" : "Available"}
+                    </Badge>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setSelectedWebhookId(webhook.id)}
+                    >
+                      Select
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setShowWebhookSettings(false)}>
+            Cancel
+          </Button>
+          <Button onClick={saveWebhookSettings}>
+            Save Webhook
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
     </>
   );
 };
