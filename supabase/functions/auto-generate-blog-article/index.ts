@@ -379,25 +379,34 @@ Generate the complete blog article now:`;
     console.log(`Article created successfully: ${savedArticle.id}`);
 
     // Step 9: Auto-generate social media posts from the blog article
+    console.log("Auto-generating social media posts from blog article...");
+    
     try {
-      console.log("Auto-generating social media posts from blog article...");
+      // Use direct HTTP call instead of .functions.invoke for better reliability
+      const functionUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/generate-social-from-blog`;
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
       
-      const { data: socialResult, error: socialError } = await supabaseClient.functions.invoke(
-        "generate-social-from-blog",
-        {
-          body: {
-            article_id: savedArticle.id,
-            platforms: ["facebook", "twitter"], // Generate for both platforms
-            auto_send_webhook: true, // Automatically send to webhook
-          },
-        }
-      );
+      console.log("Calling generate-social-from-blog at:", functionUrl);
+      
+      const socialResponse = await fetch(functionUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${serviceKey}`,
+        },
+        body: JSON.stringify({
+          article_id: savedArticle.id,
+          platforms: ["facebook", "twitter"],
+          auto_send_webhook: true,
+        }),
+      });
 
-      if (socialError) {
-        console.error("Failed to generate social posts:", socialError);
-        // Don't throw - blog article was created successfully
+      if (!socialResponse.ok) {
+        const errorText = await socialResponse.text();
+        console.error("Failed to generate social posts:", socialResponse.status, errorText);
       } else {
-        console.log("Social media posts generated:", socialResult);
+        const socialResult = await socialResponse.json();
+        console.log("Social media posts generated successfully:", socialResult);
       }
     } catch (socialError) {
       console.error("Error generating social posts:", socialError);
