@@ -97,10 +97,10 @@ Supporting Documents
 ✅ Create Prohibited Items Policy page
 ✅ Create Food Safety Guidelines for sellers
 ✅ Create Seller Performance Standards page
-Create Dispute Resolution Guide
-Create Safety Guidelines (meeting for pickup)
+✅ Create Dispute Resolution Guide
+✅ Create Safety Guidelines (meeting for pickup)
 ✅ Create Fee Schedule page
-Create Cookie Policy
+✅ Create Cookie Policy
 Review all documents with attorney (CRITICAL - budget $1,500-3,000)
 
 PHASE 3: SALES TAX & TAX REPORTING (Weeks 3-5)
