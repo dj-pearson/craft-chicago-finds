@@ -13,6 +13,9 @@ import { AccessibilityProvider } from "./components/accessibility/AccessibilityP
 import { Suspense, lazy, useEffect } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { cacheManager } from "./lib/caching-strategy";
+import { serviceRegistry } from "./lib/microservices/service-registry";
+import { eventBus } from "./lib/microservices/event-bus";
+import { apiGateway } from "./lib/microservices/api-gateway";
 import "./styles/accessibility.css";
 
 // Lazy load pages for better performance
@@ -61,12 +64,29 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  // Initialize cache manager on app startup
+  // Initialize microservices infrastructure on app startup
   useEffect(() => {
-    cacheManager.initialize();
+    const initializeMicroservices = async () => {
+      try {
+        // Initialize in order: registry -> event bus -> gateway -> cache
+        await serviceRegistry.initialize();
+        await eventBus.initialize();
+        await apiGateway.initialize();
+        cacheManager.initialize();
+        
+        console.log('Microservices infrastructure initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize microservices infrastructure:', error);
+      }
+    };
+
+    initializeMicroservices();
     
     // Cleanup on unmount
     return () => {
+      serviceRegistry.cleanup();
+      eventBus.cleanup();
+      apiGateway.cleanup();
       cacheManager.cleanup();
     };
   }, []);
