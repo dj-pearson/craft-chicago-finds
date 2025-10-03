@@ -137,10 +137,11 @@
 2. ✅ Create admin compliance management interface
 3. ✅ Implement audit logging
 4. ✅ Add email notification templates
-5. ⏳ Test complete compliance workflow
-6. ⏳ Create compliance documentation for sellers
-7. ⏳ Legal review of all disclosure text
-8. ⏳ Set up automated compliance reports
+5. ✅ Integrate email templates with edge function
+6. ⏳ Test complete compliance workflow
+7. ⏳ Create compliance documentation for sellers
+8. ⏳ Legal review of all disclosure text
+9. ⏳ Set up automated compliance reports (scheduled cron job)
 
 ## 📝 Latest Updates
 
