@@ -464,7 +464,7 @@ export const KeywordSelector = ({
                     <Checkbox
                       id="seasonal"
                       checked={showSeasonal}
-                      onCheckedChange={setShowSeasonal}
+                      onCheckedChange={(checked) => setShowSeasonal(checked === true)}
                     />
                     <Label htmlFor="seasonal" className="text-sm">
                       Seasonal ({currentMonth})
@@ -474,7 +474,7 @@ export const KeywordSelector = ({
                     <Checkbox
                       id="local"
                       checked={showLocal}
-                      onCheckedChange={setShowLocal}
+                      onCheckedChange={(checked) => setShowLocal(checked === true)}
                     />
                     <Label htmlFor="local" className="text-sm">
                       Local (Chicago)
@@ -484,7 +484,7 @@ export const KeywordSelector = ({
                     <Checkbox
                       id="unused"
                       checked={showUnused}
-                      onCheckedChange={setShowUnused}
+                      onCheckedChange={(checked) => setShowUnused(checked === true)}
                     />
                     <Label htmlFor="unused" className="text-sm">
                       Recently Unused

@@ -45,6 +45,7 @@ import {
   Check,
   AlertCircle,
   ExternalLink,
+  ChevronRight,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -155,6 +156,13 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
     include_call_to_action: true,
   });
 
+  // AI Workflow State
+  const [showAIWorkflow, setShowAIWorkflow] = useState(false);
+  const [aiWorkflowStep, setAiWorkflowStep] = useState<'keywords' | 'template' | 'review' | 'generating'>('keywords');
+  const [aiSelectedKeywords, setAiSelectedKeywords] = useState<any[]>([]);
+  const [aiSelectedTemplate, setAiSelectedTemplate] = useState<any>(null);
+  const [aiOutline, setAiOutline] = useState<string>("");
+
   useEffect(() => {
     fetchPosts();
     fetchTemplates();
@@ -205,6 +213,128 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
       setTemplates(data || []);
     } catch (error) {
       console.error("Error fetching templates:", error);
+    }
+  };
+
+  const handleKeywordSelection = (keyword: any) => {
+    setAiSelectedKeywords(prev => {
+      const exists = prev.find(k => k.id === keyword.id);
+      if (exists) {
+        return prev.filter(k => k.id !== keyword.id);
+      }
+      return [...prev, keyword];
+    });
+  };
+
+  const handleTemplateSelection = (template: any, outline: string) => {
+    setAiSelectedTemplate(template);
+    setAiOutline(outline);
+    setAiWorkflowStep('review');
+  };
+
+  const generateAIArticleFromWorkflow = async () => {
+    if (!aiSelectedTemplate || aiSelectedKeywords.length === 0) {
+      toast({
+        title: "Missing Information",
+        description: "Please select keywords and a template",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setAiWorkflowStep('generating');
+    setAiGenerating(true);
+
+    try {
+      const primaryKeyword = aiSelectedKeywords[0];
+      const allKeywords = aiSelectedKeywords.map(k => k.primary_keyword);
+
+      const response = await supabase.functions.invoke("ai-generate-blog", {
+        body: {
+          template_id: aiSelectedTemplate.id,
+          topic: primaryKeyword.primary_keyword,
+          target_keyword: primaryKeyword.primary_keyword,
+          keywords: allKeywords,
+          city_focus: currentCity?.name || "",
+          additional_context: aiOutline,
+          word_count: aiSelectedTemplate.target_word_count || 800,
+          tone: aiSelectedTemplate.tone || "professional",
+          include_local_references: true,
+          include_faqs: true,
+          include_call_to_action: true,
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || "AI generation failed");
+      }
+
+      const result = response.data;
+
+      // Auto-save the generated article as draft
+      const wordCount = result.content.split(/\s+/).length;
+      const estimatedReadingTime = Math.ceil(wordCount / 200);
+      const keywords = Array.isArray(result.keywords) ? result.keywords : result.keywords.split(',').map((k: string) => k.trim());
+      const tags = Array.isArray(result.tags) ? result.tags : result.tags.split(',').map((t: string) => t.trim());
+
+      const postData = {
+        title: result.title,
+        slug: result.slug,
+        content: result.content,
+        excerpt: result.excerpt,
+        featured_image: null,
+        meta_title: result.meta_title,
+        meta_description: result.meta_description,
+        keywords,
+        status: 'draft',
+        publish_date: null,
+        author_id: user?.id,
+        city_id: currentCity?.id || null,
+        category: result.category,
+        tags,
+        word_count: wordCount,
+        estimated_reading_time: estimatedReadingTime,
+        seo_score: calculateSEOScore({
+          ...result,
+          keywords: keywords.join(", "),
+          word_count: wordCount,
+        }),
+        readability_score: 85,
+        ai_generated: true,
+        ai_prompt: result.ai_prompt,
+      };
+
+      const { error: insertError } = await (supabase as any)
+        .from("blog_articles")
+        .insert([postData]);
+
+      if (insertError) throw insertError;
+
+      // Close workflow and refresh
+      setShowAIWorkflow(false);
+      setAiWorkflowStep('keywords');
+      setAiSelectedKeywords([]);
+      setAiSelectedTemplate(null);
+      setAiOutline("");
+      fetchPosts();
+
+      toast({
+        title: "Article Generated & Saved!",
+        description: `AI-generated article saved as draft. ${result.tokens_used} tokens used.`,
+      });
+    } catch (error) {
+      console.error("Error generating article:", error);
+      toast({
+        title: "Generation Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to generate article. Please try again.",
+        variant: "destructive",
+      });
+      setAiWorkflowStep('review');
+    } finally {
+      setAiGenerating(false);
     }
   };
 
@@ -559,6 +689,7 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
   }
 
   return (
+    <>
     <Card className={className}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -1657,5 +1788,202 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
         </Tabs>
       </CardContent>
     </Card>
+
+    {/* AI Article Generation Workflow Dialog */}
+    {showAIWorkflow && (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-5xl max-h-[90vh] overflow-auto">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-6 w-6 text-purple-600" />
+                  AI Article Generator
+                </CardTitle>
+                <CardDescription>
+                  {aiWorkflowStep === 'keywords' && "Step 1: Select target keywords for your article"}
+                  {aiWorkflowStep === 'template' && "Step 2: Choose the best template for your content"}
+                  {aiWorkflowStep === 'review' && "Step 3: Review and generate your article"}
+                  {aiWorkflowStep === 'generating' && "Generating your SEO-optimized article..."}
+                </CardDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setShowAIWorkflow(false);
+                  setAiWorkflowStep('keywords');
+                  setAiSelectedKeywords([]);
+                  setAiSelectedTemplate(null);
+                  setAiOutline("");
+                }}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Progress Indicator */}
+            <div className="flex items-center gap-2 mt-4">
+              <div className={`flex items-center gap-2 ${aiWorkflowStep === 'keywords' ? 'text-primary' : 'text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${aiWorkflowStep === 'keywords' ? 'bg-primary text-white' : 'bg-gray-200'}`}>
+                  1
+                </div>
+                <span className="text-sm font-medium">Keywords</span>
+              </div>
+              <div className="flex-1 h-1 bg-gray-200">
+                <div className={`h-full ${['template', 'review', 'generating'].includes(aiWorkflowStep) ? 'bg-primary' : 'bg-gray-200'}`} />
+              </div>
+              <div className={`flex items-center gap-2 ${aiWorkflowStep === 'template' ? 'text-primary' : 'text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${['template', 'review', 'generating'].includes(aiWorkflowStep) ? 'bg-primary text-white' : 'bg-gray-200'}`}>
+                  2
+                </div>
+                <span className="text-sm font-medium">Template</span>
+              </div>
+              <div className="flex-1 h-1 bg-gray-200">
+                <div className={`h-full ${['review', 'generating'].includes(aiWorkflowStep) ? 'bg-primary' : 'bg-gray-200'}`} />
+              </div>
+              <div className={`flex items-center gap-2 ${['review', 'generating'].includes(aiWorkflowStep) ? 'text-primary' : 'text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${['review', 'generating'].includes(aiWorkflowStep) ? 'bg-primary text-white' : 'bg-gray-200'}`}>
+                  3
+                </div>
+                <span className="text-sm font-medium">Generate</span>
+              </div>
+            </div>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            {/* Step 1: Keyword Selection */}
+            {aiWorkflowStep === 'keywords' && (
+              <div className="space-y-4">
+                <KeywordSelector
+                  onKeywordSelect={handleKeywordSelection}
+                  selectedKeywords={aiSelectedKeywords.map(k => k.primary_keyword)}
+                  maxSelections={5}
+                />
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <p className="text-sm text-gray-600">
+                    {aiSelectedKeywords.length} keyword{aiSelectedKeywords.length !== 1 ? 's' : ''} selected
+                  </p>
+                  <Button
+                    onClick={() => setAiWorkflowStep('template')}
+                    disabled={aiSelectedKeywords.length === 0}
+                  >
+                    Continue to Template Selection
+                    <ChevronRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Template Selection */}
+            {aiWorkflowStep === 'template' && (
+              <div className="space-y-4">
+                <BlogTemplateSelector
+                  selectedKeywords={aiSelectedKeywords}
+                  onTemplateSelect={handleTemplateSelection}
+                />
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    onClick={() => setAiWorkflowStep('keywords')}
+                  >
+                    Back to Keywords
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Review & Generate */}
+            {aiWorkflowStep === 'review' && aiSelectedTemplate && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Selected Keywords</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {aiSelectedKeywords.map(kw => (
+                          <Badge key={kw.id} variant="secondary">
+                            {kw.primary_keyword}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Template</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="font-medium">{aiSelectedTemplate.template_name}</p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {aiSelectedTemplate.target_length} • {aiSelectedTemplate.structure?.length || 0} sections
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {aiOutline && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Article Outline</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="bg-gray-50 p-4 rounded-lg max-h-96 overflow-y-auto">
+                        <pre className="text-sm whitespace-pre-wrap font-mono">{aiOutline}</pre>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setAiWorkflowStep('template');
+                      setAiSelectedTemplate(null);
+                      setAiOutline("");
+                    }}
+                  >
+                    Back to Templates
+                  </Button>
+                  <Button
+                    onClick={generateAIArticleFromWorkflow}
+                    disabled={aiGenerating}
+                    className="gap-2"
+                  >
+                    {aiGenerating ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        Generating Article...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4" />
+                        Generate Article
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Generating */}
+            {aiWorkflowStep === 'generating' && (
+              <div className="flex flex-col items-center justify-center py-12">
+                <RefreshCw className="h-12 w-12 text-purple-600 animate-spin mb-4" />
+                <h3 className="text-lg font-medium mb-2">Generating Your Article</h3>
+                <p className="text-gray-600 text-center max-w-md">
+                  Our AI is crafting a fully SEO-optimized article using your selected keywords and template. This may take a minute...
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    )}
+    </>
   );
 };
