@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 interface City {
   id: string;
@@ -180,46 +181,7 @@ const Landing = () => {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t py-12 px-4 bg-muted/50">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="font-bold text-lg mb-4">Local Makers</div>
-              <p className="text-sm text-muted-foreground">
-                Connecting communities with local artisans and makers across the Midwest.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">For Buyers</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/chicago" className="hover:text-foreground">Browse Cities</Link></li>
-                <li><a href="#" className="hover:text-foreground">How It Works</a></li>
-                <li><a href="#" className="hover:text-foreground">Pickup Guide</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">For Sellers</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground">Start Selling</a></li>
-                <li><a href="#" className="hover:text-foreground">Seller Guide</a></li>
-                <li><a href="#" className="hover:text-foreground">Pricing</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground">Help Center</a></li>
-                <li><a href="#" className="hover:text-foreground">Contact Us</a></li>
-                <li><a href="#" className="hover:text-foreground">Request City</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 Local Makers. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
