@@ -374,7 +374,8 @@ export const usePerformanceMonitor = (
     }
 
     try {
-      const entry: any = {
+      const entry = {
+        user_id: user?.id || null,
         page_url: window.location.href,
         user_agent: navigator.userAgent,
         metrics: currentMetrics,
@@ -383,7 +384,7 @@ export const usePerformanceMonitor = (
       };
 
       // Store in Supabase
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('performance_metrics')
         .insert(entry);
 
@@ -393,7 +394,7 @@ export const usePerformanceMonitor = (
     } catch (error) {
       console.error("Error reporting performance metrics:", error);
     }
-  }, [metrics, sessionId, updateTimeOnPage]);
+  }, [metrics, sessionId, updateTimeOnPage, user]);
 
   const getPerformanceScore = useCallback(() => {
     const scores = [];
