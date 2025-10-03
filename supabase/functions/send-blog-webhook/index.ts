@@ -82,6 +82,16 @@ serve(async (req) => {
       throw new Error("Article not found");
     }
 
+    // Idempotency guard: if a blog webhook was just sent, skip to avoid duplicates
+    const lastSentAt = (article as any).webhook_sent_at ? new Date((article as any).webhook_sent_at) : null;
+    if (lastSentAt && (Date.now() - lastSentAt.getTime()) < 120000) {
+      console.log("Skipping blog webhook: recently sent", lastSentAt.toISOString());
+      return new Response(
+        JSON.stringify({ success: true, skipped: true, reason: "recently_sent", article_id }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
+
     let webhookSettings;
     if (webhook_settings_id) {
       const { data } = await supabaseClient
@@ -105,7 +115,10 @@ serve(async (req) => {
       if (wsError) {
         console.error("Error loading webhook_settings:", wsError.message);
       }
-      webhookSettings = data || [];
+      let list = data || [];
+      // Prefer the canonical Blog webhook path if present (user requirement)
+      const preferred = list.filter((w: any) => typeof w.webhook_url === "string" && w.webhook_url.includes("/hs7799pj"));
+      webhookSettings = preferred.length > 0 ? preferred : list;
       console.log("Found active blog webhooks:", webhookSettings.length);
     }
 

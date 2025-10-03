@@ -105,6 +105,16 @@ serve(async (req) => {
       throw new Error("Post not found");
     }
 
+    // Idempotency guard: if we recently sent a webhook for this post, skip to avoid duplicates
+    const lastSentAt = (post as any).webhook_sent_at ? new Date((post as any).webhook_sent_at) : null;
+    if (lastSentAt && (Date.now() - lastSentAt.getTime()) < 120000) {
+      console.log("Skipping social webhook: recently sent", lastSentAt.toISOString());
+      return new Response(
+        JSON.stringify({ success: true, skipped: true, reason: "recently_sent", post_id }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
+
     // Get webhook settings - either specified or find active ones for the city
     let webhookSettings;
     if (webhook_settings_id) {
@@ -120,16 +130,21 @@ serve(async (req) => {
       }
       webhookSettings = [settings];
     } else {
-      // Get all active webhook settings (could be multiple webhooks)
+      // Get all active webhook settings for social posts only
       const { data: settings, error: settingsError } = await supabaseClient
         .from("webhook_settings")
         .select("*")
-        .eq("is_active", true);
+        .eq("is_active", true)
+        .contains("content_types", ["social_post"]);
 
       if (settingsError) {
         throw new Error("Failed to fetch webhook settings");
       }
-      webhookSettings = settings || [];
+
+      let filtered = (settings || []);
+      // Prefer the canonical Social webhook path if present (user requirement)
+      const preferred = filtered.filter((w: any) => typeof w.webhook_url === "string" && w.webhook_url.includes("/3bqsnhv"));
+      webhookSettings = preferred.length > 0 ? preferred : filtered;
     }
 
     if (webhookSettings.length === 0) {
