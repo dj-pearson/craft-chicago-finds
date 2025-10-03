@@ -1551,13 +1551,60 @@ export type Database = {
         }
         Relationships: []
       }
+      order_reminders: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          order_id: string
+          recipient_id: string
+          reminder_type: string
+          scheduled_for: string
+          sent_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          order_id: string
+          recipient_id: string
+          reminder_type: string
+          scheduled_for: string
+          sent_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          order_id?: string
+          recipient_id?: string
+          reminder_type?: string
+          scheduled_for?: string
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_reminders_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
+          buyer_geo_confirmed: boolean | null
           buyer_id: string
           commission_amount: number
           created_at: string
           dispute_id: string | null
+          escrow_release_date: string | null
           fulfillment_method: string
+          geo_checkin_data: Json | null
           gift_message: string | null
           gift_mode: boolean | null
           gift_recipient_email: string | null
@@ -1565,10 +1612,14 @@ export type Database = {
           id: string
           listing_id: string
           notes: string | null
+          payment_authorized_at: string | null
+          payment_hold_status: string | null
           payment_status: string
+          pickup_confirmed_at: string | null
           pickup_location: string | null
           quantity: number
           scheduled_ship_date: string | null
+          seller_handoff_confirmed: boolean | null
           seller_id: string
           shipping_address: Json | null
           status: string
@@ -1578,11 +1629,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          buyer_geo_confirmed?: boolean | null
           buyer_id: string
           commission_amount: number
           created_at?: string
           dispute_id?: string | null
+          escrow_release_date?: string | null
           fulfillment_method: string
+          geo_checkin_data?: Json | null
           gift_message?: string | null
           gift_mode?: boolean | null
           gift_recipient_email?: string | null
@@ -1590,10 +1644,14 @@ export type Database = {
           id?: string
           listing_id: string
           notes?: string | null
+          payment_authorized_at?: string | null
+          payment_hold_status?: string | null
           payment_status?: string
+          pickup_confirmed_at?: string | null
           pickup_location?: string | null
           quantity?: number
           scheduled_ship_date?: string | null
+          seller_handoff_confirmed?: boolean | null
           seller_id: string
           shipping_address?: Json | null
           status?: string
@@ -1603,11 +1661,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          buyer_geo_confirmed?: boolean | null
           buyer_id?: string
           commission_amount?: number
           created_at?: string
           dispute_id?: string | null
+          escrow_release_date?: string | null
           fulfillment_method?: string
+          geo_checkin_data?: Json | null
           gift_message?: string | null
           gift_mode?: boolean | null
           gift_recipient_email?: string | null
@@ -1615,10 +1676,14 @@ export type Database = {
           id?: string
           listing_id?: string
           notes?: string | null
+          payment_authorized_at?: string | null
+          payment_hold_status?: string | null
           payment_status?: string
+          pickup_confirmed_at?: string | null
           pickup_location?: string | null
           quantity?: number
           scheduled_ship_date?: string | null
+          seller_handoff_confirmed?: boolean | null
           seller_id?: string
           shipping_address?: Json | null
           status?: string
