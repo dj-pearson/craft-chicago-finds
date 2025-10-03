@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import { AIPhotoHelper } from "@/components/seller/AIPhotoHelper";
 import { AIListingHelper } from "@/components/seller/AIListingHelper";
 import { PriceCoach } from "@/components/seller/PriceCoach";
+import { useContentModeration } from "@/hooks/useContentModeration";
 
 interface Category {
   id: string;
@@ -52,6 +53,7 @@ const CreateEditListing = () => {
   const navigate = useNavigate();
   const { id: listingId } = useParams();
   const isEditing = !!listingId;
+  const { moderateListing, moderating } = useContentModeration();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -284,9 +286,11 @@ const CreateEditListing = () => {
 
         toast.success("Listing updated successfully!");
       } else {
-        const { error } = await supabase
+        const { data: newListing, error } = await supabase
           .from("listings")
-          .insert([listingData]);
+          .insert([listingData])
+          .select()
+          .single();
 
         if (error) {
           console.error("Error creating listing:", error);
@@ -294,7 +298,24 @@ const CreateEditListing = () => {
           return;
         }
 
-        toast.success("Listing created successfully!");
+        // Run content moderation for new listings
+        const { approved, result } = await moderateListing(
+          newListing.id,
+          user.id,
+          formData.title,
+          formData.description,
+          formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean) : []
+        );
+
+        if (!approved) {
+          if (result.severity === 'high' && result.confidence >= 60) {
+            toast.error("Listing rejected: " + result.reasons.join(', '));
+          } else {
+            toast.warning("Listing flagged for review: " + result.reasons.join(', '));
+          }
+        } else {
+          toast.success("Listing created successfully!");
+        }
       }
 
       navigate("/dashboard");
@@ -593,14 +614,14 @@ const CreateEditListing = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <Button 
-                      onClick={handleSubmit} 
-                      disabled={loading}
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={loading || moderating}
                       className="w-full gap-2"
                     >
-                      {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                      <Save className="h-4 w-4" />
-                      {isEditing ? "Update Listing" : "Create Listing"}
+                      {(loading || moderating) && <Loader2 className="h-4 w-4 animate-spin" />}
+                      {!loading && !moderating && <Save className="h-4 w-4" />}
+                      {moderating ? "Checking..." : isEditing ? "Update Listing" : "Create Listing"}
                     </Button>
 
                     {formData.status === 'active' && (
