@@ -336,18 +336,8 @@ export class IntelligentCacheManager {
    * Track cache access for analytics
    */
   private async trackCacheAccess(namespace: string, key: string, type: 'hit' | 'miss' | 'write'): Promise<void> {
-    try {
-      // Store cache analytics in database for performance monitoring
-      await supabase.from('cache_analytics').insert({
-        namespace,
-        cache_key: key,
-        access_type: type,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      // Don't let cache analytics failures affect cache operations
-      console.warn('Failed to track cache access:', error);
-    }
+    // Cache analytics table not yet implemented
+    console.log('Cache access:', { namespace, key, type });
   }
 
   /**

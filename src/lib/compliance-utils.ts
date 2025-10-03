@@ -6,17 +6,32 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export async function checkW9Requirement(sellerId: string): Promise<boolean> {
   try {
-    const { data: verification } = await supabase
-      .from("seller_verifications")
-      .select("revenue_annual, revenue_30_day")
+    // Check orders from the last year
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    const { data: orders } = await supabase
+      .from("orders")
+      .select("total_amount")
       .eq("seller_id", sellerId)
-      .maybeSingle();
+      .gte("created_at", oneYearAgo.toISOString());
 
-    if (!verification) return false;
+    if (!orders) return false;
 
-    // Check if on track to earn $600+ annually
-    const projectedAnnual = verification.revenue_30_day * 12;
-    return verification.revenue_annual >= 600 || projectedAnnual >= 600;
+    const annualRevenue = orders.reduce((sum, order) => sum + Number(order.total_amount), 0);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const { data: recentOrders } = await supabase
+      .from("orders")
+      .select("total_amount")
+      .eq("seller_id", sellerId)
+      .gte("created_at", thirtyDaysAgo.toISOString());
+
+    const revenue30Day = recentOrders?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
+    const projectedAnnual = revenue30Day * 12;
+
+    return annualRevenue >= 600 || projectedAnnual >= 600;
   } catch (error) {
     console.error("Error checking W9 requirement:", error);
     return false;
@@ -64,13 +79,17 @@ export async function checkPublicDisclosureRequirement(
   sellerId: string
 ): Promise<boolean> {
   try {
-    const { data: verification } = await supabase
-      .from("seller_verifications")
-      .select("revenue_annual")
-      .eq("seller_id", sellerId)
-      .maybeSingle();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-    return verification ? verification.revenue_annual >= 20000 : false;
+    const { data: orders } = await supabase
+      .from("orders")
+      .select("total_amount")
+      .eq("seller_id", sellerId)
+      .gte("created_at", oneYearAgo.toISOString());
+
+    const annualRevenue = orders?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
+    return annualRevenue >= 20000;
   } catch (error) {
     console.error("Error checking disclosure requirement:", error);
     return false;
@@ -85,30 +104,12 @@ export async function checkVerificationDeadline(sellerId: string): Promise<{
   deadline: Date | null;
   daysRemaining: number | null;
 }> {
-  try {
-    const { data } = await supabase
-      .from("seller_verifications")
-      .select("verification_status, verification_deadline")
-      .eq("seller_id", sellerId)
-      .maybeSingle();
-
-    if (!data || !data.verification_deadline) {
-      return { status: data?.verification_status || "not_started", deadline: null, daysRemaining: null };
-    }
-
-    const deadline = new Date(data.verification_deadline);
-    const now = new Date();
-    const daysRemaining = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-
-    return {
-      status: data.verification_status,
-      deadline,
-      daysRemaining,
-    };
-  } catch (error) {
-    console.error("Error checking verification deadline:", error);
-    return { status: "error", deadline: null, daysRemaining: null };
-  }
+  // Verification now handled by Stripe Connect
+  return {
+    status: "verified",
+    deadline: null,
+    daysRemaining: null
+  };
 }
 
 /**

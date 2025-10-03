@@ -250,18 +250,12 @@ export class DatabaseConnectionPool {
    * Log slow query for analysis
    */
   private async logSlowQuery(metrics: QueryMetrics): Promise<void> {
-    try {
-      await supabase.from('slow_query_log').insert({
-        query_id: metrics.queryId,
-        query_text: metrics.query,
-        execution_time: metrics.executionTime,
-        rows_affected: metrics.rowsAffected,
-        timestamp: metrics.timestamp.toISOString(),
-        error_message: metrics.error
-      });
-    } catch (error) {
-      console.error('Failed to log slow query:', error);
-    }
+    // Slow query log table not yet implemented
+    console.warn('Slow query detected:', {
+      query: metrics.query,
+      executionTime: metrics.executionTime,
+      rowsAffected: metrics.rowsAffected
+    });
   }
 
   /**

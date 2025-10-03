@@ -125,7 +125,7 @@ export const useFraudDetection = (options: UseFraudDetectionOptions = {}) => {
           severity: signal.severity as any,
           description: signal.description,
           confidence: signal.confidence,
-          metadata: signal.metadata || {},
+          metadata: (signal.metadata as Record<string, any>) || {},
           timestamp: signal.created_at,
           actionRequired: signal.action_required
         }));
