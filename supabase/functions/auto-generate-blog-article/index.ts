@@ -17,11 +17,19 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
-    const { city_id, min_priority_score = 70, pre_launch = true } = await req.json().catch(() => ({}));
+    const { city_id, min_priority_score = 70 } = await req.json().catch(() => ({}));
 
-    console.log("Starting automated blog article generation...", { pre_launch });
+    // Determine pre-launch mode based on current date (pre-launch until November 1, 2025)
+    const currentDate = new Date();
+    const launchDate = new Date('2025-11-01');
+    const pre_launch = currentDate < launchDate;
 
-    // Step 1: Get high-priority, unused keywords
+    console.log("Starting automated blog article generation...", { 
+      pre_launch, 
+      currentDate: currentDate.toISOString(),
+      launchDate: launchDate.toISOString() 
+    });
+
     const currentMonth = new Date().toLocaleString("default", { month: "long" }).toLowerCase();
     
     const { data: keywords, error: keywordsError } = await supabaseClient
@@ -48,21 +56,28 @@ serve(async (req) => {
     
     // PRE-LAUNCH MODE: Focus on platform benefits, seller onboarding, and promotional content
     if (pre_launch) {
-      // Prioritize keywords related to selling, marketplace benefits, and getting started
+      // EXCLUDE seasonal keywords entirely during pre-launch
+      // Focus ONLY on seller recruitment, platform benefits, and launch preparation
       const preLaunchKeywords = keywords.filter(
-        (kw) => kw.buyer_intent === 'commercial' || 
+        (kw) => !kw.seasonal && ( // Exclude ALL seasonal content
+                kw.buyer_intent === 'commercial' || 
                 kw.content_type === 'guide' ||
                 kw.primary_keyword.toLowerCase().includes('sell') ||
                 kw.primary_keyword.toLowerCase().includes('artisan') ||
                 kw.primary_keyword.toLowerCase().includes('marketplace') ||
-                kw.primary_keyword.toLowerCase().includes('handmade business')
+                kw.primary_keyword.toLowerCase().includes('handmade business') ||
+                kw.primary_keyword.toLowerCase().includes('craft business') ||
+                kw.primary_keyword.toLowerCase().includes('local') ||
+                kw.primary_keyword.toLowerCase().includes('maker') ||
+                kw.primary_keyword.toLowerCase().includes('small business')
+        )
       );
       
       selectedKeywords = preLaunchKeywords.length > 0 
         ? preLaunchKeywords.slice(0, Math.floor(Math.random() * 2) + 3)
-        : keywords.slice(0, 3); // Fallback
+        : keywords.filter(kw => !kw.seasonal).slice(0, 3); // Fallback: still exclude seasonal
       
-      console.log("PRE-LAUNCH MODE: Selected seller/platform-focused keywords");
+      console.log(`PRE-LAUNCH MODE (until Nov 1): Selected ${selectedKeywords.length} seller/platform-focused keywords, excluded all seasonal content`);
     } else {
       // POST-LAUNCH MODE: Prioritize seasonal keywords for traffic
       selectedKeywords = keywords.filter(
@@ -74,6 +89,7 @@ serve(async (req) => {
       } else {
         selectedKeywords = selectedKeywords.slice(0, Math.floor(Math.random() * 2) + 3);
       }
+      console.log(`POST-LAUNCH MODE: Selected ${selectedKeywords.length} keywords including seasonal content`);
     }
 
     const primaryKeyword = selectedKeywords[0];
@@ -172,9 +188,9 @@ ${promptTemplate}
 
 Additional Context:
 Topic: ${primaryKeyword.primary_keyword}
-Target Audience: ${pre_launch ? 'Local artisans, makers, crafters considering selling online, potential sellers' : 'Local craft enthusiasts, gift shoppers, supporting local businesses'}
+Target Audience: ${pre_launch ? 'Local artisans, makers, crafters considering selling online, potential sellers, and buyers preparing for November 1st launch' : 'Local craft enthusiasts, gift shoppers, supporting local businesses'}
 Search Intent: ${(primaryKeyword.blog_keyword_clusters as any)?.search_intent || 'Informational'}
-Platform Status: ${pre_launch ? 'PRE-LAUNCH - Launching in 1 month! Focus on seller recruitment and platform benefits.' : 'LIVE - Drive buyer traffic and conversions.'}
+Platform Status: ${pre_launch ? 'PRE-LAUNCH - Launching November 1st, 2025! Focus on seller recruitment, platform benefits, and preparing buyers for launch. NO seasonal holiday content.' : 'LIVE - Drive buyer traffic and conversions.'}
 
 Required Sections:
 ${selectedTemplate.required_sections.join(', ')}
@@ -187,13 +203,20 @@ Related Terms: ${relatedKeywords.join(', ')}
 Include specific local ${cityName} references and recommendations.
 Include an FAQ section with 3-5 relevant questions.
 ${pre_launch 
-  ? `End with a STRONG call-to-action encouraging artisans and makers to JOIN AS SELLERS before launch. Emphasize:
-     - Early bird benefits and advantages
-     - Limited spots or exclusive launch features
-     - Why now is the perfect time to get started
-     - CraftLocal's competitive advantages over Etsy, Amazon Handmade, etc.
+  ? `End with a STRONG call-to-action encouraging:
+     PRIMARY: Artisans and makers to JOIN AS SELLERS before November 1st launch
+     SECONDARY: Buyers to get ready for the November 1st launch and discover local artisans
+     
+     Emphasize:
+     - Launching November 1st, 2025 - be ready!
+     - Early seller benefits and launch advantages
+     - CraftLocal's competitive advantages over Etsy, Amazon Handmade (lower fees, local focus)
      - Low fees (compared to 15-20% on other platforms)
-     - Local community support and direct customer connections`
+     - Direct connection between local buyers and sellers
+     - Support your local creative community
+     - Be part of something new launching in your city
+     
+     IMPORTANT: Do NOT include any seasonal holiday content (Christmas, gifts, etc.). Focus on the platform launch.`
   : `End with a strong call-to-action encouraging readers to sign up as buyers or sellers on CraftLocal marketplace.`}
 
 SEO Focus Keywords to incorporate naturally:
