@@ -451,6 +451,7 @@ export default function SellerDashboard() {
 
           <TabsContent value="verification">
             <div className="space-y-6">
+              <ComplianceAlerts />
               <IdentityVerification />
               <SellerVerification />
               <PublicDisclosure />

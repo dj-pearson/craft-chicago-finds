@@ -159,9 +159,9 @@ export function ComplianceStatus() {
                 <CheckCircle className="h-3 w-3" /> Complete
               </Badge>
             ) : needsDisclosure ? (
-              <Badge variant="destructive" className="gap-1">
-                <Clock className="h-3 w-3" /> Required
-              </Badge>
+              <Link to="/seller-dashboard?tab=verification">
+                <Button size="sm" variant="destructive">Submit Disclosure</Button>
+              </Link>
             ) : (
               <Badge variant="secondary">Not Required</Badge>
             )}

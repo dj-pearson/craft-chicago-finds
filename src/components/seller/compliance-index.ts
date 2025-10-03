@@ -7,3 +7,5 @@ export { ComplianceOverview } from './ComplianceOverview';
 export { ComplianceNotifications } from './ComplianceNotifications';
 export { ComplianceAlerts } from './ComplianceAlerts';
 export { PerformanceScore } from './PerformanceScore';
+export { IdentityVerification } from './IdentityVerification';
+export { ComplianceStatus } from './ComplianceStatus';
