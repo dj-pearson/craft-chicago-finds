@@ -309,7 +309,7 @@ export type Database = {
         Row: {
           ai_generated: boolean
           ai_prompt: string | null
-          author_id: string
+          author_id: string | null
           category: string
           city_id: string | null
           content: string
@@ -338,7 +338,7 @@ export type Database = {
         Insert: {
           ai_generated?: boolean
           ai_prompt?: string | null
-          author_id: string
+          author_id?: string | null
           category: string
           city_id?: string | null
           content: string
@@ -367,7 +367,7 @@ export type Database = {
         Update: {
           ai_generated?: boolean
           ai_prompt?: string | null
-          author_id?: string
+          author_id?: string | null
           category?: string
           city_id?: string | null
           content?: string
