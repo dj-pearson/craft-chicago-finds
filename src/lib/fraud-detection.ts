@@ -556,7 +556,7 @@ export class FraudDetectionEngine {
     // Generate WebGL fingerprint
     try {
       const canvas = document.createElement('canvas');
-      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      const gl = canvas.getContext('webgl') as WebGLRenderingContext || canvas.getContext('experimental-webgl') as WebGLRenderingContext;
       if (gl) {
         const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
         fingerprint.webgl = debugInfo ? 
@@ -673,12 +673,13 @@ export class FraudDetectionEngine {
    */
   private async logSessionStart(userId: string): Promise<void> {
     try {
-      await supabase.from('fraud_detection_sessions').insert({
+      await supabase.from('fraud_detection_sessions').insert([{
         user_id: userId,
-        device_fingerprint: this.deviceFingerprint,
+        session_id: `session_${Date.now()}_${Math.random()}`,
+        device_fingerprint: this.deviceFingerprint as any,
         session_start: new Date().toISOString(),
         user_agent: navigator.userAgent
-      });
+      }]);
     } catch (error) {
       console.error('Session logging error:', error);
     }

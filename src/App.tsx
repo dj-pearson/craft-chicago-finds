@@ -12,13 +12,6 @@ import { PlansProvider } from "./hooks/usePlans";
 import { AccessibilityProvider } from "./components/accessibility/AccessibilityProvider";
 import { Suspense, lazy, useEffect } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { cacheManager } from "./lib/caching-strategy";
-import { serviceRegistry } from "./lib/microservices/service-registry";
-import { eventBus } from "./lib/microservices/event-bus";
-import { apiGateway } from "./lib/microservices/api-gateway";
-import { connectionPool } from "./lib/database/connection-pool";
-import { semanticSearchEngine } from "./lib/search/semantic-search-engine";
-import { recommendationEngine } from "./lib/search/recommendation-engine";
 import "./styles/accessibility.css";
 
 // Lazy load pages for better performance
@@ -67,38 +60,6 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  // Initialize microservices infrastructure on app startup
-  useEffect(() => {
-    const initializeMicroservices = async () => {
-      try {
-        // Initialize in order: connection pool -> registry -> event bus -> gateway -> cache -> search
-        await connectionPool.initialize();
-        await serviceRegistry.initialize();
-        await eventBus.initialize();
-        await apiGateway.initialize();
-        cacheManager.initialize();
-        await recommendationEngine.initialize();
-        
-        console.log('Microservices infrastructure initialized successfully');
-      } catch (error) {
-        console.error('Failed to initialize microservices infrastructure:', error);
-      }
-    };
-
-    initializeMicroservices();
-    
-    // Cleanup on unmount
-    return () => {
-      connectionPool.cleanup();
-      serviceRegistry.cleanup();
-      eventBus.cleanup();
-      apiGateway.cleanup();
-      cacheManager.cleanup();
-      semanticSearchEngine.cleanup();
-      recommendationEngine.cleanup();
-    };
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AccessibilityProvider>

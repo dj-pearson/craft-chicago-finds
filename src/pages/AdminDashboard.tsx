@@ -45,11 +45,6 @@ import { ComplianceReporting } from "@/components/admin/ComplianceReporting";
 import { AuditLogViewer } from "@/components/admin/AuditLogViewer";
 import { AdminComplianceGuide } from "@/components/admin/AdminComplianceGuide";
 import { FraudDetectionDashboard } from "@/components/admin/FraudDetectionDashboard";
-import { PerformanceMonitoringDashboard } from "@/components/admin/PerformanceMonitoringDashboard";
-import { CacheManagementDashboard } from "@/components/admin/CacheManagementDashboard";
-import { MicroservicesManagementDashboard } from "@/components/admin/MicroservicesManagementDashboard";
-import { DatabaseOptimizationDashboard } from "@/components/admin/DatabaseOptimizationDashboard";
-import { SearchAnalyticsDashboard } from "@/components/admin/SearchAnalyticsDashboard";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -435,25 +430,6 @@ const AdminDashboard = () => {
             <FraudDetectionDashboard />
           </TabsContent>
 
-          <TabsContent value="performance">
-            <PerformanceMonitoringDashboard />
-          </TabsContent>
-
-          <TabsContent value="cache">
-            <CacheManagementDashboard />
-          </TabsContent>
-
-          <TabsContent value="microservices">
-            <MicroservicesManagementDashboard />
-          </TabsContent>
-
-          <TabsContent value="database">
-            <DatabaseOptimizationDashboard />
-          </TabsContent>
-
-          <TabsContent value="search">
-            <SearchAnalyticsDashboard />
-          </TabsContent>
         </Tabs>
       </main>
     </div>

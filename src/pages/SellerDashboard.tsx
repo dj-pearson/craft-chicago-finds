@@ -20,7 +20,7 @@ import { ImprovementPlan } from "@/components/seller/ImprovementPlan";
 import { ComplianceStatus } from "@/components/seller/ComplianceStatus";
 // IdentityVerification removed - using Stripe verification only
 import { SellerComplianceGuide } from "@/components/seller/SellerComplianceGuide";
-import { SecurityPerformanceInsights } from "@/components/seller/SecurityPerformanceInsights";
+
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -481,9 +481,6 @@ export default function SellerDashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="security">
-            <SecurityPerformanceInsights />
-          </TabsContent>
         </Tabs>
       </main>
       <Footer />
