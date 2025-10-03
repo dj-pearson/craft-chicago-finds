@@ -50,11 +50,7 @@ export function AuditLogViewer() {
 
       let query = supabase
         .from("compliance_audit_log")
-        .select(`
-          *,
-          seller:seller_id(display_name),
-          actor:actor_id(display_name)
-        `)
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(limit);
 
@@ -66,18 +62,46 @@ export function AuditLogViewer() {
 
       if (error) throw error;
 
-      const formattedLogs: AuditLog[] = (data || []).map((log: any) => ({
-        id: log.id,
-        created_at: log.created_at,
-        actor_type: log.actor_type,
-        action_type: log.action_type,
-        entity_type: log.entity_type,
-        seller_name: log.seller?.display_name || "Unknown",
-        actor_name: log.actor?.display_name || log.actor_type === "system" ? "System" : "Unknown",
-        details: log.details || {},
-      }));
+      // Fetch seller and actor names separately
+      const logsWithNames = await Promise.all(
+        (data || []).map(async (log: any) => {
+          let sellerName = "Unknown";
+          let actorName = log.actor_type === "system" ? "System" : "Unknown";
 
-      setLogs(formattedLogs);
+          if (log.seller_id) {
+            const { data: sellerData } = await supabase
+              .from("profiles")
+              .select("display_name")
+              .eq("user_id", log.seller_id)
+              .single();
+            
+            if (sellerData) sellerName = sellerData.display_name;
+          }
+
+          if (log.actor_id && log.actor_type !== "system") {
+            const { data: actorData } = await supabase
+              .from("profiles")
+              .select("display_name")
+              .eq("user_id", log.actor_id)
+              .single();
+            
+            if (actorData) actorName = actorData.display_name;
+          }
+
+          return {
+            id: log.id,
+            created_at: log.created_at,
+            actor_type: log.actor_type,
+            action_type: log.action_type,
+            entity_type: log.entity_type,
+            seller_name: sellerName,
+            actor_name: actorName,
+            details: log.details || {},
+          };
+        })
+      );
+
+      setLogs(logsWithNames);
     } catch (error: any) {
       console.error("Error loading audit logs:", error);
       toast({
