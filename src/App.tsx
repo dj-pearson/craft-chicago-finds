@@ -20,6 +20,8 @@ const NationalMarketplace = lazy(() => import("./pages/NationalMarketplace"));
 const NationalBrowse = lazy(() => import("./pages/NationalBrowse"));
 const City = lazy(() => import("./pages/City"));
 const Auth = lazy(() => import("./pages/Auth"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogArticle = lazy(() => import("./pages/BlogArticle"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const SellerDashboard = lazy(() => import("./pages/SellerDashboard"));
 const CreateEditListing = lazy(() => import("./pages/CreateEditListing"));
@@ -105,6 +107,8 @@ const App = () => {
                 <Route path="/safety-guidelines" element={<SafetyGuidelines />} />
                 <Route path="/cookie-policy" element={<CookiePolicy />} />
                 <Route path="/w9-submission" element={<W9Submission />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/:citySlug/blog/:slug" element={<BlogArticle />} />
                 <Route path="/:city/browse" element={<Browse />} />
                 <Route path="/:city/product/:id" element={<ProductDetail />} />
                 <Route path="/:city" element={<City />} />
