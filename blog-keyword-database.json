@@ -1,0 +1,1938 @@
+{
+  "meta": {
+    "version": "1.0",
+    "description": "Comprehensive keyword database for CraftLocal Chicago marketplace blog content",
+    "target_platform": "Local handmade marketplace - Chicago focused",
+    "total_keywords": 227,
+    "last_updated": "2025-01-03",
+    "categories": 7
+  },
+  "keyword_clusters": {
+    "thought_leadership": {
+      "cluster_id": 1,
+      "name": "Why Shop Local / Thought Leadership",
+      "description": "Build authority and connect with mission-driven content",
+      "search_intent": "informational",
+      "content_type": "evergreen_educational",
+      "target_audience": [
+        "conscious_consumers",
+        "local_supporters",
+        "handmade_enthusiasts"
+      ],
+      "keywords": [
+        {
+          "primary_keyword": "benefits of shopping local",
+          "search_volume": "high",
+          "competition": "medium",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "pillar_post",
+          "related_keywords": [
+            "why shop local matters",
+            "local business benefits",
+            "community impact shopping"
+          ],
+          "blog_angle": "comprehensive_guide"
+        },
+        {
+          "primary_keyword": "why buy handmade products",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "educational",
+          "related_keywords": [
+            "handmade vs mass produced",
+            "quality handmade goods",
+            "artisan craftsmanship"
+          ],
+          "blog_angle": "comparison_guide"
+        },
+        {
+          "primary_keyword": "why shopping small businesses matters",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "thought_leadership",
+          "related_keywords": [
+            "small business impact",
+            "local economy support",
+            "community development"
+          ],
+          "blog_angle": "impact_story"
+        },
+        {
+          "primary_keyword": "shop local vs shop online",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "comparison",
+          "related_keywords": [
+            "local vs online shopping",
+            "benefits local marketplace",
+            "why choose local"
+          ],
+          "blog_angle": "pros_cons_comparison"
+        },
+        {
+          "primary_keyword": "handmade vs factory made gifts",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": false,
+          "seasonal": true,
+          "seasonal_months": ["november", "december", "may", "february"],
+          "content_type": "gift_guide",
+          "related_keywords": [
+            "quality gift comparison",
+            "unique vs mass produced",
+            "artisan gift value"
+          ],
+          "blog_angle": "gift_buyer_education"
+        },
+        {
+          "primary_keyword": "why handmade products are better",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "educational",
+          "related_keywords": [
+            "handmade quality benefits",
+            "artisan craftsmanship value",
+            "unique handmade appeal"
+          ],
+          "blog_angle": "quality_focus"
+        },
+        {
+          "primary_keyword": "top reasons to support local artists",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "listicle",
+          "related_keywords": [
+            "support local creators",
+            "Chicago artists support",
+            "local art community"
+          ],
+          "blog_angle": "community_spotlight"
+        },
+        {
+          "primary_keyword": "environmental benefits of shopping local",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "sustainability",
+          "related_keywords": [
+            "eco friendly shopping",
+            "sustainable local commerce",
+            "reduce carbon footprint"
+          ],
+          "blog_angle": "sustainability_focus"
+        },
+        {
+          "primary_keyword": "what is a local marketplace",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "educational",
+          "related_keywords": [
+            "local marketplace benefits",
+            "community commerce platform",
+            "neighborhood shopping"
+          ],
+          "blog_angle": "platform_explanation"
+        },
+        {
+          "primary_keyword": "shop small business gifts ideas",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": false,
+          "seasonal": true,
+          "seasonal_months": ["november", "december", "may", "february"],
+          "content_type": "gift_guide",
+          "related_keywords": [
+            "small business gift guide",
+            "local business gifts",
+            "unique gift ideas"
+          ],
+          "blog_angle": "gift_guide_round_up"
+        },
+        {
+          "primary_keyword": "why Etsy isn't local",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "comparison",
+          "related_keywords": [
+            "Etsy vs local marketplace",
+            "truly local shopping",
+            "neighborhood vs global"
+          ],
+          "blog_angle": "platform_differentiation"
+        },
+        {
+          "primary_keyword": "alternative to Etsy for handmade products",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "platform_comparison",
+          "related_keywords": [
+            "local Etsy alternative",
+            "handmade marketplace options",
+            "local artisan platform"
+          ],
+          "blog_angle": "platform_alternative_guide"
+        }
+      ]
+    },
+    "gift_guides": {
+      "cluster_id": 2,
+      "name": "Gift Guides & Buyer Keywords",
+      "description": "Attract people searching for unique/local gifts",
+      "search_intent": "commercial",
+      "content_type": "seasonal_gift_guides",
+      "target_audience": [
+        "gift_shoppers",
+        "holiday_buyers",
+        "special_occasion_shoppers"
+      ],
+      "keywords": [
+        {
+          "primary_keyword": "handmade gifts near me",
+          "search_volume": "high",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": true,
+          "seasonal_months": ["november", "december", "may", "february"],
+          "content_type": "local_gift_guide",
+          "related_keywords": [
+            "local handmade gifts Chicago",
+            "artisan gifts nearby",
+            "unique gifts Chicago"
+          ],
+          "blog_angle": "location_specific_gift_guide"
+        },
+        {
+          "primary_keyword": "unique handmade gifts for birthdays",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "occasion_gift_guide",
+          "related_keywords": [
+            "birthday gift ideas handmade",
+            "personalized birthday gifts",
+            "custom birthday presents"
+          ],
+          "blog_angle": "occasion_specific_guide"
+        },
+        {
+          "primary_keyword": "handmade Christmas gifts near me",
+          "search_volume": "high",
+          "competition": "high",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": true,
+          "seasonal_months": ["november", "december"],
+          "content_type": "holiday_gift_guide",
+          "related_keywords": [
+            "Chicago Christmas gifts",
+            "local holiday presents",
+            "handmade holiday gifts"
+          ],
+          "blog_angle": "local_holiday_guide"
+        },
+        {
+          "primary_keyword": "handmade Valentine's gifts near me",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": true,
+          "seasonal_months": ["january", "february"],
+          "content_type": "holiday_gift_guide",
+          "related_keywords": [
+            "romantic handmade gifts Chicago",
+            "Valentine's Day local",
+            "love gifts handmade"
+          ],
+          "blog_angle": "romantic_local_guide"
+        },
+        {
+          "primary_keyword": "handmade Mother's Day gift ideas",
+          "search_volume": "high",
+          "competition": "high",
+          "buyer_intent": "high",
+          "local_modifier": false,
+          "seasonal": true,
+          "seasonal_months": ["april", "may"],
+          "content_type": "holiday_gift_guide",
+          "related_keywords": [
+            "Mother's Day handmade gifts",
+            "mom gifts artisan",
+            "unique Mother's Day presents"
+          ],
+          "blog_angle": "mom_focused_gift_guide"
+        },
+        {
+          "primary_keyword": "handmade Father's Day gift ideas",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": false,
+          "seasonal": true,
+          "seasonal_months": ["may", "june"],
+          "content_type": "holiday_gift_guide",
+          "related_keywords": [
+            "Father's Day handmade gifts",
+            "dad gifts artisan",
+            "unique Father's Day presents"
+          ],
+          "blog_angle": "dad_focused_gift_guide"
+        },
+        {
+          "primary_keyword": "handmade wedding gifts local",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": true,
+          "seasonal_months": [
+            "april",
+            "may",
+            "june",
+            "july",
+            "august",
+            "september"
+          ],
+          "content_type": "occasion_gift_guide",
+          "related_keywords": [
+            "wedding gifts Chicago",
+            "custom wedding presents",
+            "artisan wedding gifts"
+          ],
+          "blog_angle": "wedding_gift_guide"
+        },
+        {
+          "primary_keyword": "handmade baby shower gifts near me",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "occasion_gift_guide",
+          "related_keywords": [
+            "baby shower gifts Chicago",
+            "handmade baby items",
+            "unique baby presents"
+          ],
+          "blog_angle": "baby_focused_guide"
+        },
+        {
+          "primary_keyword": "handmade anniversary gifts near me",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "occasion_gift_guide",
+          "related_keywords": [
+            "anniversary gifts Chicago",
+            "romantic handmade gifts",
+            "custom anniversary presents"
+          ],
+          "blog_angle": "anniversary_romance_guide"
+        },
+        {
+          "primary_keyword": "eco friendly handmade gifts",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "sustainable_gift_guide",
+          "related_keywords": [
+            "sustainable handmade gifts",
+            "eco conscious presents",
+            "green gift ideas"
+          ],
+          "blog_angle": "sustainability_gift_focus"
+        },
+        {
+          "primary_keyword": "handmade gifts under $50",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": false,
+          "seasonal": true,
+          "seasonal_months": ["november", "december"],
+          "content_type": "budget_gift_guide",
+          "related_keywords": [
+            "affordable handmade gifts",
+            "budget artisan presents",
+            "cheap unique gifts"
+          ],
+          "blog_angle": "budget_conscious_guide"
+        },
+        {
+          "primary_keyword": "handmade gifts for teachers",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": false,
+          "seasonal": true,
+          "seasonal_months": ["may", "december"],
+          "content_type": "recipient_gift_guide",
+          "related_keywords": [
+            "teacher appreciation gifts",
+            "end of year teacher gifts",
+            "thank you teacher presents"
+          ],
+          "blog_angle": "teacher_appreciation_guide"
+        },
+        {
+          "primary_keyword": "local holiday gift guide",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": true,
+          "seasonal_months": ["november", "december"],
+          "content_type": "comprehensive_holiday_guide",
+          "related_keywords": [
+            "Chicago holiday shopping",
+            "local holiday presents",
+            "neighborhood gift guide"
+          ],
+          "blog_angle": "comprehensive_local_holiday"
+        },
+        {
+          "primary_keyword": "handmade home décor gifts",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "category_gift_guide",
+          "related_keywords": [
+            "home decor gift ideas",
+            "handmade house gifts",
+            "artisan home accessories"
+          ],
+          "blog_angle": "home_decor_focus"
+        },
+        {
+          "primary_keyword": "local artisan gifts for holidays",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": true,
+          "seasonal_months": ["november", "december"],
+          "content_type": "artisan_holiday_guide",
+          "related_keywords": [
+            "Chicago artisan holiday gifts",
+            "local maker presents",
+            "handcrafted holiday gifts"
+          ],
+          "blog_angle": "artisan_spotlight_holiday"
+        },
+        {
+          "primary_keyword": "seasonal handmade gifts Spring",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": true,
+          "seasonal_months": ["march", "april", "may"],
+          "content_type": "seasonal_gift_guide",
+          "related_keywords": [
+            "spring gift ideas",
+            "Easter handmade gifts",
+            "spring home decor"
+          ],
+          "blog_angle": "seasonal_spring_guide"
+        },
+        {
+          "primary_keyword": "seasonal handmade gifts Summer",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": true,
+          "seasonal_months": ["june", "july", "august"],
+          "content_type": "seasonal_gift_guide",
+          "related_keywords": [
+            "summer gift ideas",
+            "outdoor handmade gifts",
+            "summer accessories"
+          ],
+          "blog_angle": "seasonal_summer_guide"
+        },
+        {
+          "primary_keyword": "seasonal handmade gifts Fall",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": true,
+          "seasonal_months": ["september", "october", "november"],
+          "content_type": "seasonal_gift_guide",
+          "related_keywords": [
+            "fall gift ideas",
+            "autumn handmade gifts",
+            "harvest season gifts"
+          ],
+          "blog_angle": "seasonal_fall_guide"
+        },
+        {
+          "primary_keyword": "seasonal handmade gifts Winter",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": false,
+          "seasonal": true,
+          "seasonal_months": ["december", "january", "february"],
+          "content_type": "seasonal_gift_guide",
+          "related_keywords": [
+            "winter gift ideas",
+            "cozy handmade gifts",
+            "holiday presents"
+          ],
+          "blog_angle": "seasonal_winter_guide"
+        }
+      ]
+    },
+    "craft_fairs_events": {
+      "cluster_id": 3,
+      "name": "Craft Fairs & Events",
+      "description": "Traffic magnet - people always search 'near me' events",
+      "search_intent": "local_commercial",
+      "content_type": "event_guides",
+      "target_audience": [
+        "craft_fair_goers",
+        "weekend_shoppers",
+        "event_seekers"
+      ],
+      "keywords": [
+        {
+          "primary_keyword": "craft fairs near me this weekend",
+          "search_volume": "high",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "event_listing",
+          "related_keywords": [
+            "weekend craft fairs Chicago",
+            "craft markets this weekend",
+            "artisan events nearby"
+          ],
+          "blog_angle": "weekend_event_guide"
+        },
+        {
+          "primary_keyword": "craft show schedule 2025 Chicago",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "comprehensive_event_calendar",
+          "related_keywords": [
+            "Chicago craft fair calendar",
+            "2025 artisan events",
+            "craft show dates Chicago"
+          ],
+          "blog_angle": "annual_event_calendar"
+        },
+        {
+          "primary_keyword": "local holiday markets near me",
+          "search_volume": "high",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": true,
+          "seasonal_months": ["november", "december"],
+          "content_type": "holiday_event_guide",
+          "related_keywords": [
+            "Chicago holiday markets",
+            "Christmas markets nearby",
+            "winter markets"
+          ],
+          "blog_angle": "holiday_market_guide"
+        },
+        {
+          "primary_keyword": "farmers market vendors near me",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": true,
+          "seasonal_months": [
+            "april",
+            "may",
+            "june",
+            "july",
+            "august",
+            "september",
+            "october"
+          ],
+          "content_type": "vendor_guide",
+          "related_keywords": [
+            "Chicago farmers market crafts",
+            "market vendor directory",
+            "local market vendors"
+          ],
+          "blog_angle": "vendor_spotlight_guide"
+        },
+        {
+          "primary_keyword": "handmade market near me",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "market_guide",
+          "related_keywords": [
+            "Chicago handmade markets",
+            "artisan markets nearby",
+            "maker markets"
+          ],
+          "blog_angle": "handmade_market_directory"
+        },
+        {
+          "primary_keyword": "best local craft fairs Illinois",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "state_wide_guide",
+          "related_keywords": [
+            "Illinois craft fair guide",
+            "top craft shows Illinois",
+            "best artisan events"
+          ],
+          "blog_angle": "state_craft_fair_roundup"
+        },
+        {
+          "primary_keyword": "upcoming artisan markets near me",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "upcoming_events",
+          "related_keywords": [
+            "Chicago artisan market schedule",
+            "upcoming maker events",
+            "next craft markets"
+          ],
+          "blog_angle": "upcoming_events_preview"
+        },
+        {
+          "primary_keyword": "Chicago handmade holiday market",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": true,
+          "seasonal_months": ["november", "december"],
+          "content_type": "city_specific_holiday_guide",
+          "related_keywords": [
+            "Chicago Christmas markets",
+            "holiday craft fairs Chicago",
+            "Chicago winter markets"
+          ],
+          "blog_angle": "chicago_holiday_market_guide"
+        },
+        {
+          "primary_keyword": "craft vendor application Chicago",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "vendor_education",
+          "related_keywords": [
+            "become craft vendor Chicago",
+            "craft fair vendor process",
+            "apply to craft markets"
+          ],
+          "blog_angle": "vendor_application_guide"
+        },
+        {
+          "primary_keyword": "how to prepare for a craft fair",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "educational",
+          "related_keywords": [
+            "craft fair preparation tips",
+            "vendor setup guide",
+            "craft fair success tips"
+          ],
+          "blog_angle": "vendor_education_guide"
+        },
+        {
+          "primary_keyword": "craft fair vendor checklist",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "educational_resource",
+          "related_keywords": [
+            "vendor checklist craft fair",
+            "craft fair essentials",
+            "vendor preparation list"
+          ],
+          "blog_angle": "practical_vendor_resource"
+        },
+        {
+          "primary_keyword": "tips for selling at craft fairs",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "educational",
+          "related_keywords": [
+            "craft fair sales tips",
+            "increase craft fair sales",
+            "vendor success strategies"
+          ],
+          "blog_angle": "vendor_success_guide"
+        },
+        {
+          "primary_keyword": "how to find local craft fairs",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "discovery_guide",
+          "related_keywords": [
+            "find craft fairs near me",
+            "discover local markets",
+            "craft fair finder"
+          ],
+          "blog_angle": "event_discovery_guide"
+        },
+        {
+          "primary_keyword": "pop up artisan market Chicago",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "event_specific",
+          "related_keywords": [
+            "Chicago pop up markets",
+            "temporary artisan markets",
+            "mobile craft markets"
+          ],
+          "blog_angle": "pop_up_market_guide"
+        }
+      ]
+    },
+    "seller_education": {
+      "cluster_id": 4,
+      "name": "Seller / Maker Education",
+      "description": "Attract and onboard local sellers",
+      "search_intent": "educational",
+      "content_type": "business_education",
+      "target_audience": [
+        "aspiring_sellers",
+        "craft_business_owners",
+        "local_makers"
+      ],
+      "keywords": [
+        {
+          "primary_keyword": "how to sell handmade products locally",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "how_to_guide",
+          "related_keywords": [
+            "sell handmade goods Chicago",
+            "local selling strategies",
+            "neighborhood sales"
+          ],
+          "blog_angle": "local_selling_strategy_guide"
+        },
+        {
+          "primary_keyword": "best places to sell handmade items near me",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "marketplace_comparison",
+          "related_keywords": [
+            "where to sell crafts Chicago",
+            "local selling venues",
+            "handmade marketplaces"
+          ],
+          "blog_angle": "selling_venue_comparison"
+        },
+        {
+          "primary_keyword": "how to start a craft business in Chicago",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "comprehensive_business_guide",
+          "related_keywords": [
+            "Chicago craft business startup",
+            "craft business licenses Chicago",
+            "start handmade business"
+          ],
+          "blog_angle": "city_specific_business_guide"
+        },
+        {
+          "primary_keyword": "how to price handmade items for profit",
+          "search_volume": "high",
+          "competition": "medium",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "pricing_guide",
+          "related_keywords": [
+            "handmade pricing calculator",
+            "craft pricing strategy",
+            "profit margins handmade"
+          ],
+          "blog_angle": "pricing_strategy_guide"
+        },
+        {
+          "primary_keyword": "best crafts to sell in 2025",
+          "search_volume": "high",
+          "competition": "high",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "trend_guide",
+          "related_keywords": [
+            "trending crafts 2025",
+            "profitable handmade items",
+            "popular craft trends"
+          ],
+          "blog_angle": "trend_analysis_guide"
+        },
+        {
+          "primary_keyword": "how to promote handmade products locally",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "marketing_guide",
+          "related_keywords": [
+            "local marketing handmade",
+            "promote craft business Chicago",
+            "neighborhood marketing"
+          ],
+          "blog_angle": "local_marketing_strategy"
+        },
+        {
+          "primary_keyword": "Etsy alternatives for sellers",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "platform_comparison",
+          "related_keywords": [
+            "alternatives to Etsy",
+            "handmade selling platforms",
+            "craft marketplace options"
+          ],
+          "blog_angle": "platform_alternatives_guide"
+        },
+        {
+          "primary_keyword": "best marketplaces for handmade sellers",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "marketplace_comparison",
+          "related_keywords": [
+            "handmade marketplace comparison",
+            "craft selling platforms",
+            "artisan marketplaces"
+          ],
+          "blog_angle": "comprehensive_marketplace_guide"
+        },
+        {
+          "primary_keyword": "branding your handmade business locally",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "branding_guide",
+          "related_keywords": [
+            "local craft business branding",
+            "neighborhood business identity",
+            "community branding"
+          ],
+          "blog_angle": "local_branding_strategy"
+        },
+        {
+          "primary_keyword": "how to get more craft fair sales",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "sales_optimization",
+          "related_keywords": [
+            "increase craft fair revenue",
+            "craft fair sales tips",
+            "booth sales strategies"
+          ],
+          "blog_angle": "craft_fair_sales_guide"
+        },
+        {
+          "primary_keyword": "how to grow your handmade business",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "business_growth",
+          "related_keywords": [
+            "scale handmade business",
+            "craft business growth",
+            "expand artisan business"
+          ],
+          "blog_angle": "business_scaling_guide"
+        },
+        {
+          "primary_keyword": "top selling handmade items at markets",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "market_research",
+          "related_keywords": [
+            "best selling crafts markets",
+            "popular handmade items",
+            "market bestsellers"
+          ],
+          "blog_angle": "market_trends_analysis"
+        },
+        {
+          "primary_keyword": "craft business ideas that make money",
+          "search_volume": "high",
+          "competition": "high",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "business_ideas",
+          "related_keywords": [
+            "profitable craft businesses",
+            "money making craft ideas",
+            "successful handmade businesses"
+          ],
+          "blog_angle": "business_opportunity_guide"
+        },
+        {
+          "primary_keyword": "how to photograph handmade products",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "technical_guide",
+          "related_keywords": [
+            "craft photography tips",
+            "product photos handmade",
+            "DIY product photography"
+          ],
+          "blog_angle": "photography_tutorial"
+        },
+        {
+          "primary_keyword": "how to package handmade items for sale",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "operational_guide",
+          "related_keywords": [
+            "handmade packaging ideas",
+            "craft packaging tips",
+            "product presentation"
+          ],
+          "blog_angle": "packaging_strategy_guide"
+        },
+        {
+          "primary_keyword": "best payment methods for craft fairs",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "operational_guide",
+          "related_keywords": [
+            "craft fair payment processing",
+            "mobile payments crafts",
+            "vendor payment solutions"
+          ],
+          "blog_angle": "payment_processing_guide"
+        },
+        {
+          "primary_keyword": "handmade product descriptions that sell",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "copywriting_guide",
+          "related_keywords": [
+            "craft product copywriting",
+            "selling descriptions handmade",
+            "product listing tips"
+          ],
+          "blog_angle": "product_description_guide"
+        }
+      ]
+    },
+    "product_specific": {
+      "cluster_id": 5,
+      "name": "Product-Specific Buyer Searches",
+      "description": "Build blog posts that double as product category landing pages",
+      "search_intent": "commercial",
+      "content_type": "category_guides",
+      "target_audience": [
+        "category_shoppers",
+        "specific_product_seekers",
+        "local_buyers"
+      ],
+      "keywords": [
+        {
+          "primary_keyword": "handmade jewelry near me",
+          "search_volume": "high",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago handmade jewelry",
+            "local jewelry makers",
+            "artisan jewelry nearby"
+          ],
+          "blog_angle": "local_jewelry_guide",
+          "product_category": "jewelry"
+        },
+        {
+          "primary_keyword": "handmade soap near me",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago handmade soap",
+            "natural soap makers",
+            "artisan soap nearby"
+          ],
+          "blog_angle": "local_soap_guide",
+          "product_category": "bath_body"
+        },
+        {
+          "primary_keyword": "handmade candles near me",
+          "search_volume": "high",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago handmade candles",
+            "local candle makers",
+            "artisan candles nearby"
+          ],
+          "blog_angle": "local_candle_guide",
+          "product_category": "home_decor"
+        },
+        {
+          "primary_keyword": "handmade pottery near me",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago pottery makers",
+            "ceramic artists nearby",
+            "local pottery studios"
+          ],
+          "blog_angle": "local_pottery_guide",
+          "product_category": "home_decor"
+        },
+        {
+          "primary_keyword": "handmade wooden gifts near me",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago woodworkers",
+            "local wood crafts",
+            "handmade furniture nearby"
+          ],
+          "blog_angle": "local_woodworking_guide",
+          "product_category": "home_decor"
+        },
+        {
+          "primary_keyword": "handmade art from local artists",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago local artists",
+            "original artwork nearby",
+            "local art for sale"
+          ],
+          "blog_angle": "local_art_guide",
+          "product_category": "art"
+        },
+        {
+          "primary_keyword": "handmade home décor near me",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago home decor makers",
+            "local home accessories",
+            "artisan home goods"
+          ],
+          "blog_angle": "local_home_decor_guide",
+          "product_category": "home_decor"
+        },
+        {
+          "primary_keyword": "handmade clothing near me",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago clothing designers",
+            "local fashion makers",
+            "handmade apparel nearby"
+          ],
+          "blog_angle": "local_clothing_guide",
+          "product_category": "clothing"
+        },
+        {
+          "primary_keyword": "handmade bags near me",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago bag makers",
+            "local leather goods",
+            "handmade purses nearby"
+          ],
+          "blog_angle": "local_bags_guide",
+          "product_category": "accessories"
+        },
+        {
+          "primary_keyword": "handmade skincare products local",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago skincare makers",
+            "natural skincare local",
+            "handmade beauty products"
+          ],
+          "blog_angle": "local_skincare_guide",
+          "product_category": "bath_body"
+        },
+        {
+          "primary_keyword": "handmade quilts near me",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago quilters",
+            "local textile artists",
+            "handmade bedding nearby"
+          ],
+          "blog_angle": "local_quilting_guide",
+          "product_category": "home_decor"
+        },
+        {
+          "primary_keyword": "handmade pet accessories near me",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago pet product makers",
+            "local pet accessories",
+            "handmade dog collars"
+          ],
+          "blog_angle": "local_pet_accessories_guide",
+          "product_category": "pet_accessories"
+        },
+        {
+          "primary_keyword": "handmade kitchen items local",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago kitchen crafters",
+            "local kitchen accessories",
+            "handmade cutting boards"
+          ],
+          "blog_angle": "local_kitchen_guide",
+          "product_category": "home_decor"
+        },
+        {
+          "primary_keyword": "handmade toys near me",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago toy makers",
+            "local wooden toys",
+            "handmade children's toys"
+          ],
+          "blog_angle": "local_toys_guide",
+          "product_category": "toys"
+        },
+        {
+          "primary_keyword": "handmade eco products near me",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_guide",
+          "related_keywords": [
+            "Chicago eco makers",
+            "sustainable products local",
+            "green handmade goods"
+          ],
+          "blog_angle": "local_eco_products_guide",
+          "product_category": "sustainable"
+        }
+      ]
+    },
+    "local_seo": {
+      "cluster_id": 6,
+      "name": "Local SEO / City Guides",
+      "description": "Perfect for scalable blog content targeting service areas",
+      "search_intent": "local_informational",
+      "content_type": "city_guides",
+      "target_audience": [
+        "local_residents",
+        "chicago_visitors",
+        "neighborhood_explorers"
+      ],
+      "keywords": [
+        {
+          "primary_keyword": "best local gift shops in Chicago",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "city_guide",
+          "related_keywords": [
+            "Chicago gift shop guide",
+            "unique shops Chicago",
+            "local gift stores"
+          ],
+          "blog_angle": "comprehensive_city_shopping_guide"
+        },
+        {
+          "primary_keyword": "handmade products in Chicago",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "city_overview",
+          "related_keywords": [
+            "Chicago handmade scene",
+            "artisan goods Chicago",
+            "local makers Chicago"
+          ],
+          "blog_angle": "city_handmade_scene_overview"
+        },
+        {
+          "primary_keyword": "where to shop local in Chicago",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "shopping_guide",
+          "related_keywords": [
+            "Chicago local shopping guide",
+            "support local Chicago",
+            "neighborhood shopping"
+          ],
+          "blog_angle": "comprehensive_local_shopping"
+        },
+        {
+          "primary_keyword": "artisan markets in Chicago",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "market_directory",
+          "related_keywords": [
+            "Chicago craft markets",
+            "artisan fairs Chicago",
+            "maker markets"
+          ],
+          "blog_angle": "chicago_market_directory"
+        },
+        {
+          "primary_keyword": "handmade vendors in Chicago",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "vendor_directory",
+          "related_keywords": [
+            "Chicago craft vendors",
+            "local makers directory",
+            "artisan vendor list"
+          ],
+          "blog_angle": "vendor_spotlight_directory"
+        },
+        {
+          "primary_keyword": "shop local guide to Chicago",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "comprehensive_city_guide",
+          "related_keywords": [
+            "Chicago local business guide",
+            "support Chicago makers",
+            "local commerce guide"
+          ],
+          "blog_angle": "ultimate_chicago_local_guide"
+        },
+        {
+          "primary_keyword": "best handmade gifts in Chicago",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": true,
+          "seasonal_months": ["november", "december", "may"],
+          "content_type": "gift_guide",
+          "related_keywords": [
+            "Chicago unique gifts",
+            "local gift ideas Chicago",
+            "artisan gifts Chicago"
+          ],
+          "blog_angle": "chicago_gift_guide"
+        },
+        {
+          "primary_keyword": "support local artists in Chicago",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "community_guide",
+          "related_keywords": [
+            "Chicago artist community",
+            "local art support",
+            "artist advocacy Chicago"
+          ],
+          "blog_angle": "artist_community_spotlight"
+        },
+        {
+          "primary_keyword": "buy local art in Chicago",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "art_buying_guide",
+          "related_keywords": [
+            "Chicago local art sales",
+            "where to buy art Chicago",
+            "local art galleries"
+          ],
+          "blog_angle": "chicago_art_buying_guide"
+        },
+        {
+          "primary_keyword": "holiday craft fairs in Chicago",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": true,
+          "seasonal_months": ["november", "december"],
+          "content_type": "holiday_event_guide",
+          "related_keywords": [
+            "Chicago Christmas craft fairs",
+            "holiday markets Chicago",
+            "winter craft events"
+          ],
+          "blog_angle": "chicago_holiday_events"
+        },
+        {
+          "primary_keyword": "handmade jewelry Chicago",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "category_city_guide",
+          "related_keywords": [
+            "Chicago jewelry makers",
+            "local jewelry designers",
+            "artisan jewelry Chicago"
+          ],
+          "blog_angle": "chicago_jewelry_scene"
+        },
+        {
+          "primary_keyword": "farmers market craft vendors Chicago",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": true,
+          "seasonal_months": [
+            "april",
+            "may",
+            "june",
+            "july",
+            "august",
+            "september",
+            "october"
+          ],
+          "content_type": "vendor_guide",
+          "related_keywords": [
+            "Chicago farmers market crafts",
+            "market vendors Chicago",
+            "craft booths farmers market"
+          ],
+          "blog_angle": "farmers_market_craft_guide"
+        },
+        {
+          "primary_keyword": "where to find handmade goods in Chicago",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "discovery_guide",
+          "related_keywords": [
+            "find Chicago handmade",
+            "discover local crafts",
+            "Chicago artisan finder"
+          ],
+          "blog_angle": "handmade_discovery_guide"
+        },
+        {
+          "primary_keyword": "small business holiday shopping Chicago",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "high",
+          "local_modifier": true,
+          "seasonal": true,
+          "seasonal_months": ["november", "december"],
+          "content_type": "holiday_shopping_guide",
+          "related_keywords": [
+            "Chicago small business gifts",
+            "local holiday shopping",
+            "support small business holidays"
+          ],
+          "blog_angle": "small_business_holiday_guide"
+        }
+      ]
+    },
+    "educational_content": {
+      "cluster_id": 7,
+      "name": "Educational / Informational Content",
+      "description": "Evergreen content that brings traffic and builds trust",
+      "search_intent": "informational",
+      "content_type": "evergreen_educational",
+      "target_audience": [
+        "curious_consumers",
+        "craft_enthusiasts",
+        "quality_seekers"
+      ],
+      "keywords": [
+        {
+          "primary_keyword": "what is handmade vs handcrafted",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "definitional",
+          "related_keywords": [
+            "handmade definition",
+            "handcrafted meaning",
+            "artisan made vs handmade"
+          ],
+          "blog_angle": "terminology_explanation"
+        },
+        {
+          "primary_keyword": "why handmade products cost more",
+          "search_volume": "medium",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "educational_explanation",
+          "related_keywords": [
+            "handmade pricing explained",
+            "artisan product value",
+            "craft pricing reasons"
+          ],
+          "blog_angle": "value_proposition_education"
+        },
+        {
+          "primary_keyword": "how handmade goods are made",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "process_explanation",
+          "related_keywords": [
+            "handmade process",
+            "artisan techniques",
+            "craft making process"
+          ],
+          "blog_angle": "behind_the_scenes_education"
+        },
+        {
+          "primary_keyword": "history of handmade crafts",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "historical_context",
+          "related_keywords": [
+            "craft history",
+            "traditional crafts",
+            "artisan heritage"
+          ],
+          "blog_angle": "historical_perspective"
+        },
+        {
+          "primary_keyword": "handmade product trends 2025",
+          "search_volume": "medium",
+          "competition": "medium",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "trend_analysis",
+          "related_keywords": [
+            "craft trends 2025",
+            "handmade market trends",
+            "artisan product trends"
+          ],
+          "blog_angle": "industry_trend_analysis"
+        },
+        {
+          "primary_keyword": "how to identify authentic handmade products",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "medium",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "buyer_education",
+          "related_keywords": [
+            "authentic handmade signs",
+            "real vs fake handmade",
+            "genuine artisan products"
+          ],
+          "blog_angle": "authenticity_guide"
+        },
+        {
+          "primary_keyword": "handmade vs DIY products",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "comparison",
+          "related_keywords": [
+            "DIY vs artisan made",
+            "professional handmade",
+            "craft quality levels"
+          ],
+          "blog_angle": "quality_comparison_guide"
+        },
+        {
+          "primary_keyword": "handmade economy explained",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "economic_analysis",
+          "related_keywords": [
+            "craft economy",
+            "handmade market size",
+            "artisan economy impact"
+          ],
+          "blog_angle": "economic_impact_analysis"
+        },
+        {
+          "primary_keyword": "how handmade crafts support communities",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": true,
+          "seasonal": false,
+          "content_type": "community_impact",
+          "related_keywords": [
+            "craft community impact",
+            "local maker support",
+            "artisan community benefits"
+          ],
+          "blog_angle": "community_impact_story"
+        },
+        {
+          "primary_keyword": "handmade sustainability guide",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "sustainability_education",
+          "related_keywords": [
+            "sustainable handmade",
+            "eco friendly crafts",
+            "green artisan practices"
+          ],
+          "blog_angle": "sustainability_focus"
+        },
+        {
+          "primary_keyword": "handmade product certifications explained",
+          "search_volume": "low",
+          "competition": "low",
+          "buyer_intent": "low",
+          "local_modifier": false,
+          "seasonal": false,
+          "content_type": "certification_guide",
+          "related_keywords": [
+            "artisan certifications",
+            "handmade standards",
+            "craft quality certifications"
+          ],
+          "blog_angle": "certification_education"
+        }
+      ]
+    }
+  },
+  "blog_post_templates": {
+    "gift_guide": {
+      "template_name": "Holiday & Occasion Gift Guide",
+      "target_length": "2000-3000 words",
+      "structure": [
+        "Introduction with local angle",
+        "Why handmade gifts matter",
+        "Featured product categories",
+        "Price range breakdowns",
+        "Local maker spotlights",
+        "Shopping tips",
+        "Call-to-action to browse marketplace"
+      ],
+      "seo_requirements": {
+        "title_format": "[Keyword] - [Year] Chicago Local Guide",
+        "meta_description_length": "150-160 characters",
+        "header_structure": "H1, H2, H3 with keyword variations",
+        "internal_links": "Link to product categories and maker profiles",
+        "external_links": "Link to relevant local resources"
+      }
+    },
+    "category_guide": {
+      "template_name": "Product Category Deep Dive",
+      "target_length": "1500-2500 words",
+      "structure": [
+        "Category overview with local context",
+        "Featured local makers",
+        "Product showcase",
+        "Price and quality insights",
+        "Buying guide section",
+        "Care and maintenance tips",
+        "Related categories"
+      ],
+      "seo_requirements": {
+        "title_format": "[Product Category] Handmade in Chicago - Local Maker Guide",
+        "meta_description_length": "150-160 characters",
+        "header_structure": "H1, H2, H3 with product keywords",
+        "internal_links": "Link to maker profiles and product listings",
+        "external_links": "Link to craft education resources"
+      }
+    },
+    "maker_education": {
+      "template_name": "Seller Education & Business Guide",
+      "target_length": "2500-4000 words",
+      "structure": [
+        "Problem identification",
+        "Step-by-step solution guide",
+        "Local Chicago specific tips",
+        "Case studies or examples",
+        "Resource links and tools",
+        "Common mistakes to avoid",
+        "Next steps and action items"
+      ],
+      "seo_requirements": {
+        "title_format": "[How-to Keyword] - Complete Chicago Maker Guide [Year]",
+        "meta_description_length": "150-160 characters",
+        "header_structure": "H1, H2, H3 with question-based headers",
+        "internal_links": "Link to seller onboarding and resources",
+        "external_links": "Link to business resources and tools"
+      }
+    },
+    "event_guide": {
+      "template_name": "Local Events & Market Guide",
+      "target_length": "1500-2500 words",
+      "structure": [
+        "Event overview and importance",
+        "Upcoming events calendar",
+        "Featured vendors preview",
+        "Visitor tips and what to expect",
+        "Parking and logistics",
+        "Similar online alternatives",
+        "Follow-up shopping suggestions"
+      ],
+      "seo_requirements": {
+        "title_format": "[Event Keyword] Chicago [Year] - Complete Local Guide",
+        "meta_description_length": "150-160 characters",
+        "header_structure": "H1, H2, H3 with event and location keywords",
+        "internal_links": "Link to vendor profiles and marketplace",
+        "external_links": "Link to event websites and local resources"
+      }
+    },
+    "thought_leadership": {
+      "template_name": "Industry Insights & Thought Leadership",
+      "target_length": "2000-3500 words",
+      "structure": [
+        "Current state of the topic",
+        "Why this matters now",
+        "Data and research insights",
+        "Local Chicago perspective",
+        "Future predictions",
+        "Actionable recommendations",
+        "Community call-to-action"
+      ],
+      "seo_requirements": {
+        "title_format": "[Topic Keyword]: The Complete Guide for Chicago [Year]",
+        "meta_description_length": "150-160 characters",
+        "header_structure": "H1, H2, H3 with authority keywords",
+        "internal_links": "Link to relevant marketplace content",
+        "external_links": "Link to research sources and industry reports"
+      }
+    }
+  },
+  "content_calendar_suggestions": {
+    "january": {
+      "focus": "New Year, Winter Crafts, Organization",
+      "priority_keywords": [
+        "handmade Valentine's gifts near me",
+        "winter handmade gifts",
+        "handmade organization products",
+        "best crafts to sell in 2025"
+      ]
+    },
+    "february": {
+      "focus": "Valentine's Day, Love-themed gifts",
+      "priority_keywords": [
+        "handmade Valentine's gifts near me",
+        "romantic handmade gifts",
+        "love themed crafts",
+        "couple gift ideas handmade"
+      ]
+    },
+    "march": {
+      "focus": "Spring preparation, Easter, Women's History",
+      "priority_keywords": [
+        "spring handmade gifts",
+        "Easter crafts local",
+        "women artisans Chicago",
+        "spring home decor handmade"
+      ]
+    },
+    "april": {
+      "focus": "Earth Day, Spring events, Wedding season begins",
+      "priority_keywords": [
+        "eco friendly handmade gifts",
+        "sustainable crafts",
+        "spring craft fairs near me",
+        "handmade wedding gifts local"
+      ]
+    },
+    "may": {
+      "focus": "Mother's Day, Graduation, Wedding season",
+      "priority_keywords": [
+        "handmade Mother's Day gift ideas",
+        "graduation gifts handmade",
+        "spring wedding gifts",
+        "farmers market vendors near me"
+      ]
+    },
+    "june": {
+      "focus": "Father's Day, Summer prep, Graduations",
+      "priority_keywords": [
+        "handmade Father's Day gift ideas",
+        "summer handmade gifts",
+        "graduation gift guide",
+        "outdoor craft fairs Chicago"
+      ]
+    },
+    "july": {
+      "focus": "Summer activities, Patriotic themes, Outdoor events",
+      "priority_keywords": [
+        "summer craft fairs near me",
+        "patriotic handmade gifts",
+        "outdoor market vendors",
+        "summer home decor handmade"
+      ]
+    },
+    "august": {
+      "focus": "Back to school, Late summer events, Teacher gifts",
+      "priority_keywords": [
+        "handmade gifts for teachers",
+        "back to school crafts",
+        "late summer craft fairs",
+        "teacher appreciation gifts"
+      ]
+    },
+    "september": {
+      "focus": "Fall preparation, Harvest themes, Back to school",
+      "priority_keywords": [
+        "fall handmade gifts",
+        "harvest themed crafts",
+        "autumn home decor",
+        "back to school teacher gifts"
+      ]
+    },
+    "october": {
+      "focus": "Halloween, Fall festivals, Holiday prep begins",
+      "priority_keywords": [
+        "Halloween handmade crafts",
+        "fall craft fairs near me",
+        "autumn gift ideas",
+        "holiday market preparation"
+      ]
+    },
+    "november": {
+      "focus": "Thanksgiving, Black Friday alternatives, Holiday shopping begins",
+      "priority_keywords": [
+        "handmade Christmas gifts near me",
+        "local holiday gift guide",
+        "Thanksgiving handmade crafts",
+        "small business Saturday gifts"
+      ]
+    },
+    "december": {
+      "focus": "Christmas, Hanukkah, Year-end, Last-minute gifts",
+      "priority_keywords": [
+        "last minute handmade gifts",
+        "local holiday markets near me",
+        "Christmas craft fairs Chicago",
+        "handmade New Year gifts"
+      ]
+    }
+  },
+  "seo_optimization_rules": {
+    "keyword_density": "1-2% for primary keyword",
+    "related_keywords": "Include 3-5 semantic variations per post",
+    "local_seo": "Always include 'Chicago' or neighborhood names when local_modifier is true",
+    "internal_linking": "Link to 3-5 relevant marketplace pages per post",
+    "meta_tags": {
+      "title_length": "50-60 characters",
+      "description_length": "150-160 characters",
+      "always_include": [
+        "year",
+        "local modifier if applicable",
+        "call to action"
+      ]
+    },
+    "content_structure": {
+      "min_headings": 5,
+      "max_paragraph_length": "150 words",
+      "required_sections": [
+        "Introduction",
+        "Main content",
+        "Local angle",
+        "Call to action"
+      ]
+    }
+  }
+}
