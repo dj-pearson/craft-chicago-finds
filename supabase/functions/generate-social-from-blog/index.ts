@@ -86,8 +86,23 @@ serve(async (req) => {
       }
     }
 
-    const createdPosts = [];
+    // Resolve created_by/user_id: prefer article.author_id, else an active admin
+    let createdByUserId = article.author_id as string | null;
+    if (!createdByUserId) {
+      const { data: adminRole } = await supabaseClient
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin")
+        .eq("is_active", true)
+        .limit(1)
+        .single();
+      createdByUserId = (adminRole as any)?.user_id ?? null;
+    }
+    if (!createdByUserId) {
+      throw new Error("No valid creator user found for social post (author/admin).");
+    }
 
+    const createdPosts = [];
     // Generate posts for each platform
     for (const platform of platforms) {
       console.log(`Generating ${platform} post...`);
@@ -205,6 +220,7 @@ Generate the ${platform} post now:`;
         .from("social_media_posts")
         .insert({
           city_id: cityId,
+          created_by: createdByUserId,
           platform,
           post_type: "blog_promotion",
           status: "draft",
@@ -230,7 +246,7 @@ Generate the ${platform} post now:`;
 
       // Log AI generation
       await supabaseClient.from("ai_generation_logs").insert({
-        user_id: null,
+        user_id: createdByUserId,
         model_used: aiSettings.model_name,
         prompt: userPrompt.substring(0, 1000),
         response: generatedContent.substring(0, 1000),
