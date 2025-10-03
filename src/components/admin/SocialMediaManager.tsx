@@ -133,6 +133,7 @@ export const SocialMediaManager = () => {
     name: "",
     webhook_url: "",
     secret_key: "",
+    webhook_type: "social" as "social" | "blog",
     platforms: [] as string[],
   });
 
@@ -539,7 +540,9 @@ Please generate engaging social media content that follows the 30-day social med
             name: webhookForm.name,
             webhook_url: webhookForm.webhook_url,
             secret_key: webhookForm.secret_key || null,
+            webhook_type: webhookForm.webhook_type,
             platforms: webhookForm.platforms.length > 0 ? webhookForm.platforms : ["all"],
+            content_types: webhookForm.webhook_type === "blog" ? ["blog_article"] : ["social_post"],
           })
           .eq("id", editingWebhookId);
 
@@ -555,7 +558,9 @@ Please generate engaging social media content that follows the 30-day social med
           name: webhookForm.name,
           webhook_url: webhookForm.webhook_url,
           secret_key: webhookForm.secret_key || null,
+          webhook_type: webhookForm.webhook_type,
           platforms: webhookForm.platforms.length > 0 ? webhookForm.platforms : ["all"],
+          content_types: webhookForm.webhook_type === "blog" ? ["blog_article"] : ["social_post"],
           created_by: user?.id,
         });
 
@@ -586,6 +591,7 @@ Please generate engaging social media content that follows the 30-day social med
       name: webhook.name,
       webhook_url: webhook.webhook_url,
       secret_key: webhook.secret_key || "",
+      webhook_type: webhook.webhook_type || "social",
       platforms: webhook.platforms || [],
     });
     setEditingWebhookId(webhook.id);
@@ -675,6 +681,7 @@ Please generate engaging social media content that follows the 30-day social med
       name: "",
       webhook_url: "",
       secret_key: "",
+      webhook_type: "social",
       platforms: [],
     });
     setEditingWebhookId(null);
@@ -1487,6 +1494,37 @@ Please generate engaging social media content that follows the 30-day social med
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
+                    <Label htmlFor="webhook_type">Webhook Type</Label>
+                    <Select
+                      value={webhookForm.webhook_type}
+                      onValueChange={(value: "social" | "blog") => {
+                        const defaultUrls = {
+                          social: "https://hook.us1.make.com/3bqsnhv21amk1ug7ik55vha6uvk52vkj",
+                          blog: "https://hook.us1.make.com/hs7799pjeb9siioe20x1xwou3vgbgaur"
+                        };
+                        const defaultNames = {
+                          social: "Social Webhook",
+                          blog: "Blog Webhook"
+                        };
+                        setWebhookForm({ 
+                          ...webhookForm, 
+                          webhook_type: value,
+                          webhook_url: webhookForm.webhook_url || defaultUrls[value],
+                          name: webhookForm.name || defaultNames[value]
+                        });
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="social">Social Media Posts</SelectItem>
+                        <SelectItem value="blog">Blog Articles</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
                     <Label htmlFor="webhook_name">Webhook Name</Label>
                     <Input
                       id="webhook_name"
@@ -1494,7 +1532,7 @@ Please generate engaging social media content that follows the 30-day social med
                       onChange={(e) =>
                         setWebhookForm({ ...webhookForm, name: e.target.value })
                       }
-                      placeholder="e.g., Zapier Integration"
+                      placeholder={webhookForm.webhook_type === "blog" ? "Blog Webhook" : "Social Webhook"}
                     />
                   </div>
 
@@ -1506,7 +1544,7 @@ Please generate engaging social media content that follows the 30-day social med
                       onChange={(e) =>
                         setWebhookForm({ ...webhookForm, webhook_url: e.target.value })
                       }
-                      placeholder="https://hooks.zapier.com/..."
+                      placeholder="https://hook.us1.make.com/..."
                     />
                   </div>
 
@@ -1522,33 +1560,35 @@ Please generate engaging social media content that follows the 30-day social med
                     />
                   </div>
 
-                  <div>
-                    <Label>Supported Platforms</Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {["facebook", "instagram", "twitter", "linkedin", "all"].map((platform) => (
-                        <label key={platform} className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            checked={webhookForm.platforms.includes(platform)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setWebhookForm({
-                                  ...webhookForm,
-                                  platforms: [...webhookForm.platforms, platform],
-                                });
-                              } else {
-                                setWebhookForm({
-                                  ...webhookForm,
-                                  platforms: webhookForm.platforms.filter((p) => p !== platform),
-                                });
-                              }
-                            }}
-                          />
-                          <span className="capitalize">{platform}</span>
-                        </label>
-                      ))}
+                  {webhookForm.webhook_type === "social" && (
+                    <div>
+                      <Label>Supported Platforms</Label>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {["facebook", "instagram", "twitter", "linkedin", "all"].map((platform) => (
+                          <label key={platform} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              checked={webhookForm.platforms.includes(platform)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setWebhookForm({
+                                    ...webhookForm,
+                                    platforms: [...webhookForm.platforms, platform],
+                                  });
+                                } else {
+                                  setWebhookForm({
+                                    ...webhookForm,
+                                    platforms: webhookForm.platforms.filter((p) => p !== platform),
+                                  });
+                                }
+                              }}
+                            />
+                            <span className="capitalize">{platform}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="flex justify-end gap-2">
                     <Button
@@ -1570,44 +1610,100 @@ Please generate engaging social media content that follows the 30-day social med
           </div>
 
           <div className="grid gap-4">
-            {webhookSettings.map((webhook) => (
-              <Card key={webhook.id}>
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-lg">{webhook.name}</h3>
-                        <Badge className={webhook.is_active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
-                          {webhook.is_active ? "Active" : "Inactive"}
-                        </Badge>
+            {/* Social Webhooks */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Social Media Webhooks</h3>
+              {webhookSettings.filter(w => w.webhook_type === "social" || (!w.webhook_type && w.content_types?.includes("social_post"))).map((webhook) => (
+                <Card key={webhook.id} className="mb-3">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="font-semibold text-lg">{webhook.name}</h3>
+                          <Badge variant="outline" className="bg-blue-50">
+                            Social
+                          </Badge>
+                          <Badge className={webhook.is_active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+                            {webhook.is_active ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2 font-mono">
+                          {webhook.webhook_url}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span>Platforms: {webhook.platforms?.join(", ") || "All"}</span>
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {webhook.webhook_url}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>Platforms: {webhook.platforms?.join(", ") || "All"}</span>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditWebhook(webhook)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDeleteWebhook(webhook.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleEditWebhook(webhook)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleDeleteWebhook(webhook.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                  </CardContent>
+                </Card>
+              ))}
+              {webhookSettings.filter(w => w.webhook_type === "social" || (!w.webhook_type && w.content_types?.includes("social_post"))).length === 0 && (
+                <p className="text-sm text-muted-foreground italic">No social webhooks configured</p>
+              )}
+            </div>
+
+            {/* Blog Webhooks */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Blog Article Webhooks</h3>
+              {webhookSettings.filter(w => w.webhook_type === "blog" || (!w.webhook_type && w.content_types?.includes("blog_article"))).map((webhook) => (
+                <Card key={webhook.id} className="mb-3">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="font-semibold text-lg">{webhook.name}</h3>
+                          <Badge variant="outline" className="bg-purple-50">
+                            Blog
+                          </Badge>
+                          <Badge className={webhook.is_active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+                            {webhook.is_active ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2 font-mono">
+                          {webhook.webhook_url}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditWebhook(webhook)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDeleteWebhook(webhook.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+              {webhookSettings.filter(w => w.webhook_type === "blog" || (!w.webhook_type && w.content_types?.includes("blog_article"))).length === 0 && (
+                <p className="text-sm text-muted-foreground italic">No blog webhooks configured</p>
+              )}
+            </div>
 
             {webhookSettings.length === 0 && (
               <Card>
