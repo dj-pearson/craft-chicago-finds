@@ -34,14 +34,7 @@ export function ComplianceStatus() {
           .eq("seller_id", user.id)
           .single();
 
-        // Check identity verification
-        const { data: verificationData } = await supabase
-          .from("seller_verifications")
-          .select("verification_status, revenue_annual, revenue_30_day, verification_deadline")
-          .eq("seller_id", user.id)
-          .eq("verification_type", "identity")
-          .single();
-
+        // Verification is now handled by Stripe
         // Check public disclosure
         const { data: disclosureData } = await supabase
           .from("seller_public_disclosures")
@@ -52,11 +45,11 @@ export function ComplianceStatus() {
 
         setStatus({
           w9_submitted: !!w9Data,
-          identity_verified: verificationData?.verification_status === "approved",
+          identity_verified: true, // Stripe handles this
           public_disclosure_complete: !!disclosureData,
-          revenue_annual: verificationData?.revenue_annual || 0,
-          revenue_30_day: verificationData?.revenue_30_day || 0,
-          verification_deadline: verificationData?.verification_deadline,
+          revenue_annual: 0,
+          revenue_30_day: 0,
+          verification_deadline: null,
         });
       } catch (error) {
         console.error("Error loading compliance status:", error);

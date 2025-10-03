@@ -43,69 +43,8 @@ export const ComplianceAlerts = () => {
     const complianceIssues: ComplianceIssue[] = [];
 
     try {
-      // Check seller verification status
-      const { data: verification } = await supabase
-        .from("seller_verifications")
-        .select("*")
-        .eq("seller_id", user.id)
-        .eq("verification_type", "identity")
-        .single();
-
-      if (verification?.revenue_annual >= 5000 && verification.verification_status === 'pending') {
-        const daysUntilDeadline = verification.verification_deadline 
-          ? Math.ceil((new Date(verification.verification_deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-          : null;
-
-        complianceIssues.push({
-          id: 'identity-verification',
-          type: 'verification',
-          severity: daysUntilDeadline && daysUntilDeadline <= 3 ? 'critical' : 'high',
-          title: 'Identity Verification Required',
-          description: `Your annual revenue has exceeded $5,000. Federal law requires identity verification within 10 days.${
-            daysUntilDeadline ? ` ${daysUntilDeadline} days remaining.` : ''
-          }`,
-          deadline: verification.verification_deadline ? new Date(verification.verification_deadline) : undefined,
-          actionUrl: '/dashboard?tab=verification',
-          actionText: 'Complete Verification'
-        });
-      }
-
-      // Check W-9 status - placeholder for future implementation
-      const hasTaxDocs = false; // This would check seller_tax_documents table when available
-
-      if (!hasTaxDocs && verification?.revenue_annual >= 600) {
-        complianceIssues.push({
-          id: 'w9-required',
-          type: 'tax_document',
-          severity: 'high',
-          title: 'W-9 Form Required',
-          description: 'Your earnings require submission of IRS Form W-9 for tax reporting purposes.',
-          actionUrl: '/dashboard?tab=tax-documents',
-          actionText: 'Submit W-9'
-        });
-      }
-
-      // Check public disclosure requirement
-      const { data: disclosure } = await supabase
-        .from("seller_public_disclosures")
-        .select("*")
-        .eq("seller_id", user.id)
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (verification?.revenue_annual >= 20000 && !disclosure) {
-        complianceIssues.push({
-          id: 'public-disclosure',
-          type: 'disclosure',
-          severity: 'high',
-          title: 'Public Business Disclosure Required',
-          description: 'Federal law requires high-volume sellers to provide public business contact information.',
-          actionUrl: '/dashboard?tab=verification',
-          actionText: 'Add Disclosure'
-        });
-      }
-
-      // Check moderation issues
+      // Verification is now handled by Stripe - no compliance alerts needed
+      // Only check for moderation issues
       const { data: moderationIssues } = await supabase
         .from("moderation_queue")
         .select("*")

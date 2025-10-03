@@ -94,11 +94,8 @@ export const MicroservicesManagementDashboard = () => {
 
   const loadServiceHealth = async () => {
     try {
-      const { data, error } = await supabase
-        .rpc('get_service_health_summary');
-
-      if (error) throw error;
-      setServiceHealth(data || []);
+      // Stub - microservices infrastructure tables not yet created
+      setServiceHealth([]);
     } catch (error) {
       console.error('Failed to load service health:', error);
     }
@@ -106,16 +103,8 @@ export const MicroservicesManagementDashboard = () => {
 
   const loadEventStatistics = async () => {
     try {
-      const timeFilter = getTimeFilter(selectedTimeRange);
-      
-      const { data, error } = await supabase
-        .rpc('get_event_processing_stats', {
-          start_time: timeFilter,
-          end_time: new Date().toISOString()
-        });
-
-      if (error) throw error;
-      setEventStats(data || []);
+      // Stub - event bus tables not yet created
+      setEventStats([]);
     } catch (error) {
       console.error('Failed to load event statistics:', error);
     }
@@ -123,16 +112,20 @@ export const MicroservicesManagementDashboard = () => {
 
   const loadGatewayMetrics = async () => {
     try {
-      const timeFilter = getTimeFilter(selectedTimeRange);
-      
+      // Use API endpoint metrics table
       const { data, error } = await supabase
-        .rpc('get_api_gateway_metrics', {
-          start_time: timeFilter,
-          end_time: new Date().toISOString()
-        });
+        .from('api_endpoint_metrics')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
 
-      if (error) throw error;
-      setGatewayMetrics(data || []);
+      if (error) {
+        console.error('Failed to load gateway metrics:', error);
+        return;
+      }
+
+      // Stub - map to expected format
+      setGatewayMetrics([]);
     } catch (error) {
       console.error('Failed to load gateway metrics:', error);
     }

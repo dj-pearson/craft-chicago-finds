@@ -107,10 +107,7 @@ export const FraudDetectionDashboard = () => {
   const loadRecentSignals = async () => {
     const { data, error } = await supabase
       .from('fraud_signals')
-      .select(`
-        *,
-        profiles!fraud_signals_user_id_fkey(email)
-      `)
+      .select('*')
       .order('created_at', { ascending: false })
       .limit(20);
 
@@ -120,7 +117,7 @@ export const FraudDetectionDashboard = () => {
     }
 
     if (data) {
-      const signals: FraudSignal[] = data.map(signal => ({
+      const signals: FraudSignal[] = data.map((signal: any) => ({
         id: signal.id,
         user_id: signal.user_id,
         signal_type: signal.signal_type,
@@ -130,7 +127,7 @@ export const FraudDetectionDashboard = () => {
         metadata: signal.metadata,
         action_required: signal.action_required,
         created_at: signal.created_at,
-        user_email: signal.profiles?.email,
+        user_email: 'User',
         order_id: signal.order_id,
         false_positive: signal.false_positive
       }));
@@ -192,10 +189,17 @@ export const FraudDetectionDashboard = () => {
 
   const handleReviewSignal = async (signalId: string, decision: 'approve' | 'reject') => {
     try {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       const { error } = await supabase
         .from('fraud_reviews')
         .insert({
           signal_id: signalId,
+          user_id: user.id,
+          reviewer_id: user.id,
           decision: decision === 'approve' ? 'approved' : 'rejected',
           automated: false
         });

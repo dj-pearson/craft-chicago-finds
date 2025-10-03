@@ -71,28 +71,8 @@ export const SecurityPerformanceInsights = () => {
 
   const loadCacheMetrics = async () => {
     try {
-      // Get cache performance metrics for seller-relevant namespaces
-      const { data, error } = await supabase
-        .from('cache_performance_metrics')
-        .select('*')
-        .in('namespace', ['listings', 'profiles', 'search'])
-        .gte('period_start', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-        .order('period_start', { ascending: false })
-        .limit(3);
-
-      if (error) throw error;
-
-      if (data) {
-        const metrics: CacheMetrics[] = data.map(metric => ({
-          namespace: metric.namespace,
-          hit_rate: metric.hit_rate,
-          total_requests: metric.total_requests,
-          avg_response_time: metric.avg_response_time,
-          performance_score: metric.performance_score
-        }));
-
-        setCacheMetrics(metrics);
-      }
+      // Cache performance metrics table not yet implemented
+      setCacheMetrics([]);
     } catch (error) {
       console.error('Failed to load cache metrics:', error);
     }

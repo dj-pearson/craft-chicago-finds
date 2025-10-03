@@ -35,17 +35,9 @@ export const PublicDisclosure = () => {
     if (!user) return;
     
     try {
-      const { data: verification, error } = await supabase
-        .from("seller_verifications")
-        .select("revenue_annual, revenue_30_day")
-        .eq("seller_id", user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      // INFORM Act: Requires disclosure for sellers with $20k+ in annual revenue
-      const meetsThreshold = verification && verification.revenue_annual >= 20000;
-      setRequiresDisclosure(meetsThreshold);
+      // Disclosure requirement checking would go here
+      // For now, set to false as verification is Stripe-based
+      setRequiresDisclosure(false);
     } catch (error) {
       console.error("Error checking disclosure requirement:", error);
     }

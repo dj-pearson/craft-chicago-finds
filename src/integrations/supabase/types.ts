@@ -207,6 +207,48 @@ export type Database = {
           },
         ]
       }
+      api_endpoint_metrics: {
+        Row: {
+          created_at: string
+          endpoint: string
+          error_message: string | null
+          id: string
+          ip_address: unknown | null
+          method: string
+          response_time: number
+          status_code: number
+          success: boolean
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          error_message?: string | null
+          id?: string
+          ip_address?: unknown | null
+          method: string
+          response_time: number
+          status_code: number
+          success: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          error_message?: string | null
+          id?: string
+          ip_address?: unknown | null
+          method?: string
+          response_time?: number
+          status_code?: number
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       blog_analytics: {
         Row: {
           article_id: string
@@ -981,6 +1023,51 @@ export type Database = {
           },
         ]
       }
+      error_logs: {
+        Row: {
+          created_at: string
+          error_type: string
+          id: string
+          message: string
+          metadata: Json | null
+          resolved: boolean
+          resolved_at: string | null
+          session_id: string | null
+          stack_trace: string | null
+          url: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_type: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          resolved?: boolean
+          resolved_at?: string | null
+          session_id?: string | null
+          stack_trace?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_type?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          resolved?: boolean
+          resolved_at?: string | null
+          session_id?: string | null
+          stack_trace?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       featured_makers: {
         Row: {
           avatar_url: string | null
@@ -1133,6 +1220,210 @@ export type Database = {
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fraud_detection_rules: {
+        Row: {
+          action: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          rule_name: string
+          rule_type: string
+          severity: string
+          threshold_config: Json
+          updated_at: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          rule_name: string
+          rule_type: string
+          severity: string
+          threshold_config: Json
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          rule_name?: string
+          rule_type?: string
+          severity?: string
+          threshold_config?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fraud_detection_sessions: {
+        Row: {
+          behavioral_data: Json | null
+          created_at: string
+          device_fingerprint: Json | null
+          id: string
+          ip_address: unknown | null
+          risk_score: number | null
+          session_end: string | null
+          session_id: string
+          session_start: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          behavioral_data?: Json | null
+          created_at?: string
+          device_fingerprint?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          risk_score?: number | null
+          session_end?: string | null
+          session_id: string
+          session_start?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          behavioral_data?: Json | null
+          created_at?: string
+          device_fingerprint?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          risk_score?: number | null
+          session_end?: string | null
+          session_id?: string
+          session_start?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      fraud_reviews: {
+        Row: {
+          automated: boolean
+          created_at: string
+          decision: string
+          id: string
+          notes: string | null
+          order_id: string | null
+          reason: string | null
+          reviewer_id: string
+          signal_id: string
+          user_id: string
+        }
+        Insert: {
+          automated?: boolean
+          created_at?: string
+          decision: string
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          reason?: string | null
+          reviewer_id: string
+          signal_id: string
+          user_id: string
+        }
+        Update: {
+          automated?: boolean
+          created_at?: string
+          decision?: string
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          reason?: string | null
+          reviewer_id?: string
+          signal_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fraud_reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fraud_reviews_signal_id_fkey"
+            columns: ["signal_id"]
+            isOneToOne: false
+            referencedRelation: "fraud_signals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fraud_signals: {
+        Row: {
+          action_required: boolean
+          action_taken: string | null
+          confidence: number
+          created_at: string
+          description: string
+          false_positive: boolean | null
+          id: string
+          metadata: Json | null
+          order_id: string | null
+          session_id: string | null
+          severity: string
+          signal_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_required?: boolean
+          action_taken?: string | null
+          confidence: number
+          created_at?: string
+          description: string
+          false_positive?: boolean | null
+          id?: string
+          metadata?: Json | null
+          order_id?: string | null
+          session_id?: string | null
+          severity: string
+          signal_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_required?: boolean
+          action_taken?: string | null
+          confidence?: number
+          created_at?: string
+          description?: string
+          false_positive?: boolean | null
+          id?: string
+          metadata?: Json | null
+          order_id?: string | null
+          session_id?: string | null
+          severity?: string
+          signal_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fraud_signals_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fraud_signals_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "fraud_detection_sessions"
             referencedColumns: ["id"]
           },
         ]
@@ -1708,6 +1999,105 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      performance_alerts: {
+        Row: {
+          action_taken: string | null
+          alert_type: string
+          created_at: string
+          id: string
+          message: string
+          metadata: Json | null
+          metric_name: string
+          metric_value: number
+          resolved: boolean
+          resolved_at: string | null
+          threshold_value: number
+          updated_at: string
+        }
+        Insert: {
+          action_taken?: string | null
+          alert_type: string
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          metric_name: string
+          metric_value: number
+          resolved?: boolean
+          resolved_at?: string | null
+          threshold_value: number
+          updated_at?: string
+        }
+        Update: {
+          action_taken?: string | null
+          alert_type?: string
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          metric_name?: string
+          metric_value?: number
+          resolved?: boolean
+          resolved_at?: string | null
+          threshold_value?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      performance_recommendations: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          impact_estimate: string | null
+          implementation_effort: string | null
+          implementation_notes: string | null
+          metric_improvement: Json | null
+          priority: string
+          recommendation_type: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+          impact_estimate?: string | null
+          implementation_effort?: string | null
+          implementation_notes?: string | null
+          metric_improvement?: Json | null
+          priority: string
+          recommendation_type: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          impact_estimate?: string | null
+          implementation_effort?: string | null
+          implementation_notes?: string | null
+          metric_improvement?: Json | null
+          priority?: string
+          recommendation_type?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       pickup_appointments: {
         Row: {
@@ -2330,6 +2720,54 @@ export type Database = {
         }
         Relationships: []
       }
+      sla_metrics: {
+        Row: {
+          created_at: string
+          downtime_minutes: number
+          failed_checks: number
+          id: string
+          incident_count: number
+          mttr_minutes: number | null
+          period_end: string
+          period_start: string
+          sla_met: boolean
+          sla_target: number
+          successful_checks: number
+          total_checks: number
+          uptime_percentage: number
+        }
+        Insert: {
+          created_at?: string
+          downtime_minutes?: number
+          failed_checks?: number
+          id?: string
+          incident_count?: number
+          mttr_minutes?: number | null
+          period_end: string
+          period_start: string
+          sla_met?: boolean
+          sla_target?: number
+          successful_checks?: number
+          total_checks?: number
+          uptime_percentage: number
+        }
+        Update: {
+          created_at?: string
+          downtime_minutes?: number
+          failed_checks?: number
+          id?: string
+          incident_count?: number
+          mttr_minutes?: number | null
+          period_end?: string
+          period_start?: string
+          sla_met?: boolean
+          sla_target?: number
+          successful_checks?: number
+          total_checks?: number
+          uptime_percentage?: number
+        }
+        Relationships: []
+      }
       social_media_campaigns: {
         Row: {
           campaign_type: string
@@ -2580,6 +3018,36 @@ export type Database = {
           },
         ]
       }
+      system_health_checks: {
+        Row: {
+          components: Json
+          created_at: string
+          error_message: string | null
+          id: string
+          response_time: number | null
+          score: number
+          status: string
+        }
+        Insert: {
+          components?: Json
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          response_time?: number | null
+          score: number
+          status: string
+        }
+        Update: {
+          components?: Json
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          response_time?: number | null
+          score?: number
+          status?: string
+        }
+        Relationships: []
+      }
       tax_form_1099k: {
         Row: {
           created_at: string
@@ -2639,6 +3107,93 @@ export type Database = {
           },
         ]
       }
+      uptime_incidents: {
+        Row: {
+          affected_components: string[] | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          resolution_summary: string | null
+          resolved_at: string | null
+          root_cause: string | null
+          severity: string
+          started_at: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          affected_components?: string[] | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          resolution_summary?: string | null
+          resolved_at?: string | null
+          root_cause?: string | null
+          severity: string
+          started_at?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          affected_components?: string[] | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          resolution_summary?: string | null
+          resolved_at?: string | null
+          root_cause?: string | null
+          severity?: string
+          started_at?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_device_fingerprints: {
+        Row: {
+          created_at: string
+          fingerprint: Json
+          first_seen: string
+          id: string
+          is_trusted: boolean
+          last_seen: string
+          trust_score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          fingerprint: Json
+          first_seen?: string
+          id?: string
+          is_trusted?: boolean
+          last_seen?: string
+          trust_score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          fingerprint?: Json
+          first_seen?: string
+          id?: string
+          is_trusted?: boolean
+          last_seen?: string
+          trust_score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           city_id: string | null
@@ -2676,6 +3231,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_trust_scores: {
+        Row: {
+          account_age_days: number
+          created_at: string
+          failed_transactions: number
+          fraud_signals_count: number
+          id: string
+          last_calculated: string
+          last_fraud_signal: string | null
+          manual_adjustments: Json | null
+          stripe_verification_status: string | null
+          successful_transactions: number
+          trust_score: number
+          updated_at: string
+          user_id: string
+          verification_level: string
+        }
+        Insert: {
+          account_age_days?: number
+          created_at?: string
+          failed_transactions?: number
+          fraud_signals_count?: number
+          id?: string
+          last_calculated?: string
+          last_fraud_signal?: string | null
+          manual_adjustments?: Json | null
+          stripe_verification_status?: string | null
+          successful_transactions?: number
+          trust_score?: number
+          updated_at?: string
+          user_id: string
+          verification_level?: string
+        }
+        Update: {
+          account_age_days?: number
+          created_at?: string
+          failed_transactions?: number
+          fraud_signals_count?: number
+          id?: string
+          last_calculated?: string
+          last_fraud_signal?: string | null
+          manual_adjustments?: Json | null
+          stripe_verification_status?: string | null
+          successful_transactions?: number
+          trust_score?: number
+          updated_at?: string
+          user_id?: string
+          verification_level?: string
+        }
+        Relationships: []
       }
       webhook_logs: {
         Row: {
@@ -2872,6 +3478,10 @@ export type Database = {
       }
     }
     Functions: {
+      auto_resolve_stale_alerts: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       calculate_blog_seo_score: {
         Args: {
           p_content: string
@@ -2886,6 +3496,18 @@ export type Database = {
       calculate_category_growth_rate: {
         Args: { category_uuid: string; days_back?: number }
         Returns: number
+      }
+      calculate_sla_metrics: {
+        Args: { end_date: string; start_date: string }
+        Returns: {
+          downtime_minutes: number
+          failed_checks: number
+          incident_count: number
+          mttr_minutes: number
+          successful_checks: number
+          total_checks: number
+          uptime_percentage: number
+        }[]
       }
       check_shipping_availability: {
         Args: { seller_uuid: string; target_state: string }
@@ -2920,6 +3542,10 @@ export type Database = {
       decrement_inventory: {
         Args: { listing_uuid: string; quantity: number }
         Returns: undefined
+      }
+      generate_performance_recommendations: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       has_role: {
         Args: {
@@ -2957,6 +3583,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      should_flag_transaction: {
+        Args: {
+          seller_id: string
+          target_user_id: string
+          transaction_amount: number
+        }
+        Returns: boolean
+      }
       trigger_compliance_check: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -2964,6 +3598,10 @@ export type Database = {
       update_last_seen: {
         Args: { _user_id: string }
         Returns: undefined
+      }
+      update_user_trust_score: {
+        Args: { target_user_id: string }
+        Returns: number
       }
     }
     Enums: {
