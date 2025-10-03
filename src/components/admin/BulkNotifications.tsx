@@ -51,13 +51,8 @@ export function BulkNotifications() {
           recipientQuery = recipientQuery.eq("is_seller", true).eq("seller_verified", true);
           break;
         case "pending_verification":
-          const { data: pendingVerifications } = await supabase
-            .from("seller_verifications")
-            .select("seller_id")
-            .eq("verification_status", "pending");
-          
-          const pendingIds = pendingVerifications?.map((v) => v.seller_id) || [];
-          recipientQuery = recipientQuery.in("user_id", pendingIds);
+          // Verification is now handled by Stripe - filter by sellers without seller_verified status
+          recipientQuery = recipientQuery.eq("is_seller", true).eq("seller_verified", false);
           break;
       }
 
