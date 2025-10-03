@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, CreditCard, MapPin, Truck, Shield, AlertTriangle } from 'lucide-react';
+import { SecurityIndicator } from '@/components/buyer/SecurityIndicator';
 
 interface CheckoutProps {
   listing: {
@@ -341,6 +342,9 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
               </AlertDescription>
             </Alert>
           )}
+
+          {/* Security Indicator */}
+          <SecurityIndicator variant="detailed" showPerformance={true} />
 
           {/* Product Summary */}
           <div className="bg-muted/50 p-4 rounded-lg">

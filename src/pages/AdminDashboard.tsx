@@ -25,6 +25,8 @@ import {
   Share2,
   FileText,
   ShieldAlert,
+  Database,
+  Activity
 } from "lucide-react";
 import { CityManager } from "@/components/admin/CityManager";
 import { UserManager } from "@/components/admin/UserManager";
@@ -42,6 +44,7 @@ import { AuditLogViewer } from "@/components/admin/AuditLogViewer";
 import { AdminComplianceGuide } from "@/components/admin/AdminComplianceGuide";
 import { FraudDetectionDashboard } from "@/components/admin/FraudDetectionDashboard";
 import { PerformanceMonitoringDashboard } from "@/components/admin/PerformanceMonitoringDashboard";
+import { CacheManagementDashboard } from "@/components/admin/CacheManagementDashboard";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -143,7 +146,7 @@ const AdminDashboard = () => {
         <Tabs defaultValue="overview" className="w-full">
           {/* Mobile-optimized TabsList with horizontal scroll */}
           <div className="relative mb-6">
-            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-11 lg:grid-cols-11 gap-1 sm:gap-0 bg-muted/50">
+            <TabsList className="h-auto p-1 w-full overflow-x-auto grid grid-cols-12 lg:grid-cols-12 gap-1 sm:gap-0 bg-muted/50">
               <TabsTrigger
                 value="overview"
                 className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
@@ -231,6 +234,14 @@ const AdminDashboard = () => {
                 <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Performance</span>
                 <span className="sm:hidden">Perf</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="cache"
+                className="flex-col gap-1 px-2 py-2 text-xs sm:text-sm data-[state=active]:bg-background whitespace-nowrap"
+              >
+                <Database className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Cache</span>
+                <span className="sm:hidden">Cache</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -397,6 +408,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="performance">
             <PerformanceMonitoringDashboard />
+          </TabsContent>
+
+          <TabsContent value="cache">
+            <CacheManagementDashboard />
           </TabsContent>
         </Tabs>
       </main>

@@ -20,6 +20,7 @@ import { ImprovementPlan } from "@/components/seller/ImprovementPlan";
 import { ComplianceStatus } from "@/components/seller/ComplianceStatus";
 // IdentityVerification removed - using Stripe verification only
 import { SellerComplianceGuide } from "@/components/seller/SellerComplianceGuide";
+import { SecurityPerformanceInsights } from "@/components/seller/SecurityPerformanceInsights";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,7 +41,8 @@ import {
   Truck,
   ShieldCheck,
   FileText,
-  Scale
+  Scale,
+  Shield
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -416,6 +418,10 @@ export default function SellerDashboard() {
               <Scale className="h-3 w-3" />
               <span className="hidden sm:inline">Standards</span>
             </TabsTrigger>
+            <TabsTrigger value="security" className="flex items-center gap-1 text-xs">
+              <Shield className="h-3 w-3" />
+              <span className="hidden sm:inline">Security</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="listings">
@@ -473,6 +479,10 @@ export default function SellerDashboard() {
               <SellerComplianceGuide />
               <PerformanceMetrics />
             </div>
+          </TabsContent>
+
+          <TabsContent value="security">
+            <SecurityPerformanceInsights />
           </TabsContent>
         </Tabs>
       </main>

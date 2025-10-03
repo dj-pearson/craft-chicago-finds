@@ -10,8 +10,9 @@ import { StripeProvider } from "./hooks/useStripe";
 import { CartProvider } from "./hooks/useCart";
 import { PlansProvider } from "./hooks/usePlans";
 import { AccessibilityProvider } from "./components/accessibility/AccessibilityProvider";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { cacheManager } from "./lib/caching-strategy";
 import "./styles/accessibility.css";
 
 // Lazy load pages for better performance
@@ -59,16 +60,27 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AccessibilityProvider>
-      <AuthProvider>
-        <PlansProvider>
-          <CartProvider>
-            <AdminProvider>
-              <TooltipProvider>
-              <Toaster />
-              <Sonner />
+const App = () => {
+  // Initialize cache manager on app startup
+  useEffect(() => {
+    cacheManager.initialize();
+    
+    // Cleanup on unmount
+    return () => {
+      cacheManager.cleanup();
+    };
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AccessibilityProvider>
+        <AuthProvider>
+          <PlansProvider>
+            <CartProvider>
+              <AdminProvider>
+                <TooltipProvider>
+                <Toaster />
+                <Sonner />
         
           <CityProvider>
             <Suspense fallback={<LoadingSpinner />}>
@@ -120,6 +132,7 @@ const App = () => (
     </AuthProvider>
     </AccessibilityProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
