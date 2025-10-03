@@ -17,9 +17,9 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
-    const { city_id, min_priority_score = 70 } = await req.json().catch(() => ({}));
+    const { city_id, min_priority_score = 70, pre_launch = true } = await req.json().catch(() => ({}));
 
-    console.log("Starting automated blog article generation...");
+    console.log("Starting automated blog article generation...", { pre_launch });
 
     // Step 1: Get high-priority, unused keywords
     const currentMonth = new Date().toLocaleString("default", { month: "long" }).toLowerCase();
@@ -44,16 +44,36 @@ serve(async (req) => {
       throw new Error("No suitable keywords found for article generation");
     }
 
-    // Prioritize seasonal keywords if available
-    let selectedKeywords = keywords.filter(
-      (kw) => kw.seasonal && kw.seasonal_months?.includes(currentMonth)
-    );
-
-    // If no seasonal keywords, use top 3-5 by priority
-    if (selectedKeywords.length === 0) {
-      selectedKeywords = keywords.slice(0, Math.floor(Math.random() * 2) + 3); // 3-4 keywords
+    let selectedKeywords;
+    
+    // PRE-LAUNCH MODE: Focus on platform benefits, seller onboarding, and promotional content
+    if (pre_launch) {
+      // Prioritize keywords related to selling, marketplace benefits, and getting started
+      const preLaunchKeywords = keywords.filter(
+        (kw) => kw.buyer_intent === 'commercial' || 
+                kw.content_type === 'guide' ||
+                kw.primary_keyword.toLowerCase().includes('sell') ||
+                kw.primary_keyword.toLowerCase().includes('artisan') ||
+                kw.primary_keyword.toLowerCase().includes('marketplace') ||
+                kw.primary_keyword.toLowerCase().includes('handmade business')
+      );
+      
+      selectedKeywords = preLaunchKeywords.length > 0 
+        ? preLaunchKeywords.slice(0, Math.floor(Math.random() * 2) + 3)
+        : keywords.slice(0, 3); // Fallback
+      
+      console.log("PRE-LAUNCH MODE: Selected seller/platform-focused keywords");
     } else {
-      selectedKeywords = selectedKeywords.slice(0, Math.floor(Math.random() * 2) + 3);
+      // POST-LAUNCH MODE: Prioritize seasonal keywords for traffic
+      selectedKeywords = keywords.filter(
+        (kw) => kw.seasonal && kw.seasonal_months?.includes(currentMonth)
+      );
+
+      if (selectedKeywords.length === 0) {
+        selectedKeywords = keywords.slice(0, Math.floor(Math.random() * 2) + 3);
+      } else {
+        selectedKeywords = selectedKeywords.slice(0, Math.floor(Math.random() * 2) + 3);
+      }
     }
 
     const primaryKeyword = selectedKeywords[0];
@@ -70,11 +90,23 @@ serve(async (req) => {
       throw new Error("No active templates found");
     }
 
-    // Match template to cluster
-    const matchingTemplates = templates.filter((t) =>
-      t.template_type === primaryKeyword.content_type || 
-      (primaryKeyword.blog_keyword_clusters as any)?.content_type?.includes(t.template_type)
-    );
+    // Match template to cluster, prioritizing seller-focused templates in pre-launch
+    let matchingTemplates;
+    
+    if (pre_launch) {
+      // Prioritize Seller Success Guide, Marketplace Comparison, and Local Artisan Spotlight
+      matchingTemplates = templates.filter((t) =>
+        t.template_type === 'guide' || 
+        t.template_type === 'comparison' ||
+        t.template_type === 'local_spotlight' ||
+        t.name === 'Seller Success Guide'
+      );
+    } else {
+      matchingTemplates = templates.filter((t) =>
+        t.template_type === primaryKeyword.content_type || 
+        (primaryKeyword.blog_keyword_clusters as any)?.content_type?.includes(t.template_type)
+      );
+    }
 
     const selectedTemplate = matchingTemplates.length > 0
       ? matchingTemplates[0]
@@ -109,11 +141,19 @@ serve(async (req) => {
     }
 
     // Build comprehensive prompt
-    const systemPrompt = aiSettings.system_prompt ||
-      `You are an expert SEO content writer specializing in creating engaging, informative blog articles for local craft marketplaces.
-       Your content should be well-researched, optimized for search engines, and focused on driving awareness and traffic to encourage
-       people to sign up as buyers or sellers on the marketplace. Write in a ${selectedTemplate.tone || 'professional'} tone and focus on
-       supporting local artisans and the handmade craft community.`;
+    const systemPrompt = aiSettings.system_prompt || (pre_launch 
+      ? `You are an expert SEO content writer specializing in creating engaging, persuasive blog articles for a NEW local craft marketplace launching soon.
+         Your PRIMARY GOAL is to attract sellers and generate excitement about the platform. Focus on:
+         - Why sellers should join CraftLocal instead of other platforms
+         - Benefits of selling locally and supporting the community
+         - Success stories and opportunities for artisans
+         - Low fees, local focus, and seller-friendly features
+         - Creating urgency and excitement for the upcoming launch
+         Write in a ${selectedTemplate.tone || 'professional'} tone that is inspiring and actionable.`
+      : `You are an expert SEO content writer specializing in creating engaging, informative blog articles for local craft marketplaces.
+         Your content should be well-researched, optimized for search engines, and focused on driving awareness and traffic to encourage
+         people to sign up as buyers or sellers on the marketplace. Write in a ${selectedTemplate.tone || 'professional'} tone and focus on
+         supporting local artisans and the handmade craft community.`);
 
     let promptTemplate = selectedTemplate.prompt_template;
 
@@ -132,8 +172,9 @@ ${promptTemplate}
 
 Additional Context:
 Topic: ${primaryKeyword.primary_keyword}
-Target Audience: Local craft enthusiasts, gift shoppers, supporting local businesses
+Target Audience: ${pre_launch ? 'Local artisans, makers, crafters considering selling online, potential sellers' : 'Local craft enthusiasts, gift shoppers, supporting local businesses'}
 Search Intent: ${(primaryKeyword.blog_keyword_clusters as any)?.search_intent || 'Informational'}
+Platform Status: ${pre_launch ? 'PRE-LAUNCH - Launching in 1 month! Focus on seller recruitment and platform benefits.' : 'LIVE - Drive buyer traffic and conversions.'}
 
 Required Sections:
 ${selectedTemplate.required_sections.join(', ')}
@@ -145,7 +186,15 @@ Related Terms: ${relatedKeywords.join(', ')}
 
 Include specific local ${cityName} references and recommendations.
 Include an FAQ section with 3-5 relevant questions.
-End with a strong call-to-action encouraging readers to sign up as buyers or sellers on CraftLocal marketplace.
+${pre_launch 
+  ? `End with a STRONG call-to-action encouraging artisans and makers to JOIN AS SELLERS before launch. Emphasize:
+     - Early bird benefits and advantages
+     - Limited spots or exclusive launch features
+     - Why now is the perfect time to get started
+     - CraftLocal's competitive advantages over Etsy, Amazon Handmade, etc.
+     - Low fees (compared to 15-20% on other platforms)
+     - Local community support and direct customer connections`
+  : `End with a strong call-to-action encouraging readers to sign up as buyers or sellers on CraftLocal marketplace.`}
 
 SEO Focus Keywords to incorporate naturally:
 ${selectedTemplate.seo_focus.join(', ')}
