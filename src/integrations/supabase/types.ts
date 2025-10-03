@@ -332,6 +332,7 @@ export type Database = {
           view_count: number
           webhook_response: Json | null
           webhook_sent_at: string | null
+          webhook_settings_id: string | null
           word_count: number
         }
         Insert: {
@@ -360,6 +361,7 @@ export type Database = {
           view_count?: number
           webhook_response?: Json | null
           webhook_sent_at?: string | null
+          webhook_settings_id?: string | null
           word_count?: number
         }
         Update: {
@@ -388,6 +390,7 @@ export type Database = {
           view_count?: number
           webhook_response?: Json | null
           webhook_sent_at?: string | null
+          webhook_settings_id?: string | null
           word_count?: number
         }
         Relationships: [
@@ -398,7 +401,187 @@ export type Database = {
             referencedRelation: "cities"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "blog_articles_webhook_settings_id_fkey"
+            columns: ["webhook_settings_id"]
+            isOneToOne: false
+            referencedRelation: "webhook_settings"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      blog_content_calendar: {
+        Row: {
+          created_at: string
+          focus_theme: string
+          id: string
+          month_name: string
+          priority_keywords: string[]
+          seasonal_events: string[] | null
+          target_posts_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          focus_theme: string
+          id?: string
+          month_name: string
+          priority_keywords?: string[]
+          seasonal_events?: string[] | null
+          target_posts_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          focus_theme?: string
+          id?: string
+          month_name?: string
+          priority_keywords?: string[]
+          seasonal_events?: string[] | null
+          target_posts_count?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      blog_keyword_clusters: {
+        Row: {
+          cluster_id: number
+          content_type: string
+          created_at: string
+          description: string
+          id: string
+          name: string
+          search_intent: string
+          target_audience: string[]
+          updated_at: string
+        }
+        Insert: {
+          cluster_id: number
+          content_type: string
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          search_intent: string
+          target_audience?: string[]
+          updated_at?: string
+        }
+        Update: {
+          cluster_id?: number
+          content_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          search_intent?: string
+          target_audience?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      blog_keywords: {
+        Row: {
+          blog_angle: string
+          buyer_intent: string
+          cluster_id: number
+          competition: string
+          content_type: string
+          created_at: string
+          id: string
+          last_used_at: string | null
+          local_modifier: boolean
+          primary_keyword: string
+          priority_score: number | null
+          product_category: string | null
+          related_keywords: string[]
+          search_volume: string
+          seasonal: boolean
+          seasonal_months: string[] | null
+          updated_at: string
+          usage_count: number | null
+        }
+        Insert: {
+          blog_angle: string
+          buyer_intent: string
+          cluster_id: number
+          competition: string
+          content_type: string
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          local_modifier?: boolean
+          primary_keyword: string
+          priority_score?: number | null
+          product_category?: string | null
+          related_keywords?: string[]
+          search_volume: string
+          seasonal?: boolean
+          seasonal_months?: string[] | null
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Update: {
+          blog_angle?: string
+          buyer_intent?: string
+          cluster_id?: number
+          competition?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          local_modifier?: boolean
+          primary_keyword?: string
+          priority_score?: number | null
+          product_category?: string | null
+          related_keywords?: string[]
+          search_volume?: string
+          seasonal?: boolean
+          seasonal_months?: string[] | null
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_keywords_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "blog_keyword_clusters"
+            referencedColumns: ["cluster_id"]
+          },
+        ]
+      }
+      blog_post_templates: {
+        Row: {
+          applicable_clusters: number[]
+          created_at: string
+          id: string
+          seo_requirements: Json
+          structure: string[]
+          target_length: string
+          template_name: string
+          updated_at: string
+        }
+        Insert: {
+          applicable_clusters?: number[]
+          created_at?: string
+          id?: string
+          seo_requirements?: Json
+          structure?: string[]
+          target_length: string
+          template_name: string
+          updated_at?: string
+        }
+        Update: {
+          applicable_clusters?: number[]
+          created_at?: string
+          id?: string
+          seo_requirements?: Json
+          structure?: string[]
+          target_length?: string
+          template_name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       blog_seo_keywords: {
         Row: {
@@ -2603,7 +2786,105 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      high_priority_keywords: {
+        Row: {
+          blog_angle: string | null
+          buyer_intent: string | null
+          cluster_id: number | null
+          cluster_name: string | null
+          competition: string | null
+          content_type: string | null
+          created_at: string | null
+          id: string | null
+          last_used_at: string | null
+          local_modifier: boolean | null
+          primary_keyword: string | null
+          priority_score: number | null
+          product_category: string | null
+          related_keywords: string[] | null
+          search_intent: string | null
+          search_volume: string | null
+          seasonal: boolean | null
+          seasonal_months: string[] | null
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_keywords_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "blog_keyword_clusters"
+            referencedColumns: ["cluster_id"]
+          },
+        ]
+      }
+      seasonal_keywords: {
+        Row: {
+          blog_angle: string | null
+          buyer_intent: string | null
+          cluster_content_type: string | null
+          cluster_id: number | null
+          cluster_name: string | null
+          competition: string | null
+          content_type: string | null
+          created_at: string | null
+          id: string | null
+          last_used_at: string | null
+          local_modifier: boolean | null
+          primary_keyword: string | null
+          priority_score: number | null
+          product_category: string | null
+          related_keywords: string[] | null
+          search_intent: string | null
+          search_volume: string | null
+          seasonal: boolean | null
+          seasonal_months: string[] | null
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_keywords_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "blog_keyword_clusters"
+            referencedColumns: ["cluster_id"]
+          },
+        ]
+      }
+      unused_keywords: {
+        Row: {
+          blog_angle: string | null
+          buyer_intent: string | null
+          cluster_id: number | null
+          cluster_name: string | null
+          competition: string | null
+          content_type: string | null
+          created_at: string | null
+          id: string | null
+          last_used_at: string | null
+          local_modifier: boolean | null
+          primary_keyword: string | null
+          priority_score: number | null
+          product_category: string | null
+          related_keywords: string[] | null
+          search_volume: string | null
+          seasonal: boolean | null
+          seasonal_months: string[] | null
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_keywords_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "blog_keyword_clusters"
+            referencedColumns: ["cluster_id"]
+          },
+        ]
+      }
     }
     Functions: {
       calculate_blog_seo_score: {

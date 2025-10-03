@@ -3,8 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 interface BlogWebhookSendRequest {
@@ -14,38 +13,14 @@ interface BlogWebhookSendRequest {
 
 interface BlogWebhookPayload {
   article_id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  featured_image?: string;
-  meta_title: string;
-  meta_description: string;
+  article_title: string;
+  article_url: string;
+  short_description: string;
+  long_description: string;
   keywords: string[];
   category: string;
-  tags: string[];
-  status: string;
-  publish_date?: string;
-  article_url: string;
-  city_info?: {
-    city_id: string;
-    city_name: string;
-    city_slug: string;
-  };
-  author_info: {
-    author_id: string;
-  };
-  seo_metrics: {
-    seo_score: number;
-    readability_score: number;
-    word_count: number;
-    estimated_reading_time: number;
-  };
-  metadata: {
-    ai_generated: boolean;
-    created_at: string;
-    webhook_name: string;
-  };
+  publish_date: string | null;
+  city_name: string | null;
 }
 
 serve(async (req) => {
@@ -56,279 +31,260 @@ serve(async (req) => {
   try {
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        global: {
-          headers: { Authorization: req.headers.get("Authorization")! },
-        },
-      }
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
-    const {
-      data: { user },
-    } = await supabaseClient.auth.getUser();
-
-    if (!user) {
-      throw new Error("User not authenticated");
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      throw new Error("Missing authorization header");
     }
 
-    // Check permissions - only admins can send blog webhooks
-    const { data: hasPermission } = await supabaseClient.rpc("has_role", {
-      _user_id: user.id,
-      _role: "admin",
-    });
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
 
-    if (!hasPermission) {
-      throw new Error("Insufficient permissions");
+    if (authError || !user) {
+      throw new Error("Unauthorized");
     }
 
-    const requestData: BlogWebhookSendRequest = await req.json();
-    const { article_id, webhook_settings_id } = requestData;
+    const { data: roles } = await supabaseClient
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("is_active", true);
 
-    console.log("Sending blog webhook for article:", article_id);
+    const isAdmin = roles?.some(r => r.role === "admin");
+    if (!isAdmin) {
+      throw new Error("Unauthorized - Admin access required");
+    }
 
-    // Get the blog article data with related city information
+    const { article_id, webhook_settings_id }: BlogWebhookSendRequest = await req.json();
+
+    if (!article_id) {
+      throw new Error("article_id is required");
+    }
+
+    console.log("Sending blog article to webhook:", article_id);
+
     const { data: article, error: articleError } = await supabaseClient
       .from("blog_articles")
-      .select(
-        `
+      .select(`
         *,
         cities (
-          id,
           name,
           slug
         )
-      `
-      )
+      `)
       .eq("id", article_id)
       .single();
 
     if (articleError || !article) {
-      throw new Error("Blog article not found");
+      throw new Error("Article not found");
     }
 
-    // Get webhook settings - either specified or find active ones
     let webhookSettings;
     if (webhook_settings_id) {
-      const { data: settings, error: settingsError } = await supabaseClient
+      const { data } = await supabaseClient
         .from("webhook_settings")
         .select("*")
         .eq("id", webhook_settings_id)
         .eq("is_active", true)
         .single();
-
-      if (settingsError || !settings) {
-        throw new Error("Webhook settings not found");
+      
+      if (!data) {
+        throw new Error("Webhook settings not found or inactive");
       }
-      webhookSettings = [settings];
+      webhookSettings = [data];
     } else {
-      // Get all active webhook settings that support blog content
-      const { data: settings, error: settingsError } = await supabaseClient
+      const { data } = await supabaseClient
         .from("webhook_settings")
         .select("*")
-        .eq("is_active", true);
-
-      if (settingsError) {
-        throw new Error("Failed to fetch webhook settings");
-      }
-
-      // Filter to webhooks that support 'blog' or 'all' content types
-      webhookSettings = settings?.filter(s =>
-        !s.content_types ||
-        s.content_types.includes('blog') ||
-        s.content_types.includes('all')
-      ) || [];
+        .eq("is_active", true)
+        .eq("supports_blog", true);
+      
+      webhookSettings = data || [];
     }
 
     if (webhookSettings.length === 0) {
       throw new Error("No active webhook settings found for blog content");
     }
 
-    // Generate the article URL
-    const baseUrl = Deno.env.get("PUBLIC_SITE_URL") || "https://craftlocal.com";
-    const articleUrl = `${baseUrl}/blog/${article.slug}`;
+    console.log("Generating AI descriptions for social media...");
+    
+    const { data: aiSettings } = await supabaseClient
+      .from("ai_settings")
+      .select("*")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (!aiSettings) {
+      throw new Error("No active AI settings found");
+    }
+
+    const claudeApiKey = Deno.env.get("CLAUDE_API_KEY");
+    if (!claudeApiKey) {
+      throw new Error("CLAUDE_API_KEY not configured");
+    }
+
+    const descriptionPrompt = `You are an expert social media copywriter. Based on this blog article, create two descriptions:
+
+Article Title: ${article.title}
+Article Content Preview: ${article.excerpt || article.content.substring(0, 300)}
+Keywords: ${article.keywords?.join(", ") || ""}
+
+Generate:
+1. SHORT DESCRIPTION (for Twitter/X - max 200 characters): A punchy, engaging hook that makes people want to click
+2. LONG DESCRIPTION (for Facebook/LinkedIn - max 500 characters): A more detailed, compelling summary that provides value and encourages engagement
+
+Format your response as JSON:
+{
+  "short_description": "...",
+  "long_description": "..."
+}`;
+
+    const aiResponse = await fetch(aiSettings.api_endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": claudeApiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: aiSettings.model_name,
+        max_tokens: 1000,
+        temperature: 0.7,
+        messages: [
+          {
+            role: "user",
+            content: descriptionPrompt,
+          },
+        ],
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      console.error("AI API Error:", errorText);
+      throw new Error(`AI API request failed: ${aiResponse.status}`);
+    }
+
+    const aiData = await aiResponse.json();
+    const aiContent = aiData.content[0].text;
+    
+    const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
+    let descriptions = { short_description: "", long_description: "" };
+    
+    if (jsonMatch) {
+      descriptions = JSON.parse(jsonMatch[0]);
+    } else {
+      descriptions = {
+        short_description: article.excerpt?.substring(0, 200) || article.title,
+        long_description: article.excerpt || article.content.substring(0, 500),
+      };
+    }
+
+    console.log("AI Descriptions generated:", descriptions);
+
+    const citySlug = (article.cities as any)?.slug || "blog";
+    const articleUrl = `https://craftlocal.app/${citySlug}/blog/${article.slug}`;
+
+    const webhookPayload: BlogWebhookPayload = {
+      article_id: article.id,
+      article_title: article.title,
+      article_url: articleUrl,
+      short_description: descriptions.short_description,
+      long_description: descriptions.long_description,
+      keywords: article.keywords || [],
+      category: article.category,
+      publish_date: article.publish_date,
+      city_name: (article.cities as any)?.name || null,
+    };
 
     const results = [];
-
-    // Send to each webhook
     for (const webhookSetting of webhookSettings) {
+      console.log(`Sending to webhook: ${webhookSetting.name}`);
+      
       try {
-        // Prepare webhook payload
-        const payload: BlogWebhookPayload = {
-          article_id: article.id,
-          title: article.title,
-          slug: article.slug,
-          excerpt: article.excerpt,
-          content: article.content,
-          featured_image: article.featured_image,
-          meta_title: article.meta_title,
-          meta_description: article.meta_description,
-          keywords: article.keywords || [],
-          category: article.category,
-          tags: article.tags || [],
-          status: article.status,
-          publish_date: article.publish_date,
-          article_url: articleUrl,
-          city_info: article.cities
-            ? {
-                city_id: article.cities.id,
-                city_name: article.cities.name,
-                city_slug: article.cities.slug,
-              }
-            : undefined,
-          author_info: {
-            author_id: article.author_id,
-          },
-          seo_metrics: {
-            seo_score: article.seo_score,
-            readability_score: article.readability_score,
-            word_count: article.word_count,
-            estimated_reading_time: article.estimated_reading_time,
-          },
-          metadata: {
-            ai_generated: article.ai_generated,
-            created_at: article.created_at,
-            webhook_name: webhookSetting.name,
-          },
-        };
-
-        // Prepare headers
         const headers: Record<string, string> = {
           "Content-Type": "application/json",
-          "User-Agent": "CraftLocal-Blog-Webhook/1.0",
-          "X-Content-Type": "blog-article",
+          ...(webhookSetting.headers || {}),
         };
 
-        // Add secret key if provided
         if (webhookSetting.secret_key) {
           headers["X-Webhook-Secret"] = webhookSetting.secret_key;
         }
 
-        // Add any custom headers from webhook settings
-        if (webhookSetting.headers) {
-          Object.assign(headers, webhookSetting.headers);
-        }
-
-        // Ensure webhook URL has protocol and handle Make.com format
-        let webhookUrl = webhookSetting.webhook_url;
-        
-        // Handle Make.com webhook format: token@hook.us1.make.com -> https://hook.us1.make.com/token
-        const makeComMatch = webhookUrl.match(/^([a-z0-9]+)@(hook\.[a-z0-9]+\.make\.com)$/i);
-        if (makeComMatch) {
-          webhookUrl = `https://${makeComMatch[2]}/${makeComMatch[1]}`;
-        } else if (!webhookUrl.startsWith("http")) {
-          webhookUrl = `https://${webhookUrl}`;
-        }
-
-        console.log(`Sending blog webhook to: ${webhookUrl}`);
-
-        // Send the webhook
-        const webhookResponse = await fetch(webhookUrl, {
+        const webhookResponse = await fetch(webhookSetting.webhook_url, {
           method: "POST",
           headers,
-          body: JSON.stringify(payload),
+          body: JSON.stringify(webhookPayload),
         });
 
-        const responseText = await webhookResponse.text();
-        let responseData;
-        try {
-          responseData = JSON.parse(responseText);
-        } catch {
-          responseData = { raw_response: responseText };
-        }
+        const responseBody = await webhookResponse.text();
+        const success = webhookResponse.ok;
 
-        const webhookResult = {
-          webhook_id: webhookSetting.id,
-          webhook_name: webhookSetting.name,
-          success: webhookResponse.ok,
-          status_code: webhookResponse.status,
-          response: responseData,
-          sent_at: new Date().toISOString(),
-        };
-
-        results.push(webhookResult);
-
-        // Log the webhook attempt
         await supabaseClient.from("webhook_logs").insert({
-          content_id: article.id,
-          content_type: 'blog_article',
           webhook_settings_id: webhookSetting.id,
-          webhook_url: webhookSetting.webhook_url,
-          payload: payload,
+          entity_type: "blog_article",
+          entity_id: article_id,
+          request_payload: webhookPayload,
           response_status: webhookResponse.status,
-          response_body: responseData,
-          success: webhookResponse.ok,
-          sent_at: new Date().toISOString(),
+          response_body: responseBody ? JSON.parse(responseBody) : null,
+          success,
+          error_message: success ? null : `HTTP ${webhookResponse.status}: ${responseBody}`,
         });
 
-        console.log(
-          `Blog webhook ${webhookSetting.name} result: ${webhookResponse.status} ${
-            webhookResponse.ok ? "SUCCESS" : "FAILED"
-          }`
-        );
-      } catch (webhookError) {
-        console.error(
-          `Blog webhook ${webhookSetting.name} failed:`,
-          webhookError
-        );
-
-        const errorResult = {
-          webhook_id: webhookSetting.id,
+        results.push({
           webhook_name: webhookSetting.name,
-          success: false,
-          error:
-            webhookError instanceof Error
-              ? webhookError.message
-              : "Unknown error",
-          sent_at: new Date().toISOString(),
-        };
+          webhook_id: webhookSetting.id,
+          success,
+          status: webhookResponse.status,
+          response: responseBody,
+        });
 
-        results.push(errorResult);
-
-        // Log the failed attempt
+        console.log(`Webhook ${webhookSetting.name} - Status: ${webhookResponse.status}`);
+      } catch (error) {
+        console.error(`Error sending to webhook ${webhookSetting.name}:`, error);
+        
         await supabaseClient.from("webhook_logs").insert({
-          content_id: article.id,
-          content_type: 'blog_article',
           webhook_settings_id: webhookSetting.id,
-          webhook_url: webhookSetting.webhook_url,
-          request_payload: null,
-          response_status: 0,
-          response_body: JSON.stringify({ error: errorResult.error }),
+          entity_type: "blog_article",
+          entity_id: article_id,
+          request_payload: webhookPayload,
+          response_status: null,
+          response_body: null,
           success: false,
-          sent_at: new Date().toISOString(),
+          error_message: error instanceof Error ? error.message : "Unknown error",
+        });
+
+        results.push({
+          webhook_name: webhookSetting.name,
+          webhook_id: webhookSetting.id,
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
         });
       }
     }
-
-    // Update the blog article with webhook status
-    const successfulWebhooks = results.filter((r) => r.success).length;
-    const totalWebhooks = results.length;
 
     await supabaseClient
       .from("blog_articles")
       .update({
         webhook_sent_at: new Date().toISOString(),
-        webhook_response: {
-          total_webhooks: totalWebhooks,
-          successful_webhooks: successfulWebhooks,
-          results: results,
-        },
+        webhook_response: results,
       })
       .eq("id", article_id);
 
-    console.log(
-      `Blog webhook sending completed: ${successfulWebhooks}/${totalWebhooks} successful`
-    );
+    console.log("Blog webhook sending complete");
 
     return new Response(
       JSON.stringify({
         success: true,
         article_id,
-        article_url: articleUrl,
-        webhooks_sent: totalWebhooks,
-        successful_webhooks: successfulWebhooks,
+        webhooks_sent: results.length,
         results,
-        message: `Sent to ${successfulWebhooks}/${totalWebhooks} webhooks successfully`,
+        descriptions,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -336,10 +292,12 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error("Error sending blog webhook:", error);
+    console.error("Error in send-blog-webhook:", error);
+
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : "Unknown error",
+        success: false,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

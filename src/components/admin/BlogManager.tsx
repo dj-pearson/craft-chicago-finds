@@ -46,7 +46,17 @@ import {
   AlertCircle,
   ExternalLink,
   ChevronRight,
+  Share2,
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -163,10 +173,114 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
   const [aiSelectedTemplate, setAiSelectedTemplate] = useState<any>(null);
   const [aiOutline, setAiOutline] = useState<string>("");
 
+  // Webhook state
+  const [showWebhookSettings, setShowWebhookSettings] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState("");
+  const [webhookName, setWebhookName] = useState("Social Media Webhook");
+  const [webhookSettings, setWebhookSettings] = useState<any[]>([]);
+  const [selectedWebhookId, setSelectedWebhookId] = useState<string>("");
+  const [sendingWebhook, setSendingWebhook] = useState(false);
+
   useEffect(() => {
     fetchPosts();
     fetchTemplates();
+    fetchWebhookSettings();
   }, [currentCity]);
+
+  const fetchWebhookSettings = async () => {
+    const { data } = await supabase
+      .from("webhook_settings")
+      .select("*")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false });
+    
+    if (data) {
+      setWebhookSettings(data);
+      const blogWebhook = data.find((w: any) => w.supports_blog === true);
+      if (blogWebhook) {
+        setSelectedWebhookId(blogWebhook.id);
+      }
+    }
+  };
+
+  const saveWebhookSettings = async () => {
+    try {
+      if (!webhookUrl) {
+        toast({
+          title: "Error",
+          description: "Please enter a webhook URL",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("webhook_settings")
+        .insert({
+          name: webhookName,
+          webhook_url: webhookUrl,
+          webhook_type: "social_media",
+          supports_blog: true,
+          is_active: true,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Webhook settings saved successfully",
+      });
+
+      setShowWebhookSettings(false);
+      setWebhookUrl("");
+      setWebhookName("Social Media Webhook");
+      fetchWebhookSettings();
+      
+      if (data) {
+        setSelectedWebhookId(data.id);
+      }
+    } catch (error: any) {
+      console.error("Error saving webhook:", error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const sendToWebhook = async (articleId: string) => {
+    try {
+      setSendingWebhook(true);
+
+      const { data, error } = await supabase.functions.invoke("send-blog-webhook", {
+        body: {
+          article_id: articleId,
+          webhook_settings_id: selectedWebhookId || undefined,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Article sent to ${data.webhooks_sent} webhook(s)`,
+      });
+
+      fetchPosts();
+    } catch (error: any) {
+      console.error("Error sending to webhook:", error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSendingWebhook(false);
+    }
+  };
 
   const fetchPosts = async () => {
     setLoading(true);
