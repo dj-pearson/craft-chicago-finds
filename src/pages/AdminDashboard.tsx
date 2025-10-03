@@ -36,6 +36,7 @@ import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 import { ModerationQueue } from "@/components/admin/ModerationQueue";
 import { ComplianceControls } from "@/components/admin/ComplianceControls";
 import { ComplianceVerification } from "@/components/admin/ComplianceVerification";
+import { BulkNotifications } from "@/components/admin/BulkNotifications";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -361,6 +362,7 @@ const AdminDashboard = () => {
 
           <TabsContent value="moderation" className="space-y-6">
             <ComplianceVerification />
+            <BulkNotifications />
             <ModerationQueue />
             <ComplianceControls />
           </TabsContent>
