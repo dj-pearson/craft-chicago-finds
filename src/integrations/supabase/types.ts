@@ -2291,86 +2291,6 @@ export type Database = {
           },
         ]
       }
-      seller_verifications: {
-        Row: {
-          created_at: string
-          government_id_url: string | null
-          id: string
-          last_warning_sent_at: string | null
-          next_recertification_date: string | null
-          phone_number: string | null
-          revenue_30_day: number
-          revenue_annual: number
-          seller_id: string
-          stripe_verification_session_id: string | null
-          stripe_verification_status: string | null
-          suspension_date: string | null
-          transaction_count: number
-          updated_at: string
-          verification_deadline: string | null
-          verification_status: string
-          verification_triggered_at: string | null
-          verification_type: string
-          verified_address: Json | null
-          verified_at: string | null
-          verified_email: string | null
-        }
-        Insert: {
-          created_at?: string
-          government_id_url?: string | null
-          id?: string
-          last_warning_sent_at?: string | null
-          next_recertification_date?: string | null
-          phone_number?: string | null
-          revenue_30_day?: number
-          revenue_annual?: number
-          seller_id: string
-          stripe_verification_session_id?: string | null
-          stripe_verification_status?: string | null
-          suspension_date?: string | null
-          transaction_count?: number
-          updated_at?: string
-          verification_deadline?: string | null
-          verification_status?: string
-          verification_triggered_at?: string | null
-          verification_type: string
-          verified_address?: Json | null
-          verified_at?: string | null
-          verified_email?: string | null
-        }
-        Update: {
-          created_at?: string
-          government_id_url?: string | null
-          id?: string
-          last_warning_sent_at?: string | null
-          next_recertification_date?: string | null
-          phone_number?: string | null
-          revenue_30_day?: number
-          revenue_annual?: number
-          seller_id?: string
-          stripe_verification_session_id?: string | null
-          stripe_verification_status?: string | null
-          suspension_date?: string | null
-          transaction_count?: number
-          updated_at?: string
-          verification_deadline?: string | null
-          verification_status?: string
-          verification_triggered_at?: string | null
-          verification_type?: string
-          verified_address?: Json | null
-          verified_at?: string | null
-          verified_email?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "seller_verifications_seller_id_fkey"
-            columns: ["seller_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
       shipping_zones: {
         Row: {
           created_at: string
@@ -3036,10 +2956,6 @@ export type Database = {
       seed_mock_seller_data: {
         Args: Record<PropertyKey, never>
         Returns: Json
-      }
-      send_compliance_notifications: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
       }
       trigger_compliance_check: {
         Args: Record<PropertyKey, never>
