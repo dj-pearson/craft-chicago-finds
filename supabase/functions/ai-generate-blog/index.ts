@@ -125,34 +125,9 @@ Important Guidelines:
 - Include specific, actionable advice and recommendations
 - Emphasize the benefits of shopping local and supporting small businesses
 - Every article should ultimately drive traffic to the marketplace and encourage sign-ups
+- Format the response as clean Markdown with proper headings and structure
 
-CRITICAL FORMATTING REQUIREMENTS:
-- Format the ENTIRE response as properly structured Markdown
-- Use ## for main section headings (H2)
-- Use ### for subsection headings (H3)
-- Add blank lines between paragraphs for visual separation
-- Use **bold** for emphasis on key points
-- Use bullet points (-) or numbered lists where appropriate
-- Break up long paragraphs - aim for 3-4 sentences maximum per paragraph
-- Start each new section with a clear heading
-- Ensure proper spacing: blank line before headings, blank line after headings
-- Make the content scannable with clear visual hierarchy
-
-Example structure:
-## Main Section Title
-
-Brief intro paragraph with engaging content.
-
-Another paragraph expanding on the topic.
-
-### Subsection Title
-
-Content for this subsection.
-
-- Bullet point one
-- Bullet point two
-
-Generate the complete blog article now with proper markdown formatting and visual separation:`;
+Generate the complete blog article now:`;
 
     console.log("Calling AI with model:", aiSettings.model_name);
 
