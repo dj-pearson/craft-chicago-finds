@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, Clock, Eye } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEOHead } from "@/components/seo/SEOHead";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function BlogArticle() {
   const { citySlug, slug } = useParams();
@@ -121,10 +123,11 @@ export default function BlogArticle() {
           />
         )}
 
-        <div 
-          className="prose prose-lg max-w-none dark:prose-invert"
-          dangerouslySetInnerHTML={{ __html: article.content }}
-        />
+        <div className="prose prose-lg max-w-none dark:prose-invert">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {article.content}
+          </ReactMarkdown>
+        </div>
 
         {article.tags && article.tags.length > 0 && (
           <div className="mt-8 pt-8 border-t">
