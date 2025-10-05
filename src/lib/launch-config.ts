@@ -11,9 +11,9 @@ export const LAUNCH_CONFIG = {
   ALLOW_EARLY_ACCESS: false,
   
   // Registration controls
-  REGISTRATION_ENABLED: false,
-  SELLER_REGISTRATION_ENABLED: false,
-  BUYER_REGISTRATION_ENABLED: false,
+  REGISTRATION_ENABLED: true,
+  SELLER_REGISTRATION_ENABLED: true,
+  BUYER_REGISTRATION_ENABLED: true,
   
   // Pre-launch features
   SHOW_COMING_SOON: true,
