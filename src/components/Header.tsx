@@ -50,7 +50,6 @@ export const Header = () => {
                   width="96"
                   height="33"
                   loading="eager"
-                  fetchPriority="high"
                 />
               </picture>
             </div>

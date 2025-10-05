@@ -375,6 +375,7 @@ const Auth = () => {
                         value={signInData.email}
                         onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
                         className="pl-10"
+                        autoComplete="email"
                         required
                       />
                     </div>
@@ -392,6 +393,7 @@ const Auth = () => {
                         value={signInData.password}
                         onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
                         className="pl-10 pr-10"
+                        autoComplete="current-password"
                         required
                       />
                       <Button
@@ -586,6 +588,7 @@ const Auth = () => {
                         value={signUpData.email}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
                         className="pl-10"
+                        autoComplete="email"
                         required
                       />
                     </div>
@@ -603,6 +606,7 @@ const Auth = () => {
                         value={signUpData.password}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
                         className="pl-10 pr-10"
+                        autoComplete="new-password"
                         required
                       />
                       <Button
@@ -629,6 +633,7 @@ const Auth = () => {
                         value={signUpData.confirmPassword}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                         className="pl-10 pr-10"
+                        autoComplete="new-password"
                         required
                       />
                       <Button

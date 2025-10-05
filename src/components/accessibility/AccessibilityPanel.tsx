@@ -114,12 +114,15 @@ export const AccessibilityPanel = ({ className = "" }: AccessibilityPanelProps) 
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" aria-describedby="accessibility-description">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Accessibility className="h-5 w-5" />
             Accessibility Settings
           </DialogTitle>
+          <p id="accessibility-description" className="sr-only">
+            Customize accessibility settings to personalize your browsing experience
+          </p>
         </DialogHeader>
 
         <div className="space-y-6">
