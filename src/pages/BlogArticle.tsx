@@ -7,6 +7,37 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, Clock, Eye } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEOHead } from "@/components/seo/SEOHead";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+// Helper function to detect content type
+const detectContentType = (content: string): 'markdown' | 'html' | 'text' => {
+  // Check for HTML tags
+  if (/<[a-z][\s\S]*>/i.test(content)) {
+    return 'html';
+  }
+  
+  // Check for common markdown patterns
+  const markdownPatterns = [
+    /^#{1,6}\s/m,           // Headers
+    /\*\*.*\*\*/,           // Bold
+    /\*.*\*/,               // Italic
+    /_.*_/,                 // Italic
+    /^\s*[-*+]\s/m,         // Unordered lists
+    /^\s*\d+\.\s/m,         // Ordered lists
+    /\[.*\]\(.*\)/,         // Links
+    /!\[.*\]\(.*\)/,        // Images
+    /^>\s/m,                // Blockquotes
+    /```[\s\S]*```/,        // Code blocks
+    /`.*`/,                 // Inline code
+  ];
+  
+  if (markdownPatterns.some(pattern => pattern.test(content))) {
+    return 'markdown';
+  }
+  
+  return 'text';
+};
 
 export default function BlogArticle() {
   const { citySlug, slug } = useParams();
@@ -121,10 +152,30 @@ export default function BlogArticle() {
           />
         )}
 
-        <div 
-          className="prose prose-lg max-w-none dark:prose-invert"
-          dangerouslySetInnerHTML={{ __html: article.content }}
-        />
+        <div className="prose prose-lg max-w-none dark:prose-invert">
+          {(() => {
+            const contentType = detectContentType(article.content);
+            
+            if (contentType === 'markdown') {
+              return (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {article.content}
+                </ReactMarkdown>
+              );
+            } else if (contentType === 'html') {
+              return (
+                <div dangerouslySetInnerHTML={{ __html: article.content }} />
+              );
+            } else {
+              // Plain text - preserve line breaks
+              return (
+                <div style={{ whiteSpace: 'pre-wrap' }}>
+                  {article.content}
+                </div>
+              );
+            }
+          })()}
+        </div>
 
         {article.tags && article.tags.length > 0 && (
           <div className="mt-8 pt-8 border-t">

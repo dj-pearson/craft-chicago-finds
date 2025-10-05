@@ -9,6 +9,8 @@ import { Search, Calendar, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 export default function Blog() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,7 +54,7 @@ export default function Blog() {
   const categories = Array.from(new Set(articles?.map(a => a.category) || []));
 
   return (
-    <>
+    <div className="min-h-screen bg-background">
       <SEOHead
         config={{
           title: "Blog | CraftLocal - Handmade Marketplace Insights",
@@ -60,8 +62,10 @@ export default function Blog() {
           keywords: ["craft blog", "artisan stories", "handmade shopping guide", "local marketplace blog"],
         }}
       />
-
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      
+      <Header />
+      
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">CraftLocal Blog</h1>
           <p className="text-muted-foreground text-lg">
@@ -173,7 +177,9 @@ export default function Blog() {
             <p className="text-muted-foreground text-lg">No articles found. Try adjusting your filters.</p>
           </div>
         )}
-      </div>
-    </>
+      </main>
+      
+      <Footer />
+    </div>
   );
 }

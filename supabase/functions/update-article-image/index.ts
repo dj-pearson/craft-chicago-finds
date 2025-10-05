@@ -40,7 +40,7 @@ serve(async (req) => {
     // Verify article exists
     const { data: article, error: articleError } = await supabaseClient
       .from("blog_articles")
-      .select("id, title")
+      .select("id, title, slug")
       .eq("id", article_id)
       .single();
 
@@ -48,11 +48,55 @@ serve(async (req) => {
       throw new Error("Article not found");
     }
 
-    // Update the article with the featured image
+    // Download the image from the external URL
+    console.log("Downloading image from:", image_url);
+    const imageResponse = await fetch(image_url);
+    
+    if (!imageResponse.ok) {
+      throw new Error(`Failed to download image: ${imageResponse.statusText}`);
+    }
+
+    const imageBlob = await imageResponse.blob();
+    const imageBuffer = await imageBlob.arrayBuffer();
+    
+    // Determine file extension from content type or URL
+    const contentType = imageResponse.headers.get("content-type") || "image/jpeg";
+    const extension = contentType.split("/")[1] || "jpg";
+    
+    // Create a unique filename
+    const timestamp = Date.now();
+    const filename = `blog-images/${article.slug}-${timestamp}.${extension}`;
+
+    console.log("Uploading image to storage:", filename);
+
+    // Upload to Supabase Storage
+    const { data: uploadData, error: uploadError } = await supabaseClient
+      .storage
+      .from("product-images")
+      .upload(filename, imageBuffer, {
+        contentType,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error("Upload error:", uploadError);
+      throw new Error(`Failed to upload image: ${uploadError.message}`);
+    }
+
+    // Get public URL for the uploaded image
+    const { data: publicUrlData } = supabaseClient
+      .storage
+      .from("product-images")
+      .getPublicUrl(filename);
+
+    const storedImageUrl = publicUrlData.publicUrl;
+    console.log("Image stored at:", storedImageUrl);
+
+    // Update the article with the stored image URL
     const { data: updatedArticle, error: updateError } = await supabaseClient
       .from("blog_articles")
       .update({
-        featured_image: image_url,
+        featured_image: storedImageUrl,
         updated_at: new Date().toISOString(),
       })
       .eq("id", article_id)
