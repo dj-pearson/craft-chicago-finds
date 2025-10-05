@@ -124,12 +124,12 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/featured-makers"
                   className="text-background/80 hover:text-background transition-colors"
                 >
                   Featured Makers
-                </a>
+                </Link>
               </li>
               <li>
                 <Link
@@ -295,12 +295,12 @@ export const Footer = () => {
               >
                 Dispute Resolution
               </Link>
-              <a
-                href="#"
+              <Link
+                to="/privacy#ccpa"
                 className="text-background/60 hover:text-background transition-colors"
               >
                 Do Not Sell My Info
-              </a>
+              </Link>
             </div>
           </div>
         </div>
