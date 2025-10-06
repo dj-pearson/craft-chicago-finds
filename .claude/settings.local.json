@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(supabase:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout:*)",
+      "Bash(node:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

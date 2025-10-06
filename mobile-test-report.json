@@ -1,0 +1,668 @@
+{
+  "timestamp": "2025-10-06T14:29:43.892Z",
+  "summary": {
+    "total": 82,
+    "passed": 58,
+    "failed": 7,
+    "warnings": 17
+  },
+  "issues": [
+    {
+      "severity": "PASS",
+      "page": "Homepage",
+      "category": "Layout",
+      "issue": "No horizontal scroll",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:49.169Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "Homepage",
+      "category": "Typography",
+      "issue": "Small font sizes detected",
+      "details": "1 elements < 14px",
+      "timestamp": "2025-10-06T14:29:49.175Z"
+    },
+    {
+      "severity": "CRITICAL",
+      "page": "Homepage",
+      "category": "Touch Targets",
+      "issue": "Small touch targets found",
+      "details": "10 elements < 44x44px",
+      "timestamp": "2025-10-06T14:29:49.179Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "Homepage",
+      "category": "Spacing",
+      "issue": "Buttons too close together",
+      "details": "3 instances found",
+      "timestamp": "2025-10-06T14:29:49.183Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Homepage",
+      "category": "Layout",
+      "issue": "Fixed elements appropriately sized",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:49.184Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Homepage",
+      "category": "Images",
+      "issue": "All images fit screen",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:49.189Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Homepage",
+      "category": "Forms",
+      "issue": "Form inputs adequate size",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:49.192Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Homepage",
+      "category": "Meta Tags",
+      "issue": "Viewport meta tag correct",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:49.196Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Homepage",
+      "category": "Navigation",
+      "issue": "Mobile navigation present",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:49.198Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Login/Signup",
+      "category": "Layout",
+      "issue": "No horizontal scroll",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:52.310Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "Login/Signup",
+      "category": "Typography",
+      "issue": "Small font sizes detected",
+      "details": "1 elements < 14px",
+      "timestamp": "2025-10-06T14:29:52.313Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Login/Signup",
+      "category": "Touch Targets",
+      "issue": "All touch targets adequate size",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:52.315Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Login/Signup",
+      "category": "Spacing",
+      "issue": "Button spacing adequate",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:52.317Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Login/Signup",
+      "category": "Layout",
+      "issue": "Fixed elements appropriately sized",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:52.318Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Login/Signup",
+      "category": "Images",
+      "issue": "All images fit screen",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:52.326Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Login/Signup",
+      "category": "Forms",
+      "issue": "Form inputs adequate size",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:52.332Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Login/Signup",
+      "category": "Meta Tags",
+      "issue": "Viewport meta tag correct",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:52.341Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "Login/Signup",
+      "category": "Navigation",
+      "issue": "No mobile menu detected",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:52.346Z"
+    },
+    {
+      "severity": "CRITICAL",
+      "page": "Login/Signup",
+      "category": "Page Load",
+      "issue": "Failed to load or test page",
+      "details": "ENOENT: no such file or directory, open 'C:\\Users\\dpearson\\Documents\\Craft-Local\\craft-chicago-finds\\mobile-screenshots\\Login\\Signup.png'",
+      "timestamp": "2025-10-06T14:29:52.690Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "City Page",
+      "category": "Layout",
+      "issue": "No horizontal scroll",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:54.116Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "City Page",
+      "category": "Typography",
+      "issue": "Small font sizes detected",
+      "details": "11 elements < 14px",
+      "timestamp": "2025-10-06T14:29:54.122Z"
+    },
+    {
+      "severity": "CRITICAL",
+      "page": "City Page",
+      "category": "Touch Targets",
+      "issue": "Small touch targets found",
+      "details": "10 elements < 44x44px",
+      "timestamp": "2025-10-06T14:29:54.127Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "City Page",
+      "category": "Spacing",
+      "issue": "Buttons too close together",
+      "details": "3 instances found",
+      "timestamp": "2025-10-06T14:29:54.132Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "City Page",
+      "category": "Layout",
+      "issue": "Fixed elements appropriately sized",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:54.140Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "City Page",
+      "category": "Images",
+      "issue": "All images fit screen",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:54.148Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "City Page",
+      "category": "Forms",
+      "issue": "Form inputs adequate size",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:54.150Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "City Page",
+      "category": "Meta Tags",
+      "issue": "Viewport meta tag correct",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:54.157Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "City Page",
+      "category": "Navigation",
+      "issue": "Mobile navigation present",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:54.160Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Browse Page",
+      "category": "Layout",
+      "issue": "No horizontal scroll",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:58.289Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "Browse Page",
+      "category": "Typography",
+      "issue": "Small font sizes detected",
+      "details": "13 elements < 14px",
+      "timestamp": "2025-10-06T14:29:58.295Z"
+    },
+    {
+      "severity": "CRITICAL",
+      "page": "Browse Page",
+      "category": "Touch Targets",
+      "issue": "Small touch targets found",
+      "details": "10 elements < 44x44px",
+      "timestamp": "2025-10-06T14:29:58.302Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "Browse Page",
+      "category": "Spacing",
+      "issue": "Buttons too close together",
+      "details": "3 instances found",
+      "timestamp": "2025-10-06T14:29:58.311Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Browse Page",
+      "category": "Layout",
+      "issue": "Fixed elements appropriately sized",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:58.316Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Browse Page",
+      "category": "Images",
+      "issue": "All images fit screen",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:58.321Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Browse Page",
+      "category": "Forms",
+      "issue": "Form inputs adequate size",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:58.324Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Browse Page",
+      "category": "Meta Tags",
+      "issue": "Viewport meta tag correct",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:58.329Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Browse Page",
+      "category": "Navigation",
+      "issue": "Mobile navigation present",
+      "details": "",
+      "timestamp": "2025-10-06T14:29:58.332Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Cart",
+      "category": "Layout",
+      "issue": "No horizontal scroll",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:00.808Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Cart",
+      "category": "Typography",
+      "issue": "Font sizes readable",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:00.812Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Cart",
+      "category": "Touch Targets",
+      "issue": "All touch targets adequate size",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:00.815Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Cart",
+      "category": "Spacing",
+      "issue": "Button spacing adequate",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:00.817Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Cart",
+      "category": "Layout",
+      "issue": "Fixed elements appropriately sized",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:00.820Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Cart",
+      "category": "Images",
+      "issue": "All images fit screen",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:00.824Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Cart",
+      "category": "Forms",
+      "issue": "Form inputs adequate size",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:00.826Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Cart",
+      "category": "Meta Tags",
+      "issue": "Viewport meta tag correct",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:00.847Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "Cart",
+      "category": "Navigation",
+      "issue": "No mobile menu detected",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:00.850Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Seller Dashboard",
+      "category": "Layout",
+      "issue": "No horizontal scroll",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:04.845Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "Seller Dashboard",
+      "category": "Typography",
+      "issue": "Small font sizes detected",
+      "details": "1 elements < 14px",
+      "timestamp": "2025-10-06T14:30:04.849Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Seller Dashboard",
+      "category": "Touch Targets",
+      "issue": "All touch targets adequate size",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:04.853Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Seller Dashboard",
+      "category": "Spacing",
+      "issue": "Button spacing adequate",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:04.856Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Seller Dashboard",
+      "category": "Layout",
+      "issue": "Fixed elements appropriately sized",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:04.860Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Seller Dashboard",
+      "category": "Images",
+      "issue": "All images fit screen",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:04.864Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Seller Dashboard",
+      "category": "Forms",
+      "issue": "Form inputs adequate size",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:04.866Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Seller Dashboard",
+      "category": "Meta Tags",
+      "issue": "Viewport meta tag correct",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:04.870Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "Seller Dashboard",
+      "category": "Navigation",
+      "issue": "No mobile menu detected",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:04.871Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "National Marketplace",
+      "category": "Layout",
+      "issue": "No horizontal scroll",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:06.682Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "National Marketplace",
+      "category": "Typography",
+      "issue": "Small font sizes detected",
+      "details": "9 elements < 14px",
+      "timestamp": "2025-10-06T14:30:06.695Z"
+    },
+    {
+      "severity": "CRITICAL",
+      "page": "National Marketplace",
+      "category": "Touch Targets",
+      "issue": "Small touch targets found",
+      "details": "10 elements < 44x44px",
+      "timestamp": "2025-10-06T14:30:06.704Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "National Marketplace",
+      "category": "Spacing",
+      "issue": "Buttons too close together",
+      "details": "3 instances found",
+      "timestamp": "2025-10-06T14:30:06.711Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "National Marketplace",
+      "category": "Layout",
+      "issue": "Fixed elements appropriately sized",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:06.720Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "National Marketplace",
+      "category": "Images",
+      "issue": "All images fit screen",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:06.729Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "National Marketplace",
+      "category": "Forms",
+      "issue": "Form inputs adequate size",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:06.732Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "National Marketplace",
+      "category": "Meta Tags",
+      "issue": "Viewport meta tag correct",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:06.737Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "National Marketplace",
+      "category": "Navigation",
+      "issue": "Mobile navigation present",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:06.739Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Terms Page",
+      "category": "Layout",
+      "issue": "No horizontal scroll",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:09.650Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "Terms Page",
+      "category": "Typography",
+      "issue": "Small font sizes detected",
+      "details": "1 elements < 14px",
+      "timestamp": "2025-10-06T14:30:09.655Z"
+    },
+    {
+      "severity": "CRITICAL",
+      "page": "Terms Page",
+      "category": "Touch Targets",
+      "issue": "Small touch targets found",
+      "details": "10 elements < 44x44px",
+      "timestamp": "2025-10-06T14:30:09.657Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "Terms Page",
+      "category": "Spacing",
+      "issue": "Buttons too close together",
+      "details": "3 instances found",
+      "timestamp": "2025-10-06T14:30:09.660Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Terms Page",
+      "category": "Layout",
+      "issue": "Fixed elements appropriately sized",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:09.671Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Terms Page",
+      "category": "Images",
+      "issue": "All images fit screen",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:09.678Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Terms Page",
+      "category": "Forms",
+      "issue": "Form inputs adequate size",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:09.680Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Terms Page",
+      "category": "Meta Tags",
+      "issue": "Viewport meta tag correct",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:09.684Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Terms Page",
+      "category": "Navigation",
+      "issue": "Mobile navigation present",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:09.685Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Privacy Page",
+      "category": "Layout",
+      "issue": "No horizontal scroll",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:12.830Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "Privacy Page",
+      "category": "Typography",
+      "issue": "Small font sizes detected",
+      "details": "1 elements < 14px",
+      "timestamp": "2025-10-06T14:30:12.838Z"
+    },
+    {
+      "severity": "CRITICAL",
+      "page": "Privacy Page",
+      "category": "Touch Targets",
+      "issue": "Small touch targets found",
+      "details": "10 elements < 44x44px",
+      "timestamp": "2025-10-06T14:30:12.841Z"
+    },
+    {
+      "severity": "WARNING",
+      "page": "Privacy Page",
+      "category": "Spacing",
+      "issue": "Buttons too close together",
+      "details": "3 instances found",
+      "timestamp": "2025-10-06T14:30:12.844Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Privacy Page",
+      "category": "Layout",
+      "issue": "Fixed elements appropriately sized",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:12.850Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Privacy Page",
+      "category": "Images",
+      "issue": "All images fit screen",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:12.855Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Privacy Page",
+      "category": "Forms",
+      "issue": "Form inputs adequate size",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:12.861Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Privacy Page",
+      "category": "Meta Tags",
+      "issue": "Viewport meta tag correct",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:12.866Z"
+    },
+    {
+      "severity": "PASS",
+      "page": "Privacy Page",
+      "category": "Navigation",
+      "issue": "Mobile navigation present",
+      "details": "",
+      "timestamp": "2025-10-06T14:30:12.869Z"
+    }
+  ],
+  "pages": {}
+}

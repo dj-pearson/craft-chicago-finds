@@ -1,0 +1,421 @@
+{
+  "timestamp": "2025-10-06T14:19:18.419Z",
+  "summary": {
+    "total": 65,
+    "passed": 42,
+    "failed": 16,
+    "warnings": 7
+  },
+  "categories": {
+    "navigation": [
+      {
+        "test": "Route /",
+        "status": "PASS",
+        "details": "Loaded successfully (200)",
+        "timestamp": "2025-10-06T14:19:24.823Z"
+      },
+      {
+        "test": "Route /",
+        "status": "FAIL",
+        "details": "page.waitForTimeout is not a function",
+        "timestamp": "2025-10-06T14:19:24.823Z"
+      },
+      {
+        "test": "Route /chicago",
+        "status": "PASS",
+        "details": "Loaded successfully (200)",
+        "timestamp": "2025-10-06T14:19:27.536Z"
+      },
+      {
+        "test": "Route /chicago",
+        "status": "FAIL",
+        "details": "page.waitForTimeout is not a function",
+        "timestamp": "2025-10-06T14:19:27.536Z"
+      },
+      {
+        "test": "Route /chicago/browse",
+        "status": "PASS",
+        "details": "Loaded successfully (200)",
+        "timestamp": "2025-10-06T14:19:28.827Z"
+      },
+      {
+        "test": "Route /chicago/browse",
+        "status": "FAIL",
+        "details": "page.waitForTimeout is not a function",
+        "timestamp": "2025-10-06T14:19:28.827Z"
+      },
+      {
+        "test": "Route /chicago/search",
+        "status": "PASS",
+        "details": "Loaded successfully (200)",
+        "timestamp": "2025-10-06T14:19:30.061Z"
+      },
+      {
+        "test": "Route /chicago/search",
+        "status": "FAIL",
+        "details": "page.waitForTimeout is not a function",
+        "timestamp": "2025-10-06T14:19:30.061Z"
+      },
+      {
+        "test": "Route /chicago/sellers",
+        "status": "PASS",
+        "details": "Loaded successfully (200)",
+        "timestamp": "2025-10-06T14:19:31.350Z"
+      },
+      {
+        "test": "Route /chicago/sellers",
+        "status": "FAIL",
+        "details": "page.waitForTimeout is not a function",
+        "timestamp": "2025-10-06T14:19:31.351Z"
+      },
+      {
+        "test": "Route /login",
+        "status": "PASS",
+        "details": "Loaded successfully (200)",
+        "timestamp": "2025-10-06T14:19:32.579Z"
+      },
+      {
+        "test": "Route /login",
+        "status": "FAIL",
+        "details": "page.waitForTimeout is not a function",
+        "timestamp": "2025-10-06T14:19:32.579Z"
+      },
+      {
+        "test": "Route /signup",
+        "status": "PASS",
+        "details": "Loaded successfully (200)",
+        "timestamp": "2025-10-06T14:19:33.824Z"
+      },
+      {
+        "test": "Route /signup",
+        "status": "FAIL",
+        "details": "page.waitForTimeout is not a function",
+        "timestamp": "2025-10-06T14:19:33.825Z"
+      },
+      {
+        "test": "Route /about",
+        "status": "PASS",
+        "details": "Loaded successfully (200)",
+        "timestamp": "2025-10-06T14:19:35.069Z"
+      },
+      {
+        "test": "Route /about",
+        "status": "FAIL",
+        "details": "page.waitForTimeout is not a function",
+        "timestamp": "2025-10-06T14:19:35.070Z"
+      },
+      {
+        "test": "Route /how-it-works",
+        "status": "PASS",
+        "details": "Loaded successfully (200)",
+        "timestamp": "2025-10-06T14:19:36.270Z"
+      },
+      {
+        "test": "Route /how-it-works",
+        "status": "FAIL",
+        "details": "page.waitForTimeout is not a function",
+        "timestamp": "2025-10-06T14:19:36.271Z"
+      },
+      {
+        "test": "Route /seller-signup",
+        "status": "PASS",
+        "details": "Loaded successfully (200)",
+        "timestamp": "2025-10-06T14:19:37.539Z"
+      },
+      {
+        "test": "Route /seller-signup",
+        "status": "FAIL",
+        "details": "page.waitForTimeout is not a function",
+        "timestamp": "2025-10-06T14:19:37.539Z"
+      },
+      {
+        "test": "Route /dashboard",
+        "status": "PASS",
+        "details": "Loaded successfully (200)",
+        "timestamp": "2025-10-06T14:19:40.891Z"
+      },
+      {
+        "test": "Route /dashboard",
+        "status": "FAIL",
+        "details": "page.waitForTimeout is not a function",
+        "timestamp": "2025-10-06T14:19:40.892Z"
+      },
+      {
+        "test": "Route /admin",
+        "status": "PASS",
+        "details": "Loaded successfully (200)",
+        "timestamp": "2025-10-06T14:19:43.159Z"
+      },
+      {
+        "test": "Route /admin",
+        "status": "FAIL",
+        "details": "page.waitForTimeout is not a function",
+        "timestamp": "2025-10-06T14:19:43.159Z"
+      }
+    ],
+    "authentication": [
+      {
+        "test": "Authentication testing",
+        "status": "FAIL",
+        "details": "SyntaxError: Failed to execute 'querySelector' on 'Document': 'a[href*=\"forgot\"], a[href*=\"reset\"], button:has-text(\"Forgot\")' is not a valid selector.",
+        "timestamp": "2025-10-06T14:19:56.898Z"
+      }
+    ],
+    "forms": [
+      {
+        "test": "Login form exists",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:19:53.996Z"
+      },
+      {
+        "test": "Email field exists",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:19:54.007Z"
+      },
+      {
+        "test": "Password field missing",
+        "status": "FAIL",
+        "details": "",
+        "timestamp": "2025-10-06T14:19:54.011Z"
+      },
+      {
+        "test": "Submit button exists",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:19:54.021Z"
+      },
+      {
+        "test": "Login form validation test",
+        "status": "WARN",
+        "details": "Node is either not clickable or not an Element",
+        "timestamp": "2025-10-06T14:19:54.070Z"
+      },
+      {
+        "test": "Signup form exists",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:19:55.396Z"
+      },
+      {
+        "test": "Signup form fields",
+        "status": "PASS",
+        "details": "2 input fields found",
+        "timestamp": "2025-10-06T14:19:55.417Z"
+      },
+      {
+        "test": "Required fields marked",
+        "status": "PASS",
+        "details": "1 required fields",
+        "timestamp": "2025-10-06T14:19:55.428Z"
+      }
+    ],
+    "links": [
+      {
+        "test": "Link extraction",
+        "status": "PASS",
+        "details": "Found 20 links",
+        "timestamp": "2025-10-06T14:19:44.733Z"
+      }
+    ],
+    "ui": [
+      {
+        "test": "Navigation header exists",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:19:58.341Z"
+      },
+      {
+        "test": "Footer exists",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:19:58.348Z"
+      },
+      {
+        "test": "Logo exists",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:19:58.355Z"
+      },
+      {
+        "test": "Search input exists",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:19:58.364Z"
+      },
+      {
+        "test": "Body styles computed",
+        "status": "PASS",
+        "details": "Color: rgb(29, 37, 48), BG: rgb(252, 252, 252)",
+        "timestamp": "2025-10-06T14:19:58.406Z"
+      }
+    ],
+    "ux": [
+      {
+        "test": "All buttons have text/labels",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:19:58.387Z"
+      },
+      {
+        "test": "Loading indicators present",
+        "status": "WARN",
+        "details": "No loading indicators found",
+        "timestamp": "2025-10-06T14:19:58.389Z"
+      }
+    ],
+    "performance": [
+      {
+        "test": "Page load time",
+        "status": "WARN",
+        "details": "3475ms (slower than ideal)",
+        "timestamp": "2025-10-06T14:20:03.424Z"
+      },
+      {
+        "test": "DOM Interactive",
+        "status": "PASS",
+        "details": "32ms",
+        "timestamp": "2025-10-06T14:20:03.427Z"
+      },
+      {
+        "test": "DOM Content Loaded",
+        "status": "PASS",
+        "details": "0ms",
+        "timestamp": "2025-10-06T14:20:03.428Z"
+      },
+      {
+        "test": "Image sizes optimized",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:20:03.472Z"
+      },
+      {
+        "test": "JavaScript bundle size",
+        "status": "WARN",
+        "details": "4834KB",
+        "timestamp": "2025-10-06T14:20:03.475Z"
+      },
+      {
+        "test": "CSS bundle size",
+        "status": "WARN",
+        "details": "135KB",
+        "timestamp": "2025-10-06T14:20:03.475Z"
+      }
+    ],
+    "accessibility": [
+      {
+        "test": "All images have alt text",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:19:58.404Z"
+      },
+      {
+        "test": "Single H1 heading",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:20:14.600Z"
+      },
+      {
+        "test": "Main landmark exists",
+        "status": "WARN",
+        "details": "No role=\"main\" found",
+        "timestamp": "2025-10-06T14:20:14.615Z"
+      },
+      {
+        "test": "Form inputs with labels",
+        "status": "FAIL",
+        "details": "2 inputs without labels",
+        "timestamp": "2025-10-06T14:20:14.617Z"
+      },
+      {
+        "test": "Focusable elements",
+        "status": "PASS",
+        "details": "34 elements can receive focus",
+        "timestamp": "2025-10-06T14:20:14.647Z"
+      },
+      {
+        "test": "HTML lang attribute",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:20:14.651Z"
+      },
+      {
+        "test": "Skip to main content link",
+        "status": "WARN",
+        "details": "No skip link found",
+        "timestamp": "2025-10-06T14:20:14.652Z"
+      }
+    ],
+    "responsiveness": [
+      {
+        "test": "Mobile (iPhone 12) - No overflow",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:20:06.336Z"
+      },
+      {
+        "test": "Mobile (iPhone 12) - Navigation visible",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:20:06.339Z"
+      },
+      {
+        "test": "Mobile (Samsung Galaxy) - No overflow",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:20:07.925Z"
+      },
+      {
+        "test": "Mobile (Samsung Galaxy) - Navigation visible",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:20:07.928Z"
+      },
+      {
+        "test": "Tablet (iPad) - No overflow",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:20:09.456Z"
+      },
+      {
+        "test": "Tablet (iPad) - Navigation visible",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:20:09.458Z"
+      },
+      {
+        "test": "Desktop (1080p) - No overflow",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:20:11.138Z"
+      },
+      {
+        "test": "Desktop (1080p) - Navigation visible",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:20:11.145Z"
+      },
+      {
+        "test": "Desktop (1440p) - No overflow",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:20:12.849Z"
+      },
+      {
+        "test": "Desktop (1440p) - Navigation visible",
+        "status": "PASS",
+        "details": "",
+        "timestamp": "2025-10-06T14:20:12.853Z"
+      }
+    ],
+    "functionality": [
+      {
+        "test": "Functionality testing",
+        "status": "FAIL",
+        "details": "page.waitForTimeout is not a function",
+        "timestamp": "2025-10-06T14:19:59.843Z"
+      }
+    ]
+  }
+}
