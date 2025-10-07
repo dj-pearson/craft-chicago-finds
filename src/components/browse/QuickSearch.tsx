@@ -153,9 +153,6 @@ export const QuickSearch = ({ className = "", compact = false }: QuickSearchProp
     <div className={`relative ${className}`}>
       <form onSubmit={handleSubmit} className="flex gap-1">
         <div className="relative flex-1">
-          <label htmlFor="quick-search-input" className="sr-only">
-            Search for handmade goods
-          </label>
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 z-10" />
           <Input
             id="quick-search-input"
