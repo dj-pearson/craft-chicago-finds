@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { SellerAnalytics } from "@/components/seller/SellerAnalytics";
 import { SellerListings } from "@/components/seller/SellerListings";
 import { StripeOnboarding } from "@/components/seller/StripeOnboarding";
+import { EtsyImporter } from "@/components/seller/EtsyImporter";
 import { ShippingSettings } from "@/components/seller/ShippingSettings";
 import { ReadyTodaySettings } from "@/components/seller/ReadyTodaySettings";
 import { SellerVerification } from "@/components/seller/SellerVerification";
@@ -427,6 +428,7 @@ export default function SellerDashboard() {
           <TabsContent value="listings">
             <div className="space-y-6">
               <ComplianceOverview />
+              <EtsyImporter />
               <SellerListings />
             </div>
           </TabsContent>

@@ -186,3 +186,6 @@ verify_jwt = true
 
 [functions.chatgpt-delete-listing]
 verify_jwt = true
+
+[functions.import-etsy-listings]
+verify_jwt = true
