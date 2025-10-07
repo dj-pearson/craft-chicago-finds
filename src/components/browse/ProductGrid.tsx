@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Heart, MapPin, Package, Truck, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { LazyImage } from "@/components/ui/lazy-image";
+import { ProductGridSkeleton } from "@/components/ui/skeleton-loader";
 import type { Listing } from "@/pages/Browse";
 
 interface ProductGridProps {
@@ -16,20 +18,7 @@ export const ProductGrid = ({ listings, loading, currentCity }: ProductGridProps
   const navigate = useNavigate();
 
   if (loading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <div className="aspect-square bg-muted rounded-t-lg"></div>
-            <CardContent className="p-4">
-              <div className="h-4 bg-muted rounded mb-2"></div>
-              <div className="h-4 bg-muted rounded w-2/3 mb-4"></div>
-              <div className="h-6 bg-muted rounded w-1/3"></div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
+    return <ProductGridSkeleton count={6} />;
   }
 
   if (listings.length === 0) {
@@ -62,10 +51,11 @@ export const ProductGrid = ({ listings, loading, currentCity }: ProductGridProps
             {/* Product Image */}
             <div className="aspect-square relative overflow-hidden rounded-t-lg">
               {listing.images && listing.images.length > 0 ? (
-                <img
+                <LazyImage
                   src={listing.images[0]}
                   alt={listing.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
                 />
               ) : (
                 <div className="w-full h-full bg-muted flex items-center justify-center">
