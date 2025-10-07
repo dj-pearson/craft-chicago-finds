@@ -10,11 +10,11 @@ import { StripeProvider } from "./hooks/useStripe";
 import { CartProvider } from "./hooks/useCart";
 import { PlansProvider } from "./hooks/usePlans";
 import { AccessibilityProvider } from "./components/accessibility/AccessibilityProvider";
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import "./styles/accessibility.css";
 
-// Lazy load pages for better performance
+// Lazy load all pages for optimal code splitting
 const Landing = lazy(() => import("./pages/Landing"));
 const NationalMarketplace = lazy(() => import("./pages/NationalMarketplace"));
 const NationalBrowse = lazy(() => import("./pages/NationalBrowse"));
@@ -50,14 +50,15 @@ const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
 const W9Submission = lazy(() => import("./pages/W9Submission"));
 const FeaturedMakers = lazy(() => import("./pages/FeaturedMakers"));
 
-// Configure React Query with caching optimizations
+// Configure React Query with optimized caching
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (was cacheTime)
-      retry: 2,
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 1, // Reduce retries for faster failure feedback
       refetchOnWindowFocus: false,
+      refetchOnReconnect: false, // Reduce unnecessary network calls
     },
   },
 });
