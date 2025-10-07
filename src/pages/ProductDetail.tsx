@@ -7,6 +7,7 @@ import { ProductInfo } from "@/components/product/ProductInfo";
 import { SellerInfo } from "@/components/product/SellerInfo";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
 import { ReportListingButton } from "@/components/product/ReportListingButton";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -184,6 +185,28 @@ const ProductDetail = () => {
           currentCity={currentCity}
         />
       </main>
+
+      {/* Sticky Mobile Add to Cart - Fixed at bottom on small screens */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 shadow-lg z-40">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-2xl font-bold">${listing.price}</p>
+            {listing.inventory_count !== null && listing.inventory_count < 10 && (
+              <p className="text-sm text-muted-foreground">
+                Only {listing.inventory_count} left
+              </p>
+            )}
+          </div>
+          <AddToCartButton 
+            listing={{
+              ...listing,
+              seller: listing.profiles ? { display_name: listing.profiles.display_name || 'Unknown' } : undefined
+            }} 
+            size="lg"
+          />
+        </div>
+      </div>
+
       <Footer />
     </div>
   );

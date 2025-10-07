@@ -10,6 +10,7 @@ import { StripeProvider } from "./hooks/useStripe";
 import { CartProvider } from "./hooks/useCart";
 import { PlansProvider } from "./hooks/usePlans";
 import { AccessibilityProvider } from "./components/accessibility/AccessibilityProvider";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import "./styles/accessibility.css";
@@ -66,17 +67,18 @@ const queryClient = new QueryClient({
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AccessibilityProvider>
-        <AuthProvider>
-          <PlansProvider>
-            <CartProvider>
-              <AdminProvider>
-                <TooltipProvider>
-                <Toaster />
-                <Sonner />
-        
-          <CityProvider>
-            <Suspense fallback={<LoadingSpinner />}>
+      <ErrorBoundary>
+        <AccessibilityProvider>
+          <AuthProvider>
+            <PlansProvider>
+              <CartProvider>
+                <AdminProvider>
+                  <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+          
+            <CityProvider>
+              <Suspense fallback={<LoadingSpinner />}>
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/marketplace" element={<NationalMarketplace />} />
@@ -118,16 +120,17 @@ const App = () => {
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </Suspense>
-          </CityProvider>
-        
-            </TooltipProvider>
-          </AdminProvider>
-        </CartProvider>
-      </PlansProvider>
-    </AuthProvider>
-    </AccessibilityProvider>
-  </QueryClientProvider>
+              </Suspense>
+            </CityProvider>
+          
+              </TooltipProvider>
+            </AdminProvider>
+          </CartProvider>
+        </PlansProvider>
+      </AuthProvider>
+      </AccessibilityProvider>
+    </ErrorBoundary>
+    </QueryClientProvider>
   );
 };
 

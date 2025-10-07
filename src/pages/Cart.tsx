@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, Minus, ShoppingCart, ArrowRight } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GiftModeToggle } from "@/components/cart/GiftModeToggle";
 import { SubtleSignupPrompt } from "@/components/auth/SubtleSignupPrompt";
@@ -270,6 +270,34 @@ export const CartPage = () => {
             </Card>
           </div>
         </div>
+      </div>
+
+      {/* Sticky Mobile Checkout Button - Fixed at bottom on small screens */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 shadow-lg z-40">
+        <Card className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium">Total ({itemCount} items):</span>
+            <span className="text-2xl font-bold">${finalTotal.toFixed(2)}</span>
+          </div>
+          <Button 
+            onClick={handleCheckout}
+            disabled={isCheckingOut}
+            className="w-full h-12 text-base"
+            size="lg"
+          >
+            {isCheckingOut ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                Processing...
+              </>
+            ) : (
+              <>
+                Proceed to Checkout
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </>
+            )}
+          </Button>
+        </Card>
       </div>
     </div>
   );

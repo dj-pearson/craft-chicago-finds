@@ -17,11 +17,13 @@ import {
   Clock,
   TrendingUp,
   Filter,
-  X
+  X,
+  PackageSearch
 } from "lucide-react";
 import { VirtualizedList } from "@/components/ui/virtualized-list";
 import { LazyImage } from "@/components/ui/lazy-image";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { Listing, Category } from "@/pages/Browse";
 import { cn } from "@/lib/utils";
 
