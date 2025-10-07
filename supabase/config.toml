@@ -170,3 +170,22 @@ verify_jwt = false
 
 [functions.send-blog-webhook]
 verify_jwt = true
+
+# ChatGPT Integration Functions
+[functions.chatgpt-search-listings]
+verify_jwt = false
+
+[functions.chatgpt-get-listing]
+verify_jwt = false
+
+[functions.chatgpt-seller-dashboard]
+verify_jwt = true
+
+[functions.chatgpt-create-listing]
+verify_jwt = true
+
+[functions.chatgpt-update-listing]
+verify_jwt = true
+
+[functions.chatgpt-delete-listing]
+verify_jwt = true
