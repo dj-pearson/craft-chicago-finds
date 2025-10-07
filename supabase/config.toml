@@ -151,7 +151,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.send-blog-webhook]
-verify_jwt = false
+verify_jwt = true
 
 [functions.get-scheduled-posts]
 verify_jwt = false
@@ -167,9 +167,6 @@ verify_jwt = false
 
 [functions.generate-social-from-blog]
 verify_jwt = false
-
-[functions.send-blog-webhook]
-verify_jwt = true
 
 # ChatGPT Integration Functions
 [functions.chatgpt-search-listings]
