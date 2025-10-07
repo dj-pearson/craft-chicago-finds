@@ -111,6 +111,9 @@ verify_jwt = false
 [functions.visual-search]
 verify_jwt = false
 
+[functions.chatgpt-create-checkout]
+verify_jwt = true
+
 [functions.optimize-image]
 verify_jwt = false
 
