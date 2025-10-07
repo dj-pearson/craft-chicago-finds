@@ -1878,6 +1878,84 @@ export type Database = {
         }
         Relationships: []
       }
+      oauth_clients: {
+        Row: {
+          allowed_scopes: string[]
+          client_id: string
+          client_name: string
+          client_secret: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          redirect_uris: string[]
+          updated_at: string | null
+        }
+        Insert: {
+          allowed_scopes: string[]
+          client_id: string
+          client_name: string
+          client_secret: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          redirect_uris: string[]
+          updated_at?: string | null
+        }
+        Update: {
+          allowed_scopes?: string[]
+          client_id?: string
+          client_name?: string
+          client_secret?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          redirect_uris?: string[]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      oauth_events: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          error_message: string | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          scope: string | null
+          success: boolean | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          scope?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          scope?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -3720,6 +3798,10 @@ export type Database = {
         }
         Returns: string
       }
+      custom_access_token_hook: {
+        Args: { event: Json }
+        Returns: Json
+      }
       decrement_inventory: {
         Args: { listing_uuid: string; quantity: number }
         Returns: undefined
@@ -3727,6 +3809,10 @@ export type Database = {
       generate_performance_recommendations: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      get_user_scopes: {
+        Args: { user_uuid: string }
+        Returns: string[]
       }
       has_role: {
         Args: {
@@ -3751,6 +3837,18 @@ export type Database = {
       is_city_moderator: {
         Args: { _city_id: string; _user_id: string }
         Returns: boolean
+      }
+      log_oauth_event: {
+        Args: {
+          _client_id?: string
+          _error_message?: string
+          _event_type: string
+          _metadata?: Json
+          _scope?: string
+          _success?: boolean
+          _user_id?: string
+        }
+        Returns: string
       }
       mark_all_notifications_read: {
         Args: Record<PropertyKey, never>
