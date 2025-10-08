@@ -17,6 +17,24 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
+    // Create authenticated client for authorization
+    const supabaseAuth = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
+    );
+
+    // Verify user is authenticated
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+    
+    if (authError || !user) {
+      throw new Error("User not authenticated");
+    }
+
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -33,6 +51,17 @@ serve(async (req) => {
 
     if (orderError || !order) {
       throw new Error("Order not found");
+    }
+
+    // CRITICAL: Verify authorization
+    // Only seller or buyer can release escrow
+    if (order.seller_id !== user.id && order.buyer_id !== user.id) {
+      throw new Error("Unauthorized: not order participant");
+    }
+
+    // Check if user has permission based on the release reason
+    if (releaseReason === 'seller_confirm' && order.seller_id !== user.id) {
+      throw new Error("Unauthorized: only seller can confirm pickup");
     }
 
     if (!order.stripe_payment_intent_id) {

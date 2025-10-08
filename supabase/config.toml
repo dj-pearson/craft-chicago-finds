@@ -94,19 +94,19 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.process-escrow-payment]
-verify_jwt = false
+verify_jwt = true
 
 [functions.release-escrow-payment]
-verify_jwt = false
+verify_jwt = true
 
 [functions.update-order-status]
-verify_jwt = false
+verify_jwt = true
 
 [functions.resolve-dispute]
-verify_jwt = false
+verify_jwt = true
 
 [functions.moderate-listing]
-verify_jwt = false
+verify_jwt = true
 
 [functions.visual-search]
 verify_jwt = false
