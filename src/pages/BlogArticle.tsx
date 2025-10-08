@@ -8,6 +8,7 @@ import { ArrowLeft, Calendar, Clock, Eye } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEOHead } from "@/components/seo/SEOHead";
 import ReactMarkdown from "react-markdown";
+import DOMPurify from "dompurify";
 import remarkGfm from "remark-gfm";
 
 // Helper function to detect content type
@@ -163,8 +164,15 @@ export default function BlogArticle() {
                 </ReactMarkdown>
               );
             } else if (contentType === 'html') {
+              // Sanitize HTML to prevent XSS attacks
+              const sanitizedContent = DOMPurify.sanitize(article.content, {
+                ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'img', 'blockquote', 'code', 'pre'],
+                ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'target', 'rel'],
+                ALLOW_DATA_ATTR: false,
+                ALLOWED_URI_REGEXP: /^(?:https?:)/i
+              });
               return (
-                <div dangerouslySetInnerHTML={{ __html: article.content }} />
+                <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
               );
             } else {
               // Plain text - preserve line breaks
