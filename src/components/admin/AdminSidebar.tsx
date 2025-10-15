@@ -57,6 +57,7 @@ const navigationItems = [
       { id: "moderation", label: "Listing Moderation", icon: ShieldAlert },
       { id: "reviews", label: "Review Moderation", icon: ShieldAlert },
       { id: "claims", label: "Protection Claims", icon: ShieldAlert },
+      { id: "disputes", label: "Dispute Management", icon: ShieldAlert },
       { id: "fraud", label: "Fraud Detection", icon: ShieldAlert },
       { id: "performance", label: "Performance", icon: Activity },
     ],

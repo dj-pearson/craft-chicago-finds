@@ -38,6 +38,7 @@ import { AdminComplianceGuide } from "@/components/admin/AdminComplianceGuide";
 import { FraudDetectionDashboard } from "@/components/admin/FraudDetectionDashboard";
 import { ReviewModerationQueue } from "@/components/admin/ReviewModerationQueue";
 import { ProtectionClaimsQueue } from "@/components/admin/ProtectionClaimsQueue";
+import { DisputeManagement } from "@/components/admin/DisputeManagement";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -287,6 +288,7 @@ const AdminDashboard = () => {
             {activeTab === "fraud" && <FraudDetectionDashboard />}
             {activeTab === "reviews" && <ReviewModerationQueue />}
             {activeTab === "claims" && <ProtectionClaimsQueue />}
+            {activeTab === "disputes" && <DisputeManagement />}
             {activeTab === "performance" && (
               <Card>
                 <CardHeader>
