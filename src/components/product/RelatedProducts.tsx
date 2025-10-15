@@ -23,6 +23,40 @@ export const RelatedProducts = ({ currentListing, currentCity }: RelatedProducts
 
   const fetchRelatedProducts = async () => {
     try {
+      // First, check if we have AI-powered recommendations
+      const { data: recommendations, error: recError } = await supabase
+        .from("product_recommendations")
+        .select(`
+          recommended_listing_id,
+          score
+        `)
+        .eq("listing_id", currentListing.id)
+        .eq("recommendation_type", "similar")
+        .order("score", { ascending: false })
+        .limit(4);
+
+      if (!recError && recommendations && recommendations.length > 0) {
+        // Fetch the recommended listings separately
+        const listingIds = recommendations.map(r => r.recommended_listing_id);
+        const { data: recListings } = await supabase
+          .from("listings")
+          .select(`
+            id,
+            title,
+            price,
+            images,
+            categories(name)
+          `)
+          .in("id", listingIds);
+        
+        if (recListings && recListings.length > 0) {
+          setRelatedProducts(recListings as Listing[]);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Fallback to category-based recommendations
       let query = supabase
         .from("listings")
         .select(`

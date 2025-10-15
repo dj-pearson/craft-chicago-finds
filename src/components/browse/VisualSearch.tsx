@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface VisualSearchProps {
   onSearchResults: (results: any[]) => void;
@@ -31,6 +32,7 @@ export const VisualSearch = ({
   onSearchResults,
   cityId,
 }: VisualSearchProps) => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -87,7 +89,7 @@ export const VisualSearch = ({
       // Upload image to Supabase storage for processing
       const fileName = `visual-search-${Date.now()}.jpg`;
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("temp-images")
+        .from("product-images")
         .upload(fileName, blob);
 
       if (uploadError) throw uploadError;
@@ -95,7 +97,7 @@ export const VisualSearch = ({
       // Get public URL
       const {
         data: { publicUrl },
-      } = supabase.storage.from("temp-images").getPublicUrl(fileName);
+      } = supabase.storage.from("product-images").getPublicUrl(fileName);
 
       // Call our visual search function
       const { data: searchResults, error: searchError } =
@@ -109,8 +111,16 @@ export const VisualSearch = ({
 
       if (searchError) throw searchError;
 
-      // Clean up temp image
-      await supabase.storage.from("temp-images").remove([fileName]);
+      // Save search to history
+      if (user) {
+        await supabase
+          .from('visual_search_history')
+          .insert({
+            user_id: user.id,
+            image_url: publicUrl,
+            search_results: searchResults || []
+          });
+      }
 
       setResults(searchResults || []);
       onSearchResults(searchResults || []);

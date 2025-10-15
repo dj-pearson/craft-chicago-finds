@@ -7,6 +7,7 @@ import { Loader2, TrendingUp, TrendingDown, DollarSign, AlertTriangle, CheckCirc
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useCityContext } from "@/hooks/useCityContext";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PriceCoachProps {
   category?: string;
@@ -47,6 +48,7 @@ export const PriceCoach = ({
 }: PriceCoachProps) => {
   const { toast } = useToast();
   const { currentCity } = useCityContext();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [priceData, setPriceData] = useState<PriceComparison | null>(null);
 
