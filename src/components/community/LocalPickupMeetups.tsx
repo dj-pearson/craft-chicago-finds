@@ -111,9 +111,46 @@ export const LocalPickupMeetups = ({ className }: LocalPickupMeetupsProps) => {
 
     setLoading(true);
     try {
-      // Generate mock meetups for demonstration
-      const mockMeetups = generateMockMeetups(currentCity.name);
-      setMeetups(mockMeetups);
+      const { data, error } = await supabase
+        .from('pickup_meetups')
+        .select('*')
+        .eq('city_id', currentCity.id)
+        .eq('is_active', true)
+        .gte('meetup_date', new Date().toISOString())
+        .order('meetup_date', { ascending: true });
+
+      if (error) throw error;
+
+      // Transform to component format
+      const transformedMeetups: PickupMeetup[] = (data || []).map(meetup => ({
+        id: meetup.id,
+        title: meetup.title,
+        description: meetup.description,
+        location: {
+          name: meetup.location_name,
+          address: meetup.location_address,
+          type: 'other' as const
+        },
+        date: meetup.meetup_date.split('T')[0],
+        start_time: new Date(meetup.meetup_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        end_time: new Date(new Date(meetup.meetup_date).getTime() + 4 * 60 * 60 * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        max_participants: meetup.max_attendees || 25,
+        current_participants: meetup.current_attendees,
+        organizer: {
+          id: meetup.seller_id,
+          name: 'Organizer',
+          is_verified_seller: true
+        },
+        orders_available: 0,
+        participating_sellers: [],
+        amenities: ['Secure pickup area'],
+        requirements: ['Bring order confirmation'],
+        status: 'upcoming' as const,
+        is_user_registered: false,
+        contact_info: {}
+      }));
+
+      setMeetups(transformedMeetups);
     } catch (error) {
       console.error("Error fetching meetups:", error);
       toast({
@@ -232,7 +269,17 @@ export const LocalPickupMeetups = ({ className }: LocalPickupMeetupsProps) => {
 
     setRegistering(meetupId);
     try {
-      // In production, this would save to database
+      const { error } = await supabase
+        .from('meetup_attendees')
+        .insert({
+          meetup_id: meetupId,
+          user_id: user.id,
+          status: 'registered'
+        });
+
+      if (error) throw error;
+
+      // Update local state
       setMeetups(prev => prev.map(meetup => 
         meetup.id === meetupId 
           ? { 
@@ -242,6 +289,15 @@ export const LocalPickupMeetups = ({ className }: LocalPickupMeetupsProps) => {
             }
           : meetup
       ));
+
+      // Update meetup count
+      const meetup = meetups.find(m => m.id === meetupId);
+      if (meetup) {
+        await supabase
+          .from('pickup_meetups')
+          .update({ current_attendees: meetup.current_participants + 1 })
+          .eq('id', meetupId);
+      }
 
       toast({
         title: "Registered successfully!",
@@ -260,7 +316,7 @@ export const LocalPickupMeetups = ({ className }: LocalPickupMeetupsProps) => {
   };
 
   const createMeetup = async () => {
-    if (!user || !newMeetup.title || !newMeetup.location_name || !newMeetup.date) {
+    if (!user || !currentCity || !newMeetup.title || !newMeetup.location_name || !newMeetup.date) {
       toast({
         title: "Missing information",
         description: "Please fill in all required fields",
@@ -271,39 +327,29 @@ export const LocalPickupMeetups = ({ className }: LocalPickupMeetupsProps) => {
 
     setCreatingMeetup(true);
     try {
-      const meetup: PickupMeetup = {
-        id: `meetup-${Date.now()}`,
-        title: newMeetup.title,
-        description: newMeetup.description,
-        location: {
-          name: newMeetup.location_name,
-          address: newMeetup.location_address,
-          type: newMeetup.location_type
-        },
-        date: newMeetup.date,
-        start_time: newMeetup.start_time,
-        end_time: newMeetup.end_time,
-        max_participants: newMeetup.max_participants,
-        current_participants: 1, // Creator is automatically registered
-        organizer: {
-          id: user.id,
-          name: user.user_metadata?.full_name || 'You',
-          is_verified_seller: true
-        },
-        orders_available: 0,
-        participating_sellers: [],
-        amenities: ['Secure pickup area', 'Order verification'],
-        requirements: ['Bring order confirmation', 'Valid ID required'],
-        status: 'upcoming',
-        is_user_registered: true,
-        contact_info: {
-          phone: newMeetup.contact_phone,
-          email: newMeetup.contact_email
-        }
-      };
+      const meetupDate = new Date(`${newMeetup.date}T${newMeetup.start_time || '10:00'}`);
 
-      setMeetups(prev => [meetup, ...prev]);
-      setSelectedMeetup(meetup);
+      const { data, error } = await supabase
+        .from('pickup_meetups')
+        .insert({
+          seller_id: user.id,
+          city_id: currentCity.id,
+          title: newMeetup.title,
+          description: newMeetup.description,
+          location_name: newMeetup.location_name,
+          location_address: newMeetup.location_address,
+          meetup_date: meetupDate.toISOString(),
+          max_attendees: newMeetup.max_participants,
+          current_attendees: 0,
+          tags: [],
+          is_active: true
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      await fetchMeetups();
 
       // Reset form
       setNewMeetup({

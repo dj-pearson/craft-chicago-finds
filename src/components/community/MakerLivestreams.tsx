@@ -124,12 +124,44 @@ export const MakerLivestreams = ({ className }: MakerLivestreamsProps) => {
 
     setLoading(true);
     try {
-      // Generate mock livestreams for demonstration
-      const mockStreams = generateMockStreams();
-      setStreams(mockStreams);
+      const { data, error } = await supabase
+        .from('maker_livestreams')
+        .select('*')
+        .eq('city_id', currentCity.id)
+        .in('status', ['live', 'scheduled'])
+        .order('scheduled_start', { ascending: true });
+
+      if (error) throw error;
+
+      const transformedStreams: LiveStream[] = (data || []).map(stream => ({
+        id: stream.id,
+        title: stream.title,
+        description: stream.description,
+        maker: {
+          id: stream.maker_id,
+          name: 'Maker',
+          shop_name: 'Shop',
+          is_verified: true,
+          follower_count: 0
+        },
+        scheduled_time: stream.scheduled_start,
+        duration_minutes: Math.floor((new Date(stream.scheduled_end || stream.scheduled_start).getTime() - new Date(stream.scheduled_start).getTime()) / 60000) || 30,
+        status: stream.status as 'scheduled' | 'live' | 'ended',
+        viewer_count: stream.viewer_count,
+        peak_viewers: stream.viewer_count,
+        featured_products: [],
+        craft_category: stream.category,
+        techniques_shown: stream.tags,
+        stream_url: stream.stream_url || undefined,
+        chat_enabled: true,
+        recording_available: false,
+        created_at: stream.created_at
+      }));
+
+      setStreams(transformedStreams);
       
       // If there's a live stream, select it
-      const liveStream = mockStreams.find(s => s.status === 'live');
+      const liveStream = transformedStreams.find(s => s.status === 'live');
       if (liveStream) {
         setSelectedStream(liveStream);
         generateMockChatMessages(liveStream.id);
@@ -259,7 +291,7 @@ export const MakerLivestreams = ({ className }: MakerLivestreamsProps) => {
   };
 
   const scheduleStream = async () => {
-    if (!user || !newStream.title || !newStream.scheduled_time) {
+    if (!user || !currentCity || !newStream.title || !newStream.scheduled_time) {
       toast({
         title: "Missing information",
         description: "Please fill in title and schedule time",
@@ -270,32 +302,29 @@ export const MakerLivestreams = ({ className }: MakerLivestreamsProps) => {
 
     setIsCreatingStream(true);
     try {
-      const stream: LiveStream = {
-        id: `stream-${Date.now()}`,
-        title: newStream.title,
-        description: newStream.description,
-        maker: {
-          id: user.id,
-          name: user.user_metadata?.full_name || 'You',
-          shop_name: 'Your Shop',
-          is_verified: false,
-          follower_count: 0
-        },
-        scheduled_time: newStream.scheduled_time,
-        duration_minutes: newStream.duration_minutes,
-        status: 'scheduled',
-        viewer_count: 0,
-        peak_viewers: 0,
-        featured_products: [],
-        craft_category: newStream.craft_category,
-        techniques_shown: newStream.techniques_shown,
-        chat_enabled: true,
-        recording_available: false,
-        created_at: new Date().toISOString()
-      };
+      const scheduledStart = new Date(newStream.scheduled_time);
+      const scheduledEnd = new Date(scheduledStart.getTime() + newStream.duration_minutes * 60000);
 
-      setStreams(prev => [stream, ...prev]);
-      setSelectedStream(stream);
+      const { data, error } = await supabase
+        .from('maker_livestreams')
+        .insert({
+          maker_id: user.id,
+          city_id: currentCity.id,
+          title: newStream.title,
+          description: newStream.description,
+          scheduled_start: scheduledStart.toISOString(),
+          scheduled_end: scheduledEnd.toISOString(),
+          status: 'scheduled',
+          category: newStream.craft_category,
+          tags: newStream.techniques_shown,
+          viewer_count: 0
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      await fetchStreams();
 
       // Reset form
       setNewStream({

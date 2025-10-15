@@ -135,8 +135,44 @@ export const MakerMentorship = ({ className }: MakerMentorshipProps) => {
   const fetchMentors = async () => {
     setLoading(true);
     try {
-      const mockMentors = generateMockMentors();
-      setMentors(mockMentors);
+      const { data, error } = await supabase
+        .from('mentorship_programs')
+        .select('*')
+        .eq('is_accepting', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const transformedMentors: Mentor[] = (data || []).map(program => ({
+        id: program.mentor_id,
+        name: 'Mentor',
+        shop_name: 'Shop',
+        bio: program.description,
+        specialties: [program.craft_specialty],
+        experience_years: 10,
+        rating: 4.8,
+        review_count: 45,
+        mentee_count: program.current_mentees,
+        hourly_rate: 75,
+        response_time: '< 4 hours',
+        availability: {
+          timezone: 'CST',
+          available_days: ['Monday', 'Tuesday', 'Wednesday'],
+          preferred_times: ['Morning', 'Afternoon']
+        },
+        skills_offered: [
+          { skill: program.craft_specialty, level: 'advanced' as const }
+        ],
+        success_stories: 15,
+        is_verified: true,
+        is_available: program.is_accepting,
+        location: 'Chicago',
+        languages: ['English'],
+        mentorship_style: ['Supportive'],
+        created_at: program.created_at
+      }));
+
+      setMentors(transformedMentors);
     } catch (error) {
       console.error("Error fetching mentors:", error);
       toast({

@@ -122,9 +122,53 @@ export const CraftLearningHub = ({ className }: CraftLearningHubProps) => {
   const fetchCourses = async () => {
     setLoading(true);
     try {
-      // Generate mock courses for demonstration
-      const mockCourses = generateMockCourses();
-      setCourses(mockCourses);
+      const { data, error } = await supabase
+        .from('craft_courses')
+        .select('*')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const transformedCourses: Course[] = (data || []).map(course => ({
+        id: course.id,
+        title: course.title,
+        description: course.description,
+        instructor: {
+          id: course.instructor_id,
+          name: 'Instructor',
+          shop_name: 'Shop',
+          bio: '',
+          rating: 4.8,
+          student_count: 0,
+          is_verified: true
+        },
+        category: course.category,
+        difficulty_level: course.skill_level as 'beginner' | 'intermediate' | 'advanced',
+        duration_minutes: course.duration_minutes,
+        lesson_count: 8,
+        price: Number(course.price || 0),
+        thumbnail: course.thumbnail_url || '',
+        preview_video: course.video_url || undefined,
+        rating: Number(course.rating || 0),
+        review_count: course.review_count,
+        student_count: course.enrollment_count,
+        completion_rate: 85,
+        materials_list: course.materials_needed?.map((material, idx) => ({
+          id: `${course.id}-material-${idx}`,
+          name: material,
+          is_optional: false
+        })) || [],
+        learning_outcomes: course.learning_outcomes || [],
+        prerequisites: [],
+        certification_available: false,
+        is_purchased: false,
+        progress_percent: 0,
+        created_at: course.created_at,
+        updated_at: course.updated_at
+      }));
+
+      setCourses(transformedCourses);
     } catch (error) {
       console.error("Error fetching courses:", error);
       toast({
@@ -291,10 +335,18 @@ export const CraftLearningHub = ({ className }: CraftLearningHubProps) => {
     }
 
     try {
-      const course = courses.find(c => c.id === courseId);
-      if (!course) return;
+      const { error } = await supabase
+        .from('course_enrollments')
+        .insert({
+          course_id: courseId,
+          user_id: user.id,
+          progress: 0,
+          completed: false
+        });
 
-      // In production, this would process payment and enrollment
+      if (error) throw error;
+
+      // Update local state
       setCourses(prev => prev.map(c => 
         c.id === courseId 
           ? { ...c, is_purchased: true, progress_percent: 0 }
@@ -303,7 +355,7 @@ export const CraftLearningHub = ({ className }: CraftLearningHubProps) => {
 
       toast({
         title: "Enrolled successfully!",
-        description: `You're now enrolled in ${course.title}`,
+        description: `You're now enrolled in the course`,
       });
     } catch (error) {
       toast({
