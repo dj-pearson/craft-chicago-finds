@@ -194,7 +194,7 @@ async function handleCartCheckout(
     const sellerCommission = sellerTotal * 0.1; // 10% platform fee
 
     // Create order for this seller
-    const { error: orderError } = await supabaseClient.from("orders").insert({
+    const { data: orderData, error: orderError } = await supabaseClient.from("orders").insert({
       buyer_id: metadata.buyer_id,
       seller_id: sellerId,
       listing_id: items[0].listing_id, // Use first item's listing_id as reference
@@ -209,11 +209,23 @@ async function handleCartCheckout(
       payment_status: "completed",
       stripe_payment_intent_id: session.payment_intent as string,
       status: "pending",
-    });
+    }).select().single();
 
     if (orderError) {
       console.error("Error creating order for seller:", sellerId, orderError);
       throw orderError;
+    }
+
+    // Send order confirmation emails
+    if (orderData) {
+      try {
+        await supabaseClient.functions.invoke('send-order-confirmation', {
+          body: { orderId: orderData.id }
+        });
+      } catch (emailError) {
+        console.error("Error sending order confirmation emails:", emailError);
+        // Don't throw - order was created successfully, email failure shouldn't block
+      }
     }
 
     // Update inventory for each item

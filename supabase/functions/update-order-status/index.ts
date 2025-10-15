@@ -138,6 +138,20 @@ serve(async (req) => {
 
     console.log("Order updated successfully");
 
+    // Send status update email
+    try {
+      await supabaseClient.functions.invoke('send-order-status-update', {
+        body: { 
+          orderId: order_id, 
+          newStatus: new_status,
+          trackingNumber: tracking_number 
+        }
+      });
+    } catch (emailError) {
+      console.error("Error sending status update email:", emailError);
+      // Don't fail the update if email fails
+    }
+
     // Send notifications based on status change
     const notificationPromises = [];
 
