@@ -192,3 +192,9 @@ verify_jwt = true
 
 [functions.send-abandoned-cart-reminder]
 verify_jwt = false
+
+[functions.send-email-digest]
+verify_jwt = false
+
+[functions.send-order-reminders]
+verify_jwt = false
