@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { OrderList } from "@/components/orders/OrderList";
 import { OrderDetails } from "@/components/orders/OrderDetails";
+import { OrderReminders } from "@/components/orders/OrderReminders";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -29,6 +30,8 @@ export default function Orders() {
           <h1 className="text-3xl font-bold">My Orders</h1>
           <p className="text-muted-foreground">Track and manage your purchases and sales</p>
         </div>
+
+        <OrderReminders />
 
         {selectedOrderId ? (
           <OrderDetails 

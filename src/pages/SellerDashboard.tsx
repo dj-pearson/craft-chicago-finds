@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SellerAnalytics } from "@/components/seller/SellerAnalytics";
+import { SellerPerformanceMetrics } from "@/components/seller/SellerPerformanceMetrics";
 import { SellerListings } from "@/components/seller/SellerListings";
 import { StripeOnboarding } from "@/components/seller/StripeOnboarding";
 import { EtsyImporter } from "@/components/seller/EtsyImporter";
@@ -385,8 +386,12 @@ export default function SellerDashboard() {
         ) : null}
 
         {/* Main Content */}
-        <Tabs defaultValue="listings" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1">
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 gap-1">
+            <TabsTrigger value="overview" className="flex items-center gap-1 text-xs">
+              <TrendingUp className="h-3 w-3" />
+              <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
             <TabsTrigger value="listings" className="flex items-center gap-1 text-xs">
               <Package className="h-3 w-3" />
               <span className="hidden sm:inline">Listings</span>
@@ -425,6 +430,12 @@ export default function SellerDashboard() {
             </TabsTrigger>
           </TabsList>
 
+          <TabsContent value="overview">
+            <div className="space-y-6">
+              <SellerPerformanceMetrics />
+            </div>
+          </TabsContent>
+
           <TabsContent value="listings">
             <div className="space-y-6">
               <ComplianceOverview />
@@ -444,8 +455,10 @@ export default function SellerDashboard() {
               <SellerAnalytics />
             </div>
           </TabsContent>
+          <TabsContent value="listings" className="space-y-4">
+            <SellerListings />
+          </TabsContent>
 
-          
           <TabsContent value="shipping">
             <ShippingSettings />
           </TabsContent>
