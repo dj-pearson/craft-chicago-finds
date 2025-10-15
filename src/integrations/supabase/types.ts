@@ -2465,6 +2465,7 @@ export type Database = {
         Row: {
           buyer_geo_confirmed: boolean | null
           buyer_id: string
+          carrier: string | null
           commission_amount: number
           created_at: string
           dispute_id: string | null
@@ -2488,6 +2489,7 @@ export type Database = {
           seller_handoff_confirmed: boolean | null
           seller_id: string
           shipping_address: Json | null
+          shipping_label_url: string | null
           status: string
           stripe_payment_intent_id: string | null
           total_amount: number
@@ -2497,6 +2499,7 @@ export type Database = {
         Insert: {
           buyer_geo_confirmed?: boolean | null
           buyer_id: string
+          carrier?: string | null
           commission_amount: number
           created_at?: string
           dispute_id?: string | null
@@ -2520,6 +2523,7 @@ export type Database = {
           seller_handoff_confirmed?: boolean | null
           seller_id: string
           shipping_address?: Json | null
+          shipping_label_url?: string | null
           status?: string
           stripe_payment_intent_id?: string | null
           total_amount: number
@@ -2529,6 +2533,7 @@ export type Database = {
         Update: {
           buyer_geo_confirmed?: boolean | null
           buyer_id?: string
+          carrier?: string | null
           commission_amount?: number
           created_at?: string
           dispute_id?: string | null
@@ -2552,6 +2557,7 @@ export type Database = {
           seller_handoff_confirmed?: boolean | null
           seller_id?: string
           shipping_address?: Json | null
+          shipping_label_url?: string | null
           status?: string
           stripe_payment_intent_id?: string | null
           total_amount?: number

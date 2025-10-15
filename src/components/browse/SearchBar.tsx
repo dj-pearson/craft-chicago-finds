@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, X, Clock, TrendingUp, Lightbulb } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import {
   parseNaturalLanguageSearch,
   getSearchSuggestions,
