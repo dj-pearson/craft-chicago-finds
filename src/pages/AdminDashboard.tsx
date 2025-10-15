@@ -36,6 +36,8 @@ import { ComplianceReporting } from "@/components/admin/ComplianceReporting";
 import { AuditLogViewer } from "@/components/admin/AuditLogViewer";
 import { AdminComplianceGuide } from "@/components/admin/AdminComplianceGuide";
 import { FraudDetectionDashboard } from "@/components/admin/FraudDetectionDashboard";
+import { ReviewModerationQueue } from "@/components/admin/ReviewModerationQueue";
+import { ProtectionClaimsQueue } from "@/components/admin/ProtectionClaimsQueue";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -283,6 +285,8 @@ const AdminDashboard = () => {
             )}
 
             {activeTab === "fraud" && <FraudDetectionDashboard />}
+            {activeTab === "reviews" && <ReviewModerationQueue />}
+            {activeTab === "claims" && <ProtectionClaimsQueue />}
             {activeTab === "performance" && (
               <Card>
                 <CardHeader>

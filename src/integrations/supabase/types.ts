@@ -2548,36 +2548,186 @@ export type Database = {
           },
         ]
       }
+      protection_claim_messages: {
+        Row: {
+          claim_id: string
+          created_at: string
+          id: string
+          is_admin: boolean
+          message: string
+          sender_id: string
+        }
+        Insert: {
+          claim_id: string
+          created_at?: string
+          id?: string
+          is_admin?: boolean
+          message: string
+          sender_id: string
+        }
+        Update: {
+          claim_id?: string
+          created_at?: string
+          id?: string
+          is_admin?: boolean
+          message?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protection_claim_messages_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "protection_claims"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      protection_claims: {
+        Row: {
+          buyer_id: string
+          claim_type: string
+          created_at: string
+          description: string
+          evidence_urls: string[] | null
+          id: string
+          order_id: string
+          resolution_amount: number | null
+          resolution_notes: string | null
+          resolution_type: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          claim_type: string
+          created_at?: string
+          description: string
+          evidence_urls?: string[] | null
+          id?: string
+          order_id: string
+          resolution_amount?: number | null
+          resolution_notes?: string | null
+          resolution_type?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          claim_type?: string
+          created_at?: string
+          description?: string
+          evidence_urls?: string[] | null
+          id?: string
+          order_id?: string
+          resolution_amount?: number | null
+          resolution_notes?: string | null
+          resolution_type?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protection_claims_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_responses: {
+        Row: {
+          created_at: string
+          id: string
+          response_text: string
+          review_id: string
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          response_text: string
+          review_id: string
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          response_text?: string
+          review_id?: string
+          seller_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_responses_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: true
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           comment: string | null
           created_at: string
           id: string
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_notes: string | null
           order_id: string
+          photos: string[] | null
           rating: number
           review_type: string
           reviewed_user_id: string
           reviewer_id: string
+          status: string | null
+          verified_purchase: boolean | null
         }
         Insert: {
           comment?: string | null
           created_at?: string
           id?: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
           order_id: string
+          photos?: string[] | null
           rating: number
           review_type: string
           reviewed_user_id: string
           reviewer_id: string
+          status?: string | null
+          verified_purchase?: boolean | null
         }
         Update: {
           comment?: string | null
           created_at?: string
           id?: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
           order_id?: string
+          photos?: string[] | null
           rating?: number
           review_type?: string
           reviewed_user_id?: string
           reviewer_id?: string
+          status?: string | null
+          verified_purchase?: boolean | null
         }
         Relationships: [
           {
@@ -3881,6 +4031,10 @@ export type Database = {
       update_user_trust_score: {
         Args: { target_user_id: string }
         Returns: number
+      }
+      verify_review_purchase: {
+        Args: { review_buyer_id: string; review_order_id: string }
+        Returns: boolean
       }
     }
     Enums: {

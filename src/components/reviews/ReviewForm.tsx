@@ -65,7 +65,7 @@ export const ReviewForm = ({ orderId, sellerId, buyerId, onSubmit, onCancel }: R
         }
       }
 
-      // Create review
+      // Create review with pending status and verified purchase check
       const { error } = await supabase
         .from('reviews')
         .insert({
@@ -75,7 +75,9 @@ export const ReviewForm = ({ orderId, sellerId, buyerId, onSubmit, onCancel }: R
           rating,
           comment: comment.trim() || null,
           review_type: 'seller',
-          photos: imageUrls.length > 0 ? imageUrls : null
+          photos: imageUrls.length > 0 ? imageUrls : null,
+          status: 'pending',
+          verified_purchase: true
         });
 
       if (error) throw error;

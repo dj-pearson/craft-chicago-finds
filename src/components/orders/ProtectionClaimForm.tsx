@@ -141,14 +141,24 @@ export const ProtectionClaimForm = ({
         }
       }
 
-      // TODO: Implement protection claims when protection_claims table is created
-      console.log('Protection claim submitted:', {
-        orderId,
-        sellerId,
-        claimType,
-        description: description.trim(),
-        imageUrls
-      });
+      // Get buyer ID from auth
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Insert protection claim into database
+      const { error: claimError } = await supabase
+        .from('protection_claims')
+        .insert({
+          order_id: orderId,
+          buyer_id: user.id,
+          seller_id: sellerId,
+          claim_type: claimType,
+          description: description.trim(),
+          evidence_urls: imageUrls.length > 0 ? imageUrls : null,
+          status: 'open'
+        });
+
+      if (claimError) throw claimError;
 
       toast({
         title: "Claim submitted",

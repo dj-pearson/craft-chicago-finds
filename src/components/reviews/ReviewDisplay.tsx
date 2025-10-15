@@ -1,6 +1,10 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { ReviewResponse } from "@/components/reviews/ReviewResponse";
 
 interface Review {
   id: string;
@@ -8,6 +12,7 @@ interface Review {
   comment?: string;
   photos?: string[];
   created_at: string;
+  reviewed_user_id: string;
   reviewer: {
     display_name: string | null;
     avatar_url: string | null;
@@ -16,9 +21,35 @@ interface Review {
 
 interface ReviewDisplayProps {
   reviews: Review[];
+  onResponseAdded?: () => void;
 }
 
-export const ReviewDisplay = ({ reviews }: ReviewDisplayProps) => {
+export const ReviewDisplay = ({ reviews, onResponseAdded }: ReviewDisplayProps) => {
+  const { user } = useAuth();
+  const [responses, setResponses] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    fetchResponses();
+  }, [reviews]);
+
+  const fetchResponses = async () => {
+    if (reviews.length === 0) return;
+
+    const reviewIds = reviews.map(r => r.id);
+    const { data } = await supabase
+      .from('review_responses')
+      .select('*')
+      .in('review_id', reviewIds);
+
+    if (data) {
+      const responsesMap: Record<string, any> = {};
+      data.forEach(response => {
+        responsesMap[response.review_id] = response;
+      });
+      setResponses(responsesMap);
+    }
+  };
+
   if (reviews.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -116,7 +147,7 @@ export const ReviewDisplay = ({ reviews }: ReviewDisplayProps) => {
                   )}
                   
                   {review.photos && review.photos.length > 0 && (
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="flex gap-2 flex-wrap mb-3">
                       {review.photos.map((photo, index) => (
                         <img
                           key={index}
@@ -130,6 +161,18 @@ export const ReviewDisplay = ({ reviews }: ReviewDisplayProps) => {
                   )}
                 </div>
               </div>
+              
+              {/* Review Response */}
+              <ReviewResponse
+                reviewId={review.id}
+                sellerId={review.reviewed_user_id}
+                existingResponse={responses[review.id]}
+                canRespond={user?.id === review.reviewed_user_id}
+                onResponseAdded={() => {
+                  fetchResponses();
+                  onResponseAdded?.();
+                }}
+              />
             </CardContent>
           </Card>
         ))}
