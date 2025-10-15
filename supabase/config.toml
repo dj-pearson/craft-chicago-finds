@@ -189,3 +189,6 @@ verify_jwt = true
 
 [functions.import-etsy-listings]
 verify_jwt = true
+
+[functions.send-abandoned-cart-reminder]
+verify_jwt = false
