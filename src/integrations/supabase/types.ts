@@ -1485,6 +1485,56 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          alert_type: string
+          created_at: string
+          current_stock: number
+          id: string
+          listing_id: string
+          metadata: Json | null
+          resolved_at: string | null
+          seller_id: string
+          status: string
+          threshold: number | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          alert_type: string
+          created_at?: string
+          current_stock: number
+          id?: string
+          listing_id: string
+          metadata?: Json | null
+          resolved_at?: string | null
+          seller_id: string
+          status?: string
+          threshold?: number | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          alert_type?: string
+          created_at?: string
+          current_stock?: number
+          id?: string
+          listing_id?: string
+          metadata?: Json | null
+          resolved_at?: string | null
+          seller_id?: string
+          status?: string
+          threshold?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_alerts_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_analytics: {
         Row: {
           created_at: string
@@ -3940,6 +3990,10 @@ export type Database = {
           total_checks: number
           uptime_percentage: number
         }[]
+      }
+      check_inventory_levels: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       check_shipping_availability: {
         Args: { seller_uuid: string; target_state: string }

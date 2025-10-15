@@ -20,6 +20,8 @@ import { PerformanceScore } from "@/components/seller/PerformanceScore";
 import { ComplianceAlerts } from "@/components/seller/ComplianceAlerts";
 import { ImprovementPlan } from "@/components/seller/ImprovementPlan";
 import { ComplianceStatus } from "@/components/seller/ComplianceStatus";
+import { InventoryAlerts } from "@/components/seller/InventoryAlerts";
+import { BulkOperationsDashboard } from "@/components/seller/BulkOperationsDashboard";
 // IdentityVerification removed - using Stripe verification only
 import { SellerComplianceGuide } from "@/components/seller/SellerComplianceGuide";
 
@@ -432,6 +434,7 @@ export default function SellerDashboard() {
 
           <TabsContent value="overview">
             <div className="space-y-6">
+              <InventoryAlerts />
               <SellerPerformanceMetrics />
             </div>
           </TabsContent>
@@ -439,6 +442,7 @@ export default function SellerDashboard() {
           <TabsContent value="listings">
             <div className="space-y-6">
               <ComplianceOverview />
+              <BulkOperationsDashboard />
               <EtsyImporter />
               <SellerListings />
             </div>
