@@ -883,6 +883,124 @@ export type Database = {
         }
         Relationships: []
       }
+      course_enrollments: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          course_id: string
+          created_at: string
+          id: string
+          last_accessed: string | null
+          progress: number
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          last_accessed?: string | null
+          progress?: number
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          last_accessed?: string | null
+          progress?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "craft_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      craft_courses: {
+        Row: {
+          category: string
+          city_id: string | null
+          created_at: string
+          description: string
+          duration_minutes: number
+          enrollment_count: number
+          id: string
+          instructor_id: string
+          is_free: boolean
+          is_published: boolean
+          learning_outcomes: string[] | null
+          materials_needed: string[] | null
+          price: number | null
+          rating: number | null
+          review_count: number
+          skill_level: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          category: string
+          city_id?: string | null
+          created_at?: string
+          description: string
+          duration_minutes: number
+          enrollment_count?: number
+          id?: string
+          instructor_id: string
+          is_free?: boolean
+          is_published?: boolean
+          learning_outcomes?: string[] | null
+          materials_needed?: string[] | null
+          price?: number | null
+          rating?: number | null
+          review_count?: number
+          skill_level: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          category?: string
+          city_id?: string | null
+          created_at?: string
+          description?: string
+          duration_minutes?: number
+          enrollment_count?: number
+          id?: string
+          instructor_id?: string
+          is_free?: boolean
+          is_published?: boolean
+          learning_outcomes?: string[] | null
+          materials_needed?: string[] | null
+          price?: number | null
+          rating?: number | null
+          review_count?: number
+          skill_level?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "craft_courses_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dispute_messages: {
         Row: {
           created_at: string
@@ -1713,6 +1831,209 @@ export type Database = {
           },
         ]
       }
+      maker_livestreams: {
+        Row: {
+          actual_end: string | null
+          actual_start: string | null
+          category: string
+          city_id: string | null
+          created_at: string
+          description: string
+          id: string
+          maker_id: string
+          scheduled_end: string | null
+          scheduled_start: string
+          status: string
+          stream_url: string | null
+          tags: string[]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          viewer_count: number
+        }
+        Insert: {
+          actual_end?: string | null
+          actual_start?: string | null
+          category: string
+          city_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          maker_id: string
+          scheduled_end?: string | null
+          scheduled_start: string
+          status?: string
+          stream_url?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          viewer_count?: number
+        }
+        Update: {
+          actual_end?: string | null
+          actual_start?: string | null
+          category?: string
+          city_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          maker_id?: string
+          scheduled_end?: string | null
+          scheduled_start?: string
+          status?: string
+          stream_url?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          viewer_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maker_livestreams_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meetup_attendees: {
+        Row: {
+          created_at: string
+          id: string
+          meetup_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meetup_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meetup_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meetup_attendees_meetup_id_fkey"
+            columns: ["meetup_id"]
+            isOneToOne: false
+            referencedRelation: "pickup_meetups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentorship_applications: {
+        Row: {
+          applicant_id: string
+          application_message: string
+          created_at: string
+          id: string
+          program_id: string
+          response_message: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          applicant_id: string
+          application_message: string
+          created_at?: string
+          id?: string
+          program_id: string
+          response_message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          applicant_id?: string
+          application_message?: string
+          created_at?: string
+          id?: string
+          program_id?: string
+          response_message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorship_applications_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "mentorship_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentorship_programs: {
+        Row: {
+          city_id: string | null
+          craft_specialty: string
+          created_at: string
+          current_mentees: number
+          description: string
+          duration_weeks: number
+          experience_required: string
+          id: string
+          is_accepting: boolean
+          max_mentees: number
+          mentor_id: string
+          tags: string[]
+          time_commitment_hours: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          city_id?: string | null
+          craft_specialty: string
+          created_at?: string
+          current_mentees?: number
+          description: string
+          duration_weeks: number
+          experience_required: string
+          id?: string
+          is_accepting?: boolean
+          max_mentees?: number
+          mentor_id: string
+          tags?: string[]
+          time_commitment_hours: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          city_id?: string | null
+          craft_specialty?: string
+          created_at?: string
+          current_mentees?: number
+          description?: string
+          duration_weeks?: number
+          experience_required?: string
+          id?: string
+          is_accepting?: boolean
+          max_mentees?: number
+          mentor_id?: string
+          tags?: string[]
+          time_commitment_hours?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorship_programs_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -2433,6 +2754,68 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      pickup_meetups: {
+        Row: {
+          city_id: string | null
+          created_at: string
+          current_attendees: number
+          description: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          location_address: string
+          location_name: string
+          max_attendees: number | null
+          meetup_date: string
+          seller_id: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          city_id?: string | null
+          created_at?: string
+          current_attendees?: number
+          description: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          location_address: string
+          location_name: string
+          max_attendees?: number | null
+          meetup_date: string
+          seller_id: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          city_id?: string | null
+          created_at?: string
+          current_attendees?: number
+          description?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          location_address?: string
+          location_name?: string
+          max_attendees?: number | null
+          meetup_date?: string
+          seller_id?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pickup_meetups_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pickup_slots: {
         Row: {
