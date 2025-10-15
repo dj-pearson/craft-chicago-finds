@@ -9,10 +9,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, CreditCard, ArrowLeft, Package, Truck, MapPin, Mail, Smartphone } from 'lucide-react';
+import { Loader2, CreditCard, ArrowLeft, Package, Truck, MapPin, Mail, Smartphone, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { GiftModeToggle } from '@/components/cart/GiftModeToggle';
+import { validateAddress } from '@/lib/address-validation';
 
 interface ShippingAddress {
   name: string;
@@ -34,6 +36,11 @@ export const GuestCheckout = () => {
   const [sendMagicLink, setSendMagicLink] = useState(false);
   const [fulfillmentMethod, setFulfillmentMethod] = useState<'mixed' | 'shipping' | 'local_pickup'>('mixed');
   const [notes, setNotes] = useState('');
+  const [addressValidation, setAddressValidation] = useState<{
+    isValid: boolean;
+    errors: string[];
+    warnings: string[];
+  } | null>(null);
   const [giftMode, setGiftMode] = useState(
     location.state?.giftMode || {
       enabled: false,
@@ -52,6 +59,38 @@ export const GuestCheckout = () => {
     state: '',
     zip: ''
   });
+
+  // Validate address whenever it changes
+  const handleAddressChange = (field: keyof ShippingAddress, value: string) => {
+    const newAddress = { ...shippingAddress, [field]: value };
+    setShippingAddress(newAddress);
+
+    // Only validate if shipping is required and all address fields are filled
+    if (fulfillmentMethod === 'shipping' || (fulfillmentMethod === 'mixed' && hasShippingItems)) {
+      if (newAddress.address && newAddress.city && newAddress.state && newAddress.zip) {
+        const validation = validateAddress({
+          street: newAddress.address,
+          city: newAddress.city,
+          state: newAddress.state,
+          zip: newAddress.zip
+        });
+        setAddressValidation(validation);
+        
+        // Auto-normalize if valid
+        if (validation.normalized) {
+          setShippingAddress(prev => ({
+            ...prev,
+            address: validation.normalized!.street,
+            city: validation.normalized!.city,
+            state: validation.normalized!.state,
+            zip: validation.normalized!.zip
+          }));
+        }
+      } else {
+        setAddressValidation(null);
+      }
+    }
+  };
 
   const PLATFORM_FEE_RATE = 0.1; // 10%
   const platformFee = totalAmount * PLATFORM_FEE_RATE;
@@ -100,6 +139,33 @@ export const GuestCheckout = () => {
         variant: 'destructive'
       });
       return;
+    }
+
+    // Validate address format if shipping
+    if (fulfillmentMethod === 'shipping' || (fulfillmentMethod === 'mixed' && hasShippingItems)) {
+      const validation = validateAddress({
+        street: shippingAddress.address,
+        city: shippingAddress.city,
+        state: shippingAddress.state,
+        zip: shippingAddress.zip
+      });
+
+      if (!validation.isValid) {
+        toast({
+          title: 'Invalid address',
+          description: validation.errors.join('. '),
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      if (validation.warnings.length > 0) {
+        toast({
+          title: 'Address warning',
+          description: validation.warnings.join('. ') + ' Please verify your address.',
+          variant: 'default'
+        });
+      }
     }
 
     setLoading(true);
@@ -283,7 +349,7 @@ export const GuestCheckout = () => {
                       <Input
                         id="address"
                         value={shippingAddress.address}
-                        onChange={(e) => setShippingAddress(prev => ({ ...prev, address: e.target.value }))}
+                        onChange={(e) => handleAddressChange('address', e.target.value)}
                         placeholder="123 Main St, Apt 4B"
                         required
                       />
@@ -293,7 +359,7 @@ export const GuestCheckout = () => {
                       <Input
                         id="city"
                         value={shippingAddress.city}
-                        onChange={(e) => setShippingAddress(prev => ({ ...prev, city: e.target.value }))}
+                        onChange={(e) => handleAddressChange('city', e.target.value)}
                         placeholder="Chicago"
                         required
                       />
@@ -303,8 +369,9 @@ export const GuestCheckout = () => {
                       <Input
                         id="state"
                         value={shippingAddress.state}
-                        onChange={(e) => setShippingAddress(prev => ({ ...prev, state: e.target.value }))}
+                        onChange={(e) => handleAddressChange('state', e.target.value)}
                         placeholder="IL"
+                        maxLength={2}
                         required
                       />
                     </div>
@@ -313,12 +380,51 @@ export const GuestCheckout = () => {
                       <Input
                         id="zip"
                         value={shippingAddress.zip}
-                        onChange={(e) => setShippingAddress(prev => ({ ...prev, zip: e.target.value }))}
+                        onChange={(e) => handleAddressChange('zip', e.target.value)}
                         placeholder="60601"
+                        maxLength={10}
                         required
                       />
                     </div>
                   </div>
+
+                  {/* Address Validation Feedback */}
+                  {addressValidation && (
+                    <div className="space-y-2">
+                      {addressValidation.isValid && (
+                        <Alert className="bg-green-50 border-green-200">
+                          <CheckCircle2 className="h-4 w-4 text-green-600" />
+                          <AlertDescription className="text-green-800">
+                            Address looks good!
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                      {addressValidation.errors.length > 0 && (
+                        <Alert variant="destructive">
+                          <AlertTriangle className="h-4 w-4" />
+                          <AlertDescription>
+                            <ul className="list-disc list-inside">
+                              {addressValidation.errors.map((error, i) => (
+                                <li key={i}>{error}</li>
+                              ))}
+                            </ul>
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                      {addressValidation.warnings.length > 0 && (
+                        <Alert className="bg-yellow-50 border-yellow-200">
+                          <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                          <AlertDescription className="text-yellow-800">
+                            <ul className="list-disc list-inside">
+                              {addressValidation.warnings.map((warning, i) => (
+                                <li key={i}>{warning}</li>
+                              ))}
+                            </ul>
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
