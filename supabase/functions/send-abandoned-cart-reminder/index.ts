@@ -1,10 +1,26 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { Resend } from "npm:resend@2.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+async function sendEmail({ to, subject, html, from }: { to: string; subject: string; html: string; from: string }) {
+  if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY not set");
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${RESEND_API_KEY}`,
+    },
+    body: JSON.stringify({ from, to: [to], subject, html }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || `Resend API error: ${res.status}`);
+  }
+  return data;
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -122,9 +138,9 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
         `;
 
-        await resend.emails.send({
+        await sendEmail({
           from: "Craft Local <noreply@craftlocal.co>",
-          to: [profile.email],
+          to: profile.email,
           subject: "You left items in your cart 🛒",
           html: emailHtml,
         });

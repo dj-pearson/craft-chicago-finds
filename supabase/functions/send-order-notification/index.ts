@@ -1,12 +1,28 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
+};
+
+const sendEmail = async ({ to, subject, html, from }: { to: string; subject: string; html: string; from: string }) => {
+  if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY not set");
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${RESEND_API_KEY}`,
+    },
+    body: JSON.stringify({ from, to: [to], subject, html }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || `Resend API error: ${res.status}`);
+  }
+  return data;
 };
 
 interface OrderNotificationRequest {
@@ -169,10 +185,9 @@ const handler = async (req: Request): Promise<Response> => {
     const data: OrderNotificationRequest = await req.json();
     const emailContent = getEmailContent(data.notificationType, data);
 
-    // Send email to buyer
-    const buyerEmail = await resend.emails.send({
+    const buyerEmail = await sendEmail({
       from: "Craft Local <orders@craftlocal.co>",
-      to: [data.buyerEmail],
+      to: data.buyerEmail,
       subject: emailContent.buyer.subject,
       html: emailContent.buyer.html,
     });
@@ -181,9 +196,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email to seller if template exists
     if (emailContent.seller) {
-      const sellerEmail = await resend.emails.send({
+      const sellerEmail = await sendEmail({
         from: "Craft Local <orders@craftlocal.co>",
-        to: [data.sellerEmail],
+        to: data.sellerEmail,
         subject: emailContent.seller.subject,
         html: emailContent.seller.html,
       });
