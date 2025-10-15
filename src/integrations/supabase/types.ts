@@ -2707,6 +2707,47 @@ export type Database = {
         }
         Relationships: []
       }
+      photo_quality_scores: {
+        Row: {
+          analyzed_at: string
+          created_at: string
+          id: string
+          image_url: string
+          issues: Json | null
+          listing_id: string
+          quality_score: number
+          suggestions: Json | null
+        }
+        Insert: {
+          analyzed_at?: string
+          created_at?: string
+          id?: string
+          image_url: string
+          issues?: Json | null
+          listing_id: string
+          quality_score: number
+          suggestions?: Json | null
+        }
+        Update: {
+          analyzed_at?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          issues?: Json | null
+          listing_id?: string
+          quality_score?: number
+          suggestions?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_quality_scores_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pickup_appointments: {
         Row: {
           buyer_id: string
@@ -2907,6 +2948,51 @@ export type Database = {
         }
         Relationships: []
       }
+      product_recommendations: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          metadata: Json | null
+          recommendation_type: string
+          recommended_listing_id: string
+          score: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          metadata?: Json | null
+          recommendation_type: string
+          recommended_listing_id: string
+          score?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          metadata?: Json | null
+          recommendation_type?: string
+          recommended_listing_id?: string
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_recommendations_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_recommendations_recommended_listing_id_fkey"
+            columns: ["recommended_listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -3099,6 +3185,41 @@ export type Database = {
           {
             foreignKeyName: "protection_claims_order_id_fkey"
             columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reorder_history: {
+        Row: {
+          created_at: string
+          id: string
+          last_reordered_at: string
+          original_order_id: string
+          reorder_count: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_reordered_at?: string
+          original_order_id: string
+          reorder_count?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_reordered_at?: string
+          original_order_id?: string
+          reorder_count?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reorder_history_original_order_id_fkey"
+            columns: ["original_order_id"]
             isOneToOne: false
             referencedRelation: "orders"
             referencedColumns: ["id"]
@@ -3383,6 +3504,53 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      seller_price_analytics: {
+        Row: {
+          analyzed_at: string
+          avg_market_price: number
+          category_id: string | null
+          competitor_count: number
+          created_at: string
+          id: string
+          price_percentile: number
+          recommendation: string | null
+          seller_avg_price: number
+          seller_id: string
+        }
+        Insert: {
+          analyzed_at?: string
+          avg_market_price: number
+          category_id?: string | null
+          competitor_count?: number
+          created_at?: string
+          id?: string
+          price_percentile: number
+          recommendation?: string | null
+          seller_avg_price: number
+          seller_id: string
+        }
+        Update: {
+          analyzed_at?: string
+          avg_market_price?: number
+          category_id?: string | null
+          competitor_count?: number
+          created_at?: string
+          id?: string
+          price_percentile?: number
+          recommendation?: string | null
+          seller_avg_price?: number
+          seller_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_price_analytics_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -4100,6 +4268,33 @@ export type Database = {
           updated_at?: string
           user_id?: string
           verification_level?: string
+        }
+        Relationships: []
+      }
+      visual_search_history: {
+        Row: {
+          created_at: string
+          filters_applied: Json | null
+          id: string
+          image_url: string
+          search_results: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters_applied?: Json | null
+          id?: string
+          image_url: string
+          search_results?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters_applied?: Json | null
+          id?: string
+          image_url?: string
+          search_results?: Json
+          user_id?: string
         }
         Relationships: []
       }
