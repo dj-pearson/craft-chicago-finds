@@ -38,7 +38,7 @@ export const Hero = () => {
 
           {/* Subheading */}
           <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
-            Support local artisans and find unique handmade goods from talented makers in your community.
+            Shop authentic handcrafted items from local {currentCity?.name || "Chicago"} artisans. Unique jewelry, home decor, art, and gifts made with passion by talented makers in your neighborhood.
           </p>
 
           {/* Stats */}
