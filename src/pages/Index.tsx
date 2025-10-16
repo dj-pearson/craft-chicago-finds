@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
+import { ValueProposition } from "@/components/ValueProposition";
 import { CategoryGrid } from "@/components/CategoryGrid";
 import { Footer } from "@/components/Footer";
 import { Suspense, lazy } from "react";
@@ -42,6 +43,7 @@ const Index = () => {
       <Header />
       <main>
         <Hero />
+        <ValueProposition />
         <CategoryGrid />
         <Suspense fallback={<LoadingSpinner text="Loading featured makers..." />}>
           <FeaturedMakers />
