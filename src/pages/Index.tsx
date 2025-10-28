@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 // Lazy load below-the-fold components
 const FeaturedMakers = lazy(() => import("@/components/FeaturedMakers").then(module => ({ default: module.FeaturedMakers })));
 const WelcomeBanner = lazy(() => import("@/components/marketplace/WelcomeBanner").then(module => ({ default: module.WelcomeBanner })));
+const MarketplaceStatus = lazy(() => import("@/components/marketplace/MarketplaceStatus").then(module => ({ default: module.MarketplaceStatus })));
 
 const Index = () => {
   const { currentCity } = useCityContext();
@@ -53,6 +54,9 @@ const Index = () => {
         <Hero />
         <ValueProposition />
         <CategoryGrid />
+        <Suspense fallback={<LoadingSpinner text="Loading features..." />}>
+          <MarketplaceStatus />
+        </Suspense>
         <Suspense fallback={<LoadingSpinner text="Loading featured makers..." />}>
           <FeaturedMakers />
         </Suspense>
