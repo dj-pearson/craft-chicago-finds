@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const FeaturedMakers = lazy(() => import("@/components/FeaturedMakers").then(module => ({ default: module.FeaturedMakers })));
 const WelcomeBanner = lazy(() => import("@/components/marketplace/WelcomeBanner").then(module => ({ default: module.WelcomeBanner })));
 const MarketplaceStatus = lazy(() => import("@/components/marketplace/MarketplaceStatus").then(module => ({ default: module.MarketplaceStatus })));
+const QuickActions = lazy(() => import("@/components/marketplace/QuickActions").then(module => ({ default: module.QuickActions })));
 
 const Index = () => {
   const { currentCity } = useCityContext();
@@ -52,6 +53,9 @@ const Index = () => {
           </Suspense>
         )}
         <Hero />
+        <Suspense fallback={null}>
+          <QuickActions />
+        </Suspense>
         <ValueProposition />
         <CategoryGrid />
         <Suspense fallback={<LoadingSpinner text="Loading features..." />}>
