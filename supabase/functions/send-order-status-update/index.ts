@@ -25,13 +25,10 @@ async function sendEmail(to: string, subject: string, html: string) {
 
   return response.json();
 }
+import { corsHeaders } from "../_shared/cors.ts";
+
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
 
 interface StatusUpdateRequest {
   orderId: string;

@@ -1,11 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0';
+import { corsHeaders } from "../_shared/cors.ts";
 // Using direct HTTP call to Resend API to avoid npm module resolution issues in Deno
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 const supabaseClient = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
