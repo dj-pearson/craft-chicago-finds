@@ -213,7 +213,7 @@ export type Database = {
           endpoint: string
           error_message: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           method: string
           response_time: number
           status_code: number
@@ -226,7 +226,7 @@ export type Database = {
           endpoint: string
           error_message?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           method: string
           response_time: number
           status_code: number
@@ -239,7 +239,7 @@ export type Database = {
           endpoint?: string
           error_message?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           method?: string
           response_time?: number
           status_code?: number
@@ -1417,7 +1417,7 @@ export type Database = {
           created_at: string
           device_fingerprint: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           risk_score: number | null
           session_end: string | null
           session_id: string
@@ -1430,7 +1430,7 @@ export type Database = {
           created_at?: string
           device_fingerprint?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           risk_score?: number | null
           session_end?: string | null
           session_id: string
@@ -1443,7 +1443,7 @@ export type Database = {
           created_at?: string
           device_fingerprint?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           risk_score?: number | null
           session_end?: string | null
           session_id?: string
@@ -2319,7 +2319,7 @@ export type Database = {
           error_message: string | null
           event_type: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           metadata: Json | null
           scope: string | null
           success: boolean | null
@@ -2332,7 +2332,7 @@ export type Database = {
           error_message?: string | null
           event_type: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           metadata?: Json | null
           scope?: string | null
           success?: boolean | null
@@ -2345,7 +2345,7 @@ export type Database = {
           error_message?: string | null
           event_type?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           metadata?: Json | null
           scope?: string | null
           success?: boolean | null
@@ -4544,10 +4544,7 @@ export type Database = {
       }
     }
     Functions: {
-      auto_resolve_stale_alerts: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      auto_resolve_stale_alerts: { Args: never; Returns: number }
       calculate_blog_seo_score: {
         Args: {
           p_content: string
@@ -4575,10 +4572,7 @@ export type Database = {
           uptime_percentage: number
         }[]
       }
-      check_inventory_levels: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      check_inventory_levels: { Args: never; Returns: undefined }
       check_shipping_availability: {
         Args: { seller_uuid: string; target_state: string }
         Returns: boolean
@@ -4596,10 +4590,7 @@ export type Database = {
         }
         Returns: string
       }
-      create_demo_listings_for_user: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      create_demo_listings_for_user: { Args: never; Returns: Json }
       create_notification: {
         Args: {
           _action_url?: string
@@ -4613,22 +4604,13 @@ export type Database = {
         }
         Returns: string
       }
-      custom_access_token_hook: {
-        Args: { event: Json }
-        Returns: Json
-      }
+      custom_access_token_hook: { Args: { event: Json }; Returns: Json }
       decrement_inventory: {
         Args: { listing_uuid: string; quantity: number }
         Returns: undefined
       }
-      generate_performance_recommendations: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      get_user_scopes: {
-        Args: { user_uuid: string }
-        Returns: string[]
-      }
+      generate_performance_recommendations: { Args: never; Returns: number }
+      get_user_scopes: { Args: { user_uuid: string }; Returns: string[] }
       has_role: {
         Args: {
           _city_id?: string
@@ -4645,10 +4627,7 @@ export type Database = {
         Args: { listing_uuid: string }
         Returns: undefined
       }
-      is_admin: {
-        Args: { _user_id: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_city_moderator: {
         Args: { _city_id: string; _user_id: string }
         Returns: boolean
@@ -4665,18 +4644,12 @@ export type Database = {
         }
         Returns: string
       }
-      mark_all_notifications_read: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      mark_all_notifications_read: { Args: never; Returns: undefined }
       mark_notification_read: {
         Args: { notification_id: string }
         Returns: undefined
       }
-      seed_mock_seller_data: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      seed_mock_seller_data: { Args: never; Returns: Json }
       should_flag_transaction: {
         Args: {
           seller_id: string
@@ -4685,14 +4658,8 @@ export type Database = {
         }
         Returns: boolean
       }
-      trigger_compliance_check: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      update_last_seen: {
-        Args: { _user_id: string }
-        Returns: undefined
-      }
+      trigger_compliance_check: { Args: never; Returns: Json }
+      update_last_seen: { Args: { _user_id: string }; Returns: undefined }
       update_user_trust_score: {
         Args: { target_user_id: string }
         Returns: number

@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useCityContext } from "@/hooks/useCityContext";
-
+import { CategoryCard } from "./CategoryCard";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Category {
@@ -66,23 +64,33 @@ export const CategoryGrid = () => {
         return;
       }
 
-      // For each category, count the active listings
-      const categoriesWithCounts = await Promise.all(
-        (categoriesData || []).map(async (category) => {
-          const { count } = await supabase
-            .from("listings")
-            .select("*", { count: "exact", head: true })
-            .eq("category_id", category.id)
-            .eq("status", "active");
+      // Fetch listing counts for all categories in ONE query (fixes N+1 problem)
+      const categoryIds = (categoriesData || []).map(c => c.id);
+      
+      if (categoryIds.length > 0) {
+        const { data: listingCounts } = await supabase
+          .from("listings")
+          .select("category_id")
+          .eq("status", "active")
+          .in("category_id", categoryIds);
 
-          return {
-            ...category,
-            listing_count: count || 0
-          };
-        })
-      );
+        // Count listings per category
+        const countMap = new Map<string, number>();
+        listingCounts?.forEach(listing => {
+          const count = countMap.get(listing.category_id) || 0;
+          countMap.set(listing.category_id, count + 1);
+        });
 
-      setCategories(categoriesWithCounts);
+        // Merge counts with categories
+        const categoriesWithCounts = (categoriesData || []).map(category => ({
+          ...category,
+          listing_count: countMap.get(category.id) || 0
+        }));
+
+        setCategories(categoriesWithCounts);
+      } else {
+        setCategories([]);
+      }
     } catch (error) {
       console.error("Error fetching categories:", error);
     } finally {
@@ -103,6 +111,21 @@ export const CategoryGrid = () => {
     );
   }
 
+  const handleBrowseClick = useCallback(() => {
+    if (currentCity?.slug) {
+      window.location.href = `/${currentCity.slug}/browse`;
+    }
+  }, [currentCity?.slug]);
+
+  // Memoize category data with icons and gradients
+  const categoriesWithMeta = useMemo(() => {
+    return categories.map(category => ({
+      category,
+      icon: categoryIcons[category.slug] || "🛍️",
+      gradient: categoryGradients[category.slug] || 'from-primary/20 to-primary/10'
+    }));
+  }, [categories]);
+
   return (
     <section className="py-12 sm:py-16 bg-background">
       <div className="container mx-auto px-4">
@@ -118,26 +141,13 @@ export const CategoryGrid = () => {
 
         {/* Category Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
-          {categories.map((category) => (
-            <Card 
+          {categoriesWithMeta.map(({ category, icon, gradient }) => (
+            <CategoryCard
               key={category.id}
-              className="group hover:shadow-elevated transition-all duration-300 cursor-pointer border-border/50 hover:border-primary/20 touch-target"
-            >
-              <CardContent className="p-4 sm:p-6">
-                <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br ${categoryGradients[category.slug] || 'from-primary/20 to-primary/10'} flex items-center justify-center text-xl sm:text-2xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                  {categoryIcons[category.slug] || "🛍️"}
-                </div>
-                <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                  {category.name}
-                </h3>
-                <Badge variant="secondary" className="mb-3 sm:mb-4 text-xs">
-                  {category.listing_count} {category.listing_count === 1 ? 'item' : 'items'}
-                </Badge>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {category.description || `Discover unique ${category.name.toLowerCase()} made by local artisans`}
-                </p>
-              </CardContent>
-            </Card>
+              category={category}
+              icon={icon}
+              gradient={gradient}
+            />
           ))}
         </div>
 
@@ -147,7 +157,7 @@ export const CategoryGrid = () => {
             variant="outline" 
             size="lg"
             className="hover:bg-primary hover:text-primary-foreground"
-            onClick={() => window.location.href = `/${currentCity?.slug}/browse`}
+            onClick={handleBrowseClick}
           >
             View All Categories
           </Button>
