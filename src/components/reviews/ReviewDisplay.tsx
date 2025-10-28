@@ -5,6 +5,7 @@ import { Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ReviewResponse } from "@/components/reviews/ReviewResponse";
+import { sanitizeText } from "@/lib/sanitize";
 
 interface Review {
   id: string;
@@ -142,7 +143,7 @@ export const ReviewDisplay = ({ reviews, onResponseAdded }: ReviewDisplayProps) 
                   
                   {review.comment && (
                     <p className="text-sm text-foreground mb-3 leading-relaxed">
-                      {review.comment}
+                      {sanitizeText(review.comment)}
                     </p>
                   )}
                   

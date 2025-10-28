@@ -15,6 +15,7 @@ import { DeliveryPromiseBar } from "./DeliveryPromiseBar";
 import { SellerBadges } from "../seller/SellerBadges";
 import { supabase } from "@/integrations/supabase/client";
 import type { Listing } from "@/pages/Browse";
+import { sanitizeText } from "@/lib/sanitize";
 
 interface ProductInfoProps {
   listing: Listing & {
@@ -181,7 +182,7 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
           <div>
             <h3 className="font-semibold mb-2">Description</h3>
             <p className="text-muted-foreground leading-relaxed">
-              {listing.description}
+              {sanitizeText(listing.description)}
             </p>
           </div>
         )}

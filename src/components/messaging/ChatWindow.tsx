@@ -7,6 +7,7 @@ import { MessageCircle, Send, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import { sanitizeText } from "@/lib/sanitize";
 
 export interface Message {
   id: string;
@@ -259,7 +260,7 @@ export const ChatWindow = ({ conversationId, currentUser }: ChatWindowProps) => 
                     : "bg-muted"
                 }`}
               >
-                <p className="text-sm leading-relaxed">{message.content}</p>
+                <p className="text-sm leading-relaxed">{sanitizeText(message.content)}</p>
                 <p
                   className={`text-xs mt-1 ${
                     message.sender_id === currentUser.id
