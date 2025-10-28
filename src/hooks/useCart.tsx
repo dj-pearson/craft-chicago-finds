@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useReducer } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
@@ -32,12 +32,63 @@ interface CartContextType {
   getCartItem: (listingId: string) => CartItem | undefined;
 }
 
+type CartAction =
+  | { type: 'SET_ITEMS'; payload: CartItem[] }
+  | { type: 'ADD_ITEM'; payload: { item: Omit<CartItem, 'quantity'>; quantity: number } }
+  | { type: 'REMOVE_ITEM'; payload: string }
+  | { type: 'UPDATE_QUANTITY'; payload: { listingId: string; quantity: number } }
+  | { type: 'CLEAR_CART' };
+
+const cartReducer = (state: CartItem[], action: CartAction): CartItem[] => {
+  switch (action.type) {
+    case 'SET_ITEMS':
+      return action.payload;
+      
+    case 'ADD_ITEM': {
+      const { item, quantity } = action.payload;
+      const existingItem = state.find(i => i.listing_id === item.listing_id);
+      
+      if (existingItem) {
+        const newQuantity = Math.min(existingItem.quantity + quantity, item.max_quantity);
+        return state.map(i =>
+          i.listing_id === item.listing_id
+            ? { ...i, quantity: newQuantity }
+            : i
+        );
+      } else {
+        return [...state, { ...item, quantity }];
+      }
+    }
+    
+    case 'REMOVE_ITEM':
+      return state.filter(i => i.listing_id !== action.payload);
+      
+    case 'UPDATE_QUANTITY': {
+      const { listingId, quantity } = action.payload;
+      if (quantity <= 0) {
+        return state.filter(i => i.listing_id !== listingId);
+      }
+      return state.map(item =>
+        item.listing_id === listingId
+          ? { ...item, quantity: Math.min(quantity, item.max_quantity) }
+          : item
+      );
+    }
+    
+    case 'CLEAR_CART':
+      return [];
+      
+    default:
+      return state;
+  }
+};
+
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, dispatch] = useReducer(cartReducer, []);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -45,7 +96,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     if (savedCart) {
       try {
         const parsedCart = JSON.parse(savedCart);
-        setItems(parsedCart);
+        dispatch({ type: 'SET_ITEMS', payload: parsedCart });
       } catch (error) {
         console.error('Error parsing saved cart:', error);
         localStorage.removeItem(`cart_${user?.id || 'guest'}`);
@@ -59,73 +110,49 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, [items, user?.id]);
 
   const addItem = (item: Omit<CartItem, 'quantity'>, quantity = 1) => {
-    setItems(currentItems => {
-      const existingItem = currentItems.find(i => i.listing_id === item.listing_id);
-      
-      if (existingItem) {
-        // Update quantity if item already exists
-        const newQuantity = Math.min(existingItem.quantity + quantity, item.max_quantity);
-        
-        if (newQuantity > existingItem.quantity) {
-          toast({
-            title: "Cart updated",
-            description: `Updated ${item.title} quantity to ${newQuantity}`,
-          });
-        } else {
-          toast({
-            title: "Cannot add more",
-            description: `Maximum available quantity is ${item.max_quantity}`,
-            variant: "destructive"
-          });
-        }
-        
-        return currentItems.map(i =>
-          i.listing_id === item.listing_id
-            ? { ...i, quantity: newQuantity }
-            : i
-        );
-      } else {
-        // Add new item
-        const newItem: CartItem = { ...item, quantity };
-        toast({
-          title: "Added to cart",
-          description: `${item.title} has been added to your cart`,
-        });
-        return [...currentItems, newItem];
-      }
-    });
+    const existingItem = items.find(i => i.listing_id === item.listing_id);
+    const newQuantity = existingItem 
+      ? Math.min(existingItem.quantity + quantity, item.max_quantity)
+      : quantity;
+    
+    if (existingItem && newQuantity > existingItem.quantity) {
+      toast({
+        title: "Cart updated",
+        description: `Updated ${item.title} quantity to ${newQuantity}`,
+      });
+    } else if (existingItem && newQuantity === existingItem.quantity) {
+      toast({
+        title: "Cannot add more",
+        description: `Maximum available quantity is ${item.max_quantity}`,
+        variant: "destructive"
+      });
+    } else if (!existingItem) {
+      toast({
+        title: "Added to cart",
+        description: `${item.title} has been added to your cart`,
+      });
+    }
+    
+    dispatch({ type: 'ADD_ITEM', payload: { item, quantity } });
   };
 
   const removeItem = (listingId: string) => {
-    setItems(currentItems => {
-      const item = currentItems.find(i => i.listing_id === listingId);
-      if (item) {
-        toast({
-          title: "Removed from cart",
-          description: `${item.title} has been removed from your cart`,
-        });
-      }
-      return currentItems.filter(i => i.listing_id !== listingId);
-    });
+    const item = items.find(i => i.listing_id === listingId);
+    if (item) {
+      toast({
+        title: "Removed from cart",
+        description: `${item.title} has been removed from your cart`,
+      });
+    }
+    dispatch({ type: 'REMOVE_ITEM', payload: listingId });
   };
 
   const updateQuantity = (listingId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeItem(listingId);
-      return;
-    }
-
-    setItems(currentItems =>
-      currentItems.map(item =>
-        item.listing_id === listingId
-          ? { ...item, quantity: Math.min(quantity, item.max_quantity) }
-          : item
-      )
-    );
+    dispatch({ type: 'UPDATE_QUANTITY', payload: { listingId, quantity } });
   };
 
   const clearCart = () => {
-    setItems([]);
+    dispatch({ type: 'CLEAR_CART' });
     toast({
       title: "Cart cleared",
       description: "All items have been removed from your cart",
