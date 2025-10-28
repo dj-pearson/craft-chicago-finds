@@ -46,6 +46,9 @@ const Auth = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   // Sign In Form
   const [signInData, setSignInData] = useState({
@@ -307,6 +310,59 @@ const Auth = () => {
     }
   };
 
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormLoading(true);
+
+    // Validate passwords match
+    if (newPassword !== confirmNewPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please make sure both passwords are the same.",
+        variant: "destructive",
+      });
+      setFormLoading(false);
+      return;
+    }
+
+    // Validate password length
+    if (newPassword.length < 6) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      });
+      setFormLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password Updated",
+        description: "Your password has been successfully reset. You can now sign in.",
+      });
+
+      // Clear form and redirect to signin
+      setNewPassword("");
+      setConfirmNewPassword("");
+      setActiveTab('signin');
+    } catch (error: any) {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Unable to update password. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -370,16 +426,23 @@ const Auth = () => {
 
         <Card className="border-border/50 shadow-elevated">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup" disabled={!registrationEnabled}>
-                Sign Up
-                {!registrationEnabled && (
-                  <Badge variant="outline" className="ml-2 text-xs">
-                    Soon
-                  </Badge>
-                )}
-              </TabsTrigger>
+            <TabsList className={`grid w-full ${activeTab === 'reset-password' ? 'grid-cols-1' : 'grid-cols-2'}`}>
+              {activeTab !== 'reset-password' && (
+                <>
+                  <TabsTrigger value="signin">Sign In</TabsTrigger>
+                  <TabsTrigger value="signup" disabled={!registrationEnabled}>
+                    Sign Up
+                    {!registrationEnabled && (
+                      <Badge variant="outline" className="ml-2 text-xs">
+                        Soon
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                </>
+              )}
+              {activeTab === 'reset-password' && (
+                <TabsTrigger value="reset-password">Reset Password</TabsTrigger>
+              )}
             </TabsList>
 
             {/* Sign In Tab */}
@@ -784,6 +847,91 @@ const Auth = () => {
                 </CardFooter>
               </form>
               )}
+            </TabsContent>
+
+            {/* Reset Password Tab */}
+            <TabsContent value="reset-password">
+              <form onSubmit={handlePasswordUpdate}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Lock className="h-5 w-5" />
+                    Set New Password
+                  </CardTitle>
+                  <CardDescription>
+                    Enter your new password below
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">New Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                      <Input
+                        id="new-password"
+                        type={showNewPassword ? "text" : "password"}
+                        placeholder="Enter new password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="pl-10 pr-10"
+                        autoComplete="new-password"
+                        required
+                        minLength={6}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                      >
+                        {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-new-password">Confirm New Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                      <Input
+                        id="confirm-new-password"
+                        type={showNewPassword ? "text" : "password"}
+                        placeholder="Confirm new password"
+                        value={confirmNewPassword}
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        className="pl-10"
+                        autoComplete="new-password"
+                        required
+                        minLength={6}
+                      />
+                    </div>
+                  </div>
+
+                  <Alert>
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>
+                      Your password must be at least 6 characters long. Make sure both passwords match.
+                    </AlertDescription>
+                  </Alert>
+                </CardContent>
+                <CardFooter className="flex flex-col space-y-4">
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={formLoading}
+                  >
+                    {formLoading ? "Updating..." : "Update Password"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="p-0 h-auto text-sm"
+                    onClick={() => setActiveTab('signin')}
+                  >
+                    Back to Sign In
+                  </Button>
+                </CardFooter>
+              </form>
             </TabsContent>
           </Tabs>
         </Card>

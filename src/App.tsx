@@ -11,6 +11,7 @@ import { CartProvider } from "./hooks/useCart";
 import { PlansProvider } from "./hooks/usePlans";
 import { AccessibilityProvider } from "./components/accessibility/AccessibilityProvider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import "./styles/accessibility.css";
@@ -84,12 +85,42 @@ const App = () => {
                 <Route path="/marketplace" element={<NationalMarketplace />} />
                 <Route path="/browse" element={<NationalBrowse />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/dashboard" element={<SellerDashboard />} />
-                <Route path="/dashboard/listing/new" element={<CreateEditListing />} />
-                <Route path="/dashboard/listing/:id/edit" element={<CreateEditListing />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/orders" element={<Orders />} />
+                
+                {/* Protected Admin Routes */}
+                <Route path="/admin" element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Protected Seller Routes */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute requireAuth>
+                    <SellerDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/listing/new" element={
+                  <ProtectedRoute requireAuth>
+                    <CreateEditListing />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/listing/:id/edit" element={
+                  <ProtectedRoute requireAuth>
+                    <CreateEditListing />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Protected User Routes */}
+                <Route path="/messages" element={
+                  <ProtectedRoute requireAuth>
+                    <Messages />
+                  </ProtectedRoute>
+                } />
+                <Route path="/orders" element={
+                  <ProtectedRoute requireAuth>
+                    <Orders />
+                  </ProtectedRoute>
+                } />
                 
                 {/* Stripe-wrapped routes */}
                 <Route path="/cart" element={<StripeProvider><Cart /></StripeProvider>} />
@@ -97,8 +128,16 @@ const App = () => {
                 <Route path="/guest-checkout" element={<StripeProvider><GuestCheckout /></StripeProvider>} />
                 <Route path="/pricing" element={<StripeProvider><Pricing /></StripeProvider>} />
                 
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/disputes" element={<Disputes />} />
+                <Route path="/profile" element={
+                  <ProtectedRoute requireAuth>
+                    <Profile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/disputes" element={
+                  <ProtectedRoute requireAuth>
+                    <Disputes />
+                  </ProtectedRoute>
+                } />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/dmca" element={<DMCA />} />

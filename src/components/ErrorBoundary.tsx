@@ -29,8 +29,28 @@ export class ErrorBoundary extends Component<Props, State> {
 
     // Log to error tracking service in production
     if (import.meta.env.PROD) {
-      // TODO: Send to error tracking service (e.g., Sentry)
-      console.error('Production error:', { error, errorInfo });
+      // Send to Sentry or other error tracking service
+      try {
+        // Check if Sentry is available
+        if (typeof window !== 'undefined' && (window as any).Sentry) {
+          (window as any).Sentry.captureException(error, {
+            contexts: {
+              react: {
+                componentStack: errorInfo.componentStack,
+              },
+            },
+          });
+        } else {
+          // Fallback: log to console in production
+          console.error('Production error:', {
+            error: error.toString(),
+            stack: error.stack,
+            componentStack: errorInfo.componentStack,
+          });
+        }
+      } catch (sentryError) {
+        console.error('Failed to report error to Sentry:', sentryError);
+      }
     }
   }
 
