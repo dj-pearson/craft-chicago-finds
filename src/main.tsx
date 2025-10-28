@@ -6,6 +6,12 @@ import { AnalyticsProvider } from './components/analytics';
 import App from "./App.tsx";
 import "./index.css";
 import { queryClient } from "./lib/queryClient";
+import { initCoreWebVitals } from "./lib/performance";
+
+// Initialize performance monitoring
+if (typeof window !== 'undefined') {
+  initCoreWebVitals();
+}
 
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
