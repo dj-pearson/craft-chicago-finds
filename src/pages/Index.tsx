@@ -9,8 +9,9 @@ import { LocalSEO } from "@/components/seo";
 import { useCityContext } from "@/hooks/useCityContext";
 import { useAuth } from "@/contexts/AuthContext";
 
-// Lazy load below-the-fold component
+// Lazy load below-the-fold components
 const FeaturedMakers = lazy(() => import("@/components/FeaturedMakers").then(module => ({ default: module.FeaturedMakers })));
+const WelcomeBanner = lazy(() => import("@/components/marketplace/WelcomeBanner").then(module => ({ default: module.WelcomeBanner })));
 
 const Index = () => {
   const { currentCity } = useCityContext();
@@ -44,6 +45,11 @@ const Index = () => {
       />
       <Header />
       <main>
+        {user && (
+          <Suspense fallback={null}>
+            <WelcomeBanner />
+          </Suspense>
+        )}
         <Hero />
         <ValueProposition />
         <CategoryGrid />
