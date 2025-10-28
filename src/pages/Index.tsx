@@ -7,12 +7,14 @@ import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { LocalSEO } from "@/components/seo";
 import { useCityContext } from "@/hooks/useCityContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Lazy load below-the-fold component
 const FeaturedMakers = lazy(() => import("@/components/FeaturedMakers").then(module => ({ default: module.FeaturedMakers })));
 
 const Index = () => {
   const { currentCity } = useCityContext();
+  const { user } = useAuth();
   
   return (
     <div className="min-h-screen bg-background">
