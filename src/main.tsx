@@ -7,10 +7,16 @@ import App from "./App.tsx";
 import "./index.css";
 import { queryClient } from "./lib/queryClient";
 import { initCoreWebVitals } from "./lib/performance";
+import { registerServiceWorker } from "./lib/serviceWorker";
 
 // Initialize performance monitoring
 if (typeof window !== 'undefined') {
   initCoreWebVitals();
+  
+  // Register service worker
+  if (import.meta.env.PROD) {
+    registerServiceWorker();
+  }
 }
 
 createRoot(document.getElementById("root")!).render(
