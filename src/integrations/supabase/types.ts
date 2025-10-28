@@ -3197,6 +3197,30 @@ export type Database = {
           },
         ]
       }
+      rate_limit_logs: {
+        Row: {
+          allowed: boolean
+          created_at: string
+          endpoint: string
+          id: string
+          identifier: string
+        }
+        Insert: {
+          allowed?: boolean
+          created_at?: string
+          endpoint: string
+          id?: string
+          identifier: string
+        }
+        Update: {
+          allowed?: boolean
+          created_at?: string
+          endpoint?: string
+          id?: string
+          identifier?: string
+        }
+        Relationships: []
+      }
       reorder_history: {
         Row: {
           created_at: string
