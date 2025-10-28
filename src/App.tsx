@@ -15,6 +15,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import "./styles/accessibility.css";
+import "@/lib/errorHandler"; // Initialize global error handler
 
 // Lazy load all pages for optimal code splitting
 const Landing = lazy(() => import("./pages/Landing"));
