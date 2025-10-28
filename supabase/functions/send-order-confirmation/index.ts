@@ -1,5 +1,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { render } from 'npm:@react-email/components@0.0.22';
+import { OrderConfirmationBuyer } from './_templates/order-confirmation-buyer.tsx';
+import { OrderConfirmationSeller } from './_templates/order-confirmation-seller.tsx';
+import { corsHeaders } from '../_shared/cors.ts';
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
 
@@ -11,7 +15,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       'Authorization': `Bearer ${RESEND_API_KEY}`
     },
     body: JSON.stringify({
-      from: "Craft Local <orders@craftchicagofinds.com>",
+      from: "Chicago Makers Marketplace <orders@craftlocal.love>",
       to: [to],
       subject,
       html
@@ -25,13 +29,9 @@ async function sendEmail(to: string, subject: string, html: string) {
 
   return response.json();
 }
+
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
 
 interface OrderConfirmationRequest {
   orderId: string;
@@ -46,14 +46,18 @@ serve(async (req: Request) => {
     const { orderId }: OrderConfirmationRequest = await req.json();
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch order details with buyer and seller info
+    // Fetch order with all details
     const { data: order, error: orderError } = await supabase
       .from("orders")
       .select(`
         *,
         buyer:profiles!buyer_id(display_name, email),
         seller:profiles!seller_id(display_name, email),
-        listings(title, price)
+        order_items(
+          quantity,
+          price,
+          listing:listings(title)
+        )
       `)
       .eq("id", orderId)
       .single();
@@ -62,76 +66,74 @@ serve(async (req: Request) => {
       throw new Error("Order not found");
     }
 
-    const buyerEmail = order.buyer.email;
-    const sellerEmail = order.seller.email;
-    const fulfillmentType = order.fulfillment_type || "shipping";
+    // Format items for email templates
+    const items = order.order_items.map((item: any) => ({
+      title: item.listing.title,
+      quantity: item.quantity,
+      price: item.price,
+    }));
+
+    const subtotal = items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+    const shipping = order.shipping_cost || 0;
     const total = order.total_amount || 0;
 
-    // Send confirmation to buyer
-    await sendEmail(
-      buyerEmail,
-      `Order Confirmation #${orderId.slice(0, 8)}`,
-      `
-        <h1>Thank you for your order!</h1>
-        <p>Hi ${order.buyer.display_name},</p>
-        <p>Your order has been confirmed and is being prepared by ${order.seller.display_name}.</p>
-        
-        <h2>Order Details</h2>
-        <p><strong>Order ID:</strong> ${orderId.slice(0, 8)}</p>
-        <p><strong>Total:</strong> $${total.toFixed(2)}</p>
-        <p><strong>Fulfillment:</strong> ${fulfillmentType === 'local_pickup' ? 'Local Pickup' : 'Shipping'}</p>
-        
-        ${order.shipping_address ? `
-          <h3>Shipping Address</h3>
-          <p>${order.shipping_address.street}<br>
-          ${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.zip}</p>
-        ` : ''}
-        
-        ${order.pickup_location ? `
-          <h3>Pickup Location</h3>
-          <p>${order.pickup_location}</p>
-        ` : ''}
-        
-        <p>You'll receive another email when your order ships or is ready for pickup.</p>
-        <p>View your order: <a href="https://craftchicagofinds.com/orders">My Orders</a></p>
-        
-        <p>Best regards,<br>The Craft Local Team</p>
-      `
-    );
+    // Send buyer confirmation with React Email template
+    const buyerEmailHtml = render(OrderConfirmationBuyer({
+      buyerName: order.buyer.display_name || 'Customer',
+      orderId: orderId.slice(0, 8),
+      orderDate: new Date(order.created_at).toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      }),
+      items,
+      subtotal,
+      shipping,
+      total,
+      sellerName: order.seller.display_name || 'Seller',
+      estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric' 
+      }),
+    }));
 
-    // Send notification to seller
     await sendEmail(
-      sellerEmail,
-      `New Order #${orderId.slice(0, 8)}`,
-      `
-        <h1>You have a new order!</h1>
-        <p>Hi ${order.seller.display_name},</p>
-        <p>You've received a new order from ${order.buyer.display_name}.</p>
-        
-        <h2>Order Details</h2>
-        <p><strong>Order ID:</strong> ${orderId.slice(0, 8)}</p>
-        <p><strong>Total:</strong> $${total.toFixed(2)}</p>
-        <p><strong>Your Earnings:</strong> $${(total * 0.9).toFixed(2)} (after 10% platform fee)</p>
-        <p><strong>Fulfillment:</strong> ${fulfillmentType === 'local_pickup' ? 'Local Pickup' : 'Shipping'}</p>
-        
-        ${order.shipping_address ? `
-          <h3>Shipping Address</h3>
-          <p>${order.shipping_address.street}<br>
-          ${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.zip}</p>
-        ` : ''}
-        
-        <p><strong>Next Steps:</strong></p>
-        <ol>
-          <li>Confirm the order in your dashboard</li>
-          <li>${fulfillmentType === 'local_pickup' ? 'Coordinate pickup time with buyer' : 'Ship the order within 3 business days'}</li>
-          <li>Update the order status when complete</li>
-        </ol>
-        
-        <p>Manage this order: <a href="https://craftchicagofinds.com/seller/dashboard">Seller Dashboard</a></p>
-        
-        <p>Best regards,<br>The Craft Local Team</p>
-      `
+      order.buyer.email,
+      `Order Confirmation #${orderId.slice(0, 8)}`,
+      buyerEmailHtml
     );
+    console.log('Buyer confirmation email sent');
+
+    // Send seller notification with React Email template
+    const platformFee = subtotal * 0.1;
+    const payout = subtotal - platformFee;
+
+    const shippingAddress = order.shipping_address 
+      ? `${order.shipping_address.street}\n${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.zip}`
+      : 'Address not provided';
+
+    const sellerEmailHtml = render(OrderConfirmationSeller({
+      sellerName: order.seller.display_name || 'Seller',
+      orderId: orderId.slice(0, 8),
+      orderDate: new Date(order.created_at).toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      }),
+      items,
+      subtotal,
+      platformFee,
+      payout,
+      buyerName: order.buyer.display_name || 'Customer',
+      shippingAddress,
+    }));
+
+    await sendEmail(
+      order.seller.email,
+      `New Order Received #${orderId.slice(0, 8)}`,
+      sellerEmailHtml
+    );
+    console.log('Seller notification email sent');
 
     console.log("Order confirmation emails sent successfully:", orderId);
 
