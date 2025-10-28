@@ -10,11 +10,10 @@ import { ReportListingButton } from "@/components/product/ReportListingButton";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useListing } from "@/hooks/queries/useListing";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import type { Listing } from "./Browse";
 import { Card } from "@/components/ui/card";
 
 const ProductDetail = () => {
@@ -23,57 +22,15 @@ const ProductDetail = () => {
   const { currentCity, loading: cityLoading, isValidCity } = useCityContext();
   const navigate = useNavigate();
 
-  const [listing, setListing] = useState<Listing | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  // Fetch listing using React Query
+  const {
+    data: listing,
+    isLoading,
+    isError,
+  } = useListing(id, currentCity?.id);
 
-  // Redirect to auth if not logged in
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
-
-  // Fetch listing details
-  useEffect(() => {
-    if (id && currentCity && isValidCity) {
-      fetchListing();
-    }
-  }, [id, currentCity, isValidCity]);
-
-  const fetchListing = async () => {
-    if (!id || !currentCity) return;
-
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("listings")
-        .select(`
-          *,
-          categories(id, name, slug)
-        `)
-        .eq("id", id)
-        .eq("city_id", currentCity.id)
-        .eq("status", "active")
-        .single();
-
-      if (error) {
-        console.error("Error fetching listing:", error);
-        setNotFound(true);
-        return;
-      }
-
-      setListing(data);
-
-      // Increment view count
-      await supabase.rpc('increment_listing_views', { listing_uuid: id });
-    } catch (error) {
-      console.error("Error fetching listing:", error);
-      setNotFound(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loading = isLoading;
+  const notFound = isError || (!loading && !listing);
 
   // Show loading state
   if (authLoading || cityLoading || loading) {

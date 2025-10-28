@@ -12,68 +12,14 @@ import { SubtleSignupPrompt } from "@/components/auth/SubtleSignupPrompt";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
 import { useSearchAnalytics } from "@/hooks/useSearchAnalytics";
-import { supabase } from "@/integrations/supabase/client";
+import { useListings, type Listing, type FilterOptions } from "@/hooks/queries/useListings";
+import { useCategories, type Category } from "@/hooks/queries/useCategories";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import {
-  parseNaturalLanguageSearch,
-  buildEnhancedSearchQuery,
-  calculateSearchRelevance,
-} from "@/lib/search-utils";
 
-export interface Listing {
-  id: string;
-  title: string;
-  description: string | null;
-  price: number;
-  images: string[];
-  seller_id: string;
-  category_id: string | null;
-  city_id: string | null;
-  status: string;
-  featured: boolean;
-  local_pickup_available: boolean;
-  shipping_available: boolean;
-  inventory_count: number | null;
-  view_count: number | null;
-  created_at: string;
-  pickup_location?: string | null;
-  ready_today?: boolean;
-  ships_today?: boolean;
-  pickup_today?: boolean;
-  categories?: {
-    id: string;
-    name: string;
-    slug: string;
-  };
-  profiles?: {
-    id: string;
-    display_name: string | null;
-    avatar_url: string | null;
-    bio?: string | null;
-    seller_verified?: boolean;
-  };
-}
+// Re-export types for other components
+export type { Listing, Category, FilterOptions };
 
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-export interface FilterOptions {
-  category?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  fulfillment?: "pickup" | "shipping" | "both";
-  sortBy?: "newest" | "oldest" | "price_low" | "price_high" | "popular";
-  readyToday?: boolean;
-  shipsToday?: boolean;
-  pickupToday?: boolean;
-  materials?: string[];
-  styles?: string[];
-  attributes?: string[];
-}
 
 const Browse = () => {
   const { user, loading: authLoading } = useAuth();
@@ -82,19 +28,27 @@ const Browse = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<FilterOptions>({});
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const [visualSearchResults, setVisualSearchResults] = useState<Listing[] | null>(null);
+
+  // Fetch data using React Query
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories(currentCity?.id);
+  const { data: fetchedListings = [], isLoading: listingsLoading } = useListings(
+    currentCity?.id,
+    filters,
+    searchQuery
+  );
+
+  // Use visual search results if available, otherwise use fetched listings
+  const listings = visualSearchResults || fetchedListings;
+  const loading = categoriesLoading || listingsLoading;
 
   // Handle visual search results
   const handleVisualSearchResults = (results: Listing[]) => {
-    setListings(results);
+    setVisualSearchResults(results);
     setSearchQuery("Visual Search Results");
   };
-
-  // No longer redirect to auth - allow anonymous browsing
 
   // Initialize filters from URL params
   useEffect(() => {
@@ -113,183 +67,17 @@ const Browse = () => {
     });
   }, [searchParams]);
 
-  // Fetch categories and listings
+  // Track search analytics when results change
   useEffect(() => {
-    if (currentCity && isValidCity) {
-      fetchCategories();
-      fetchListings();
+    if (searchQuery && listings.length >= 0 && currentCity) {
+      trackSearch({
+        query: searchQuery,
+        results_count: listings.length,
+        filters_used: filters,
+        city_id: currentCity.id,
+      });
     }
-  }, [currentCity, isValidCity, filters, searchQuery]);
-
-  const fetchCategories = async () => {
-    if (!currentCity) return;
-
-    try {
-      const { data, error } = await supabase
-        .from("categories")
-        .select("id, name, slug")
-        .eq("city_id", currentCity.id)
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true });
-
-      if (error) {
-        console.error("Error fetching categories:", error);
-        return;
-      }
-
-      setCategories(data || []);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
-
-  const fetchListings = async () => {
-    if (!currentCity) return;
-
-    setLoading(true);
-    try {
-      let query = supabase
-        .from("listings")
-        .select(
-          `
-          *,
-          categories(id, name, slug)
-        `
-        )
-        .eq("city_id", currentCity.id)
-        .eq("status", "active");
-
-      // Apply filters
-      if (filters.category) {
-        query = query.eq("categories.slug", filters.category);
-      }
-
-      if (filters.minPrice) {
-        query = query.gte("price", filters.minPrice);
-      }
-
-      if (filters.maxPrice) {
-        query = query.lte("price", filters.maxPrice);
-      }
-
-      if (filters.fulfillment === "pickup") {
-        query = query.eq("local_pickup_available", true);
-      } else if (filters.fulfillment === "shipping") {
-        query = query.eq("shipping_available", true);
-      }
-
-      // Apply ready today filters
-      if (filters.readyToday) {
-        query = query.eq("ready_today", true);
-      }
-      if (filters.shipsToday) {
-        query = query.eq("ships_today", true);
-      }
-      if (filters.pickupToday) {
-        query = query.eq("pickup_today", true);
-      }
-
-      // Apply enhanced natural language search
-      if (searchQuery) {
-        const parsedSearch = parseNaturalLanguageSearch(searchQuery);
-
-        // Apply price filters from natural language
-        if (parsedSearch.priceRange) {
-          if (parsedSearch.priceRange.min) {
-            query = query.gte("price", parsedSearch.priceRange.min);
-          }
-          if (parsedSearch.priceRange.max) {
-            query = query.lte("price", parsedSearch.priceRange.max);
-          }
-        }
-
-        // Build enhanced search query with synonyms and typo corrections
-        query = buildEnhancedSearchQuery(query, searchQuery, parsedSearch);
-      }
-
-      // Apply material filters
-      if (filters.materials && filters.materials.length > 0) {
-        const materialConditions = filters.materials
-          .map((material) => `tags.cs.{${material}}`)
-          .join(",");
-        query = query.or(materialConditions);
-      }
-
-      // Apply style filters
-      if (filters.styles && filters.styles.length > 0) {
-        const styleConditions = filters.styles
-          .map((style) => `tags.cs.{${style}}`)
-          .join(",");
-        query = query.or(styleConditions);
-      }
-
-      // Apply attribute filters
-      if (filters.attributes && filters.attributes.length > 0) {
-        const attributeConditions = filters.attributes
-          .map((attribute) => `tags.cs.{${attribute}}`)
-          .join(",");
-        query = query.or(attributeConditions);
-      }
-
-      // Apply sorting
-      switch (filters.sortBy) {
-        case "oldest":
-          query = query.order("created_at", { ascending: true });
-          break;
-        case "price_low":
-          query = query.order("price", { ascending: true });
-          break;
-        case "price_high":
-          query = query.order("price", { ascending: false });
-          break;
-        case "popular":
-          query = query.order("view_count", { ascending: false });
-          break;
-        default:
-          query = query.order("created_at", { ascending: false });
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Error fetching listings:", error);
-        return;
-      }
-
-      let results = data || [];
-
-      // Apply search relevance sorting if there's a search query
-      if (searchQuery && results.length > 0) {
-        const parsedSearch = parseNaturalLanguageSearch(searchQuery);
-        results = results
-          .map((listing) => ({
-            ...listing,
-            searchScore: calculateSearchRelevance(
-              listing,
-              searchQuery,
-              parsedSearch
-            ),
-          }))
-          .sort((a, b) => (b.searchScore || 0) - (a.searchScore || 0));
-      }
-
-      setListings(results);
-
-      // Track search analytics
-      if (searchQuery && results.length >= 0) {
-        trackSearch({
-          query: searchQuery,
-          results_count: results.length,
-          filters_used: filters,
-          city_id: currentCity.id,
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching listings:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [searchQuery, listings.length, currentCity, filters, trackSearch]);
 
   // Show loading state
   if (authLoading || cityLoading) {
@@ -354,8 +142,10 @@ const Browse = () => {
         <div className="space-y-4 mb-8">
           <SearchBar
             value={searchQuery}
-            onChange={setSearchQuery}
-            onSearch={fetchListings}
+            onChange={(value) => {
+              setSearchQuery(value);
+              setVisualSearchResults(null); // Clear visual search when typing
+            }}
             cityId={currentCity.id}
           />
           <div className="flex justify-center">

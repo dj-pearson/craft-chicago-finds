@@ -14,7 +14,7 @@ import {
 interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
-  onSearch: () => void;
+  onSearch?: () => void; // Optional with React Query
   cityId?: string;
 }
 
@@ -104,7 +104,7 @@ export const SearchBar = ({
     if (localValue.trim()) {
       saveRecentSearch(localValue.trim());
       onChange(localValue.trim());
-      onSearch();
+      onSearch?.(); // Optional call
       setShowSuggestions(false);
     }
   };
@@ -113,7 +113,7 @@ export const SearchBar = ({
     setLocalValue(suggestion.text);
     saveRecentSearch(suggestion.text);
     onChange(suggestion.text);
-    onSearch();
+    onSearch?.(); // Optional call
     setShowSuggestions(false);
   };
 
@@ -130,7 +130,7 @@ export const SearchBar = ({
     setLocalValue("");
     onChange("");
     setShowSuggestions(false);
-    onSearch();
+    onSearch?.(); // Optional call
   };
 
   const getSuggestionIcon = (type: SearchSuggestion["type"]) => {
