@@ -105,6 +105,43 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
     console.log("Creating order from checkout session:", session.id);
 
+    // ============================================
+    // IDEMPOTENCY CHECK - Prevent duplicate orders
+    // ============================================
+    const { data: existingOrder } = await supabaseClient
+      .from('orders')
+      .select('id, status, payment_status')
+      .eq('stripe_session_id', session.id)
+      .maybeSingle();
+
+    if (existingOrder) {
+      console.log('Order already processed for session:', {
+        session_id: session.id,
+        order_id: existingOrder.id,
+        status: existingOrder.status,
+        payment_status: existingOrder.payment_status
+      });
+      
+      // If order exists and is completed, skip processing
+      if (existingOrder.payment_status === 'completed') {
+        console.log('Skipping duplicate webhook - order already completed');
+        return;
+      }
+      
+      // If order exists but payment not completed, update it
+      console.log('Updating existing order payment status');
+      await supabaseClient
+        .from('orders')
+        .update({
+          payment_status: 'completed',
+          paid_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingOrder.id);
+      
+      return;
+    }
+
     // Check checkout type
     if (metadata.is_cart_checkout === "true") {
       await handleCartCheckout(session, metadata);
@@ -122,14 +159,32 @@ async function handleSingleItemCheckout(
   session: Stripe.Checkout.Session,
   metadata: any
 ) {
-  // Create order in database
+  // Calculate commission details
+  const totalAmount = (session.amount_total || 0) / 100; // Convert from cents
+  const commissionAmount = parseFloat(metadata.platform_fee || "0");
+  const platformFeeRate = totalAmount > 0 ? commissionAmount / totalAmount : 0.1;
+  
+  // Set commission hold period (7 days for chargeback protection)
+  const commissionHoldUntil = new Date();
+  commissionHoldUntil.setDate(commissionHoldUntil.getDate() + 7);
+  
+  // Create order in database with enhanced tracking
   const { error: orderError } = await supabaseClient.from("orders").insert({
     buyer_id: metadata.buyer_id,
     seller_id: metadata.seller_id,
     listing_id: metadata.listing_id,
     quantity: parseInt(metadata.quantity),
-    total_amount: (session.amount_total || 0) / 100, // Convert from cents
-    commission_amount: parseFloat(metadata.platform_fee),
+    total_amount: totalAmount,
+    commission_amount: commissionAmount,
+    
+    // NEW: Idempotency and commission tracking
+    stripe_session_id: session.id,
+    stripe_checkout_id: session.id,
+    commission_status: 'held', // Hold for chargeback period
+    commission_hold_until: commissionHoldUntil.toISOString(),
+    platform_fee_rate: platformFeeRate,
+    actual_platform_revenue: commissionAmount, // Will be updated after Stripe fees
+    
     fulfillment_method: metadata.fulfillment_method,
     shipping_address: metadata.shipping_address
       ? JSON.parse(metadata.shipping_address)
@@ -140,6 +195,7 @@ async function handleSingleItemCheckout(
         : null,
     notes: metadata.notes || null,
     payment_status: "completed",
+    paid_at: new Date().toISOString(),
     stripe_payment_intent_id: session.payment_intent as string,
     status: "pending",
   });
@@ -183,41 +239,72 @@ async function handleCartCheckout(
     return acc;
   }, {});
 
+  // Set commission hold period (7 days for chargeback protection)
+  const commissionHoldUntil = new Date();
+  commissionHoldUntil.setDate(commissionHoldUntil.getDate() + 7);
+  
+  // Track created orders for transaction safety
+  const createdOrders: any[] = [];
+  const failedOrders: any[] = [];
+
   for (const [sellerId, items] of Object.entries(ordersBySeller) as [
     string,
     any[]
   ][]) {
-    const sellerTotal = items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
-    const sellerCommission = sellerTotal * 0.1; // 10% platform fee
+    try {
+      const sellerTotal = items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+      const sellerCommission = sellerTotal * 0.1; // 10% platform fee
+      const totalWithCommission = sellerTotal + sellerCommission;
+      const platformFeeRate = 0.1;
 
-    // Create order for this seller
-    const { data: orderData, error: orderError } = await supabaseClient.from("orders").insert({
-      buyer_id: metadata.buyer_id,
-      seller_id: sellerId,
-      listing_id: items[0].listing_id, // Use first item's listing_id as reference
-      quantity: items.reduce((sum, item) => sum + item.quantity, 0),
-      total_amount: sellerTotal + sellerCommission,
-      commission_amount: sellerCommission,
-      fulfillment_method: metadata.fulfillment_method,
-      shipping_address: metadata.shipping_address
-        ? JSON.parse(metadata.shipping_address)
-        : null,
-      notes: metadata.notes || null,
-      payment_status: "completed",
-      stripe_payment_intent_id: session.payment_intent as string,
-      status: "pending",
-    }).select().single();
+      // Create order for this seller with enhanced tracking
+      const { data: orderData, error: orderError } = await supabaseClient.from("orders").insert({
+        buyer_id: metadata.buyer_id,
+        seller_id: sellerId,
+        listing_id: items[0].listing_id, // Use first item's listing_id as reference
+        quantity: items.reduce((sum, item) => sum + item.quantity, 0),
+        total_amount: totalWithCommission,
+        commission_amount: sellerCommission,
+        
+        // NEW: Idempotency and commission tracking
+        stripe_session_id: session.id,
+        stripe_checkout_id: session.id,
+        commission_status: 'held', // Hold for chargeback period
+        commission_hold_until: commissionHoldUntil.toISOString(),
+        platform_fee_rate: platformFeeRate,
+        actual_platform_revenue: sellerCommission,
+        
+        fulfillment_method: metadata.fulfillment_method,
+        shipping_address: metadata.shipping_address
+          ? JSON.parse(metadata.shipping_address)
+          : null,
+        notes: metadata.notes || null,
+        payment_status: "completed",
+        paid_at: new Date().toISOString(),
+        stripe_payment_intent_id: session.payment_intent as string,
+        status: "pending",
+      }).select().single();
 
-    if (orderError) {
-      console.error("Error creating order for seller:", sellerId, orderError);
-      throw orderError;
-    }
+      if (orderError) {
+        console.error("Error creating order for seller:", sellerId, orderError);
+        failedOrders.push({ sellerId, error: orderError, items });
+        // Continue processing other sellers instead of throwing
+        continue;
+      }
 
-    // Send order confirmation emails
-    if (orderData) {
+      if (!orderData) {
+        console.error("No order data returned for seller:", sellerId);
+        failedOrders.push({ sellerId, error: "No order data", items });
+        continue;
+      }
+
+      createdOrders.push(orderData);
+      console.log("Created order for seller:", sellerId, "Order ID:", orderData.id);
+
+      // Send order confirmation emails (non-blocking)
       try {
         await supabaseClient.functions.invoke('send-order-confirmation', {
           body: { orderId: orderData.id }
@@ -226,25 +313,47 @@ async function handleCartCheckout(
         console.error("Error sending order confirmation emails:", emailError);
         // Don't throw - order was created successfully, email failure shouldn't block
       }
-    }
 
-    // Update inventory for each item
-    for (const item of items) {
-      const { error: inventoryError } = await supabaseClient.rpc(
-        "decrement_inventory",
-        {
-          listing_uuid: item.listing_id,
-          quantity: item.quantity,
+      // Update inventory for each item
+      for (const item of items) {
+        try {
+          const { error: inventoryError } = await supabaseClient.rpc(
+            "decrement_inventory",
+            {
+              listing_uuid: item.listing_id,
+              quantity: item.quantity,
+            }
+          );
+
+          if (inventoryError) {
+            console.error(
+              "Error updating inventory for item:",
+              item.listing_id,
+              inventoryError
+            );
+            // Log but don't fail - order is already created
+          }
+        } catch (inventoryError) {
+          console.error("Exception updating inventory:", inventoryError);
         }
-      );
-
-      if (inventoryError) {
-        console.error(
-          "Error updating inventory for item:",
-          item.listing_id,
-          inventoryError
-        );
       }
+    } catch (error) {
+      console.error("Unexpected error processing seller:", sellerId, error);
+      failedOrders.push({ sellerId, error, items });
+    }
+  }
+
+  // Log results
+  console.log("Cart checkout processing complete:", {
+    total_sellers: Object.keys(ordersBySeller).length,
+    successful_orders: createdOrders.length,
+    failed_orders: failedOrders.length
+  });
+
+  if (failedOrders.length > 0) {
+    console.error("Some orders failed to create:", failedOrders);
+    // TODO: Implement compensation logic or retry mechanism
+    // For now, we continue since at least some orders succeeded
   }
 }
 
@@ -252,6 +361,21 @@ async function handleGuestCartCheckout(session: Stripe.Checkout.Session, metadat
   console.log('Processing guest cart checkout:', session.id);
   
   try {
+    // ============================================
+    // IDEMPOTENCY CHECK for guest orders
+    // ============================================
+    const { data: existingGuestOrder } = await supabaseClient
+      .from('orders')
+      .select('id')
+      .eq('stripe_session_id', session.id)
+      .limit(1)
+      .maybeSingle();
+
+    if (existingGuestOrder) {
+      console.log('Guest order already processed for session:', session.id);
+      return; // Skip duplicate processing
+    }
+    
     // Parse metadata
     const guestName = metadata.guest_name;
     const guestEmail = metadata.guest_email;
