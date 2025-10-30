@@ -98,19 +98,7 @@ export const CategoryGrid = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-muted-foreground">Loading categories...</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
+  // Hooks must be called before any early returns
   const handleBrowseClick = useCallback(() => {
     if (currentCity?.slug) {
       window.location.href = `/${currentCity.slug}/browse`;
@@ -125,6 +113,19 @@ export const CategoryGrid = () => {
       gradient: categoryGradients[category.slug] || 'from-primary/20 to-primary/10'
     }));
   }, [categories]);
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Loading categories...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-12 sm:py-16 bg-background">
