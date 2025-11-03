@@ -5,7 +5,8 @@ import { corsHeaders } from "../_shared/cors.ts";
 interface GetScheduledPostsRequest {
   city_id?: string;
   platform?: string;
-  send_through_webhook?: boolean; // New option to trigger webhook sending
+  target_audience?: string; // "both" to fetch multi-platform batch
+  send_through_webhook?: boolean; // trigger webhook sending
   limit?: number;
 }
 
@@ -27,11 +28,12 @@ serve(async (req) => {
       // No/invalid JSON body; proceed with defaults
       requestData = {} as any;
     }
-    const { city_id, platform, send_through_webhook = true, limit = 1 } = requestData; // Default send to true and 1 post
+    const { city_id, platform, target_audience, send_through_webhook = true, limit = 1 } = requestData; // Default send to true and 1 post
 
     console.log('Fetching scheduled posts:', {
       city_id,
       platform,
+      target_audience,
       send_through_webhook,
       limit,
       current_time: new Date().toISOString(),
@@ -66,6 +68,30 @@ serve(async (req) => {
     }
 
     console.log(`Found ${posts?.length || 0} overdue scheduled posts`);
+
+    // If caller wants both platforms together, fetch sibling posts in same group
+    if (target_audience && target_audience.toLowerCase() === 'both' && posts && posts.length > 0) {
+      const first = posts[0];
+      let siblingsQuery = supabase
+        .from('social_media_posts')
+        .select(`
+          *,
+          cities:city_id(name, slug),
+          campaigns:campaign_id(name, campaign_type)
+        `)
+        .eq('status', 'scheduled')
+        .lte('scheduled_for', new Date().toISOString())
+        .eq('city_id', first.city_id)
+        .order('scheduled_for', { ascending: true });
+      if (first.campaign_id) siblingsQuery = siblingsQuery.eq('campaign_id', first.campaign_id);
+      if (first.campaign_day) siblingsQuery = siblingsQuery.eq('campaign_day', first.campaign_day);
+      const { data: siblings } = await siblingsQuery;
+      if (siblings && siblings.length) {
+        const existing = new Set(posts.map((p: any) => p.id));
+        const toAdd = siblings.filter((s: any) => !existing.has(s.id));
+        if (toAdd.length) posts.push(...toAdd);
+      }
+    }
 
     const results = {
       success: true,
