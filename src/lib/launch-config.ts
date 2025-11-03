@@ -22,9 +22,9 @@ export const LAUNCH_CONFIG = {
   ALLOW_SELLER_INTEREST: true,
   
   // Launch messaging
-  LAUNCH_HEADLINE: "Chicago's Local Craft Marketplace Launches November 1st",
-  LAUNCH_SUBHEADLINE: "Connect with local artisans and discover unique handmade treasures in the Windy City",
-  PRE_LAUNCH_MESSAGE: "We're putting the finishing touches on Chicago's premier marketplace for local artisans and craft lovers.",
+  LAUNCH_HEADLINE: "Sell Your Handmade Crafts in Chicago",
+  LAUNCH_SUBHEADLINE: "Join Chicago's premier marketplace for artisans. We're signing up founding sellers for launch.",
+  PRE_LAUNCH_MESSAGE: "We're recruiting talented makers and crafters for our Chicago launch. Sign up to sell jewelry, pottery, art, candles, home decor, and more.",
   
   // Contact and social
   LAUNCH_EMAIL: "chicago@craftlocal.com",

@@ -28,10 +28,10 @@ export function QuickActions() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-foreground mb-2">
-                Get Started Today
+                Join as a Founding Seller
               </h2>
               <p className="text-muted-foreground">
-                Create an account to access all marketplace features
+                Sign up now to be part of our Chicago marketplace launch
               </p>
             </div>
 
@@ -39,20 +39,20 @@ export function QuickActions() {
               <Card className="p-6 hover:shadow-lg transition-shadow border-2 border-primary/20">
                 <div className="flex flex-col items-center text-center">
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                    <UserPlus className="h-8 w-8 text-primary" />
+                    <Store className="h-8 w-8 text-primary" />
                   </div>
                   <h3 className="text-xl font-semibold text-foreground mb-2">
-                    Create Account
+                    Become a Seller
                   </h3>
                   <p className="text-muted-foreground mb-6">
-                    Join our community of makers and shoppers. It's free and takes less than a minute.
+                    List your handmade crafts and reach customers in Chicago and nationally. Free to join, low commission.
                   </p>
                   <Button 
                     onClick={() => navigate('/auth')} 
                     size="lg" 
                     className="w-full gap-2"
                   >
-                    Sign Up
+                    Sign Up to Sell
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
@@ -64,10 +64,10 @@ export function QuickActions() {
                     <LogIn className="h-8 w-8 text-secondary" />
                   </div>
                   <h3 className="text-xl font-semibold text-foreground mb-2">
-                    Already a Member?
+                    Already Signed Up?
                   </h3>
                   <p className="text-muted-foreground mb-6">
-                    Welcome back! Sign in to access your cart, favorites, and orders.
+                    Welcome back! Sign in to manage your shop, add products, and get ready for launch.
                   </p>
                   <Button 
                     onClick={() => navigate('/auth')} 
@@ -75,17 +75,23 @@ export function QuickActions() {
                     size="lg" 
                     className="w-full gap-2"
                   >
-                    Sign In
+                    Seller Sign In
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
               </Card>
             </div>
 
-            <div className="mt-8 text-center">
-              <p className="text-sm text-muted-foreground">
-                By creating an account, you'll be ready when marketplace features launch
-              </p>
+            <div className="mt-8 p-6 bg-accent/10 rounded-lg border border-accent/20">
+              <div className="text-center">
+                <h3 className="font-semibold text-foreground mb-2">
+                  🎨 Calling All Chicago Crafters
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  We're looking for talented artisans making jewelry, pottery, candles, art, home decor, and more. 
+                  Join now to launch with us and be featured as a founding seller.
+                </p>
+              </div>
             </div>
           </div>
         </div>

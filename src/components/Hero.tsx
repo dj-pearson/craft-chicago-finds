@@ -32,28 +32,28 @@ export const Hero = () => {
 
           {/* Heading */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 leading-tight">
-            Discover Local
-            <span className="block text-accent">Makers</span>
+            Sell Your Crafts in
+            <span className="block text-accent">{currentCity?.name || "Chicago"}</span>
           </h1>
 
           {/* Subheading */}
           <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
-            Shop authentic handcrafted items from local {currentCity?.name || "Chicago"} artisans. Unique jewelry, home decor, art, and gifts made with passion by talented makers in your neighborhood.
+            Join Chicago's premier marketplace for handmade goods. We're signing up talented artisans and makers to launch together. Sell jewelry, home decor, art, pottery, candles & more.
           </p>
 
           {/* Stats */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 mb-10">
             <div className="flex items-center text-white/90">
               <Users className="w-5 h-5 mr-2 flex-shrink-0" />
-              <span className="font-semibold text-sm sm:text-base">200+ Local Makers</span>
+              <span className="font-semibold text-sm sm:text-base">Launch Founding Sellers</span>
             </div>
             <div className="flex items-center text-white/90">
               <Sparkles className="w-5 h-5 mr-2 flex-shrink-0" />
-              <span className="font-semibold text-sm sm:text-base">Handmade Only</span>
+              <span className="font-semibold text-sm sm:text-base">Low Commission</span>
             </div>
             <div className="flex items-center text-white/90">
               <MapPin className="w-5 h-5 mr-2 flex-shrink-0" />
-              <span className="font-semibold text-sm sm:text-base">Local Pickup Available</span>
+              <span className="font-semibold text-sm sm:text-base">Chicago & National</span>
             </div>
           </div>
 
@@ -62,16 +62,18 @@ export const Hero = () => {
             <Button 
               size="lg" 
               className="bg-white text-primary hover:bg-white/90 font-semibold px-6 sm:px-8 py-4 h-auto text-base touch-target"
+              onClick={() => window.location.href = '/auth'}
             >
-              Shop Local Goods
+              Sign Up to Sell
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button 
               variant="outline" 
               size="lg"
               className="border-white text-white hover:bg-white hover:text-primary font-semibold px-6 sm:px-8 py-4 h-auto text-base touch-target"
+              onClick={() => window.location.href = '/seller/dashboard'}
             >
-              Start Selling
+              Seller Dashboard
             </Button>
           </div>
         </div>
