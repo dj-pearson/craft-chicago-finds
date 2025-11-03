@@ -20,8 +20,14 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const requestData: GetScheduledPostsRequest = await req.json();
-    const { city_id, platform, send_through_webhook = false, limit = 1 } = requestData; // Default to 1 post
+    let requestData: GetScheduledPostsRequest = {} as any;
+    try {
+      requestData = await req.json();
+    } catch (_) {
+      // No/invalid JSON body; proceed with defaults
+      requestData = {} as any;
+    }
+    const { city_id, platform, send_through_webhook = true, limit = 1 } = requestData; // Default send to true and 1 post
 
     console.log('Fetching scheduled posts:', {
       city_id,
