@@ -99,6 +99,8 @@ serve(async (req) => {
     }
 
     const createdPosts = [];
+    const postIds = [];
+    
     // Generate posts for each platform
     for (const platform of platforms) {
       console.log(`Generating ${platform} post...`);
@@ -277,35 +279,37 @@ Generate the ${platform} post now:`;
         post_id: socialPost.id,
         content: postContent,
       });
+      
+      postIds.push(socialPost.id);
+    }
 
-      // Auto-send to webhook if enabled
-      if (auto_send_webhook) {
-        try {
-          console.log(`Sending ${platform} post to webhook (system call)...`);
-          const functionUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-social-webhook`;
-          const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    // Send batch webhook with all posts together if enabled
+    if (auto_send_webhook && postIds.length > 0) {
+      try {
+        console.log(`Sending batch webhook for ${postIds.length} posts...`);
+        const functionUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-batch-social-webhook`;
+        const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-          const resp = await fetch(functionUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${serviceKey}`,
-            },
-            body: JSON.stringify({ post_id: socialPost.id }),
-          });
+        const resp = await fetch(functionUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${serviceKey}`,
+          },
+          body: JSON.stringify({ post_ids: postIds }),
+        });
 
-          const text = await resp.text();
-          let json;
-          try { json = JSON.parse(text); } catch { json = { raw: text }; }
+        const text = await resp.text();
+        let json;
+        try { json = JSON.parse(text); } catch { json = { raw: text }; }
 
-          if (!resp.ok) {
-            console.error(`Webhook failed for ${platform}:`, resp.status, json);
-          } else {
-            console.log(`Webhook sent for ${platform}:`, json);
-          }
-        } catch (webhookError) {
-          console.error(`Failed to send webhook for ${platform}:`, webhookError);
+        if (!resp.ok) {
+          console.error(`Batch webhook failed:`, resp.status, json);
+        } else {
+          console.log(`Batch webhook sent successfully:`, json);
         }
+      } catch (webhookError) {
+        console.error(`Failed to send batch webhook:`, webhookError);
       }
     }
 

@@ -150,6 +150,9 @@ verify_jwt = false
 [functions.send-social-webhook]
 verify_jwt = false
 
+[functions.send-batch-social-webhook]
+verify_jwt = false
+
 [functions.send-blog-webhook]
 verify_jwt = true
 
