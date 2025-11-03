@@ -235,7 +235,7 @@ Generate the ${platform} post now:`;
           created_by: createdByUserId,
           platform,
           post_type: "text",
-          status: "draft",
+          status: "published",
           title: postContent.title,
           content: postContent.long_description,
           short_description: postContent.short_description,

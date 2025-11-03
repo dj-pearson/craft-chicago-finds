@@ -157,7 +157,7 @@ Format as JSON:
         city_id: requestData.city_id || null,
         platform,
         post_type: 'promotional',
-        status: 'draft',
+        status: 'published',
         content: postContent.content,
         short_description: postContent.short_description,
         long_description: postContent.long_description,
