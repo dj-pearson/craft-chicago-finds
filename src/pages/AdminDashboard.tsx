@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useAdminOverview } from "@/hooks/useAdminOverview";
+import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -43,6 +45,7 @@ import { DisputeManagement } from "@/components/admin/DisputeManagement";
 const AdminDashboard = () => {
   const { user } = useAuth();
   const { isAdmin, loading: adminLoading, checkAdminAccess } = useAdmin();
+  const { stats, recentActivity } = useAdminOverview();
   const navigate = useNavigate();
   const [hasAccess, setHasAccess] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -156,9 +159,9 @@ const AdminDashboard = () => {
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">3</div>
+                  <div className="text-2xl font-bold">{stats.loading ? '...' : stats.totalCities}</div>
                   <p className="text-xs text-muted-foreground">
-                    1 active, 2 launching soon
+                    {stats.loading ? 'Loading...' : `${stats.activeCities} active, ${stats.totalCities - stats.activeCities} launching soon`}
                   </p>
                 </CardContent>
               </Card>
@@ -171,9 +174,9 @@ const AdminDashboard = () => {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">1,234</div>
+                  <div className="text-2xl font-bold">{stats.loading ? '...' : stats.totalUsers.toLocaleString()}</div>
                   <p className="text-xs text-muted-foreground">
-                    +20.1% from last month
+                    Registered users
                   </p>
                 </CardContent>
               </Card>
@@ -186,9 +189,9 @@ const AdminDashboard = () => {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">89</div>
+                  <div className="text-2xl font-bold">{stats.loading ? '...' : stats.activeSellers}</div>
                   <p className="text-xs text-muted-foreground">
-                    +12.5% from last month
+                    Verified sellers
                   </p>
                 </CardContent>
               </Card>
@@ -201,9 +204,9 @@ const AdminDashboard = () => {
                   <Eye className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">12</div>
+                  <div className="text-2xl font-bold">{stats.loading ? '...' : stats.pendingReviews}</div>
                   <p className="text-xs text-muted-foreground">
-                    Requires admin attention
+                    {stats.pendingReviews > 0 ? 'Requires admin attention' : 'All caught up'}
                   </p>
                 </CardContent>
               </Card>
@@ -245,20 +248,20 @@ const AdminDashboard = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>New seller approved in Chicago</span>
-                      <span className="text-muted-foreground">2 hours ago</span>
+                  {recentActivity.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No recent activity</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {recentActivity.map((activity, index) => (
+                        <div key={index} className="flex items-center justify-between text-sm">
+                          <span className="capitalize">{activity.description}</span>
+                          <span className="text-muted-foreground">
+                            {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
+                          </span>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Milwaukee city status updated</span>
-                      <span className="text-muted-foreground">1 day ago</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Detroit categories configured</span>
-                      <span className="text-muted-foreground">3 days ago</span>
-                    </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
