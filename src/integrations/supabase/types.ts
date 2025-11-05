@@ -838,6 +838,87 @@ export type Database = {
         }
         Relationships: []
       }
+      commission_payouts: {
+        Row: {
+          adjustment_amount: number | null
+          bank_transaction_id: string | null
+          commission_amount: number
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          failed_at: string | null
+          failure_reason: string | null
+          gross_sales: number
+          id: string
+          notes: string | null
+          order_count: number
+          order_ids: string[] | null
+          payout_method: string
+          payout_status: string
+          period_end: string
+          period_start: string
+          processed_at: string | null
+          processed_by: string | null
+          processor_name: string | null
+          seller_id: string
+          seller_payout: number
+          stripe_payout_id: string | null
+          stripe_transfer_id: string | null
+        }
+        Insert: {
+          adjustment_amount?: number | null
+          bank_transaction_id?: string | null
+          commission_amount: number
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          failed_at?: string | null
+          failure_reason?: string | null
+          gross_sales: number
+          id?: string
+          notes?: string | null
+          order_count?: number
+          order_ids?: string[] | null
+          payout_method: string
+          payout_status?: string
+          period_end: string
+          period_start: string
+          processed_at?: string | null
+          processed_by?: string | null
+          processor_name?: string | null
+          seller_id: string
+          seller_payout: number
+          stripe_payout_id?: string | null
+          stripe_transfer_id?: string | null
+        }
+        Update: {
+          adjustment_amount?: number | null
+          bank_transaction_id?: string | null
+          commission_amount?: number
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          failed_at?: string | null
+          failure_reason?: string | null
+          gross_sales?: number
+          id?: string
+          notes?: string | null
+          order_count?: number
+          order_ids?: string[] | null
+          payout_method?: string
+          payout_status?: string
+          period_end?: string
+          period_start?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          processor_name?: string | null
+          seller_id?: string
+          seller_payout?: number
+          stripe_payout_id?: string | null
+          stripe_transfer_id?: string | null
+        }
+        Relationships: []
+      }
       compliance_audit_log: {
         Row: {
           action_type: string
@@ -1572,6 +1653,208 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      gsc_keyword_performance: {
+        Row: {
+          clicks: number | null
+          clicks_change: number | null
+          country: string | null
+          created_at: string
+          ctr: number | null
+          ctr_change: number | null
+          date: string
+          device: string | null
+          id: string
+          impressions: number | null
+          impressions_change: number | null
+          position: number | null
+          position_change: number | null
+          property_id: string
+          query: string
+        }
+        Insert: {
+          clicks?: number | null
+          clicks_change?: number | null
+          country?: string | null
+          created_at?: string
+          ctr?: number | null
+          ctr_change?: number | null
+          date: string
+          device?: string | null
+          id?: string
+          impressions?: number | null
+          impressions_change?: number | null
+          position?: number | null
+          position_change?: number | null
+          property_id: string
+          query: string
+        }
+        Update: {
+          clicks?: number | null
+          clicks_change?: number | null
+          country?: string | null
+          created_at?: string
+          ctr?: number | null
+          ctr_change?: number | null
+          date?: string
+          device?: string | null
+          id?: string
+          impressions?: number | null
+          impressions_change?: number | null
+          position?: number | null
+          position_change?: number | null
+          property_id?: string
+          query?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gsc_keyword_performance_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "gsc_properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gsc_oauth_credentials: {
+        Row: {
+          access_token: string
+          created_at: string
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          last_refreshed: string | null
+          refresh_token: string
+          scope: string | null
+          token_type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_active?: boolean | null
+          last_refreshed?: string | null
+          refresh_token: string
+          scope?: string | null
+          token_type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_refreshed?: string | null
+          refresh_token?: string
+          scope?: string | null
+          token_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      gsc_page_performance: {
+        Row: {
+          clicks: number | null
+          country: string | null
+          created_at: string
+          ctr: number | null
+          date: string
+          device: string | null
+          id: string
+          impressions: number | null
+          page_url: string
+          position: number | null
+          property_id: string
+          top_queries: Json | null
+        }
+        Insert: {
+          clicks?: number | null
+          country?: string | null
+          created_at?: string
+          ctr?: number | null
+          date: string
+          device?: string | null
+          id?: string
+          impressions?: number | null
+          page_url: string
+          position?: number | null
+          property_id: string
+          top_queries?: Json | null
+        }
+        Update: {
+          clicks?: number | null
+          country?: string | null
+          created_at?: string
+          ctr?: number | null
+          date?: string
+          device?: string | null
+          id?: string
+          impressions?: number | null
+          page_url?: string
+          position?: number | null
+          property_id?: string
+          top_queries?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gsc_page_performance_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "gsc_properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gsc_properties: {
+        Row: {
+          auto_sync_enabled: boolean | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          is_verified: boolean | null
+          last_synced: string | null
+          permission_level: string | null
+          property_type: string | null
+          property_url: string
+          sync_frequency: string | null
+          updated_at: string
+          verification_method: string | null
+        }
+        Insert: {
+          auto_sync_enabled?: boolean | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          last_synced?: string | null
+          permission_level?: string | null
+          property_type?: string | null
+          property_url: string
+          sync_frequency?: string | null
+          updated_at?: string
+          verification_method?: string | null
+        }
+        Update: {
+          auto_sync_enabled?: boolean | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          last_synced?: string | null
+          permission_level?: string | null
+          property_type?: string | null
+          property_url?: string
+          sync_frequency?: string | null
+          updated_at?: string
+          verification_method?: string | null
+        }
+        Relationships: []
       }
       image_optimizations: {
         Row: {
@@ -2463,10 +2746,15 @@ export type Database = {
       }
       orders: {
         Row: {
+          actual_platform_revenue: number | null
           buyer_geo_confirmed: boolean | null
           buyer_id: string
           carrier: string | null
           commission_amount: number
+          commission_hold_until: string | null
+          commission_paid_at: string | null
+          commission_payout_id: string | null
+          commission_status: string | null
           created_at: string
           dispute_id: string | null
           escrow_release_date: string | null
@@ -2484,6 +2772,7 @@ export type Database = {
           payment_status: string
           pickup_confirmed_at: string | null
           pickup_location: string | null
+          platform_fee_rate: number | null
           quantity: number
           scheduled_ship_date: string | null
           seller_handoff_confirmed: boolean | null
@@ -2491,16 +2780,23 @@ export type Database = {
           shipping_address: Json | null
           shipping_label_url: string | null
           status: string
+          stripe_checkout_id: string | null
           stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
           total_amount: number
           tracking_number: string | null
           updated_at: string
         }
         Insert: {
+          actual_platform_revenue?: number | null
           buyer_geo_confirmed?: boolean | null
           buyer_id: string
           carrier?: string | null
           commission_amount: number
+          commission_hold_until?: string | null
+          commission_paid_at?: string | null
+          commission_payout_id?: string | null
+          commission_status?: string | null
           created_at?: string
           dispute_id?: string | null
           escrow_release_date?: string | null
@@ -2518,6 +2814,7 @@ export type Database = {
           payment_status?: string
           pickup_confirmed_at?: string | null
           pickup_location?: string | null
+          platform_fee_rate?: number | null
           quantity?: number
           scheduled_ship_date?: string | null
           seller_handoff_confirmed?: boolean | null
@@ -2525,16 +2822,23 @@ export type Database = {
           shipping_address?: Json | null
           shipping_label_url?: string | null
           status?: string
+          stripe_checkout_id?: string | null
           stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
           total_amount: number
           tracking_number?: string | null
           updated_at?: string
         }
         Update: {
+          actual_platform_revenue?: number | null
           buyer_geo_confirmed?: boolean | null
           buyer_id?: string
           carrier?: string | null
           commission_amount?: number
+          commission_hold_until?: string | null
+          commission_paid_at?: string | null
+          commission_payout_id?: string | null
+          commission_status?: string | null
           created_at?: string
           dispute_id?: string | null
           escrow_release_date?: string | null
@@ -2552,6 +2856,7 @@ export type Database = {
           payment_status?: string
           pickup_confirmed_at?: string | null
           pickup_location?: string | null
+          platform_fee_rate?: number | null
           quantity?: number
           scheduled_ship_date?: string | null
           seller_handoff_confirmed?: boolean | null
@@ -2559,7 +2864,9 @@ export type Database = {
           shipping_address?: Json | null
           shipping_label_url?: string | null
           status?: string
+          stripe_checkout_id?: string | null
           stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
           total_amount?: number
           tracking_number?: string | null
           updated_at?: string
@@ -2951,6 +3258,149 @@ export type Database = {
           priority_support?: boolean
           stripe_price_id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_fee_config: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          fee_name: string
+          fee_rate: number
+          fee_type: string
+          flat_fee_amount: number | null
+          id: string
+          is_active: boolean | null
+          max_order_value: number | null
+          min_order_value: number | null
+          priority: number | null
+          seller_id: string | null
+          terms_url: string | null
+          updated_at: string
+          updated_by: string | null
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          fee_name: string
+          fee_rate: number
+          fee_type: string
+          flat_fee_amount?: number | null
+          id?: string
+          is_active?: boolean | null
+          max_order_value?: number | null
+          min_order_value?: number | null
+          priority?: number | null
+          seller_id?: string | null
+          terms_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          fee_name?: string
+          fee_rate?: number
+          fee_type?: string
+          flat_fee_amount?: number | null
+          id?: string
+          is_active?: boolean | null
+          max_order_value?: number | null
+          min_order_value?: number | null
+          priority?: number | null
+          seller_id?: string | null
+          terms_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_fee_config_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_revenue: {
+        Row: {
+          buyer_count: number
+          calculated_at: string
+          calculation_method: string | null
+          cancelled_order_count: number
+          chargebacks: number
+          gross_sales: number
+          id: string
+          net_revenue: number
+          new_buyer_count: number
+          new_seller_count: number
+          order_count: number
+          period_date: string
+          period_type: string
+          recalculated_at: string | null
+          refunded_order_count: number
+          refunds_issued: number
+          seller_count: number
+          stripe_fees: number
+          successful_order_count: number
+          total_commissions: number
+        }
+        Insert: {
+          buyer_count?: number
+          calculated_at?: string
+          calculation_method?: string | null
+          cancelled_order_count?: number
+          chargebacks?: number
+          gross_sales?: number
+          id?: string
+          net_revenue?: number
+          new_buyer_count?: number
+          new_seller_count?: number
+          order_count?: number
+          period_date: string
+          period_type: string
+          recalculated_at?: string | null
+          refunded_order_count?: number
+          refunds_issued?: number
+          seller_count?: number
+          stripe_fees?: number
+          successful_order_count?: number
+          total_commissions?: number
+        }
+        Update: {
+          buyer_count?: number
+          calculated_at?: string
+          calculation_method?: string | null
+          cancelled_order_count?: number
+          chargebacks?: number
+          gross_sales?: number
+          id?: string
+          net_revenue?: number
+          new_buyer_count?: number
+          new_seller_count?: number
+          order_count?: number
+          period_date?: string
+          period_type?: string
+          recalculated_at?: string | null
+          refunded_order_count?: number
+          refunds_issued?: number
+          seller_count?: number
+          stripe_fees?: number
+          successful_order_count?: number
+          total_commissions?: number
         }
         Relationships: []
       }
@@ -3698,6 +4148,1747 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      seo_alert_rules: {
+        Row: {
+          auto_fix_enabled: boolean | null
+          conditions: Json | null
+          create_ticket: boolean | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          rule_name: string
+          rule_type: string
+          send_notification: boolean | null
+          severity: string | null
+          threshold_operator: string | null
+          threshold_value: number | null
+          time_window_hours: number | null
+          updated_at: string
+        }
+        Insert: {
+          auto_fix_enabled?: boolean | null
+          conditions?: Json | null
+          create_ticket?: boolean | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          rule_name: string
+          rule_type: string
+          send_notification?: boolean | null
+          severity?: string | null
+          threshold_operator?: string | null
+          threshold_value?: number | null
+          time_window_hours?: number | null
+          updated_at?: string
+        }
+        Update: {
+          auto_fix_enabled?: boolean | null
+          conditions?: Json | null
+          create_ticket?: boolean | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          rule_name?: string
+          rule_type?: string
+          send_notification?: boolean | null
+          severity?: string | null
+          threshold_operator?: string | null
+          threshold_value?: number | null
+          time_window_hours?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          affected_keyword: string | null
+          affected_url: string | null
+          alert_type: string
+          change_percentage: number | null
+          created_at: string
+          current_value: number | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          notification_sent: boolean | null
+          notification_sent_at: string | null
+          previous_value: number | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          rule_id: string | null
+          severity: string
+          status: string | null
+          threshold_value: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          affected_keyword?: string | null
+          affected_url?: string | null
+          alert_type: string
+          change_percentage?: number | null
+          created_at?: string
+          current_value?: number | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          notification_sent?: boolean | null
+          notification_sent_at?: string | null
+          previous_value?: number | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          rule_id?: string | null
+          severity: string
+          status?: string | null
+          threshold_value?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          affected_keyword?: string | null
+          affected_url?: string | null
+          alert_type?: string
+          change_percentage?: number | null
+          created_at?: string
+          current_value?: number | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          notification_sent?: boolean | null
+          notification_sent_at?: string | null
+          previous_value?: number | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          rule_id?: string | null
+          severity?: string
+          status?: string | null
+          threshold_value?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_alerts_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "seo_alert_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_audit_history: {
+        Row: {
+          accessibility_score: number | null
+          audit_status: string | null
+          audit_type: string
+          audited_at: string | null
+          audited_by: string | null
+          best_practices_score: number | null
+          canonical_url: string | null
+          content_score: number | null
+          created_at: string
+          error_message: string | null
+          h1_tags: string[] | null
+          h2_tags: string[] | null
+          id: string
+          issues_found: Json | null
+          meta_description: string | null
+          meta_keywords: string[] | null
+          meta_title: string | null
+          overall_score: number | null
+          page_load_time_ms: number | null
+          passed_checks: Json | null
+          performance_score: number | null
+          recommendations: Json | null
+          technical_score: number | null
+          total_page_size_kb: number | null
+          total_requests: number | null
+          url: string
+          warnings: Json | null
+        }
+        Insert: {
+          accessibility_score?: number | null
+          audit_status?: string | null
+          audit_type?: string
+          audited_at?: string | null
+          audited_by?: string | null
+          best_practices_score?: number | null
+          canonical_url?: string | null
+          content_score?: number | null
+          created_at?: string
+          error_message?: string | null
+          h1_tags?: string[] | null
+          h2_tags?: string[] | null
+          id?: string
+          issues_found?: Json | null
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
+          overall_score?: number | null
+          page_load_time_ms?: number | null
+          passed_checks?: Json | null
+          performance_score?: number | null
+          recommendations?: Json | null
+          technical_score?: number | null
+          total_page_size_kb?: number | null
+          total_requests?: number | null
+          url: string
+          warnings?: Json | null
+        }
+        Update: {
+          accessibility_score?: number | null
+          audit_status?: string | null
+          audit_type?: string
+          audited_at?: string | null
+          audited_by?: string | null
+          best_practices_score?: number | null
+          canonical_url?: string | null
+          content_score?: number | null
+          created_at?: string
+          error_message?: string | null
+          h1_tags?: string[] | null
+          h2_tags?: string[] | null
+          id?: string
+          issues_found?: Json | null
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
+          overall_score?: number | null
+          page_load_time_ms?: number | null
+          passed_checks?: Json | null
+          performance_score?: number | null
+          recommendations?: Json | null
+          technical_score?: number | null
+          total_page_size_kb?: number | null
+          total_requests?: number | null
+          url?: string
+          warnings?: Json | null
+        }
+        Relationships: []
+      }
+      seo_backlink_opportunities: {
+        Row: {
+          contact_email: string | null
+          contact_name: string | null
+          created_at: string
+          difficulty_score: number | null
+          domain_authority: number | null
+          id: string
+          last_contact_date: string | null
+          link_acquired: boolean | null
+          link_acquired_date: string | null
+          link_url: string | null
+          next_follow_up_date: string | null
+          opportunity_domain: string
+          opportunity_type: string | null
+          opportunity_url: string
+          outreach_attempts: number | null
+          outreach_notes: string | null
+          outreach_status: string | null
+          priority_score: number | null
+          relevance_score: number | null
+          updated_at: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          difficulty_score?: number | null
+          domain_authority?: number | null
+          id?: string
+          last_contact_date?: string | null
+          link_acquired?: boolean | null
+          link_acquired_date?: string | null
+          link_url?: string | null
+          next_follow_up_date?: string | null
+          opportunity_domain: string
+          opportunity_type?: string | null
+          opportunity_url: string
+          outreach_attempts?: number | null
+          outreach_notes?: string | null
+          outreach_status?: string | null
+          priority_score?: number | null
+          relevance_score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          difficulty_score?: number | null
+          domain_authority?: number | null
+          id?: string
+          last_contact_date?: string | null
+          link_acquired?: boolean | null
+          link_acquired_date?: string | null
+          link_url?: string | null
+          next_follow_up_date?: string | null
+          opportunity_domain?: string
+          opportunity_type?: string | null
+          opportunity_url?: string
+          outreach_attempts?: number | null
+          outreach_notes?: string | null
+          outreach_status?: string | null
+          priority_score?: number | null
+          relevance_score?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_backlinks: {
+        Row: {
+          anchor_text: string | null
+          api_source: string | null
+          created_at: string
+          estimated_traffic: number | null
+          first_seen: string | null
+          id: string
+          is_active: boolean | null
+          last_seen: string | null
+          link_position: string | null
+          link_type: string | null
+          link_value_score: number | null
+          lost_date: string | null
+          page_title: string | null
+          raw_data: Json | null
+          source_domain: string
+          source_domain_authority: number | null
+          source_page_authority: number | null
+          source_spam_score: number | null
+          source_url: string
+          status: string | null
+          surrounding_text: string | null
+          target_url: string
+          updated_at: string
+        }
+        Insert: {
+          anchor_text?: string | null
+          api_source?: string | null
+          created_at?: string
+          estimated_traffic?: number | null
+          first_seen?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_seen?: string | null
+          link_position?: string | null
+          link_type?: string | null
+          link_value_score?: number | null
+          lost_date?: string | null
+          page_title?: string | null
+          raw_data?: Json | null
+          source_domain: string
+          source_domain_authority?: number | null
+          source_page_authority?: number | null
+          source_spam_score?: number | null
+          source_url: string
+          status?: string | null
+          surrounding_text?: string | null
+          target_url: string
+          updated_at?: string
+        }
+        Update: {
+          anchor_text?: string | null
+          api_source?: string | null
+          created_at?: string
+          estimated_traffic?: number | null
+          first_seen?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_seen?: string | null
+          link_position?: string | null
+          link_type?: string | null
+          link_value_score?: number | null
+          lost_date?: string | null
+          page_title?: string | null
+          raw_data?: Json | null
+          source_domain?: string
+          source_domain_authority?: number | null
+          source_page_authority?: number | null
+          source_spam_score?: number | null
+          source_url?: string
+          status?: string | null
+          surrounding_text?: string | null
+          target_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_competitor_analysis: {
+        Row: {
+          backlinks_count: number | null
+          competitor_name: string
+          competitor_url: string
+          content_strategy: string | null
+          created_at: string
+          domain_authority: number | null
+          id: string
+          last_analyzed: string | null
+          opportunities: Json | null
+          organic_keywords: number | null
+          organic_traffic_estimate: number | null
+          page_authority: number | null
+          referring_domains: number | null
+          strengths: Json | null
+          threats: Json | null
+          top_keywords: string[] | null
+          updated_at: string
+          weaknesses: Json | null
+        }
+        Insert: {
+          backlinks_count?: number | null
+          competitor_name: string
+          competitor_url: string
+          content_strategy?: string | null
+          created_at?: string
+          domain_authority?: number | null
+          id?: string
+          last_analyzed?: string | null
+          opportunities?: Json | null
+          organic_keywords?: number | null
+          organic_traffic_estimate?: number | null
+          page_authority?: number | null
+          referring_domains?: number | null
+          strengths?: Json | null
+          threats?: Json | null
+          top_keywords?: string[] | null
+          updated_at?: string
+          weaknesses?: Json | null
+        }
+        Update: {
+          backlinks_count?: number | null
+          competitor_name?: string
+          competitor_url?: string
+          content_strategy?: string | null
+          created_at?: string
+          domain_authority?: number | null
+          id?: string
+          last_analyzed?: string | null
+          opportunities?: Json | null
+          organic_keywords?: number | null
+          organic_traffic_estimate?: number | null
+          page_authority?: number | null
+          referring_domains?: number | null
+          strengths?: Json | null
+          threats?: Json | null
+          top_keywords?: string[] | null
+          updated_at?: string
+          weaknesses?: Json | null
+        }
+        Relationships: []
+      }
+      seo_competitor_keywords: {
+        Row: {
+          competitor_id: string | null
+          cpc: number | null
+          created_at: string
+          difficulty: number | null
+          id: string
+          keyword: string
+          keyword_gap: boolean | null
+          last_updated: string | null
+          opportunity_score: number | null
+          our_position: number | null
+          position: number | null
+          search_volume: number | null
+          url: string | null
+          we_rank_for: boolean | null
+        }
+        Insert: {
+          competitor_id?: string | null
+          cpc?: number | null
+          created_at?: string
+          difficulty?: number | null
+          id?: string
+          keyword: string
+          keyword_gap?: boolean | null
+          last_updated?: string | null
+          opportunity_score?: number | null
+          our_position?: number | null
+          position?: number | null
+          search_volume?: number | null
+          url?: string | null
+          we_rank_for?: boolean | null
+        }
+        Update: {
+          competitor_id?: string | null
+          cpc?: number | null
+          created_at?: string
+          difficulty?: number | null
+          id?: string
+          keyword?: string
+          keyword_gap?: boolean | null
+          last_updated?: string | null
+          opportunity_score?: number | null
+          our_position?: number | null
+          position?: number | null
+          search_volume?: number | null
+          url?: string | null
+          we_rank_for?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_competitor_keywords_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "seo_competitor_analysis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_core_web_vitals: {
+        Row: {
+          cls: number | null
+          cls_rating: string | null
+          created_at: string
+          device: string | null
+          diagnostics: Json | null
+          fcp: number | null
+          fid: number | null
+          fid_rating: string | null
+          id: string
+          inp: number | null
+          lcp: number | null
+          lcp_rating: string | null
+          measured_at: string | null
+          opportunities: Json | null
+          page_url: string
+          performance_score: number | null
+          speed_index: number | null
+          total_blocking_time_ms: number | null
+          ttfb: number | null
+        }
+        Insert: {
+          cls?: number | null
+          cls_rating?: string | null
+          created_at?: string
+          device?: string | null
+          diagnostics?: Json | null
+          fcp?: number | null
+          fid?: number | null
+          fid_rating?: string | null
+          id?: string
+          inp?: number | null
+          lcp?: number | null
+          lcp_rating?: string | null
+          measured_at?: string | null
+          opportunities?: Json | null
+          page_url: string
+          performance_score?: number | null
+          speed_index?: number | null
+          total_blocking_time_ms?: number | null
+          ttfb?: number | null
+        }
+        Update: {
+          cls?: number | null
+          cls_rating?: string | null
+          created_at?: string
+          device?: string | null
+          diagnostics?: Json | null
+          fcp?: number | null
+          fid?: number | null
+          fid_rating?: string | null
+          id?: string
+          inp?: number | null
+          lcp?: number | null
+          lcp_rating?: string | null
+          measured_at?: string | null
+          opportunities?: Json | null
+          page_url?: string
+          performance_score?: number | null
+          speed_index?: number | null
+          total_blocking_time_ms?: number | null
+          ttfb?: number | null
+        }
+        Relationships: []
+      }
+      seo_crawl_results: {
+        Row: {
+          broken_links_count: number | null
+          canonical_url: string | null
+          content_type: string | null
+          crawl_session_id: string
+          crawled_at: string | null
+          created_at: string
+          depth: number | null
+          external_links_count: number | null
+          h1: string | null
+          has_canonical: boolean | null
+          has_description: boolean | null
+          has_h1: boolean | null
+          has_schema: boolean | null
+          has_title: boolean | null
+          id: string
+          internal_links_count: number | null
+          is_indexable: boolean | null
+          load_time_ms: number | null
+          meta_description: string | null
+          page_size_bytes: number | null
+          page_url: string
+          parent_url: string | null
+          robots_meta: string | null
+          start_url: string
+          status_code: number | null
+          title: string | null
+          word_count: number | null
+        }
+        Insert: {
+          broken_links_count?: number | null
+          canonical_url?: string | null
+          content_type?: string | null
+          crawl_session_id: string
+          crawled_at?: string | null
+          created_at?: string
+          depth?: number | null
+          external_links_count?: number | null
+          h1?: string | null
+          has_canonical?: boolean | null
+          has_description?: boolean | null
+          has_h1?: boolean | null
+          has_schema?: boolean | null
+          has_title?: boolean | null
+          id?: string
+          internal_links_count?: number | null
+          is_indexable?: boolean | null
+          load_time_ms?: number | null
+          meta_description?: string | null
+          page_size_bytes?: number | null
+          page_url: string
+          parent_url?: string | null
+          robots_meta?: string | null
+          start_url: string
+          status_code?: number | null
+          title?: string | null
+          word_count?: number | null
+        }
+        Update: {
+          broken_links_count?: number | null
+          canonical_url?: string | null
+          content_type?: string | null
+          crawl_session_id?: string
+          crawled_at?: string | null
+          created_at?: string
+          depth?: number | null
+          external_links_count?: number | null
+          h1?: string | null
+          has_canonical?: boolean | null
+          has_description?: boolean | null
+          has_h1?: boolean | null
+          has_schema?: boolean | null
+          has_title?: boolean | null
+          id?: string
+          internal_links_count?: number | null
+          is_indexable?: boolean | null
+          load_time_ms?: number | null
+          meta_description?: string | null
+          page_size_bytes?: number | null
+          page_url?: string
+          parent_url?: string | null
+          robots_meta?: string | null
+          start_url?: string
+          status_code?: number | null
+          title?: string | null
+          word_count?: number | null
+        }
+        Relationships: []
+      }
+      seo_domain_metrics: {
+        Row: {
+          api_source: string | null
+          citation_flow: number | null
+          created_at: string
+          date: string
+          dofollow_backlinks: number | null
+          domain: string
+          domain_authority: number | null
+          estimated_organic_traffic: number | null
+          id: string
+          indexed_pages: number | null
+          lost_backlinks_30d: number | null
+          new_backlinks_30d: number | null
+          nofollow_backlinks: number | null
+          organic_traffic_value: number | null
+          page_authority: number | null
+          top_10_rankings: number | null
+          top_100_rankings: number | null
+          top_3_rankings: number | null
+          total_backlinks: number | null
+          total_ranking_keywords: number | null
+          trust_flow: number | null
+          unique_domains: number | null
+        }
+        Insert: {
+          api_source?: string | null
+          citation_flow?: number | null
+          created_at?: string
+          date?: string
+          dofollow_backlinks?: number | null
+          domain: string
+          domain_authority?: number | null
+          estimated_organic_traffic?: number | null
+          id?: string
+          indexed_pages?: number | null
+          lost_backlinks_30d?: number | null
+          new_backlinks_30d?: number | null
+          nofollow_backlinks?: number | null
+          organic_traffic_value?: number | null
+          page_authority?: number | null
+          top_10_rankings?: number | null
+          top_100_rankings?: number | null
+          top_3_rankings?: number | null
+          total_backlinks?: number | null
+          total_ranking_keywords?: number | null
+          trust_flow?: number | null
+          unique_domains?: number | null
+        }
+        Update: {
+          api_source?: string | null
+          citation_flow?: number | null
+          created_at?: string
+          date?: string
+          dofollow_backlinks?: number | null
+          domain?: string
+          domain_authority?: number | null
+          estimated_organic_traffic?: number | null
+          id?: string
+          indexed_pages?: number | null
+          lost_backlinks_30d?: number | null
+          new_backlinks_30d?: number | null
+          nofollow_backlinks?: number | null
+          organic_traffic_value?: number | null
+          page_authority?: number | null
+          top_10_rankings?: number | null
+          top_100_rankings?: number | null
+          top_3_rankings?: number | null
+          total_backlinks?: number | null
+          total_ranking_keywords?: number | null
+          trust_flow?: number | null
+          unique_domains?: number | null
+        }
+        Relationships: []
+      }
+      seo_duplicate_content: {
+        Row: {
+          canonical_status: string | null
+          content_hash: string | null
+          content_similarity_percentage: number | null
+          created_at: string
+          detected_at: string | null
+          duplicate_type: string | null
+          id: string
+          is_resolved: boolean | null
+          meta_description_similarity_percentage: number | null
+          preferred_url: string | null
+          resolution_action: string | null
+          resolved_at: string | null
+          title_hash: string | null
+          title_similarity_percentage: number | null
+          url_1: string
+          url_2: string
+        }
+        Insert: {
+          canonical_status?: string | null
+          content_hash?: string | null
+          content_similarity_percentage?: number | null
+          created_at?: string
+          detected_at?: string | null
+          duplicate_type?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          meta_description_similarity_percentage?: number | null
+          preferred_url?: string | null
+          resolution_action?: string | null
+          resolved_at?: string | null
+          title_hash?: string | null
+          title_similarity_percentage?: number | null
+          url_1: string
+          url_2: string
+        }
+        Update: {
+          canonical_status?: string | null
+          content_hash?: string | null
+          content_similarity_percentage?: number | null
+          created_at?: string
+          detected_at?: string | null
+          duplicate_type?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          meta_description_similarity_percentage?: number | null
+          preferred_url?: string | null
+          resolution_action?: string | null
+          resolved_at?: string | null
+          title_hash?: string | null
+          title_similarity_percentage?: number | null
+          url_1?: string
+          url_2?: string
+        }
+        Relationships: []
+      }
+      seo_fixes_applied: {
+        Row: {
+          after_value: string | null
+          applied_at: string | null
+          applied_by: string | null
+          audit_id: string | null
+          before_value: string | null
+          created_at: string
+          fix_description: string
+          fix_details: Json | null
+          fix_type: string
+          id: string
+          status: string | null
+          url: string
+          verified_at: string | null
+        }
+        Insert: {
+          after_value?: string | null
+          applied_at?: string | null
+          applied_by?: string | null
+          audit_id?: string | null
+          before_value?: string | null
+          created_at?: string
+          fix_description: string
+          fix_details?: Json | null
+          fix_type: string
+          id?: string
+          status?: string | null
+          url: string
+          verified_at?: string | null
+        }
+        Update: {
+          after_value?: string | null
+          applied_at?: string | null
+          applied_by?: string | null
+          audit_id?: string | null
+          before_value?: string | null
+          created_at?: string
+          fix_description?: string
+          fix_details?: Json | null
+          fix_type?: string
+          id?: string
+          status?: string | null
+          url?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_fixes_applied_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "seo_audit_history"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_image_analysis: {
+        Row: {
+          alt_text: string | null
+          analyzed_at: string | null
+          created_at: string
+          file_extension: string | null
+          file_name: string | null
+          file_size_kb: number | null
+          format: string | null
+          has_alt_text: boolean | null
+          height: number | null
+          id: string
+          image_url: string
+          is_lazy_loaded: boolean | null
+          is_optimized: boolean | null
+          is_responsive: boolean | null
+          issues: Json | null
+          page_url: string
+          potential_savings_kb: number | null
+          recommended_format: string | null
+          recommended_height: number | null
+          recommended_width: number | null
+          title_text: string | null
+          uses_modern_format: boolean | null
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          analyzed_at?: string | null
+          created_at?: string
+          file_extension?: string | null
+          file_name?: string | null
+          file_size_kb?: number | null
+          format?: string | null
+          has_alt_text?: boolean | null
+          height?: number | null
+          id?: string
+          image_url: string
+          is_lazy_loaded?: boolean | null
+          is_optimized?: boolean | null
+          is_responsive?: boolean | null
+          issues?: Json | null
+          page_url: string
+          potential_savings_kb?: number | null
+          recommended_format?: string | null
+          recommended_height?: number | null
+          recommended_width?: number | null
+          title_text?: string | null
+          uses_modern_format?: boolean | null
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          analyzed_at?: string | null
+          created_at?: string
+          file_extension?: string | null
+          file_name?: string | null
+          file_size_kb?: number | null
+          format?: string | null
+          has_alt_text?: boolean | null
+          height?: number | null
+          id?: string
+          image_url?: string
+          is_lazy_loaded?: boolean | null
+          is_optimized?: boolean | null
+          is_responsive?: boolean | null
+          issues?: Json | null
+          page_url?: string
+          potential_savings_kb?: number | null
+          recommended_format?: string | null
+          recommended_height?: number | null
+          recommended_width?: number | null
+          title_text?: string | null
+          uses_modern_format?: boolean | null
+          width?: number | null
+        }
+        Relationships: []
+      }
+      seo_keyword_history: {
+        Row: {
+          avg_position: number | null
+          clicks: number | null
+          created_at: string
+          ctr: number | null
+          id: string
+          impressions: number | null
+          keyword_id: string
+          position: number | null
+          recorded_at: string
+          search_volume: number | null
+        }
+        Insert: {
+          avg_position?: number | null
+          clicks?: number | null
+          created_at?: string
+          ctr?: number | null
+          id?: string
+          impressions?: number | null
+          keyword_id: string
+          position?: number | null
+          recorded_at?: string
+          search_volume?: number | null
+        }
+        Update: {
+          avg_position?: number | null
+          clicks?: number | null
+          created_at?: string
+          ctr?: number | null
+          id?: string
+          impressions?: number | null
+          keyword_id?: string
+          position?: number | null
+          recorded_at?: string
+          search_volume?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_keyword_history_keyword_id_fkey"
+            columns: ["keyword_id"]
+            isOneToOne: false
+            referencedRelation: "seo_keywords"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_keywords: {
+        Row: {
+          category: string | null
+          cpc: number | null
+          created_at: string
+          current_position: number | null
+          difficulty_score: number | null
+          id: string
+          keyword: string
+          notes: string | null
+          previous_position: number | null
+          priority: string | null
+          search_volume: number | null
+          status: string | null
+          target_position: number | null
+          target_url: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          cpc?: number | null
+          created_at?: string
+          current_position?: number | null
+          difficulty_score?: number | null
+          id?: string
+          keyword: string
+          notes?: string | null
+          previous_position?: number | null
+          priority?: string | null
+          search_volume?: number | null
+          status?: string | null
+          target_position?: number | null
+          target_url: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          cpc?: number | null
+          created_at?: string
+          current_position?: number | null
+          difficulty_score?: number | null
+          id?: string
+          keyword?: string
+          notes?: string | null
+          previous_position?: number | null
+          priority?: string | null
+          search_volume?: number | null
+          status?: string | null
+          target_position?: number | null
+          target_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_link_analysis: {
+        Row: {
+          anchor_text: string | null
+          anchor_text_quality_score: number | null
+          created_at: string
+          id: string
+          is_broken: boolean | null
+          is_followed: boolean | null
+          last_checked: string | null
+          link_context: string | null
+          link_position: string | null
+          link_type: string | null
+          rel_attribute: string | null
+          source_url: string
+          status_code: number | null
+          target_url: string
+        }
+        Insert: {
+          anchor_text?: string | null
+          anchor_text_quality_score?: number | null
+          created_at?: string
+          id?: string
+          is_broken?: boolean | null
+          is_followed?: boolean | null
+          last_checked?: string | null
+          link_context?: string | null
+          link_position?: string | null
+          link_type?: string | null
+          rel_attribute?: string | null
+          source_url: string
+          status_code?: number | null
+          target_url: string
+        }
+        Update: {
+          anchor_text?: string | null
+          anchor_text_quality_score?: number | null
+          created_at?: string
+          id?: string
+          is_broken?: boolean | null
+          is_followed?: boolean | null
+          last_checked?: string | null
+          link_context?: string | null
+          link_position?: string | null
+          link_type?: string | null
+          rel_attribute?: string | null
+          source_url?: string
+          status_code?: number | null
+          target_url?: string
+        }
+        Relationships: []
+      }
+      seo_mobile_analysis: {
+        Row: {
+          created_at: string
+          google_mobile_friendly_test_passed: boolean | null
+          id: string
+          is_mobile_friendly: boolean | null
+          last_tested: string | null
+          mobile_cls: number | null
+          mobile_fid: number | null
+          mobile_issues: Json | null
+          mobile_lcp: number | null
+          mobile_page_speed_score: number | null
+          mobile_warnings: Json | null
+          no_horizontal_scrolling: boolean | null
+          page_url: string
+          tap_targets_sized: boolean | null
+          text_readable: boolean | null
+          viewport_configured: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          google_mobile_friendly_test_passed?: boolean | null
+          id?: string
+          is_mobile_friendly?: boolean | null
+          last_tested?: string | null
+          mobile_cls?: number | null
+          mobile_fid?: number | null
+          mobile_issues?: Json | null
+          mobile_lcp?: number | null
+          mobile_page_speed_score?: number | null
+          mobile_warnings?: Json | null
+          no_horizontal_scrolling?: boolean | null
+          page_url: string
+          tap_targets_sized?: boolean | null
+          text_readable?: boolean | null
+          viewport_configured?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          google_mobile_friendly_test_passed?: boolean | null
+          id?: string
+          is_mobile_friendly?: boolean | null
+          last_tested?: string | null
+          mobile_cls?: number | null
+          mobile_fid?: number | null
+          mobile_issues?: Json | null
+          mobile_lcp?: number | null
+          mobile_page_speed_score?: number | null
+          mobile_warnings?: Json | null
+          no_horizontal_scrolling?: boolean | null
+          page_url?: string
+          tap_targets_sized?: boolean | null
+          text_readable?: boolean | null
+          viewport_configured?: boolean | null
+        }
+        Relationships: []
+      }
+      seo_monitoring_log: {
+        Row: {
+          created_at: string
+          description: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          related_url: string | null
+          severity: string | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          related_url?: string | null
+          severity?: string | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          related_url?: string | null
+          severity?: string | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      seo_monitoring_schedules: {
+        Row: {
+          created_at: string
+          cron_expression: string | null
+          day_of_month: number | null
+          day_of_week: number | null
+          failed_runs: number | null
+          frequency: string
+          id: string
+          is_active: boolean | null
+          last_run_at: string | null
+          last_run_duration_seconds: number | null
+          last_run_status: string | null
+          monitoring_type: string
+          next_run_at: string | null
+          schedule_name: string
+          target_keywords: string[] | null
+          target_urls: string[] | null
+          time_of_day: string | null
+          total_runs: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cron_expression?: string | null
+          day_of_month?: number | null
+          day_of_week?: number | null
+          failed_runs?: number | null
+          frequency: string
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          last_run_duration_seconds?: number | null
+          last_run_status?: string | null
+          monitoring_type: string
+          next_run_at?: string | null
+          schedule_name: string
+          target_keywords?: string[] | null
+          target_urls?: string[] | null
+          time_of_day?: string | null
+          total_runs?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cron_expression?: string | null
+          day_of_month?: number | null
+          day_of_week?: number | null
+          failed_runs?: number | null
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          last_run_duration_seconds?: number | null
+          last_run_status?: string | null
+          monitoring_type?: string
+          next_run_at?: string | null
+          schedule_name?: string
+          target_keywords?: string[] | null
+          target_urls?: string[] | null
+          time_of_day?: string | null
+          total_runs?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_notification_preferences: {
+        Row: {
+          created_at: string
+          email_address: string | null
+          email_enabled: boolean | null
+          id: string
+          notification_types: string[] | null
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          slack_enabled: boolean | null
+          slack_webhook_url: string | null
+          timezone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_address?: string | null
+          email_enabled?: boolean | null
+          id?: string
+          notification_types?: string[] | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          slack_enabled?: boolean | null
+          slack_webhook_url?: string | null
+          timezone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_address?: string | null
+          email_enabled?: boolean | null
+          id?: string
+          notification_types?: string[] | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          slack_enabled?: boolean | null
+          slack_webhook_url?: string | null
+          timezone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      seo_page_scores: {
+        Row: {
+          alt_text_coverage: number | null
+          content_quality_score: number | null
+          created_at: string
+          external_links_count: number | null
+          has_schema: boolean | null
+          id: string
+          image_count: number | null
+          internal_links_count: number | null
+          issues: Json | null
+          keyword_density: Json | null
+          last_scored: string | null
+          mobile_friendly: boolean | null
+          page_speed_score: number | null
+          page_title: string | null
+          page_type: string | null
+          page_url: string
+          readability_score: number | null
+          schema_types: string[] | null
+          seo_score: number | null
+          updated_at: string
+          word_count: number | null
+        }
+        Insert: {
+          alt_text_coverage?: number | null
+          content_quality_score?: number | null
+          created_at?: string
+          external_links_count?: number | null
+          has_schema?: boolean | null
+          id?: string
+          image_count?: number | null
+          internal_links_count?: number | null
+          issues?: Json | null
+          keyword_density?: Json | null
+          last_scored?: string | null
+          mobile_friendly?: boolean | null
+          page_speed_score?: number | null
+          page_title?: string | null
+          page_type?: string | null
+          page_url: string
+          readability_score?: number | null
+          schema_types?: string[] | null
+          seo_score?: number | null
+          updated_at?: string
+          word_count?: number | null
+        }
+        Update: {
+          alt_text_coverage?: number | null
+          content_quality_score?: number | null
+          created_at?: string
+          external_links_count?: number | null
+          has_schema?: boolean | null
+          id?: string
+          image_count?: number | null
+          internal_links_count?: number | null
+          issues?: Json | null
+          keyword_density?: Json | null
+          last_scored?: string | null
+          mobile_friendly?: boolean | null
+          page_speed_score?: number | null
+          page_title?: string | null
+          page_type?: string | null
+          page_url?: string
+          readability_score?: number | null
+          schema_types?: string[] | null
+          seo_score?: number | null
+          updated_at?: string
+          word_count?: number | null
+        }
+        Relationships: []
+      }
+      seo_performance_budget: {
+        Row: {
+          budget_name: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          max_cls: number | null
+          max_css_size_kb: number | null
+          max_fid_ms: number | null
+          max_font_size_kb: number | null
+          max_image_size_kb: number | null
+          max_js_size_kb: number | null
+          max_lcp_ms: number | null
+          max_load_time_ms: number | null
+          max_page_size_kb: number | null
+          max_requests: number | null
+          max_ttfb_ms: number | null
+          page_pattern: string
+          updated_at: string
+        }
+        Insert: {
+          budget_name: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          max_cls?: number | null
+          max_css_size_kb?: number | null
+          max_fid_ms?: number | null
+          max_font_size_kb?: number | null
+          max_image_size_kb?: number | null
+          max_js_size_kb?: number | null
+          max_lcp_ms?: number | null
+          max_load_time_ms?: number | null
+          max_page_size_kb?: number | null
+          max_requests?: number | null
+          max_ttfb_ms?: number | null
+          page_pattern: string
+          updated_at?: string
+        }
+        Update: {
+          budget_name?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          max_cls?: number | null
+          max_css_size_kb?: number | null
+          max_fid_ms?: number | null
+          max_font_size_kb?: number | null
+          max_image_size_kb?: number | null
+          max_js_size_kb?: number | null
+          max_lcp_ms?: number | null
+          max_load_time_ms?: number | null
+          max_page_size_kb?: number | null
+          max_requests?: number | null
+          max_ttfb_ms?: number | null
+          page_pattern?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_rank_tracking_history: {
+        Row: {
+          created_at: string
+          estimated_clicks: number | null
+          estimated_traffic: number | null
+          id: string
+          keyword: string
+          keyword_id: string | null
+          position: number | null
+          position_change: number | null
+          position_change_percentage: number | null
+          position_type: string | null
+          search_visibility_score: number | null
+          serp_features: Json | null
+          top_10_competitors: Json | null
+          tracked_date: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_clicks?: number | null
+          estimated_traffic?: number | null
+          id?: string
+          keyword: string
+          keyword_id?: string | null
+          position?: number | null
+          position_change?: number | null
+          position_change_percentage?: number | null
+          position_type?: string | null
+          search_visibility_score?: number | null
+          serp_features?: Json | null
+          top_10_competitors?: Json | null
+          tracked_date?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          estimated_clicks?: number | null
+          estimated_traffic?: number | null
+          id?: string
+          keyword?: string
+          keyword_id?: string | null
+          position?: number | null
+          position_change?: number | null
+          position_change_percentage?: number | null
+          position_type?: string | null
+          search_visibility_score?: number | null
+          serp_features?: Json | null
+          top_10_competitors?: Json | null
+          tracked_date?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_rank_tracking_history_keyword_id_fkey"
+            columns: ["keyword_id"]
+            isOneToOne: false
+            referencedRelation: "seo_keywords"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_redirect_analysis: {
+        Row: {
+          chain_length: number | null
+          created_at: string
+          destination_url: string
+          has_redirect_chain: boolean | null
+          id: string
+          is_permanent: boolean | null
+          is_valid: boolean | null
+          issues: Json | null
+          last_checked: string | null
+          redirect_chain: Json | null
+          redirect_type: string | null
+          source_url: string
+          total_time_ms: number | null
+        }
+        Insert: {
+          chain_length?: number | null
+          created_at?: string
+          destination_url: string
+          has_redirect_chain?: boolean | null
+          id?: string
+          is_permanent?: boolean | null
+          is_valid?: boolean | null
+          issues?: Json | null
+          last_checked?: string | null
+          redirect_chain?: Json | null
+          redirect_type?: string | null
+          source_url: string
+          total_time_ms?: number | null
+        }
+        Update: {
+          chain_length?: number | null
+          created_at?: string
+          destination_url?: string
+          has_redirect_chain?: boolean | null
+          id?: string
+          is_permanent?: boolean | null
+          is_valid?: boolean | null
+          issues?: Json | null
+          last_checked?: string | null
+          redirect_chain?: Json | null
+          redirect_type?: string | null
+          source_url?: string
+          total_time_ms?: number | null
+        }
+        Relationships: []
+      }
+      seo_security_analysis: {
+        Row: {
+          created_at: string
+          has_csp: boolean | null
+          has_hsts: boolean | null
+          has_https: boolean | null
+          has_referrer_policy: boolean | null
+          has_x_content_type_options: boolean | null
+          has_x_frame_options: boolean | null
+          id: string
+          issues: Json | null
+          last_checked: string | null
+          recommendations: Json | null
+          security_headers: Json | null
+          security_score: number | null
+          ssl_expiry_date: string | null
+          ssl_issuer: string | null
+          ssl_valid: boolean | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          has_csp?: boolean | null
+          has_hsts?: boolean | null
+          has_https?: boolean | null
+          has_referrer_policy?: boolean | null
+          has_x_content_type_options?: boolean | null
+          has_x_frame_options?: boolean | null
+          id?: string
+          issues?: Json | null
+          last_checked?: string | null
+          recommendations?: Json | null
+          security_headers?: Json | null
+          security_score?: number | null
+          ssl_expiry_date?: string | null
+          ssl_issuer?: string | null
+          ssl_valid?: boolean | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          has_csp?: boolean | null
+          has_hsts?: boolean | null
+          has_https?: boolean | null
+          has_referrer_policy?: boolean | null
+          has_x_content_type_options?: boolean | null
+          has_x_frame_options?: boolean | null
+          id?: string
+          issues?: Json | null
+          last_checked?: string | null
+          recommendations?: Json | null
+          security_headers?: Json | null
+          security_score?: number | null
+          ssl_expiry_date?: string | null
+          ssl_issuer?: string | null
+          ssl_valid?: boolean | null
+          url?: string
+        }
+        Relationships: []
+      }
+      seo_serp_positions: {
+        Row: {
+          created_at: string
+          description: string | null
+          device: string | null
+          display_url: string | null
+          has_featured_snippet: boolean | null
+          has_image_pack: boolean | null
+          has_knowledge_panel: boolean | null
+          has_local_pack: boolean | null
+          has_people_also_ask: boolean | null
+          has_video_carousel: boolean | null
+          id: string
+          keyword: string
+          language: string | null
+          location: string | null
+          position: number | null
+          position_change: number | null
+          previous_position: number | null
+          search_engine: string | null
+          title: string | null
+          tracked_date: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          device?: string | null
+          display_url?: string | null
+          has_featured_snippet?: boolean | null
+          has_image_pack?: boolean | null
+          has_knowledge_panel?: boolean | null
+          has_local_pack?: boolean | null
+          has_people_also_ask?: boolean | null
+          has_video_carousel?: boolean | null
+          id?: string
+          keyword: string
+          language?: string | null
+          location?: string | null
+          position?: number | null
+          position_change?: number | null
+          previous_position?: number | null
+          search_engine?: string | null
+          title?: string | null
+          tracked_date?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          device?: string | null
+          display_url?: string | null
+          has_featured_snippet?: boolean | null
+          has_image_pack?: boolean | null
+          has_knowledge_panel?: boolean | null
+          has_local_pack?: boolean | null
+          has_people_also_ask?: boolean | null
+          has_video_carousel?: boolean | null
+          id?: string
+          keyword?: string
+          language?: string | null
+          location?: string | null
+          position?: number | null
+          position_change?: number | null
+          previous_position?: number | null
+          search_engine?: string | null
+          title?: string | null
+          tracked_date?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      seo_settings: {
+        Row: {
+          created_at: string
+          default_keywords: string[] | null
+          default_meta_description: string | null
+          default_meta_title: string | null
+          default_og_image: string | null
+          google_analytics_id: string | null
+          google_search_console_verified: boolean | null
+          id: string
+          robots_txt_content: string | null
+          site_name: string
+          site_url: string
+          sitemap_enabled: boolean | null
+          sitemap_last_generated: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_keywords?: string[] | null
+          default_meta_description?: string | null
+          default_meta_title?: string | null
+          default_og_image?: string | null
+          google_analytics_id?: string | null
+          google_search_console_verified?: boolean | null
+          id?: string
+          robots_txt_content?: string | null
+          site_name: string
+          site_url: string
+          sitemap_enabled?: boolean | null
+          sitemap_last_generated?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_keywords?: string[] | null
+          default_meta_description?: string | null
+          default_meta_title?: string | null
+          default_og_image?: string | null
+          google_analytics_id?: string | null
+          google_search_console_verified?: boolean | null
+          id?: string
+          robots_txt_content?: string | null
+          site_name?: string
+          site_url?: string
+          sitemap_enabled?: boolean | null
+          sitemap_last_generated?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_structured_data: {
+        Row: {
+          created_at: string
+          eligible_for_rich_snippets: boolean | null
+          id: string
+          is_valid: boolean | null
+          last_validated: string | null
+          page_url: string
+          rich_snippet_types: string[] | null
+          schema_data: Json
+          schema_type: string
+          validation_errors: Json | null
+          validation_warnings: Json | null
+        }
+        Insert: {
+          created_at?: string
+          eligible_for_rich_snippets?: boolean | null
+          id?: string
+          is_valid?: boolean | null
+          last_validated?: string | null
+          page_url: string
+          rich_snippet_types?: string[] | null
+          schema_data: Json
+          schema_type: string
+          validation_errors?: Json | null
+          validation_warnings?: Json | null
+        }
+        Update: {
+          created_at?: string
+          eligible_for_rich_snippets?: boolean | null
+          id?: string
+          is_valid?: boolean | null
+          last_validated?: string | null
+          page_url?: string
+          rich_snippet_types?: string[] | null
+          schema_data?: Json
+          schema_type?: string
+          validation_errors?: Json | null
+          validation_warnings?: Json | null
+        }
+        Relationships: []
       }
       shipping_zones: {
         Row: {
@@ -4568,6 +6759,7 @@ export type Database = {
       }
     }
     Functions: {
+      aggregate_daily_revenue: { Args: { p_date: string }; Returns: undefined }
       auto_resolve_stale_alerts: { Args: never; Returns: number }
       calculate_blog_seo_score: {
         Args: {
@@ -4583,6 +6775,35 @@ export type Database = {
       calculate_category_growth_rate: {
         Args: { category_uuid: string; days_back?: number }
         Returns: number
+      }
+      calculate_keyword_opportunity_score: {
+        Args: {
+          p_competitor_position: number
+          p_current_position: number
+          p_difficulty: number
+          p_search_volume: number
+        }
+        Returns: number
+      }
+      calculate_next_run_time: {
+        Args: {
+          schedule_record: Database["public"]["Tables"]["seo_monitoring_schedules"]["Row"]
+        }
+        Returns: string
+      }
+      calculate_platform_fee: {
+        Args: {
+          p_calculation_date?: string
+          p_category_id: string
+          p_order_value: number
+          p_seller_id: string
+        }
+        Returns: {
+          calculated_fee: number
+          fee_config_id: string
+          fee_rate: number
+          flat_fee: number
+        }[]
       }
       calculate_sla_metrics: {
         Args: { end_date: string; start_date: string }
