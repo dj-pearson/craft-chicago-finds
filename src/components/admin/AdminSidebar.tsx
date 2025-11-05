@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   BarChart3,
   MapPin,
@@ -9,6 +10,7 @@ import {
   Share2,
   ShieldAlert,
   Activity,
+  Search,
 } from "lucide-react";
 import {
   Sidebar,
@@ -49,6 +51,7 @@ const navigationItems = [
     items: [
       { id: "ai", label: "AI Settings", icon: Brain },
       { id: "analytics", label: "Analytics", icon: BarChart3 },
+      { id: "seo", label: "SEO Management", icon: Search, isLink: true, path: "/admin/seo" },
     ],
   },
   {
@@ -67,6 +70,7 @@ const navigationItems = [
 export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
+  const navigate = useNavigate();
 
   return (
     <Sidebar collapsible="icon">
@@ -87,7 +91,13 @@ export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
                   return (
                     <SidebarMenuItem key={item.id}>
                       <SidebarMenuButton
-                        onClick={() => onTabChange(item.id)}
+                        onClick={() => {
+                          if (item.isLink && item.path) {
+                            navigate(item.path);
+                          } else {
+                            onTabChange(item.id);
+                          }
+                        }}
                         isActive={isActive}
                         tooltip={isCollapsed ? item.label : undefined}
                       >

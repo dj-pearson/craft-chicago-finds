@@ -52,6 +52,7 @@ const SafetyGuidelines = lazy(() => import("./pages/SafetyGuidelines"));
 const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
 const W9Submission = lazy(() => import("./pages/W9Submission"));
 const FeaturedMakers = lazy(() => import("./pages/FeaturedMakers"));
+const SEODashboard = lazy(() => import("./pages/SEODashboard"));
 
 // Configure React Query with optimized caching
 const queryClient = new QueryClient({
@@ -91,6 +92,11 @@ const App = () => {
                 <Route path="/admin" element={
                   <ProtectedRoute requireAdmin>
                     <AdminDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/seo" element={
+                  <ProtectedRoute requireAdmin>
+                    <SEODashboard />
                   </ProtectedRoute>
                 } />
                 
