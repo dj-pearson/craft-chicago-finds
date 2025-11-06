@@ -7,7 +7,7 @@ import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { LocalSEO } from "@/components/seo";
 import { useCityContext } from "@/hooks/useCityContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 
 // Lazy load below-the-fold components
 const FeaturedMakers = lazy(() => import("@/components/FeaturedMakers").then(module => ({ default: module.FeaturedMakers })));

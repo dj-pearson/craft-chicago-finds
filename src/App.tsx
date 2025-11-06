@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./hooks/useAuth";
 import { AdminProvider } from "./hooks/useAdmin";
@@ -54,23 +53,9 @@ const W9Submission = lazy(() => import("./pages/W9Submission"));
 const FeaturedMakers = lazy(() => import("./pages/FeaturedMakers"));
 const SEODashboard = lazy(() => import("./pages/SEODashboard"));
 
-// Configure React Query with optimized caching
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
-      retry: 1, // Reduce retries for faster failure feedback
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false, // Reduce unnecessary network calls
-    },
-  },
-});
-
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
+    <ErrorBoundary>
         <AccessibilityProvider>
           <AuthProvider>
             <PlansProvider>
@@ -176,7 +161,6 @@ const App = () => {
       </AuthProvider>
       </AccessibilityProvider>
     </ErrorBoundary>
-    </QueryClientProvider>
   );
 };
 

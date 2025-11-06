@@ -1,7 +1,16 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 
-const stripePromise = loadStripe('pk_test_51QM5vxFxgc4C2V6oEKrEqyKmXqU6FeSzKEu2YJHFlXYkV8V1r3JcH8AcXNJqWHWYO8TLHtPJqWZhN1pQN1qJ9Kk900e7x1pGm9');
+const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+
+if (!STRIPE_PUBLISHABLE_KEY) {
+  throw new Error(
+    'Missing Stripe publishable key. ' +
+    'Please ensure VITE_STRIPE_PUBLISHABLE_KEY is set in your .env file.'
+  );
+}
+
+const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
 interface StripeContextType {
   stripe: Stripe | null;

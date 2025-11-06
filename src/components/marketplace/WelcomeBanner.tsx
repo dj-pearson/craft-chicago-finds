@@ -3,7 +3,7 @@
  * Shows personalized message for authenticated users
  */
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, Heart, Package } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
