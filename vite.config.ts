@@ -28,14 +28,45 @@ export default defineConfig(({ mode }) => ({
     },
     rollupOptions: {
       output: {
-        // Manual chunking for better caching
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs'],
-          utils: ['clsx', 'tailwind-merge', 'date-fns'],
-          supabase: ['@supabase/supabase-js'],
-          analytics: ['react-helmet-async'],
+        // Improved manual chunking for better caching and reduced bundle sizes
+        manualChunks: (id) => {
+          // Core vendor chunks
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'vendor';
+          }
+          if (id.includes('node_modules/react-router-dom/')) {
+            return 'router';
+          }
+          // Group all Radix UI components together but separate from other vendor code
+          if (id.includes('node_modules/@radix-ui/')) {
+            return 'radix-ui';
+          }
+          // Separate large libraries
+          if (id.includes('node_modules/framer-motion/')) {
+            return 'framer';
+          }
+          if (id.includes('node_modules/recharts/')) {
+            return 'recharts';
+          }
+          // Utility libraries
+          if (id.includes('node_modules/clsx/') || id.includes('node_modules/tailwind-merge/') ||
+              id.includes('node_modules/date-fns/')) {
+            return 'utils';
+          }
+          // Backend services
+          if (id.includes('node_modules/@supabase/')) {
+            return 'supabase';
+          }
+          if (id.includes('node_modules/@stripe/')) {
+            return 'stripe';
+          }
+          if (id.includes('node_modules/@tanstack/react-query/')) {
+            return 'react-query';
+          }
+          // SEO and analytics
+          if (id.includes('node_modules/react-helmet-async/')) {
+            return 'analytics';
+          }
         },
         // Consistent naming for better caching
         chunkFileNames: 'assets/js/[name]-[hash].js',
