@@ -16,6 +16,7 @@ import { useListings, type Listing, type FilterOptions } from "@/hooks/queries/u
 import { useCategories, type Category } from "@/hooks/queries/useCategories";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { SEOHead } from "@/components/seo/SEOHead";
 
 // Re-export types for other components
 export type { Listing, Category, FilterOptions };
@@ -113,8 +114,94 @@ const Browse = () => {
 
   // Allow anonymous browsing - user is optional
 
+  // Generate SEO metadata for browse page
+  const browseUrl = `https://craftchicagofinds.com/${currentCity.slug}/browse`;
+  const categoryFilter = filters.category;
+  const selectedCategory = categories.find(c => c.slug === categoryFilter);
+
+  const seoTitle = categoryFilter && selectedCategory
+    ? `Browse ${selectedCategory.name} in ${currentCity.name} | Handmade Goods`
+    : `Browse Handmade Goods in ${currentCity.name} | Local Artisan Marketplace`;
+
+  const seoDescription = categoryFilter && selectedCategory
+    ? `Discover handmade ${selectedCategory.name.toLowerCase()} from local artisans in ${currentCity.name}. Browse ${listings.length}+ unique products. Shop pottery, jewelry, textiles, and more from ${currentCity.name} makers.`
+    : `Browse ${listings.length}+ handmade products from local ${currentCity.name} artisans. Filter by category, price, and style. Shop pottery, jewelry, textiles, art, and more. Support local craft.`;
+
+  // CollectionPage Schema
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": `Handmade Goods in ${currentCity.name}`,
+    "description": seoDescription,
+    "url": browseUrl,
+    "numberOfItems": listings.length,
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Craft Chicago Finds",
+      "url": "https://craftchicagofinds.com"
+    }
+  };
+
+  // Breadcrumb Schema
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://craftchicagofinds.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": currentCity.name,
+        "item": `https://craftchicagofinds.com/${currentCity.slug}`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Browse"
+      }
+    ]
+  };
+
+  const seoConfig = {
+    title: seoTitle,
+    description: seoDescription,
+    keywords: [
+      `${currentCity.name.toLowerCase()} handmade`,
+      `${currentCity.name.toLowerCase()} browse`,
+      `handmade marketplace ${currentCity.name.toLowerCase()}`,
+      'local artisan products',
+      'browse handmade goods',
+      ...(categoryFilter && selectedCategory ? [selectedCategory.name.toLowerCase()] : []),
+      'shop local',
+      'artisan crafts'
+    ],
+    canonical: browseUrl, // Always canonical to base URL, regardless of filters
+    openGraph: {
+      title: seoTitle,
+      description: seoDescription,
+      type: 'website',
+      url: browseUrl,
+      image: "https://craftchicagofinds.com/logo-optimized.webp"
+    },
+    twitter: {
+      card: 'summary',
+      title: seoTitle,
+      description: seoDescription
+    },
+    schema: [collectionSchema, breadcrumbSchema]
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead config={seoConfig}>
+        {currentCity.state && <meta name="geo.region" content={`US-${currentCity.state}`} />}
+        <meta name="geo.placename" content={currentCity.name} />
+      </SEOHead>
       <Header />
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
