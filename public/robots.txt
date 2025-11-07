@@ -18,15 +18,13 @@ User-agent: YouBot
 Allow: /
 
 # Disallow admin and private areas
-Disallow: /admin/
-Disallow: /api/
-Disallow: /checkout/
-Disallow: /cart/
-Disallow: /account/
-Disallow: /search?*
-Disallow: /*?sort=*
-Disallow: /*?filter=*
-Disallow: /*?page=*
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /checkout
+Disallow: /cart
+Disallow: /login
+Disallow: /register
+Disallow: /account
 
 # Allow important pages
 Allow: /products/
@@ -37,12 +35,11 @@ Allow: /blog/
 Allow: /guides/
 
 # Sitemap locations
-Sitemap: https://craftlocal.com/sitemap-index.xml
-Sitemap: https://craftlocal.com/sitemap.xml
-Sitemap: https://craftlocal.com/sitemap-products.xml
-Sitemap: https://craftlocal.com/sitemap-sellers.xml
-Sitemap: https://craftlocal.com/sitemap-cities.xml
-Sitemap: https://craftlocal.com/sitemap-blog.xml
+Sitemap: https://craftchicagofinds.com/sitemap.xml
+Sitemap: https://craftchicagofinds.com/sitemap-pages.xml
+Sitemap: https://craftchicagofinds.com/sitemap-products.xml
+Sitemap: https://craftchicagofinds.com/sitemap-cities.xml
+Sitemap: https://craftchicagofinds.com/sitemap-blog.xml
 
 # Crawl delay to be respectful
 Crawl-delay: 1

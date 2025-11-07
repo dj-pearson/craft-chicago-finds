@@ -8,6 +8,8 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SEOHead } from "@/components/seo/SEOHead";
+import { FAQSection } from "@/components/seo/FAQSection";
 
 interface City {
   id: string;
@@ -50,8 +52,79 @@ const Landing = () => {
     fetchCities();
   }, []);
 
+  // SEO configuration for homepage
+  const activeCities = cities.filter(c => c.is_active);
+  const cityNames = activeCities.map(c => c.name).join(', ');
+
+  const seoTitle = "Craft Chicago Finds - Local Handmade Goods Marketplace | Support Local Artisans";
+  const seoDescription = `Discover unique handmade products from local artisans. Shop pottery, jewelry, textiles, and art directly from makers in ${cityNames || 'your city'}. Support local craft and find one-of-a-kind treasures.`;
+
+  // Organization Schema
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Craft Chicago Finds",
+    "url": "https://craftchicagofinds.com",
+    "logo": "https://craftchicagofinds.com/logo-optimized.webp",
+    "description": "Local artisan marketplace connecting makers with communities",
+    "sameAs": [
+      "https://www.facebook.com/craftchicagofinds",
+      "https://www.instagram.com/craftchicagofinds",
+      "https://twitter.com/craftchicago"
+    ]
+  };
+
+  // WebSite Schema with SearchAction
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Craft Chicago Finds",
+    "url": "https://craftchicagofinds.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://craftchicagofinds.com/{city}/browse?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  };
+
+  const seoConfig = {
+    title: seoTitle,
+    description: seoDescription,
+    keywords: [
+      'handmade marketplace',
+      'local artisans',
+      'handmade goods',
+      'support local',
+      'craft marketplace',
+      'artisan products',
+      'handmade jewelry',
+      'handmade pottery',
+      'local makers',
+      'buy handmade'
+    ],
+    canonical: "https://craftchicagofinds.com",
+    openGraph: {
+      title: "Craft Chicago Finds - Local Handmade Goods Marketplace",
+      description: seoDescription,
+      type: 'website',
+      url: "https://craftchicagofinds.com",
+      image: "https://craftchicagofinds.com/logo-optimized.webp"
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: "Craft Chicago Finds",
+      description: seoDescription,
+      site: '@craftchicago'
+    },
+    schema: [organizationSchema, websiteSchema]
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead config={seoConfig} />
       <Header />
 
       <main id="main-content" role="main">
@@ -177,6 +250,57 @@ const Landing = () => {
                 </p>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* FAQ Section for AI Search Optimization */}
+        <section className="py-16 px-4 bg-muted/30">
+          <div className="container mx-auto max-w-4xl">
+            <FAQSection
+              title="Frequently Asked Questions"
+              faqs={[
+                {
+                  question: "What is Craft Chicago Finds?",
+                  answer: "Craft Chicago Finds is a local artisan marketplace connecting handmade goods makers with communities. We focus on supporting independent artisans by providing a platform to sell their handcrafted products including pottery, jewelry, textiles, art, and more. Unlike national marketplaces, we emphasize local connections and community support."
+                },
+                {
+                  question: "How does Craft Chicago Finds work?",
+                  answer: "Browse our city-specific marketplaces to discover local artisans and their handmade products. When you find something you love, you can purchase directly through our platform. Many sellers offer local pickup options, or they can ship nationwide. Create a free account to message sellers, save favorites, and complete purchases."
+                },
+                {
+                  question: "Is shipping available nationwide?",
+                  answer: "Yes! While we focus on local connections, most of our artisans ship their handmade goods anywhere in the United States. Shipping costs and times vary by seller and location. Check individual product pages for specific shipping information."
+                },
+                {
+                  question: "Are all products handmade?",
+                  answer: "Yes, absolutely. All products on Craft Chicago Finds are handmade by independent artisans. We verify each seller to ensure authentic, handcrafted goods. Every purchase supports a real person pursuing their creative passion and contributes to the local economy."
+                },
+                {
+                  question: "How do I become a seller?",
+                  answer: "We welcome local artisans and makers! Create a free seller account, set up your shop, and start listing your handmade products. Our platform provides tools for inventory management, order processing, customer communication, and analytics. We charge a small commission on sales to maintain the platform."
+                },
+                {
+                  question: "What payment methods are accepted?",
+                  answer: "We accept all major credit cards, debit cards, and digital payment methods through our secure Stripe integration. All transactions are processed securely, and your payment information is never stored on our servers."
+                },
+                {
+                  question: "Can I return handmade items?",
+                  answer: "Return policies vary by seller, as each artisan sets their own shop policies. We encourage buyers to review the seller's return policy before purchasing and to contact sellers with questions. Most artisans are happy to work with you if there's an issue with your order."
+                },
+                {
+                  question: "How do I contact sellers?",
+                  answer: "Once you create a free account, you can message sellers directly through our platform. This allows you to ask questions about products, request custom orders, arrange local pickup, or discuss any special requirements before purchasing."
+                },
+                {
+                  question: "What cities are currently available?",
+                  answer: `We're currently active in ${cityNames || 'several cities'} with more cities launching soon. If your city isn't listed yet, request it and we'll notify you when we launch in your area. Our goal is to connect artisan communities nationwide.`
+                },
+                {
+                  question: "How is Craft Chicago Finds different from Etsy?",
+                  answer: "While Etsy is a national marketplace, Craft Chicago Finds focuses exclusively on local artisan communities. This makes it easier to find makers in your city, arrange local pickup, meet artisans in person, and support your local creative economy. We prioritize community connections over scale."
+                }
+              ]}
+            />
           </div>
         </section>
       </main>
