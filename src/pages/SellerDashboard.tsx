@@ -31,11 +31,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Plus, 
-  Package, 
-  TrendingUp, 
-  MessageSquare, 
+import {
+  Plus,
+  Package,
+  TrendingUp,
+  MessageSquare,
   DollarSign,
   Eye,
   ShoppingCart,
@@ -46,7 +46,8 @@ import {
   ShieldCheck,
   FileText,
   Scale,
-  Shield
+  Shield,
+  AlertTriangle
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -242,7 +243,12 @@ export default function SellerDashboard() {
                   Pending Verification
                 </Badge>
               )}
-              <Button onClick={() => navigate("/create-listing")} className="gap-2">
+              <Button
+                onClick={() => navigate("/create-listing")}
+                className="gap-2"
+                disabled={!(profile as any)?.stripe_account_id}
+                title={!(profile as any)?.stripe_account_id ? "Connect Stripe account to create listings" : ""}
+              >
                 <Plus className="h-4 w-4" />
                 New Listing
               </Button>
@@ -255,18 +261,29 @@ export default function SellerDashboard() {
           <ComplianceNotifications />
         </div>
 
-        {/* Stripe Onboarding Modal */}
+        {/* Stripe Onboarding - Required */}
         {showStripeOnboarding && (
           <div className="mb-8">
-            <Card className="border-primary/20 bg-primary/5">
+            <Card className="border-orange-300 bg-orange-50">
               <CardHeader>
-                <CardTitle className="text-primary">Complete Your Payment Setup</CardTitle>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <AlertTriangle className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-orange-900">Payment Setup Required</CardTitle>
+                    <p className="text-sm text-orange-800 mt-1">
+                      You must connect your Stripe account before you can create listings or receive payments.
+                      This is a one-time setup that takes about 5 minutes.
+                    </p>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  To start selling and receiving payments, you need to set up your Stripe account.
+                <StripeOnboarding onComplete={() => window.location.reload()} />
+                <p className="text-xs text-orange-700 mt-4">
+                  <strong>Note:</strong> The "New Listing" button will be enabled once Stripe setup is complete.
                 </p>
-                <StripeOnboarding onComplete={() => setShowStripeOnboarding(false)} />
               </CardContent>
             </Card>
           </div>

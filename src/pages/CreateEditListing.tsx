@@ -79,8 +79,15 @@ const CreateEditListing = () => {
       return;
     }
 
+    // Check Stripe connection for new listings (editing existing is allowed)
+    if (!isEditing && !(profile as any)?.stripe_account_id) {
+      toast.error("Please connect your Stripe account before creating listings");
+      navigate("/dashboard");
+      return;
+    }
+
     fetchCategories();
-    
+
     if (isEditing) {
       fetchListing();
     }
