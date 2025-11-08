@@ -43,6 +43,8 @@ export const OrderList = ({ type, onOrderSelect }: OrderListProps) => {
 
     const fetchOrders = async () => {
       try {
+        // PERFORMANCE FIX: Use PostgreSQL JSON relations to fetch profiles in one query
+        // This eliminates N+1 pattern: 10 orders = 1 query instead of 21 queries (1 + 10*2)
         const query = supabase
           .from("orders")
           .select(`
@@ -53,7 +55,11 @@ export const OrderList = ({ type, onOrderSelect }: OrderListProps) => {
             quantity,
             created_at,
             fulfillment_method,
-            listings!inner(title, images)
+            buyer_id,
+            seller_id,
+            listings!inner(title, images),
+            buyer_profile:profiles!buyer_id(display_name),
+            seller_profile:profiles!seller_id(display_name)
           `)
           .order("created_at", { ascending: false });
 
@@ -70,21 +76,14 @@ export const OrderList = ({ type, onOrderSelect }: OrderListProps) => {
           return;
         }
 
-        // Get additional profile data for display
-        const ordersWithProfiles = await Promise.all((data || []).map(async (order: any) => {
-          const [buyerProfile, sellerProfile] = await Promise.all([
-            supabase.from("profiles").select("display_name").eq("user_id", order.buyer_id).single(),
-            supabase.from("profiles").select("display_name").eq("user_id", order.seller_id).single()
-          ]);
-          
-          return {
-            ...order,
-            listing: order.listings,
-            buyer_profile: buyerProfile.data,
-            seller_profile: sellerProfile.data
-          };
+        // No need for additional queries - profiles are already fetched!
+        const ordersWithProfiles = (data || []).map((order: any) => ({
+          ...order,
+          listing: order.listings,
+          buyer_profile: order.buyer_profile,
+          seller_profile: order.seller_profile
         }));
-        
+
         setOrders(ordersWithProfiles);
       } catch (error) {
         console.error("Error fetching orders:", error);
