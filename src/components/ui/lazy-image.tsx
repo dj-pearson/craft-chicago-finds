@@ -7,6 +7,11 @@ interface LazyImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   className?: string;
   fallback?: React.ReactNode;
   loading?: "lazy" | "eager";
+  // PERFORMANCE: Added responsive image support
+  srcSet?: string;
+  sizes?: string;
+  // PERFORMANCE: WebP/AVIF support (auto-detect from URL)
+  enableWebP?: boolean;
 }
 
 export const LazyImage = ({
@@ -15,12 +20,15 @@ export const LazyImage = ({
   className,
   fallback,
   loading = "lazy",
+  srcSet,
+  sizes = "100vw",
+  enableWebP = true,
   ...props
 }: LazyImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [isInView, setIsInView] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
+  const imgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -32,7 +40,8 @@ export const LazyImage = ({
       },
       {
         threshold: 0.1,
-        rootMargin: "50px",
+        // PERFORMANCE: Increased rootMargin for earlier preloading
+        rootMargin: "100px",
       }
     );
 
@@ -55,34 +64,75 @@ export const LazyImage = ({
 
   const shouldLoad = loading === "eager" || isInView;
 
+  // PERFORMANCE: Auto-generate WebP URL if original is JPG/PNG
+  const getWebPSrc = (originalSrc: string): string | null => {
+    if (!enableWebP) return null;
+
+    // Check if URL has common image extensions
+    if (originalSrc.match(/\.(jpg|jpeg|png)$/i)) {
+      return originalSrc.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+    }
+
+    // For Supabase Storage URLs, try appending format parameter
+    if (originalSrc.includes('supabase') && !originalSrc.includes('format=')) {
+      const separator = originalSrc.includes('?') ? '&' : '?';
+      return `${originalSrc}${separator}format=webp`;
+    }
+
+    return null;
+  };
+
+  const webpSrc = getWebPSrc(src);
+  const webpSrcSet = srcSet && enableWebP
+    ? srcSet.split(',').map(s => {
+        const [url, descriptor] = s.trim().split(' ');
+        const webpUrl = getWebPSrc(url);
+        return webpUrl ? `${webpUrl} ${descriptor || ''}`.trim() : s;
+      }).join(', ')
+    : null;
+
   return (
     <div ref={imgRef} className={cn("relative overflow-hidden", className)}>
       {shouldLoad && (
-        <img
-          src={src}
-          alt={alt}
-          onLoad={handleLoad}
-          onError={handleError}
-          className={cn(
-            "transition-opacity duration-300",
-            isLoaded ? "opacity-100" : "opacity-0",
-            hasError && "hidden",
-            className
+        <picture>
+          {/* PERFORMANCE: WebP source for modern browsers */}
+          {webpSrc && (
+            <source
+              srcSet={webpSrcSet || webpSrc}
+              type="image/webp"
+              sizes={sizes}
+            />
           )}
-          {...props}
-        />
+
+          {/* Fallback to original format */}
+          <img
+            src={src}
+            srcSet={srcSet}
+            sizes={sizes}
+            alt={alt}
+            onLoad={handleLoad}
+            onError={handleError}
+            loading={loading}
+            decoding="async"
+            className={cn(
+              "transition-opacity duration-300",
+              isLoaded ? "opacity-100" : "opacity-0",
+              hasError && "hidden",
+              className
+            )}
+            {...props}
+          />
+        </picture>
       )}
 
       {/* Loading placeholder */}
       {!isLoaded && !hasError && shouldLoad && (
         <div
           className={cn(
-            "absolute inset-0 bg-muted animate-pulse flex items-center justify-center",
+            "absolute inset-0 bg-muted animate-pulse",
             className
           )}
-        >
-          <div className="w-8 h-8 border-2 border-muted-foreground/20 border-t-muted-foreground/60 rounded-full animate-spin" />
-        </div>
+        />
       )}
 
       {/* Error fallback */}
