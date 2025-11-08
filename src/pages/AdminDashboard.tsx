@@ -41,6 +41,9 @@ import { FraudDetectionDashboard } from "@/components/admin/FraudDetectionDashbo
 import { ReviewModerationQueue } from "@/components/admin/ReviewModerationQueue";
 import { ProtectionClaimsQueue } from "@/components/admin/ProtectionClaimsQueue";
 import { DisputeManagement } from "@/components/admin/DisputeManagement";
+import { SupportHub } from "@/components/admin/support";
+import { SmartModerationQueue } from "@/components/admin/SmartModerationQueue";
+import { ProactiveOperationsDashboard } from "@/components/admin/ProactiveOperationsDashboard";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -271,9 +274,12 @@ const AdminDashboard = () => {
             {activeTab === "cities" && <CityManager />}
             {activeTab === "users" && <UserManager />}
             {activeTab === "content" && <ContentManager />}
+            {activeTab === "support" && <SupportHub />}
             {activeTab === "ai" && <AISettingsManager />}
             {activeTab === "blog" && <BlogManager />}
             {activeTab === "social" && <SocialMediaManager />}
+            {activeTab === "operations" && <ProactiveOperationsDashboard />}
+            {activeTab === "smart-moderation" && <SmartModerationQueue />}
             {activeTab === "analytics" && <AnalyticsDashboard />}
             
             {activeTab === "moderation" && (
