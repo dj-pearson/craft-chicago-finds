@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Loader2, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GiftModeToggle } from "@/components/cart/GiftModeToggle";
 import { SubtleSignupPrompt } from "@/components/auth/SubtleSignupPrompt";
@@ -87,6 +89,21 @@ export const CartPage = () => {
 
         {/* Subtle signup prompt for anonymous users */}
         <SubtleSignupPrompt variant="cart" className="mb-6" />
+
+        {/* Multi-Seller Warning */}
+        {Object.keys(itemsBySeller).length > 1 && (
+          <Alert className="mb-6 border-blue-200 bg-blue-50">
+            <Info className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-900">
+              <strong>Multiple Sellers in Your Cart</strong>
+              <p className="mt-1 text-sm">
+                Your cart contains items from {Object.keys(itemsBySeller).length} different sellers.
+                This will create {Object.keys(itemsBySeller).length} separate orders, and your card will be charged
+                {Object.keys(itemsBySeller).length} times. Each seller ships independently.
+              </p>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
@@ -235,7 +252,19 @@ export const CartPage = () => {
                     <span>${totalAmount.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Platform fee (10%)</span>
+                    <div className="flex items-center gap-1">
+                      <span>Platform fee (10%)</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3 w-3 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-xs">
+                            Supports platform maintenance, payment processing, seller tools, and customer support.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <span>${platformFee.toFixed(2)}</span>
                   </div>
                   <Separator />

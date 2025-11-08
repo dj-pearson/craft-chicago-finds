@@ -541,6 +541,11 @@ export const GuestCheckout = () => {
                   <p>• Secure payment with Stripe</p>
                   <p>• Apple Pay / Google Pay available</p>
                   <p>• No account required</p>
+                  {Object.keys(itemsBySeller).length > 1 && (
+                    <p className="text-blue-900 font-medium">
+                      • Your card will be charged {Object.keys(itemsBySeller).length} times (one per seller)
+                    </p>
+                  )}
                   <p>• Individual tracking for each seller</p>
                 </div>
               </CardContent>
