@@ -185,7 +185,7 @@ export const GuestCheckout = () => {
             scheduled_ship_date: giftMode.scheduledShipDate,
             hide_prices: giftMode.hidePrices
           } : null,
-          success_url: `${window.location.origin}/orders?checkout=success&guest=true`,
+          success_url: `${window.location.origin}/order-confirmation?checkout=success&guest=true`,
           cancel_url: `${window.location.origin}/cart`
         }
       });
@@ -201,8 +201,8 @@ export const GuestCheckout = () => {
         });
       }
 
-      // Clear cart and redirect to Stripe Checkout
-      clearCart();
+      // Redirect to Stripe Checkout
+      // Note: Cart will be cleared after successful payment confirmation
       window.location.href = sessionData.url;
     } catch (error) {
       console.error('Checkout error:', error);
@@ -541,6 +541,11 @@ export const GuestCheckout = () => {
                   <p>• Secure payment with Stripe</p>
                   <p>• Apple Pay / Google Pay available</p>
                   <p>• No account required</p>
+                  {Object.keys(itemsBySeller).length > 1 && (
+                    <p className="text-blue-900 font-medium">
+                      • Your card will be charged {Object.keys(itemsBySeller).length} times (one per seller)
+                    </p>
+                  )}
                   <p>• Individual tracking for each seller</p>
                 </div>
               </CardContent>

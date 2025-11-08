@@ -22,15 +22,18 @@ const NationalMarketplace = lazy(() => import("./pages/NationalMarketplace"));
 const NationalBrowse = lazy(() => import("./pages/NationalBrowse"));
 const City = lazy(() => import("./pages/City"));
 const Auth = lazy(() => import("./pages/Auth"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogArticle = lazy(() => import("./pages/BlogArticle"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const SellerDashboard = lazy(() => import("./pages/SellerDashboard"));
+const SellerOrders = lazy(() => import("./pages/SellerOrders"));
 const CreateEditListing = lazy(() => import("./pages/CreateEditListing"));
 const Browse = lazy(() => import("./pages/Browse"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const Messages = lazy(() => import("./pages/Messages"));
 const Orders = lazy(() => import("./pages/Orders"));
+const OrderConfirmation = lazy(() => import("./pages/OrderConfirmation"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const GuestCheckout = lazy(() => import("./components/checkout/GuestCheckout"));
@@ -72,7 +75,8 @@ const App = () => {
                 <Route path="/marketplace" element={<NationalMarketplace />} />
                 <Route path="/browse" element={<NationalBrowse />} />
                 <Route path="/auth" element={<Auth />} />
-                
+                <Route path="/auth/reset-password" element={<ResetPassword />} />
+
                 {/* Protected Admin Routes */}
                 <Route path="/admin" element={
                   <ProtectedRoute requireAdmin>
@@ -89,6 +93,11 @@ const App = () => {
                 <Route path="/dashboard" element={
                   <ProtectedRoute requireAuth>
                     <SellerDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/orders" element={
+                  <ProtectedRoute requireAuth>
+                    <SellerOrders />
                   </ProtectedRoute>
                 } />
                 <Route path="/dashboard/listing/new" element={
@@ -113,7 +122,8 @@ const App = () => {
                     <Orders />
                   </ProtectedRoute>
                 } />
-                
+                <Route path="/order-confirmation" element={<OrderConfirmation />} />
+
                 {/* Stripe-wrapped routes */}
                 <Route path="/cart" element={<StripeProvider><Cart /></StripeProvider>} />
                 <Route path="/checkout" element={<StripeProvider><Checkout /></StripeProvider>} />

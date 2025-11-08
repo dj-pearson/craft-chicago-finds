@@ -122,7 +122,7 @@ export const CheckoutPage = () => {
                 ? shippingAddress
                 : null,
             notes: notes || null,
-            success_url: `${window.location.origin}/orders?checkout=success`,
+            success_url: `${window.location.origin}/order-confirmation?checkout=success`,
             cancel_url: `${window.location.origin}/cart`,
           },
         }
@@ -132,8 +132,8 @@ export const CheckoutPage = () => {
         throw new Error(error?.message || "Failed to create checkout session");
       }
 
-      // Clear cart and redirect to Stripe Checkout
-      clearCart();
+      // Redirect to Stripe Checkout
+      // Note: Cart will be cleared after successful payment confirmation
       window.location.href = sessionData.url;
     } catch (error) {
       console.error("Checkout error:", error);
@@ -425,9 +425,19 @@ export const CheckoutPage = () => {
                 {/* Platform Disclaimer */}
                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mb-4">
                   <p className="text-xs text-blue-900">
-                    <strong>Important:</strong> Your payment will be processed by Stripe. 
-                    Craft Local is a marketplace platform - each seller is an independent business 
-                    responsible for fulfilling your order. Orders will be split by seller.
+                    <strong>Important:</strong> Your payment will be processed by Stripe.
+                    {Object.keys(itemsBySeller).length > 1 ? (
+                      <>
+                        {' '}You have items from <strong>{Object.keys(itemsBySeller).length} different sellers</strong>,
+                        so your card will be charged <strong>{Object.keys(itemsBySeller).length} separate times</strong>.
+                        Each seller will ship and fulfill their portion independently.
+                      </>
+                    ) : (
+                      <>
+                        {' '}Craft Local is a marketplace platform - each seller is an independent business
+                        responsible for fulfilling your order.
+                      </>
+                    )}
                   </p>
                 </div>
 
