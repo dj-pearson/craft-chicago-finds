@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SellerActivationWizard } from "@/components/onboarding/SellerActivationWizard";
 import { SellerAnalytics } from "@/components/seller/SellerAnalytics";
 import { SellerPerformanceMetrics } from "@/components/seller/SellerPerformanceMetrics";
 import { SellerListings } from "@/components/seller/SellerListings";
@@ -71,6 +72,7 @@ export default function SellerDashboard() {
   const [profileLoading, setProfileLoading] = useState(true);
   const [isSellerVerified, setIsSellerVerified] = useState(false);
   const [showStripeOnboarding, setShowStripeOnboarding] = useState(false);
+  const [showActivationWizard, setShowActivationWizard] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -99,7 +101,7 @@ export default function SellerDashboard() {
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('is_seller, seller_verified, stripe_account_id')
+        .select('is_seller, seller_verified, stripe_account_id, seller_setup_completed')
         .eq('user_id', user.id)
         .single();
 
@@ -116,9 +118,12 @@ export default function SellerDashboard() {
       }
 
       setIsSellerVerified(profile.seller_verified || false);
-      
-      // Check if payment setup is needed
-      if (!profile.stripe_account_id && profile.is_seller) {
+
+      // Show activation wizard for new sellers who haven't completed setup
+      if (profile.is_seller && !(profile as any).seller_setup_completed) {
+        setShowActivationWizard(true);
+      } else if (!profile.stripe_account_id && profile.is_seller) {
+        // Show Stripe onboarding if setup completed but Stripe not connected
         setShowStripeOnboarding(true);
       }
     } catch (error) {
@@ -576,6 +581,16 @@ export default function SellerDashboard() {
         </Tabs>
       </main>
       <Footer />
+
+      {/* Seller Activation Wizard */}
+      <SellerActivationWizard
+        open={showActivationWizard}
+        onComplete={() => {
+          setShowActivationWizard(false);
+          checkSellerStatus();
+          fetchSellerStats();
+        }}
+      />
     </div>
   );
 }
