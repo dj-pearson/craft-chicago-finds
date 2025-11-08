@@ -53,6 +53,7 @@ const navigationItems = [
     items: [
       { id: "ai", label: "AI Settings", icon: Brain },
       { id: "analytics", label: "Analytics", icon: BarChart3 },
+      { id: "operations", label: "Operations Center", icon: Activity },
       { id: "seo", label: "SEO Management", icon: Search, isLink: true, path: "/admin/seo" },
     ],
   },
@@ -60,6 +61,7 @@ const navigationItems = [
     group: "Security",
     items: [
       { id: "moderation", label: "Listing Moderation", icon: ShieldAlert },
+      { id: "smart-moderation", label: "Smart Moderation", icon: Brain },
       { id: "reviews", label: "Review Moderation", icon: ShieldAlert },
       { id: "claims", label: "Protection Claims", icon: ShieldAlert },
       { id: "disputes", label: "Dispute Management", icon: ShieldAlert },
