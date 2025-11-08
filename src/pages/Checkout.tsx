@@ -122,7 +122,7 @@ export const CheckoutPage = () => {
                 ? shippingAddress
                 : null,
             notes: notes || null,
-            success_url: `${window.location.origin}/orders?checkout=success`,
+            success_url: `${window.location.origin}/order-confirmation?checkout=success`,
             cancel_url: `${window.location.origin}/cart`,
           },
         }

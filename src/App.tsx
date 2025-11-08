@@ -32,6 +32,7 @@ const Browse = lazy(() => import("./pages/Browse"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const Messages = lazy(() => import("./pages/Messages"));
 const Orders = lazy(() => import("./pages/Orders"));
+const OrderConfirmation = lazy(() => import("./pages/OrderConfirmation"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const GuestCheckout = lazy(() => import("./components/checkout/GuestCheckout"));
@@ -115,7 +116,8 @@ const App = () => {
                     <Orders />
                   </ProtectedRoute>
                 } />
-                
+                <Route path="/order-confirmation" element={<OrderConfirmation />} />
+
                 {/* Stripe-wrapped routes */}
                 <Route path="/cart" element={<StripeProvider><Cart /></StripeProvider>} />
                 <Route path="/checkout" element={<StripeProvider><Checkout /></StripeProvider>} />

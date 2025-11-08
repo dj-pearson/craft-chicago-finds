@@ -185,7 +185,7 @@ export const GuestCheckout = () => {
             scheduled_ship_date: giftMode.scheduledShipDate,
             hide_prices: giftMode.hidePrices
           } : null,
-          success_url: `${window.location.origin}/orders?checkout=success&guest=true`,
+          success_url: `${window.location.origin}/order-confirmation?checkout=success&guest=true`,
           cancel_url: `${window.location.origin}/cart`
         }
       });
