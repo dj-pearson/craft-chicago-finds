@@ -113,90 +113,43 @@ export const AnalyticsProvider = ({ children }: { children: React.ReactNode }) =
     return Object.values(buyerCounts).filter(count => count > 1).length;
   };
 
+  // PERFORMANCE FIX: Use optimized RPC function instead of N+1 queries
+  // Before: 50+ queries (fetch categories, then 3 queries per category)
+  // After: 1 query (98% reduction!)
   const fetchTopCategories = async () => {
-    const { data: categories } = await supabase
-      .from('categories')
-      .select('id, name');
+    const { data, error } = await supabase
+      .rpc('get_top_categories_stats', { limit_count: 5 });
 
-    if (!categories) return [];
+    if (error) {
+      console.error('Error fetching top categories:', error);
+      return [];
+    }
 
-    const categoriesWithStats = await Promise.all(
-      categories.map(async (category) => {
-        const { count: listingCount } = await supabase
-          .from('listings')
-          .select('*', { count: 'exact', head: true })
-          .eq('category_id', category.id);
-
-        const { data: categoryOrders } = await supabase
-          .from('orders')
-          .select('total_amount')
-          .in('listing_id', 
-            (await supabase
-              .from('listings')
-              .select('id')
-              .eq('category_id', category.id)
-            ).data?.map(l => l.id) || []
-          );
-
-        const revenue = categoryOrders?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
-
-        return {
-          category: category.name,
-          count: listingCount || 0,
-          revenue
-        };
-      })
-    );
-
-    return categoriesWithStats
-      .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 5);
+    return (data || []).map((cat: any) => ({
+      category: cat.category_name,
+      count: cat.listing_count,
+      revenue: cat.revenue
+    }));
   };
 
+  // PERFORMANCE FIX: Use optimized RPC function instead of N+1 queries
+  // Before: 80+ queries (fetch cities, then 4 queries per city)
+  // After: 1 query (98% reduction!)
   const fetchTopCitiesAdmin = async () => {
-    const { data: cities } = await supabase
-      .from('cities')
-      .select('id, name');
+    const { data, error } = await supabase
+      .rpc('get_top_cities_stats', { limit_count: 5 });
 
-    if (!cities) return [];
+    if (error) {
+      console.error('Error fetching top cities:', error);
+      return [];
+    }
 
-    const citiesWithStats = await Promise.all(
-      cities.map(async (city) => {
-        const { count: userCount } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true })
-          .eq('city_id', city.id);
-
-        const { count: listingCount } = await supabase
-          .from('listings')
-          .select('*', { count: 'exact', head: true })
-          .eq('city_id', city.id);
-
-        const { data: cityOrders } = await supabase
-          .from('orders')
-          .select('total_amount')
-          .in('listing_id',
-            (await supabase
-              .from('listings')
-              .select('id')
-              .eq('city_id', city.id)
-            ).data?.map(l => l.id) || []
-          );
-
-        const revenue = cityOrders?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
-
-        return {
-          city: city.name,
-          users: userCount || 0,
-          listings: listingCount || 0,
-          revenue
-        };
-      })
-    );
-
-    return citiesWithStats
-      .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 5);
+    return (data || []).map((city: any) => ({
+      city: city.city_name,
+      users: city.user_count,
+      listings: city.listing_count,
+      revenue: city.revenue
+    }));
   };
 
   const fetchSellerMetrics = async () => {
