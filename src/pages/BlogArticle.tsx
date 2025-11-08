@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, Clock, Eye } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { ShopThisArticle } from "@/components/blog/ShopThisArticle";
 import ReactMarkdown from "react-markdown";
 import DOMPurify from "dompurify";
 import remarkGfm from "remark-gfm";
@@ -184,6 +185,9 @@ export default function BlogArticle() {
             }
           })()}
         </div>
+
+        {/* Shop This Article - Products mentioned in this article */}
+        <ShopThisArticle articleId={article.id} citySlug={citySlug} />
 
         {article.tags && article.tags.length > 0 && (
           <div className="mt-8 pt-8 border-t">

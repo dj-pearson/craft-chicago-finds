@@ -64,6 +64,7 @@ import { useCityContext } from "@/hooks/useCityContext";
 import { seoManager } from "@/lib/seo-utils";
 import { KeywordSelector } from "./KeywordSelector";
 import { BlogTemplateSelector } from "./BlogTemplateSelector";
+import { BlogProductLinker } from "./BlogProductLinker";
 
 interface BlogPost {
   id: string;
@@ -1315,6 +1316,23 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
                         )}
                       </CardContent>
                     </Card>
+
+                    {/* Product Linking - Only show for existing posts */}
+                    {selectedPost && (
+                      <Card>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm">
+                            Product Links
+                          </CardTitle>
+                          <CardDescription className="text-xs">
+                            Connect products to display in "Shop This Article"
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <BlogProductLinker articleId={selectedPost.id} />
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 </div>
               </div>
