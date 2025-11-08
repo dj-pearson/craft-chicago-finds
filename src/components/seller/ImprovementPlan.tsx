@@ -4,17 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { 
-  AlertTriangle, 
-  TrendingUp, 
-  CheckCircle, 
+import {
+  AlertTriangle,
+  TrendingUp,
+  CheckCircle,
   Clock,
   MessageSquare,
   Package,
-  Star
+  Star,
+  BookOpen
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { SellerEducationRecommendations } from "./SellerEducationRecommendations";
 
 interface ImprovementGoal {
   metric: string;
@@ -287,6 +289,18 @@ export const ImprovementPlan = () => {
               <span>Follow up with buyers after delivery</span>
             </li>
           </ul>
+        </div>
+
+        {/* Educational Resources - NEW! */}
+        <div className="space-y-3 pt-4 border-t">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-primary" />
+            <h3 className="font-semibold text-sm">Learn & Improve</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Take these recommended courses to quickly meet your performance goals.
+          </p>
+          <SellerEducationRecommendations compact />
         </div>
 
         {/* Resources */}

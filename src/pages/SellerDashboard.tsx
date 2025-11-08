@@ -25,6 +25,7 @@ import { InventoryAlerts } from "@/components/seller/InventoryAlerts";
 import { BulkOperationsDashboard } from "@/components/seller/BulkOperationsDashboard";
 // IdentityVerification removed - using Stripe verification only
 import { SellerComplianceGuide } from "@/components/seller/SellerComplianceGuide";
+import { SellerEducationRecommendations } from "@/components/seller/SellerEducationRecommendations";
 
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,7 +49,8 @@ import {
   FileText,
   Scale,
   Shield,
-  AlertTriangle
+  AlertTriangle,
+  BookOpen
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -467,7 +469,7 @@ export default function SellerDashboard() {
 
         {/* Main Content */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 gap-1">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-10 gap-1">
             <TabsTrigger value="overview" className="flex items-center gap-1 text-xs">
               <TrendingUp className="h-3 w-3" />
               <span className="hidden sm:inline">Overview</span>
@@ -503,6 +505,10 @@ export default function SellerDashboard() {
             <TabsTrigger value="compliance" className="flex items-center gap-1 text-xs">
               <Scale className="h-3 w-3" />
               <span className="hidden sm:inline">Standards</span>
+            </TabsTrigger>
+            <TabsTrigger value="learn" className="flex items-center gap-1 text-xs">
+              <BookOpen className="h-3 w-3" />
+              <span className="hidden sm:inline">Learn</span>
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center gap-1 text-xs">
               <Shield className="h-3 w-3" />
@@ -575,6 +581,23 @@ export default function SellerDashboard() {
             <div className="space-y-6">
               <SellerComplianceGuide />
               <PerformanceMetrics />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="learn">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                    Learn & Improve Your Shop
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Get personalized course recommendations based on your shop's performance
+                  </p>
+                </CardHeader>
+              </Card>
+              <SellerEducationRecommendations />
             </div>
           </TabsContent>
 
