@@ -20,8 +20,11 @@ const displayNameSchema = z.string().min(2, 'Display name must be at least 2 cha
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { user, signIn, signUp, loading: authLoading } = useAuth();
+  const { user, signIn, signUp, resetPassword, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSent, setResetSent] = useState(false);
 
   // Sign In form
   const [signInEmail, setSignInEmail] = useState('');
@@ -109,6 +112,33 @@ export default function Auth() {
     setLoading(false);
   };
 
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate email
+    try {
+      emailSchema.parse(resetEmail);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+        return;
+      }
+    }
+
+    setLoading(true);
+
+    const { error } = await resetPassword(resetEmail);
+
+    if (error) {
+      toast.error(error.message || 'Failed to send reset email');
+    } else {
+      toast.success('Password reset link sent! Check your email.');
+      setResetSent(true);
+    }
+
+    setLoading(false);
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -133,44 +163,131 @@ export default function Auth() {
 
           <TabsContent value="signin">
             <div className="bg-card p-6 rounded-lg border border-border shadow-lg">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
-                  <Input
-                    id="signin-email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={signInEmail}
-                    onChange={(e) => setSignInEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                  />
-                </div>
+              {!showPasswordReset ? (
+                <>
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-email">Email</Label>
+                      <Input
+                        id="signin-email"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={signInEmail}
+                        onChange={(e) => setSignInEmail(e.target.value)}
+                        required
+                        autoComplete="email"
+                      />
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="signin-password">Password</Label>
-                  <Input
-                    id="signin-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={signInPassword}
-                    onChange={(e) => setSignInPassword(e.target.value)}
-                    required
-                    autoComplete="current-password"
-                  />
-                </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="signin-password">Password</Label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowPasswordReset(true);
+                            setResetEmail(signInEmail);
+                          }}
+                          className="text-xs text-primary hover:underline"
+                        >
+                          Forgot password?
+                        </button>
+                      </div>
+                      <Input
+                        id="signin-password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={signInPassword}
+                        onChange={(e) => setSignInPassword(e.target.value)}
+                        required
+                        autoComplete="current-password"
+                      />
+                    </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing in...
-                    </>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Signing in...
+                        </>
+                      ) : (
+                        'Sign In'
+                      )}
+                    </Button>
+                  </form>
+                </>
+              ) : (
+                <>
+                  {!resetSent ? (
+                    <form onSubmit={handlePasswordReset} className="space-y-4">
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-semibold">Reset Password</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Enter your email address and we'll send you a link to reset your password.
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="reset-email">Email</Label>
+                        <Input
+                          id="reset-email"
+                          type="email"
+                          placeholder="you@example.com"
+                          value={resetEmail}
+                          onChange={(e) => setResetEmail(e.target.value)}
+                          required
+                          autoComplete="email"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Button type="submit" className="w-full" disabled={loading}>
+                          {loading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Sending...
+                            </>
+                          ) : (
+                            'Send Reset Link'
+                          )}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className="w-full"
+                          onClick={() => {
+                            setShowPasswordReset(false);
+                            setResetSent(false);
+                          }}
+                        >
+                          Back to Sign In
+                        </Button>
+                      </div>
+                    </form>
                   ) : (
-                    'Sign In'
+                    <div className="space-y-4 text-center">
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-semibold text-green-600">Check Your Email</h3>
+                        <p className="text-sm text-muted-foreground">
+                          We've sent a password reset link to <strong>{resetEmail}</strong>.
+                          Click the link in the email to reset your password.
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          setShowPasswordReset(false);
+                          setResetSent(false);
+                          setResetEmail('');
+                        }}
+                      >
+                        Back to Sign In
+                      </Button>
+                    </div>
                   )}
-                </Button>
-              </form>
+                </>
+              )}
             </div>
           </TabsContent>
 
@@ -234,7 +351,14 @@ export default function Auth() {
         </Tabs>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          By continuing, you agree to our Terms of Service and Privacy Policy
+          By continuing, you agree to our{' '}
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            Terms of Service
+          </a>
+          {' '}and{' '}
+          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            Privacy Policy
+          </a>
         </p>
       </div>
     </div>

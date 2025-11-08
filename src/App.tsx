@@ -22,6 +22,7 @@ const NationalMarketplace = lazy(() => import("./pages/NationalMarketplace"));
 const NationalBrowse = lazy(() => import("./pages/NationalBrowse"));
 const City = lazy(() => import("./pages/City"));
 const Auth = lazy(() => import("./pages/Auth"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogArticle = lazy(() => import("./pages/BlogArticle"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -72,7 +73,8 @@ const App = () => {
                 <Route path="/marketplace" element={<NationalMarketplace />} />
                 <Route path="/browse" element={<NationalBrowse />} />
                 <Route path="/auth" element={<Auth />} />
-                
+                <Route path="/auth/reset-password" element={<ResetPassword />} />
+
                 {/* Protected Admin Routes */}
                 <Route path="/admin" element={
                   <ProtectedRoute requireAdmin>
