@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
+import { supabase } from "@/integrations/supabase/client";
 import { OrderList } from "@/components/orders/OrderList";
 import { OrderDetails } from "@/components/orders/OrderDetails";
 import { OrderReminders } from "@/components/orders/OrderReminders";
+import { PostPurchaseRecommendations } from "@/components/orders/PostPurchaseRecommendations";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Orders() {
@@ -17,6 +19,7 @@ export default function Orders() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [showSuccessBanner, setShowSuccessBanner] = useState(false);
+  const [pastOrderIds, setPastOrderIds] = useState<string[]>([]);
 
   // Handle successful checkout
   useEffect(() => {
@@ -39,6 +42,26 @@ export default function Orders() {
       setTimeout(() => setShowSuccessBanner(false), 10000);
     }
   }, [searchParams, setSearchParams, clearCart]);
+
+  // Fetch past order IDs for recommendations
+  useEffect(() => {
+    const fetchPastOrders = async () => {
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('buyer_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10); // Last 10 orders for recommendations
+
+      if (data) {
+        setPastOrderIds(data.map(o => o.id));
+      }
+    };
+
+    fetchPastOrders();
+  }, [user]);
 
   if (!user) {
     return (
@@ -86,18 +109,47 @@ export default function Orders() {
             </TabsList>
             
             <TabsContent value="purchases" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Purchase Orders</CardTitle>
-                  <CardDescription>Orders you've placed with other sellers</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <OrderList 
-                    type="buyer" 
-                    onOrderSelect={setSelectedOrderId} 
-                  />
-                </CardContent>
-              </Card>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Main Order List */}
+                <div className="lg:col-span-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Purchase Orders</CardTitle>
+                      <CardDescription>Orders you've placed with other sellers</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <OrderList
+                        type="buyer"
+                        onOrderSelect={setSelectedOrderId}
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Buy Again Sidebar */}
+                {pastOrderIds.length > 0 && (
+                  <div className="lg:col-span-1">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg">
+                          <RefreshCw className="h-4 w-4" />
+                          Buy It Again
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                          Reorder your favorites
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <PostPurchaseRecommendations
+                          orderIds={pastOrderIds}
+                          variant="buy-again"
+                          limit={5}
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </div>
             </TabsContent>
             
             <TabsContent value="sales" className="space-y-4">

@@ -16,6 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, Package, ArrowRight, Mail, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { PostPurchaseRecommendations } from '@/components/orders/PostPurchaseRecommendations';
 
 interface Order {
   id: string;
@@ -280,6 +281,17 @@ export default function OrderConfirmation() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Post-Purchase Recommendations */}
+          {orders.length > 0 && (
+            <div className="mt-8">
+              <PostPurchaseRecommendations
+                orderIds={orders.map(o => o.id)}
+                variant="order-confirmation"
+                limit={6}
+              />
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 mt-8">
