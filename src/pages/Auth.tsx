@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +26,7 @@ export default function Auth() {
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Sign In form
   const [signInEmail, setSignInEmail] = useState('');
@@ -107,6 +109,8 @@ export default function Auth() {
       }
     } else {
       toast.success('Account created! Please check your email to confirm.');
+      // Show onboarding wizard for new users
+      setShowOnboarding(true);
     }
 
     setLoading(false);
@@ -361,6 +365,12 @@ export default function Auth() {
           </a>
         </p>
       </div>
+
+      {/* Onboarding Wizard */}
+      <OnboardingWizard
+        open={showOnboarding}
+        onComplete={() => setShowOnboarding(false)}
+      />
     </div>
   );
 }
