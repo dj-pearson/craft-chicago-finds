@@ -132,8 +132,8 @@ export const CheckoutPage = () => {
         throw new Error(error?.message || "Failed to create checkout session");
       }
 
-      // Clear cart and redirect to Stripe Checkout
-      clearCart();
+      // Redirect to Stripe Checkout
+      // Note: Cart will be cleared after successful payment confirmation
       window.location.href = sessionData.url;
     } catch (error) {
       console.error("Checkout error:", error);
