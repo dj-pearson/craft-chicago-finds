@@ -289,6 +289,62 @@ export default function SellerDashboard() {
           </div>
         )}
 
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/dashboard/orders')}>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Manage</p>
+                  <p className="text-lg font-semibold">Orders</p>
+                </div>
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <ShoppingCart className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/messages')}>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Customer</p>
+                  <p className="text-lg font-semibold">Messages</p>
+                </div>
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <MessageSquare className="h-6 w-6 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/create-listing')}>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Create</p>
+                  <p className="text-lg font-semibold">New Listing</p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-lg">
+                  <Plus className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/profile')}>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Account</p>
+                  <p className="text-lg font-semibold">Settings</p>
+                </div>
+                <div className="p-3 bg-orange-100 rounded-lg">
+                  <Star className="h-6 w-6 text-orange-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Stats Overview */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

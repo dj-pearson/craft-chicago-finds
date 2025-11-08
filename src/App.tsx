@@ -27,6 +27,7 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogArticle = lazy(() => import("./pages/BlogArticle"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const SellerDashboard = lazy(() => import("./pages/SellerDashboard"));
+const SellerOrders = lazy(() => import("./pages/SellerOrders"));
 const CreateEditListing = lazy(() => import("./pages/CreateEditListing"));
 const Browse = lazy(() => import("./pages/Browse"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
@@ -92,6 +93,11 @@ const App = () => {
                 <Route path="/dashboard" element={
                   <ProtectedRoute requireAuth>
                     <SellerDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/orders" element={
+                  <ProtectedRoute requireAuth>
+                    <SellerOrders />
                   </ProtectedRoute>
                 } />
                 <Route path="/dashboard/listing/new" element={
