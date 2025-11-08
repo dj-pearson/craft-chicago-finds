@@ -10,6 +10,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { FAQSection } from "@/components/seo/FAQSection";
+import { FeaturedCollections } from "@/components/collections/FeaturedCollections";
 
 interface City {
   id: string;
@@ -212,6 +213,13 @@ const Landing = () => {
                 ))}
               </div>
             )}
+          </div>
+        </section>
+
+        {/* Featured Collections */}
+        <section className="py-16 px-4">
+          <div className="container mx-auto">
+            <FeaturedCollections limit={6} showHeader={true} />
           </div>
         </section>
 

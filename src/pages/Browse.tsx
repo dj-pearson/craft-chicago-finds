@@ -9,6 +9,7 @@ import { SearchResults } from "@/components/browse/SearchResults";
 import { ReadyTodayFilters } from "@/components/browse/ReadyTodayFilters";
 import { VisualSearch } from "@/components/browse/VisualSearch";
 import { SubtleSignupPrompt } from "@/components/auth/SubtleSignupPrompt";
+import { FeaturedCollections } from "@/components/collections/FeaturedCollections";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
 import { useSearchAnalytics } from "@/hooks/useSearchAnalytics";
@@ -245,6 +246,13 @@ const Browse = () => {
 
         {/* Subtle signup prompt for anonymous users */}
         <SubtleSignupPrompt variant="general" className="mb-6" />
+
+        {/* Featured Collections - Show when no search query */}
+        {!searchQuery && !visualSearchResults && (
+          <div className="mb-8">
+            <FeaturedCollections limit={3} showHeader={true} />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}

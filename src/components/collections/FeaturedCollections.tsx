@@ -50,9 +50,20 @@ export const FeaturedCollections = ({
       setLoading(true);
       setError(null);
 
-      // TODO: Implement featured collections when get_featured_collections function exists
-      console.log('Featured collections functionality not yet implemented');
-      setCollections([]);
+      const { data, error: fetchError } = await supabase
+        .rpc('get_featured_collections', { collection_limit: limit });
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      // Add is_featured: true to all results since the function only returns featured collections
+      const collectionsWithFeaturedFlag = (data || []).map((collection: any) => ({
+        ...collection,
+        is_featured: true,
+      }));
+
+      setCollections(collectionsWithFeaturedFlag);
     } catch (error: any) {
       console.error('Error fetching featured collections:', error);
       setError(error.message || 'Failed to load featured collections');
