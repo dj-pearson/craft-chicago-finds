@@ -8,11 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Shield, Key, Eye, EyeOff, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { validators } from "@/lib/validation";
 import { z } from "zod";
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string().min(6, "Password must be at least 6 characters"),
+  newPassword: validators.password, // Use strong password policy (8+ chars with complexity)
   confirmPassword: z.string(),
 }).refine((data) => data.newPassword === data.confirmPassword, {
   message: "Passwords don't match",
@@ -46,13 +48,17 @@ export const SecuritySettings = ({ user }: SecuritySettingsProps) => {
 
     try {
       const validatedData = passwordSchema.parse(passwordData);
-      
-      // TODO: Implement password change in Supabase
-      console.log("Password change data:", validatedData);
+
+      // Update password in Supabase
+      const { error } = await supabase.auth.updateUser({
+        password: validatedData.newPassword,
+      });
+
+      if (error) throw error;
 
       toast({
         title: "Password updated",
-        description: "Your password has been successfully changed.",
+        description: "Your password has been successfully changed. You may need to sign in again.",
       });
 
       setPasswordData({
@@ -72,7 +78,7 @@ export const SecuritySettings = ({ user }: SecuritySettingsProps) => {
       } else {
         toast({
           title: "Password change failed",
-          description: "Something went wrong. Please try again.",
+          description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
           variant: "destructive",
         });
       }
@@ -191,6 +197,9 @@ export const SecuritySettings = ({ user }: SecuritySettingsProps) => {
                   {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
+              <p className="text-xs text-muted-foreground">
+                Must be at least 8 characters with uppercase, lowercase, and a number
+              </p>
               {errors.newPassword && <p className="text-sm text-destructive">{errors.newPassword}</p>}
             </div>
 
