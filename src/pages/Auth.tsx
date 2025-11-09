@@ -14,9 +14,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
+import { validators } from '@/lib/validation';
 
 const emailSchema = z.string().email('Please enter a valid email address');
-const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
+const passwordSchema = validators.password; // Use strong password policy (8+ chars with complexity)
 const displayNameSchema = z.string().min(2, 'Display name must be at least 2 characters').optional();
 
 export default function Auth() {

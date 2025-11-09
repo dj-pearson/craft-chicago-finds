@@ -13,10 +13,8 @@
   # Performance and caching
   Cache-Control: public, max-age=0, must-revalidate
   
-  # CORS headers for API endpoints
-  Access-Control-Allow-Origin: *
-  Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
-  Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With
+  # CORS headers removed - handled by edge functions with origin whitelist
+  # DO NOT add wildcard CORS here - security risk
 
 # Static assets - long-term caching
 /assets/*
