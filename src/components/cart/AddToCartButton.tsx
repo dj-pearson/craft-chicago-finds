@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Plus, Minus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 interface AddToCartButtonProps {
   listing: {
@@ -49,30 +50,52 @@ export const AddToCartButton = ({
   const canAddMore = availableToAdd > 0;
 
   const handleAddToCart = () => {
-    if (!canAddMore) return;
+    if (!canAddMore) {
+      toast.error('Unable to add more items', {
+        description: 'This item is out of stock or you\'ve reached the maximum quantity.'
+      });
+      return;
+    }
 
-    const item = {
-      id: listing.id,
-      listing_id: listing.id,
-      title: listing.title,
-      price: listing.price,
-      max_quantity: maxQuantity,
-      image: listing.images?.[0],
-      seller_id: listing.seller_id,
-      seller_name: listing.seller?.display_name || 'Unknown Seller',
-      shipping_available: listing.shipping_available,
-      local_pickup_available: listing.local_pickup_available,
-      pickup_location: listing.pickup_location,
-      personalizations,
-      personalization_cost: personalizationCost
-    };
+    try {
+      const item = {
+        id: listing.id,
+        listing_id: listing.id,
+        title: listing.title,
+        price: listing.price,
+        max_quantity: maxQuantity,
+        image: listing.images?.[0],
+        seller_id: listing.seller_id,
+        seller_name: listing.seller?.display_name || 'Unknown Seller',
+        shipping_available: listing.shipping_available,
+        local_pickup_available: listing.local_pickup_available,
+        pickup_location: listing.pickup_location,
+        personalizations,
+        personalization_cost: personalizationCost
+      };
 
-    addItem(item, Math.min(quantity, availableToAdd));
-    setQuantity(1);
+      addItem(item, Math.min(quantity, availableToAdd));
+
+      const addedQty = Math.min(quantity, availableToAdd);
+      toast.success('Added to cart!', {
+        description: `${addedQty} × ${listing.title}${addedQty > 1 ? 's' : ''} added to your cart.`
+      });
+
+      setQuantity(1);
+    } catch (error) {
+      toast.error('Failed to add to cart', {
+        description: 'Please try again.'
+      });
+    }
   };
 
   const handleQuantityChange = (newQuantity: number) => {
     if (cartItem) {
+      if (newQuantity <= 0) {
+        toast.info('Item removed from cart', {
+          description: `${listing.title} has been removed.`
+        });
+      }
       updateQuantity(listing.id, newQuantity);
     }
   };

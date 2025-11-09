@@ -11,17 +11,20 @@ import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
 import { useListing } from "@/hooks/queries/useListing";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { FAQSection, FAQItem } from "@/components/seo/FAQSection";
+import { ProductDetailSkeleton } from "@/components/ui/skeleton-loader";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { user, loading: authLoading } = useAuth();
   const { currentCity, loading: cityLoading, isValidCity } = useCityContext();
+  const { addToRecentlyViewed } = useRecentlyViewed();
   const navigate = useNavigate();
 
   // Fetch listing using React Query
@@ -34,14 +37,22 @@ const ProductDetail = () => {
   const loading = isLoading;
   const notFound = isError || (!loading && !listing);
 
-  // Show loading state
+  // Track product view
+  useEffect(() => {
+    if (listing && id) {
+      addToRecentlyViewed(id);
+    }
+  }, [listing, id, addToRecentlyViewed]);
+
+  // Show loading state with skeleton
   if (authLoading || cityLoading || loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <ProductDetailSkeleton />
+        </main>
+        <Footer />
       </div>
     );
   }
