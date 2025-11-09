@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
+
 import { supabase as supabaseClient } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +21,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Settings,
@@ -87,7 +86,7 @@ interface AILog {
 }
 
 export const AISettingsManager = () => {
-  const { user } = useAuth();
+  
   const [settings, setSettings] = useState<AISettings | null>(null);
   const [logs, setLogs] = useState<AILog[]>([]);
   const [models, setModels] = useState<AIModel[]>([]);

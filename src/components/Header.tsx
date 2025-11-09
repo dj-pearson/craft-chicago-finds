@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Search, ShoppingCart, User, Menu, X, LogOut, MessageCircle, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -21,7 +21,7 @@ import { AccessibilityPanel } from "@/components/accessibility/AccessibilityPane
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  
   const { user, profile, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const navigate = useNavigate();

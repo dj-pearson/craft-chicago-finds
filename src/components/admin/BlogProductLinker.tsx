@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase as sbClient } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Plus, X, Star, MoveUp, MoveDown, Package } from "lucide-react";
 import { LazyImage } from "@/components/ui/lazy-image";
+
+const sb: any = sbClient;
 
 interface BlogProductLinkerProps {
   articleId: string;
@@ -46,10 +48,10 @@ export function BlogProductLinker({ articleId }: BlogProductLinkerProps) {
   const [isFeatured, setIsFeatured] = useState(false);
 
   // Fetch linked products
-  const { data: linkedProducts, isLoading: loadingLinked } = useQuery({
+  const { data: linkedProducts } = useQuery({
     queryKey: ["blog-article-products-admin", articleId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from("blog_article_products")
         .select(`
           id,
@@ -97,7 +99,7 @@ export function BlogProductLinker({ articleId }: BlogProductLinkerProps) {
       // Get current max display_order
       const maxOrder = linkedProducts?.reduce((max, p) => Math.max(max, p.display_order), 0) || 0;
 
-      const { error } = await supabase
+      const { error } = await sb
         .from("blog_article_products")
         .insert({
           article_id: articleId,
@@ -129,7 +131,7 @@ export function BlogProductLinker({ articleId }: BlogProductLinkerProps) {
   // Remove product mutation
   const removeProductMutation = useMutation({
     mutationFn: async (linkId: string) => {
-      const { error } = await supabase
+      const { error } = await sb
         .from("blog_article_products")
         .delete()
         .eq("id", linkId);
@@ -152,7 +154,7 @@ export function BlogProductLinker({ articleId }: BlogProductLinkerProps) {
   // Update display order
   const updateOrderMutation = useMutation({
     mutationFn: async ({ linkId, newOrder }: { linkId: string; newOrder: number }) => {
-      const { error } = await supabase
+      const { error } = await sb
         .from("blog_article_products")
         .update({ display_order: newOrder })
         .eq("id", linkId);
@@ -167,7 +169,7 @@ export function BlogProductLinker({ articleId }: BlogProductLinkerProps) {
   // Toggle featured status
   const toggleFeaturedMutation = useMutation({
     mutationFn: async ({ linkId, featured }: { linkId: string; featured: boolean }) => {
-      const { error } = await supabase
+      const { error } = await sb
         .from("blog_article_products")
         .update({ featured })
         .eq("id", linkId);
