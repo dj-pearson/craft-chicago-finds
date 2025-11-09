@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthRateLimit } from '@/hooks/useAuthRateLimit';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
@@ -23,6 +23,7 @@ const displayNameSchema = z.string().min(2, 'Display name must be at least 2 cha
 
 export default function Auth() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, signIn, signUp, resetPassword, loading: authLoading } = useAuth();
   const { checkRateLimit, recordAttempt } = useAuthRateLimit();
   const [loading, setLoading] = useState(false);
@@ -30,6 +31,9 @@ export default function Auth() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Get redirect URL from query params
+  const redirectTo = searchParams.get('redirect') || '/';
 
   // Sign In form
   const [signInEmail, setSignInEmail] = useState('');
@@ -43,9 +47,9 @@ export default function Auth() {
   // Redirect if already authenticated
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate(redirectTo);
     }
-  }, [user, navigate]);
+  }, [user, navigate, redirectTo]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,7 +91,7 @@ export default function Auth() {
       }
     } else {
       toast.success('Welcome back!');
-      navigate('/');
+      navigate(redirectTo);
     }
 
     setLoading(false);

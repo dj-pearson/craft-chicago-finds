@@ -32,7 +32,9 @@ export const ProtectedRoute = ({
 
   // Redirect to login if authentication required but user not logged in
   if (requireAuth && !user) {
-    return <Navigate to={`/auth?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+    // Preserve full URL including search params and hash
+    const fullPath = `${location.pathname}${location.search}${location.hash}`;
+    return <Navigate to={`/auth?redirect=${encodeURIComponent(fullPath)}`} replace />;
   }
 
   // Redirect to home if admin access required but user is not admin
