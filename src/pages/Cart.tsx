@@ -6,6 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Loader2, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +33,8 @@ export const CartPage = () => {
   } = useCart();
   const navigate = useNavigate();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [showClearCartDialog, setShowClearCartDialog] = useState(false);
   const [giftMode, setGiftMode] = useState({
     enabled: false,
     message: "",
@@ -50,6 +62,22 @@ export const CartPage = () => {
   const handleCheckout = () => {
     setIsCheckingOut(true);
     navigate("/checkout", { state: { giftMode } });
+  };
+
+  const handleRemoveItem = (listingId: string) => {
+    setItemToDelete(listingId);
+  };
+
+  const confirmRemoveItem = () => {
+    if (itemToDelete) {
+      removeItem(itemToDelete);
+      setItemToDelete(null);
+    }
+  };
+
+  const confirmClearCart = () => {
+    clearCart();
+    setShowClearCartDialog(false);
   };
 
   if (items.length === 0) {
@@ -169,6 +197,7 @@ export const CartPage = () => {
                               updateQuantity(item.listing_id, item.quantity - 1)
                             }
                             disabled={item.quantity <= 1}
+                            aria-label="Decrease quantity"
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
@@ -184,6 +213,7 @@ export const CartPage = () => {
                             className="w-16 text-center"
                             min="1"
                             max={item.max_quantity}
+                            aria-label={`Quantity for ${item.title}`}
                           />
                           <Button
                             size="sm"
@@ -192,6 +222,7 @@ export const CartPage = () => {
                               updateQuantity(item.listing_id, item.quantity + 1)
                             }
                             disabled={item.quantity >= item.max_quantity}
+                            aria-label="Increase quantity"
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
@@ -205,8 +236,9 @@ export const CartPage = () => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => removeItem(item.listing_id)}
+                            onClick={() => handleRemoveItem(item.listing_id)}
                             className="text-destructive hover:text-destructive"
+                            aria-label={`Remove ${item.title} from cart`}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -231,7 +263,7 @@ export const CartPage = () => {
               </Button>
               <Button
                 variant="outline"
-                onClick={clearCart}
+                onClick={() => setShowClearCartDialog(true)}
                 className="text-destructive hover:text-destructive"
               >
                 Clear Cart
@@ -268,7 +300,7 @@ export const CartPage = () => {
                     <span>${platformFee.toFixed(2)}</span>
                   </div>
                   <Separator />
-                  <div className="flex justify-between font-semibold text-lg">
+                  <div className="flex justify-between font-semibold text-lg" aria-live="polite" aria-atomic="true">
                     <span>Total</span>
                     <span>${finalTotal.toFixed(2)}</span>
                   </div>
@@ -328,6 +360,42 @@ export const CartPage = () => {
           </Button>
         </Card>
       </div>
+
+      {/* Remove Item Confirmation Dialog */}
+      <AlertDialog open={itemToDelete !== null} onOpenChange={(open) => !open && setItemToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove item from cart?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove this item from your cart? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRemoveItem} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Clear Cart Confirmation Dialog */}
+      <AlertDialog open={showClearCartDialog} onOpenChange={setShowClearCartDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear entire cart?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove all {itemCount} item{itemCount !== 1 ? 's' : ''} from your cart? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmClearCart} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Clear Cart
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

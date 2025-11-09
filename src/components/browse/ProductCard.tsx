@@ -5,28 +5,30 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Heart, MapPin, Package, Truck, Eye } from "lucide-react";
 import { LazyImage } from "@/components/ui/lazy-image";
+import { useFavorites } from "@/hooks/useFavorites";
 import type { Listing } from "@/pages/Browse";
 
 interface ProductCardProps {
   listing: Listing;
   citySlug: string;
   onNavigate: (path: string) => void;
-  onFavoriteClick?: (listingId: string) => void;
 }
 
-export const ProductCard = memo(({ 
-  listing, 
-  citySlug, 
-  onNavigate,
-  onFavoriteClick 
+export const ProductCard = memo(({
+  listing,
+  citySlug,
+  onNavigate
 }: ProductCardProps) => {
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const favorited = isFavorite(listing.id);
+
   const handleCardClick = () => {
     onNavigate(`/${citySlug}/product/${listing.id}`);
   };
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onFavoriteClick?.(listing.id);
+    toggleFavorite(listing.id);
   };
 
   return (
@@ -60,10 +62,11 @@ export const ProductCard = memo(({
         <Button
           variant="ghost"
           size="sm"
-          className="absolute top-2 right-2 bg-background/80 hover:bg-background/90 backdrop-blur-sm"
+          className={`absolute top-2 right-2 bg-background/80 hover:bg-background/90 backdrop-blur-sm ${favorited ? 'text-red-500' : ''}`}
           onClick={handleFavoriteClick}
+          aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
         >
-          <Heart className="h-4 w-4" />
+          <Heart className={`h-4 w-4 ${favorited ? 'fill-current' : ''}`} />
         </Button>
 
         {/* Ready Today Badges */}

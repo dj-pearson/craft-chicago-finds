@@ -18,11 +18,6 @@ export const ProductGrid = memo(({ listings, loading, currentCity }: ProductGrid
     navigate(path);
   }, [navigate]);
 
-  const handleFavoriteClick = useCallback((listingId: string) => {
-    // TODO: Implement favorites functionality
-    console.log('Favorite clicked:', listingId);
-  }, []);
-
   if (loading) {
     return <ProductGridSkeleton count={6} />;
   }
@@ -54,7 +49,6 @@ export const ProductGrid = memo(({ listings, loading, currentCity }: ProductGrid
             listing={listing}
             citySlug={currentCity.slug}
             onNavigate={handleNavigate}
-            onFavoriteClick={handleFavoriteClick}
           />
         ))}
       </div>

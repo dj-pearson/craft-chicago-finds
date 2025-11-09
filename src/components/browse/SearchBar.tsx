@@ -6,6 +6,7 @@ import { Search, X, Clock, TrendingUp, Lightbulb } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   parseNaturalLanguageSearch,
   getSearchSuggestions,
@@ -34,8 +35,12 @@ export const SearchBar = ({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionRef = useRef<HTMLDivElement>(null);
+
+  // Debounce search input to reduce API calls
+  const debouncedSearchValue = useDebounce(localValue, 300);
 
   // Load recent searches from localStorage
   useEffect(() => {
@@ -45,16 +50,18 @@ export const SearchBar = ({
     }
   }, []);
 
-  // Fetch search suggestions
+  // Fetch search suggestions with debounced value
   useEffect(() => {
-    if (localValue.length > 1 && cityId) {
-      fetchSuggestions(localValue);
-    } else if (localValue.length === 0) {
+    if (debouncedSearchValue.length > 1 && cityId) {
+      fetchSuggestions(debouncedSearchValue);
+    } else if (debouncedSearchValue.length === 0) {
       loadDefaultSuggestions();
     } else {
       setSuggestions([]);
     }
-  }, [localValue, cityId]);
+    // Reset selected index when suggestions change
+    setSelectedIndex(-1);
+  }, [debouncedSearchValue, cityId]);
 
   // Handle clicks outside to close suggestions
   useEffect(() => {
@@ -130,7 +137,35 @@ export const SearchBar = ({
     setLocalValue("");
     onChange("");
     setShowSuggestions(false);
+    setSelectedIndex(-1);
     onSearch?.(); // Optional call
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showSuggestions || suggestions.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex(prev =>
+          prev < suggestions.length - 1 ? prev + 1 : prev
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+        break;
+      case 'Enter':
+        if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
+          e.preventDefault();
+          handleSuggestionClick(suggestions[selectedIndex]);
+        }
+        break;
+      case 'Escape':
+        setShowSuggestions(false);
+        setSelectedIndex(-1);
+        break;
+    }
   };
 
   const getSuggestionIcon = (type: SearchSuggestion["type"]) => {
@@ -175,8 +210,15 @@ export const SearchBar = ({
             value={localValue}
             onChange={(e) => setLocalValue(e.target.value)}
             onFocus={() => setShowSuggestions(true)}
+            onKeyDown={handleKeyDown}
             className="pl-10 pr-10"
             autoComplete="off"
+            role="combobox"
+            aria-expanded={showSuggestions && suggestions.length > 0}
+            aria-controls="search-suggestions"
+            aria-activedescendant={
+              selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined
+            }
           />
           {localValue && (
             <Button
@@ -197,15 +239,21 @@ export const SearchBar = ({
       {showSuggestions && suggestions.length > 0 && (
         <Card
           ref={suggestionRef}
+          id="search-suggestions"
           className="absolute top-full left-1/2 transform -translate-x-1/2 w-full max-w-2xl mt-2 z-50 shadow-lg"
         >
           <CardContent className="p-0">
-            <div className="max-h-80 overflow-y-auto">
+            <div className="max-h-80 overflow-y-auto" role="listbox">
               {suggestions.map((suggestion, index) => (
                 <button
                   key={`${suggestion.type}-${suggestion.text}-${index}`}
+                  id={`suggestion-${index}`}
                   onClick={() => handleSuggestionClick(suggestion)}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors text-left"
+                  className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                    index === selectedIndex ? 'bg-muted' : 'hover:bg-muted/50'
+                  }`}
+                  role="option"
+                  aria-selected={index === selectedIndex}
                 >
                   <div className="text-muted-foreground">
                     {getSuggestionIcon(suggestion.type)}

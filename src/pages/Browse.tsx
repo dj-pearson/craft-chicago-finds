@@ -18,6 +18,7 @@ import { useCategories, type Category } from "@/hooks/queries/useCategories";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { ProductGridSkeleton } from "@/components/ui/skeleton-loader";
 
 // Re-export types for other components
 export type { Listing, Category, FilterOptions };
@@ -81,14 +82,19 @@ const Browse = () => {
     }
   }, [searchQuery, listings.length, currentCity, filters, trackSearch]);
 
-  // Show loading state
+  // Show loading state with skeleton
   if (authLoading || cityLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="mb-8">
+            <div className="h-10 w-64 bg-muted animate-pulse rounded mb-4" />
+            <div className="h-6 w-96 bg-muted animate-pulse rounded" />
+          </div>
+          <ProductGridSkeleton count={12} />
+        </main>
+        <Footer />
       </div>
     );
   }
