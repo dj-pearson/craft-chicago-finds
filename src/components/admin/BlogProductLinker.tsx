@@ -80,7 +80,7 @@ export function BlogProductLinker({ articleId }: BlogProductLinkerProps) {
     queryFn: async () => {
       if (!searchQuery || searchQuery.length < 2) return [];
 
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from("listings")
         .select("id, title, price, images")
         .or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)

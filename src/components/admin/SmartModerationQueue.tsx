@@ -247,16 +247,17 @@ export const SmartModerationQueue = () => {
         if (shouldApply) {
           const action = rule.rule_type === 'auto_approve' ? 'approved' : 'rejected';
           autoActions.push(
-            supabase
-              .from("moderation_queue")
-              .update({
-                status: action,
-                reviewed_at: new Date().toISOString(),
-                reviewer_notes: `Auto-${action} by rule: ${rule.rule_type} (confidence: ${item.confidence_score}%)`,
-                auto_moderated: true
-              })
-              .eq("id", item.id)
-              .then(() => {})
+            (async () => {
+              await supabase
+                .from("moderation_queue")
+                .update({
+                  status: action,
+                  reviewed_at: new Date().toISOString(),
+                  reviewer_notes: `Auto-${action} by rule: ${rule.rule_type} (confidence: ${item.confidence_score}%)`,
+                  auto_moderated: true
+                })
+                .eq("id", item.id);
+            })()
           );
           break; // Only apply first matching rule
         }
