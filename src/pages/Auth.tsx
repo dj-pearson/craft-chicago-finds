@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthRateLimit } from '@/hooks/useAuthRateLimit';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,14 +15,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
+import { validators } from '@/lib/validation';
 
 const emailSchema = z.string().email('Please enter a valid email address');
-const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
+const passwordSchema = validators.password; // Use strong password policy (8+ chars with complexity)
 const displayNameSchema = z.string().min(2, 'Display name must be at least 2 characters').optional();
 
 export default function Auth() {
   const navigate = useNavigate();
   const { user, signIn, signUp, resetPassword, loading: authLoading } = useAuth();
+  const { checkRateLimit, recordAttempt } = useAuthRateLimit();
   const [loading, setLoading] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
@@ -46,7 +49,16 @@ export default function Auth() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Check rate limit BEFORE attempting login
+    const { allowed, retryAfter } = checkRateLimit();
+    if (!allowed) {
+      toast.error(
+        `Too many login attempts. Please try again in ${Math.ceil((retryAfter || 0) / 60)} minutes.`
+      );
+      return;
+    }
+
     // Validate inputs
     try {
       emailSchema.parse(signInEmail);
@@ -61,6 +73,9 @@ export default function Auth() {
     setLoading(true);
 
     const { error } = await signIn(signInEmail, signInPassword);
+
+    // Record attempt for rate limiting
+    recordAttempt(!error);
 
     if (error) {
       if (error.message.includes('Invalid login credentials')) {
@@ -335,7 +350,7 @@ export default function Auth() {
                     autoComplete="new-password"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Must be at least 6 characters
+                    Must be at least 8 characters with uppercase, lowercase, and a number
                   </p>
                 </div>
 

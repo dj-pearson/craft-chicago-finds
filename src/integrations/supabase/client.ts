@@ -12,13 +12,109 @@ if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   );
 }
 
+/**
+ * Enhanced storage implementation with expiration and validation
+ * Provides additional security layer on top of localStorage
+ */
+class SecureStorage {
+  private readonly prefix = 'sb-';
+  private readonly maxAge = 24 * 60 * 60 * 1000; // 24 hours
+
+  getItem(key: string): string | null {
+    try {
+      // Validate key to prevent injection
+      if (!key.startsWith(this.prefix)) {
+        console.warn('Invalid storage key access attempt:', key);
+        return null;
+      }
+
+      const item = localStorage.getItem(key);
+      if (!item) return null;
+
+      // Check if item has expiration metadata
+      try {
+        const parsed = JSON.parse(item);
+        if (parsed.expiresAt && Date.now() > parsed.expiresAt) {
+          // Expired, remove it
+          localStorage.removeItem(key);
+          return null;
+        }
+        // Return original value if it has our metadata structure
+        if (parsed.value !== undefined) {
+          return parsed.value;
+        }
+      } catch {
+        // Not our format, return as-is (backwards compatibility)
+      }
+
+      return item;
+    } catch (error) {
+      console.error('Storage read error:', error);
+      return null;
+    }
+  }
+
+  setItem(key: string, value: string): void {
+    try {
+      // Validate key
+      if (!key.startsWith(this.prefix)) {
+        throw new Error('Invalid storage key');
+      }
+
+      // Store with expiration metadata
+      const metadata = {
+        value,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + this.maxAge,
+      };
+
+      localStorage.setItem(key, JSON.stringify(metadata));
+    } catch (error) {
+      console.error('Storage write error:', error);
+    }
+  }
+
+  removeItem(key: string): void {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.error('Storage remove error:', error);
+    }
+  }
+}
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: new SecureStorage(),
     persistSession: true,
     autoRefreshToken: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce', // Use PKCE flow for better security
   }
 });
+
+/**
+ * Cleanup expired sessions periodically
+ * Runs every 5 minutes to remove expired session data
+ */
+if (typeof window !== 'undefined') {
+  setInterval(() => {
+    const keys = Object.keys(localStorage).filter(k => k.startsWith('sb-'));
+    keys.forEach(key => {
+      try {
+        const item = localStorage.getItem(key);
+        if (item) {
+          const metadata = JSON.parse(item);
+          if (metadata.expiresAt && Date.now() > metadata.expiresAt) {
+            localStorage.removeItem(key);
+          }
+        }
+      } catch {
+        // Invalid format, ignore
+      }
+    });
+  }, 5 * 60 * 1000); // Every 5 minutes
+}
