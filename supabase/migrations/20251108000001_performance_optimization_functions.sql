@@ -240,23 +240,23 @@ COMMENT ON FUNCTION get_seller_metrics IS 'Comprehensive seller metrics in a sin
 -- Additional Performance Indexes (if not already present)
 -- These support the new functions and common query patterns
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_listings_category_status_created
+CREATE INDEX IF NOT EXISTS idx_listings_category_status_created
   ON listings(category_id, status, created_at DESC)
   WHERE status = 'active';
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_listing_analytics_listing_created_category
+CREATE INDEX IF NOT EXISTS idx_listing_analytics_listing_created_category
   ON listing_analytics(listing_id, created_at DESC);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_listing_created
+CREATE INDEX IF NOT EXISTS idx_orders_listing_created
   ON orders(listing_id, created_at DESC);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_profiles_city_user
+CREATE INDEX IF NOT EXISTS idx_profiles_city_user
   ON profiles(city_id, user_id);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_reviews_order_rating
+CREATE INDEX IF NOT EXISTS idx_reviews_order_rating
   ON reviews(order_id, rating);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_reviews_reviewed_user
+CREATE INDEX IF NOT EXISTS idx_reviews_reviewed_user
   ON reviews(reviewed_user_id, created_at DESC);
 
 -- ========================================
