@@ -108,7 +108,9 @@ export const SEOHead = ({ config, children }: SEOHeadProps) => {
       <meta name="AI-indexable" content="true" />
       
       {/* Preload Critical Resources */}
-      <link rel="preload" href={config.openGraph?.image || '/logo-optimized.webp'} as="image" type="image/webp" />
+      {config.openGraph?.image && (
+        <link rel="preload" href={config.openGraph.image} as="image" />
+      )}
       
       {/* DNS Prefetch for External Resources */}
       <link rel="dns-prefetch" href="//images.unsplash.com" />
