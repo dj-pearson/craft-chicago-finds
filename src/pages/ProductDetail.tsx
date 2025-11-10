@@ -78,10 +78,10 @@ const ProductDetail = () => {
   }
 
   // Generate SEO metadata
-  const productUrl = `https://craftchicagofinds.com/${currentCity.slug}/product/${id}`;
+  const productUrl = `${window.location.origin}/${currentCity.slug}/product/${id}`;
   const sellerName = listing.profiles?.display_name || listing.profiles?.full_name || 'Local Artisan';
   const categoryName = listing.categories?.name || 'Handmade Goods';
-  const imageUrl = listing.images?.[0] || 'https://craftchicagofinds.com/logo-optimized.webp';
+  const imageUrl = listing.images?.[0] || `${window.location.origin}/images/logo.webp`;
 
   const seoTitle = `${listing.title} - Handmade in ${currentCity.name} by ${sellerName} | Craft Chicago Finds`;
   const seoDescription = listing.description

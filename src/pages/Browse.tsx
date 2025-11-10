@@ -122,7 +122,7 @@ const Browse = () => {
   // Allow anonymous browsing - user is optional
 
   // Generate SEO metadata for browse page
-  const browseUrl = `https://craftchicagofinds.com/${currentCity.slug}/browse`;
+  const browseUrl = `${window.location.origin}/${currentCity.slug}/browse`;
   const categoryFilter = filters.category;
   const selectedCategory = categories.find(c => c.slug === categoryFilter);
 
@@ -145,7 +145,7 @@ const Browse = () => {
     "isPartOf": {
       "@type": "WebSite",
       "name": "Craft Chicago Finds",
-      "url": "https://craftchicagofinds.com"
+      "url": window.location.origin
     }
   };
 
@@ -158,13 +158,13 @@ const Browse = () => {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://craftchicagofinds.com"
+        "item": window.location.origin
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": currentCity.name,
-        "item": `https://craftchicagofinds.com/${currentCity.slug}`
+        "item": `${window.location.origin}/${currentCity.slug}`
       },
       {
         "@type": "ListItem",
@@ -193,7 +193,7 @@ const Browse = () => {
       description: seoDescription,
       type: 'website',
       url: browseUrl,
-      image: "https://craftchicagofinds.com/logo-optimized.webp"
+      image: `${window.location.origin}/images/logo.webp`
     },
     twitter: {
       card: 'summary',

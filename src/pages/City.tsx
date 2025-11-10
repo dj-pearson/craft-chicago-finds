@@ -92,7 +92,7 @@ const City = () => {
   // Allow anonymous browsing - user is optional
 
   // Generate SEO metadata for city page
-  const cityUrl = `https://craftchicagofinds.com/${currentCity.slug}`;
+  const cityUrl = `${window.location.origin}/${currentCity.slug}`;
   const seoTitle = `${currentCity.name} Local Artisan Marketplace | Handmade Goods by ${currentCity.name} Makers`;
   const seoDescription = `Discover unique handmade products from local artisans in ${currentCity.name}${currentCity.state ? `, ${currentCity.state}` : ''}. Shop pottery, jewelry, textiles, art, and more from talented ${currentCity.name} makers. Support local craft.`;
 
@@ -103,7 +103,7 @@ const City = () => {
     "name": `Craft Chicago Finds - ${currentCity.name} Marketplace`,
     "description": currentCity.description || seoDescription,
     "url": cityUrl,
-    "image": "https://craftchicagofinds.com/logo-optimized.webp",
+    "image": `${window.location.origin}/images/logo.webp`,
     "address": {
       "@type": "PostalAddress",
       "addressLocality": currentCity.name,

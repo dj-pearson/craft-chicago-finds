@@ -106,13 +106,13 @@ const Landing = () => {
       'local makers',
       'buy handmade'
     ],
-    canonical: "https://craftchicagofinds.com",
+    canonical: window.location.origin,
     openGraph: {
       title: "Craft Chicago Finds - Local Handmade Goods Marketplace",
       description: seoDescription,
       type: 'website',
-      url: "https://craftchicagofinds.com",
-      image: "https://craftchicagofinds.com/logo-optimized.webp"
+      url: window.location.origin,
+      image: `${window.location.origin}/images/logo.webp`
     },
     twitter: {
       card: 'summary_large_image',
