@@ -1,6 +1,16 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import { initGA, trackPageView } from '@/lib/analytics';
+
+// Lazy import analytics to avoid circular dependencies
+const initGA = async () => {
+  const { initGA: init } = await import('@/lib/analytics');
+  return init();
+};
+
+const trackPageView = async (url: string, title?: string) => {
+  const { trackPageView: track } = await import('@/lib/analytics');
+  return track(url, title);
+};
 
 interface AnalyticsContextType {
   isInitialized: boolean;
@@ -29,8 +39,9 @@ export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({ children }
   // Initialize Google Analytics on mount
   useEffect(() => {
     if (typeof window !== 'undefined' && !isInitialized) {
-      initGA();
-      setIsInitialized(true);
+      initGA().then(() => {
+        setIsInitialized(true);
+      });
     }
   }, [isInitialized]);
 
