@@ -525,6 +525,7 @@ export default function SellerDashboard() {
 
           <TabsContent value="overview">
             <div className="space-y-6">
+              <VacationModeManager />
               <InventoryAlerts />
               <SellerPerformanceMetrics />
             </div>
