@@ -3,10 +3,6 @@
  * Handles caching, offline support, and background sync
  */
 
-/// <reference lib="webworker" />
-
-declare const self: ServiceWorkerGlobalScope;
-
 const CACHE_VERSION = 'v1';
 const CACHE_NAME = `craftlocal-${CACHE_VERSION}`;
 
@@ -118,7 +114,7 @@ self.addEventListener('fetch', (event) => {
 /**
  * Cache first, network fallback strategy
  */
-async function cacheFirstStrategy(request: Request, cacheName: string): Promise<Response> {
+async function cacheFirstStrategy(request, cacheName) {
   const cachedResponse = await caches.match(request);
   
   if (cachedResponse) {
@@ -153,7 +149,7 @@ async function cacheFirstStrategy(request: Request, cacheName: string): Promise<
 /**
  * Network first, cache fallback strategy
  */
-async function networkFirstStrategy(request: Request, cacheName: string): Promise<Response> {
+async function networkFirstStrategy(request, cacheName) {
   try {
     const networkResponse = await fetch(request);
     
@@ -178,7 +174,7 @@ async function networkFirstStrategy(request: Request, cacheName: string): Promis
 /**
  * Navigation strategy with offline fallback
  */
-async function navigationStrategy(request: Request): Promise<Response> {
+async function navigationStrategy(request) {
   try {
     const networkResponse = await fetch(request);
     
@@ -250,7 +246,7 @@ async function navigationStrategy(request: Request): Promise<Response> {
 /**
  * Get cache timestamp
  */
-async function getCacheTime(request: Request): Promise<number> {
+async function getCacheTime(request) {
   const cache = await caches.open('cache-timestamps');
   const response = await cache.match(request.url);
   
@@ -265,7 +261,7 @@ async function getCacheTime(request: Request): Promise<number> {
 /**
  * Set cache timestamp
  */
-async function setCacheTime(request: Request): Promise<void> {
+async function setCacheTime(request) {
   const cache = await caches.open('cache-timestamps');
   const timestamp = Date.now().toString();
   
@@ -280,7 +276,7 @@ async function setCacheTime(request: Request): Promise<void> {
 /**
  * Background sync for offline actions
  */
-self.addEventListener('sync', (event: any) => {
+self.addEventListener('sync', (event) => {
   console.log('[ServiceWorker] Background sync:', event.tag);
   
   if (event.tag === 'sync-cart') {
@@ -295,7 +291,7 @@ self.addEventListener('sync', (event: any) => {
 /**
  * Sync cart data
  */
-async function syncCart(): Promise<void> {
+async function syncCart() {
   try {
     // Get pending cart updates from IndexedDB
     // Send to server
@@ -308,7 +304,7 @@ async function syncCart(): Promise<void> {
 /**
  * Sync favorites data
  */
-async function syncFavorites(): Promise<void> {
+async function syncFavorites() {
   try {
     console.log('[ServiceWorker] Syncing favorites');
   } catch (error) {
@@ -319,7 +315,7 @@ async function syncFavorites(): Promise<void> {
 /**
  * Push notification handler
  */
-self.addEventListener('push', (event: any) => {
+self.addEventListener('push', (event) => {
   console.log('[ServiceWorker] Push received');
   
   const data = event.data?.json() || {};
@@ -339,7 +335,7 @@ self.addEventListener('push', (event: any) => {
 /**
  * Notification click handler
  */
-self.addEventListener('notificationclick', (event: any) => {
+self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   
   const url = event.notification.data || '/';
