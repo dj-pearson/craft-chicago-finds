@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useAnalytics } from '@/components/analytics';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';

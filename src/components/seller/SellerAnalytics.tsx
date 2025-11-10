@@ -1,4 +1,4 @@
-import { AnalyticsProvider } from '@/components/analytics';
+import { AnalyticsProvider } from '@/hooks/useAnalytics';
 import { SellerAnalyticsDashboard } from '@/components/analytics/SellerAnalyticsDashboard';
 import { PerformanceInsights } from '@/components/analytics/PerformanceInsights';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
