@@ -55,6 +55,7 @@ const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
 const W9Submission = lazy(() => import("./pages/W9Submission"));
 const FeaturedMakers = lazy(() => import("./pages/FeaturedMakers"));
 const SEODashboard = lazy(() => import("./pages/SEODashboard"));
+const PricingCalculator = lazy(() => import("./pages/PricingCalculator"));
 
 const App = () => {
   return (
@@ -153,6 +154,7 @@ const App = () => {
                 <Route path="/cookie-policy" element={<CookiePolicy />} />
                 <Route path="/w9-submission" element={<W9Submission />} />
                 <Route path="/featured-makers" element={<FeaturedMakers />} />
+                <Route path="/tools/pricing-calculator" element={<PricingCalculator />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/:citySlug/blog/:slug" element={<BlogArticle />} />
                 <Route path="/:city/browse" element={<Browse />} />
