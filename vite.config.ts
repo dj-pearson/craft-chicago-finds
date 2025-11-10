@@ -97,9 +97,13 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('node_modules/@tanstack/react-query/')) {
             return 'react-query';
           }
-          // SEO and analytics
+          // SEO library
           if (id.includes('node_modules/react-helmet-async/')) {
-            return 'analytics';
+            return 'seo';
+          }
+          // Analytics code - keep separate to avoid circular dependencies
+          if (id.includes('/lib/analytics')) {
+            return 'ga-analytics';
           }
         },
         // Consistent naming for better caching
