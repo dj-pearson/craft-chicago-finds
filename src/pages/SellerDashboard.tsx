@@ -27,10 +27,11 @@ import { BulkOperationsDashboard } from "@/components/seller/BulkOperationsDashb
 import { SellerComplianceGuide } from "@/components/seller/SellerComplianceGuide";
 import { SellerEducationRecommendations } from "@/components/seller/SellerEducationRecommendations";
 import { DiscountCodeManager } from "@/components/seller/DiscountCodeManager";
+import { PayoutDashboard } from "@/components/seller/PayoutDashboard";
 
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -567,7 +568,20 @@ export default function SellerDashboard() {
           </TabsContent>
 
           <TabsContent value="payments">
-            <StripeOnboarding />
+            <div className="space-y-6">
+              <PayoutDashboard />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Payment Account</CardTitle>
+                  <CardDescription>
+                    Manage your Stripe Connect account for receiving payouts
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <StripeOnboarding />
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="verification">
