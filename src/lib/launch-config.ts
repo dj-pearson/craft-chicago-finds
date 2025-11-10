@@ -27,7 +27,7 @@ export const LAUNCH_CONFIG = {
   PRE_LAUNCH_MESSAGE: "We're recruiting talented makers and crafters for our Chicago launch. Sign up to sell jewelry, pottery, art, candles, home decor, and more.",
   
   // Contact and social
-  LAUNCH_EMAIL: "chicago@craftlocal.com",
+  LAUNCH_EMAIL: "chicago@craftlocal.net",
   PRESS_EMAIL: "press@craftlocal.com",
   SUPPORT_EMAIL: "hello@craftlocal.com",
   

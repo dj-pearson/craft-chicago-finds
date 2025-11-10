@@ -27,10 +27,10 @@ export const generateSitemap = async (_type?: 'index' | 'static' | 'products' | 
 };
 
 export const generateRobotsTxt = () => {
-  const base = 'https://craftlocal.com';
+  const base = 'https://craftlocal.net';
   return `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`;
 };
 
 export const generateLLMsTxt = () => {
-  return `ai-access: allow\npolicy: content-summary-and-citation\ncontact: https://craftlocal.com/ai-policy\n`;
+  return `ai-access: allow\npolicy: content-summary-and-citation\ncontact: https://craftlocal.net/ai-policy\n`;
 };

@@ -66,7 +66,7 @@ const Landing = () => {
     "@type": "Organization",
     "name": "Craft Chicago Finds",
     "url": window.location.origin,
-    "logo": `${window.location.origin}/images/logo.webp`,
+    "logo": `${window.location.origin}/logo-optimized.webp`,
     "description": "Local artisan marketplace connecting makers with communities",
     "sameAs": [
       "https://www.facebook.com/craftchicagofinds",

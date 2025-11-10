@@ -148,11 +148,11 @@ export const LocalSEO = ({ pageType = 'city', pageData, additionalSchema = [] }:
         `unique ${categoryName.toLowerCase()} local`,
         `${categoryName.toLowerCase()} makers ${cityName}`
       ],
-      canonical: `https://craftlocal.com/cities/${city.slug}/categories/${categoryData.slug}`,
+      canonical: `https://craftlocal.net/cities/${city.slug}/categories/${categoryData.slug}`,
       openGraph: {
         title: `Handmade ${categoryName} in ${cityName}`,
         description: `Discover unique handmade ${categoryName.toLowerCase()} from talented local artisans in ${cityName}, ${stateName}.`,
-        image: `https://craftlocal.com/images/categories/${categoryData.slug}-${city.slug}.jpg`,
+        image: `https://craftlocal.net/images/categories/${categoryData.slug}-${city.slug}.jpg`,
         type: "website"
       },
       schema: [
@@ -161,7 +161,7 @@ export const LocalSEO = ({ pageType = 'city', pageData, additionalSchema = [] }:
           "@type": "CollectionPage",
           "name": `Handmade ${categoryName} in ${cityName}`,
           "description": `Collection of handmade ${categoryName.toLowerCase()} from local artisans in ${cityName}, ${stateName}`,
-          "url": `https://craftlocal.com/cities/${city.slug}/categories/${categoryData.slug}`,
+          "url": `https://craftlocal.net/cities/${city.slug}/categories/${categoryData.slug}`,
           "mainEntity": {
             "@type": "ItemList",
             "name": `${categoryName} Products`,
@@ -170,9 +170,9 @@ export const LocalSEO = ({ pageType = 'city', pageData, additionalSchema = [] }:
           "breadcrumb": {
             "@type": "BreadcrumbList",
             "itemListElement": [
-              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://craftlocal.com" },
-              { "@type": "ListItem", "position": 2, "name": cityName, "item": `https://craftlocal.com/cities/${city.slug}` },
-              { "@type": "ListItem", "position": 3, "name": categoryName, "item": `https://craftlocal.com/cities/${city.slug}/categories/${categoryData.slug}` }
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://craftlocal.net" },
+              { "@type": "ListItem", "position": 2, "name": cityName, "item": `https://craftlocal.net/cities/${city.slug}` },
+              { "@type": "ListItem", "position": 3, "name": categoryName, "item": `https://craftlocal.net/cities/${city.slug}/categories/${categoryData.slug}` }
             ]
           }
         }

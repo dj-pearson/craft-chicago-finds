@@ -27,7 +27,7 @@ As required by federal law, we need you to submit your W-9 tax information form.
 - Your information is encrypted and securely stored
 - Failure to submit may result in backup withholding (24% of earnings) or account suspension
 
-Submit your W-9 form here: https://craftlocal.com/w9-submission
+Submit your W-9 form here: https://craftlocal.net/w9-submission
 
 If you have any questions, please don't hesitate to contact our support team.
 

@@ -251,7 +251,7 @@ export const LocalPickupMeetups = ({ className }: LocalPickupMeetupsProps) => {
         is_user_registered: index === 0 ? true : false,
         contact_info: {
           phone: '+1 (312) 555-0123',
-          email: 'pickup@craftlocal.com'
+          email: 'pickup@craftlocal.net'
         }
       };
     });
