@@ -26,6 +26,7 @@ import { BulkOperationsDashboard } from "@/components/seller/BulkOperationsDashb
 // IdentityVerification removed - using Stripe verification only
 import { SellerComplianceGuide } from "@/components/seller/SellerComplianceGuide";
 import { SellerEducationRecommendations } from "@/components/seller/SellerEducationRecommendations";
+import { DiscountCodeManager } from "@/components/seller/DiscountCodeManager";
 
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,7 +51,8 @@ import {
   Scale,
   Shield,
   AlertTriangle,
-  BookOpen
+  BookOpen,
+  Tag
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -469,7 +471,7 @@ export default function SellerDashboard() {
 
         {/* Main Content */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-10 gap-1">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-11 gap-1">
             <TabsTrigger value="overview" className="flex items-center gap-1 text-xs">
               <TrendingUp className="h-3 w-3" />
               <span className="hidden sm:inline">Overview</span>
@@ -481,6 +483,10 @@ export default function SellerDashboard() {
             <TabsTrigger value="analytics" className="flex items-center gap-1 text-xs">
               <BarChart3 className="h-3 w-3" />
               <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="discounts" className="flex items-center gap-1 text-xs">
+              <Tag className="h-3 w-3" />
+              <span className="hidden sm:inline">Discounts</span>
             </TabsTrigger>
             <TabsTrigger value="shipping" className="flex items-center gap-1 text-xs">
               <Truck className="h-3 w-3" />
@@ -543,6 +549,11 @@ export default function SellerDashboard() {
               <SellerAnalytics />
             </div>
           </TabsContent>
+
+          <TabsContent value="discounts">
+            <DiscountCodeManager />
+          </TabsContent>
+
           <TabsContent value="listings" className="space-y-4">
             <SellerListings />
           </TabsContent>

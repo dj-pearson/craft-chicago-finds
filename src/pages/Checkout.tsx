@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
+import { useDiscountCodes } from "@/hooks/useDiscountCodes";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import {
   Loader2,
@@ -19,9 +21,14 @@ import {
   Truck,
   MapPin,
   UserX,
+  Tag,
+  Check,
+  X,
+  AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AppleGooglePayButton } from "@/components/checkout/AppleGooglePayButton";
+import type { AppliedDiscount } from "@/types/discount";
 
 interface ShippingAddress {
   name: string;
@@ -34,6 +41,7 @@ interface ShippingAddress {
 export const CheckoutPage = () => {
   const { items, clearCart, totalAmount, itemCount } = useCart();
   const { user } = useAuth();
+  const { validateDiscountCode, calculateDiscountAmount } = useDiscountCodes();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -50,9 +58,31 @@ export const CheckoutPage = () => {
     zip: "",
   });
 
+  // Discount code state per seller
+  const [discountCodes, setDiscountCodes] = useState<Record<string, string>>({});
+  const [appliedDiscounts, setAppliedDiscounts] = useState<Record<string, AppliedDiscount>>({});
+  const [validatingDiscount, setValidatingDiscount] = useState<string | null>(null);
+
   const PLATFORM_FEE_RATE = 0.1; // 10%
-  const platformFee = totalAmount * PLATFORM_FEE_RATE;
-  const finalTotal = totalAmount + platformFee;
+
+  // Calculate totals with discounts
+  const calculateTotals = () => {
+    let subtotal = totalAmount;
+    let totalDiscount = 0;
+
+    Object.values(appliedDiscounts).forEach((discount) => {
+      totalDiscount += discount.discount_amount;
+    });
+
+    const discountedSubtotal = subtotal - totalDiscount;
+    const platformFee = discountedSubtotal * PLATFORM_FEE_RATE;
+    const finalTotal = discountedSubtotal + platformFee;
+
+    return { subtotal, totalDiscount, discountedSubtotal, platformFee, finalTotal };
+  };
+
+  const totals = calculateTotals();
+  const { subtotal, totalDiscount, discountedSubtotal, platformFee, finalTotal } = totals;
 
   // Group items by seller
   const itemsBySeller = items.reduce((acc, item) => {
@@ -71,6 +101,89 @@ export const CheckoutPage = () => {
   // Check fulfillment options
   const hasShippingItems = items.some((item) => item.shipping_available);
   const hasPickupItems = items.some((item) => item.local_pickup_available);
+
+  // Apply discount code
+  const handleApplyDiscount = async (sellerId: string) => {
+    const code = discountCodes[sellerId]?.trim();
+    if (!code) {
+      toast({
+        title: "Error",
+        description: "Please enter a discount code",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setValidatingDiscount(sellerId);
+    try {
+      const sellerSubtotal = itemsBySeller[sellerId].subtotal;
+
+      // Validate the discount code
+      const validation = await validateDiscountCode(code, sellerId, sellerSubtotal);
+
+      if (!validation.valid) {
+        toast({
+          title: "Invalid code",
+          description: validation.error || "This discount code is not valid",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Calculate discount amount
+      const discountAmount = await calculateDiscountAmount(
+        validation.discount_type!,
+        validation.discount_value!,
+        sellerSubtotal,
+        validation.maximum_discount_amount
+      );
+
+      // Apply the discount
+      setAppliedDiscounts((prev) => ({
+        ...prev,
+        [sellerId]: {
+          code,
+          discount_code_id: validation.discount_code_id!,
+          discount_type: validation.discount_type!,
+          discount_amount: discountAmount,
+          original_total: sellerSubtotal,
+          final_total: sellerSubtotal - discountAmount,
+        },
+      }));
+
+      toast({
+        title: "Discount applied!",
+        description: `You saved $${discountAmount.toFixed(2)}`,
+      });
+    } catch (error) {
+      console.error("Error applying discount:", error);
+      toast({
+        title: "Error",
+        description: "Failed to apply discount code",
+        variant: "destructive",
+      });
+    } finally {
+      setValidatingDiscount(null);
+    }
+  };
+
+  // Remove applied discount
+  const handleRemoveDiscount = (sellerId: string) => {
+    setAppliedDiscounts((prev) => {
+      const updated = { ...prev };
+      delete updated[sellerId];
+      return updated;
+    });
+    setDiscountCodes((prev) => {
+      const updated = { ...prev };
+      delete updated[sellerId];
+      return updated;
+    });
+    toast({
+      title: "Discount removed",
+      description: "The discount code has been removed from your order",
+    });
+  };
 
   const handleCheckout = async () => {
     if (!user) {
@@ -227,6 +340,69 @@ export const CheckoutPage = () => {
                       <div className="text-right font-semibold">
                         Subtotal: ${subtotal.toFixed(2)}
                       </div>
+
+                      {/* Discount Code Input per Seller */}
+                      <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg space-y-2">
+                        {appliedDiscounts[sellerId] ? (
+                          <div>
+                            <Alert className="bg-green-100 border-green-300">
+                              <Check className="h-4 w-4 text-green-600" />
+                              <AlertDescription className="flex items-center justify-between">
+                                <div>
+                                  <span className="font-semibold">
+                                    Code "{appliedDiscounts[sellerId].code}" applied
+                                  </span>
+                                  <div className="text-sm">
+                                    Saved ${appliedDiscounts[sellerId].discount_amount.toFixed(2)}
+                                  </div>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRemoveDiscount(sellerId)}
+                                  className="h-auto p-1"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </AlertDescription>
+                            </Alert>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <Label htmlFor={`discount-${sellerId}`} className="text-sm flex items-center gap-1">
+                              <Tag className="h-3 w-3" />
+                              Have a discount code?
+                            </Label>
+                            <div className="flex gap-2">
+                              <Input
+                                id={`discount-${sellerId}`}
+                                value={discountCodes[sellerId] || ''}
+                                onChange={(e) =>
+                                  setDiscountCodes((prev) => ({
+                                    ...prev,
+                                    [sellerId]: e.target.value.toUpperCase(),
+                                  }))
+                                }
+                                placeholder="Enter code"
+                                className="uppercase"
+                                disabled={validatingDiscount === sellerId}
+                              />
+                              <Button
+                                onClick={() => handleApplyDiscount(sellerId)}
+                                disabled={validatingDiscount === sellerId || !discountCodes[sellerId]}
+                                size="sm"
+                              >
+                                {validatingDiscount === sellerId ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  'Apply'
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                       <Separator />
                     </div>
                   )
@@ -398,17 +574,40 @@ export const CheckoutPage = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Subtotal ({itemCount} items)</span>
-                    <span>${totalAmount.toFixed(2)}</span>
+                    <span>${subtotal.toFixed(2)}</span>
                   </div>
+
+                  {/* Show discount if applied */}
+                  {totalDiscount > 0 && (
+                    <div className="flex justify-between text-green-600 font-medium">
+                      <span className="flex items-center gap-1">
+                        <Tag className="h-3 w-3" />
+                        Discount
+                      </span>
+                      <span>-${totalDiscount.toFixed(2)}</span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <span>Platform fee (10%)</span>
                     <span>${platformFee.toFixed(2)}</span>
                   </div>
+
                   <Separator />
+
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
                     <span>${finalTotal.toFixed(2)}</span>
                   </div>
+
+                  {/* Show savings summary */}
+                  {totalDiscount > 0 && (
+                    <div className="p-2 bg-green-50 border border-green-200 rounded text-center">
+                      <p className="text-sm font-medium text-green-700">
+                        🎉 You're saving ${totalDiscount.toFixed(2)}!
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Apple Pay / Google Pay */}
