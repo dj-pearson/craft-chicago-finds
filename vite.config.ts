@@ -64,10 +64,13 @@ export default defineConfig(({ mode }) => ({
       output: {
         // Improved manual chunking for better caching and reduced bundle sizes
         manualChunks: (id) => {
-          // Core vendor chunks - include Radix UI with React to ensure proper loading order
+          // Core vendor chunks - bundle all React-dependent libraries together
+          // This includes React, React DOM, Radix UI, and react-helmet-async
+          // to ensure proper module initialization order
           if (id.includes('node_modules/react/') || 
               id.includes('node_modules/react-dom/') ||
-              id.includes('node_modules/@radix-ui/')) {
+              id.includes('node_modules/@radix-ui/') ||
+              id.includes('node_modules/react-helmet-async/')) {
             return 'vendor';
           }
           if (id.includes('node_modules/react-router-dom/')) {
@@ -93,10 +96,6 @@ export default defineConfig(({ mode }) => ({
           }
           if (id.includes('node_modules/@tanstack/react-query/')) {
             return 'react-query';
-          }
-          // SEO library
-          if (id.includes('node_modules/react-helmet-async/')) {
-            return 'seo';
           }
           // Analytics code - keep separate to avoid circular dependencies
           if (id.includes('/lib/analytics')) {
