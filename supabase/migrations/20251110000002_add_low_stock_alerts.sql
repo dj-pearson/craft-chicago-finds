@@ -89,10 +89,11 @@ DECLARE
   v_old_count INTEGER;
   v_threshold INTEGER;
   v_auto_hide BOOLEAN;
+  v_title TEXT;
 BEGIN
   -- Get current values
-  SELECT inventory_count, low_stock_threshold, auto_hide_out_of_stock
-  INTO v_old_count, v_threshold, v_auto_hide
+  SELECT inventory_count, low_stock_threshold, auto_hide_out_of_stock, title
+  INTO v_old_count, v_threshold, v_auto_hide, v_title
   FROM listings
   WHERE id = p_listing_id AND seller_id = p_seller_id;
 
@@ -120,6 +121,7 @@ BEGIN
     alert_type,
     inventory_count,
     threshold,
+    metadata,
     created_at
   ) VALUES (
     p_listing_id,
@@ -132,6 +134,7 @@ BEGIN
     END,
     p_new_count,
     v_threshold,
+    jsonb_build_object('title', v_title, 'previous_stock', v_old_count),
     NOW()
   );
 
@@ -245,7 +248,8 @@ BEGIN
       seller_id,
       alert_type,
       inventory_count,
-      threshold
+      threshold,
+      metadata
     ) VALUES (
       v_listing.id,
       v_listing.seller_id,
@@ -254,7 +258,8 @@ BEGIN
         ELSE 'low_stock'
       END,
       v_listing.inventory_count,
-      v_listing.low_stock_threshold
+      v_listing.low_stock_threshold,
+      jsonb_build_object('title', v_listing.title)
     );
 
     v_alert_count := v_alert_count + 1;

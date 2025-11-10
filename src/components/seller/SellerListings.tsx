@@ -8,16 +8,17 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  Edit, 
-  Eye, 
-  MoreHorizontal, 
-  Search, 
+import {
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Search,
   Package,
   DollarSign,
   TrendingUp,
   AlertCircle,
-  Clock
+  Clock,
+  Copy
 } from "lucide-react";
 import { PickupSlotManager } from "@/components/pickup";
 import { 
@@ -100,9 +101,9 @@ export const SellerListings = () => {
 
       if (error) throw error;
 
-      setListings(prev => 
-        prev.map(listing => 
-          listing.id === listingId 
+      setListings(prev =>
+        prev.map(listing =>
+          listing.id === listingId
             ? { ...listing, status: newStatus as any }
             : listing
         )
@@ -117,6 +118,42 @@ export const SellerListings = () => {
       toast({
         title: "Error",
         description: "Failed to update listing status.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const duplicateListing = async (listingId: string) => {
+    if (!user) return;
+
+    try {
+      toast({
+        title: "Duplicating...",
+        description: "Creating a copy of your listing.",
+      });
+
+      const { data: newListingId, error } = await supabase.rpc('duplicate_listing', {
+        p_listing_id: listingId,
+        p_seller_id: user.id,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Listing duplicated!",
+        description: "Your listing has been copied as a draft. You can now edit it.",
+      });
+
+      // Refresh listings to show the new duplicate
+      await fetchListings();
+
+      // Navigate to edit the new listing
+      navigate(`/edit-listing/${newListingId}`);
+    } catch (error) {
+      console.error('Error duplicating listing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to duplicate listing.",
         variant: "destructive"
       });
     }
@@ -273,6 +310,10 @@ export const SellerListings = () => {
                             <DropdownMenuItem onClick={() => navigate(`/edit-listing/${listing.id}`)}>
                               <Edit className="h-4 w-4 mr-2" />
                               Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => duplicateListing(listing.id)}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Duplicate
                             </DropdownMenuItem>
                             {listing.status === 'active' && (
                               <DropdownMenuItem onClick={() => updateListingStatus(listing.id, 'inactive')}>
