@@ -163,7 +163,7 @@ async function simulateSERPData(keyword: string, location: string, device: strin
     if (position <= 10) {
       organicResults[position - 1] = {
         position,
-        url: `https://craftchicagofinds.com/page-about-${keyword.replace(/\s+/g, '-')}`,
+        url: `https://craftlocal.net/page-about-${keyword.replace(/\s+/g, '-')}`,
         title: `${keyword} | Craft Chicago Finds`,
         description: `Discover ${keyword} from local Chicago artisans.`,
       };

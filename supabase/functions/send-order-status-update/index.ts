@@ -11,7 +11,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       'Authorization': `Bearer ${RESEND_API_KEY}`
     },
     body: JSON.stringify({
-      from: "Craft Local <orders@craftchicagofinds.com>",
+      from: "Craft Local <orders@craftlocal.net>",
       to: [to],
       subject,
       html
@@ -110,10 +110,10 @@ serve(async (req: Request) => {
         
         ${newStatus === 'delivered' || newStatus === 'completed' ? `
           <p>We hope you love your purchase! Please take a moment to leave a review.</p>
-          <p><a href="https://craftchicagofinds.com/orders">Leave a Review</a></p>
+          <p><a href="https://craftlocal.net/orders">Leave a Review</a></p>
         ` : ''}
         
-        <p>View order details: <a href="https://craftchicagofinds.com/orders">My Orders</a></p>
+        <p>View order details: <a href="https://craftlocal.net/orders">My Orders</a></p>
         
         <p>Best regards,<br>The Craft Local Team</p>
       `

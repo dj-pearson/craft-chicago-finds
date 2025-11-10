@@ -112,7 +112,7 @@ const Landing = () => {
       description: seoDescription,
       type: 'website',
       url: window.location.origin,
-      image: `${window.location.origin}/images/logo.webp`
+      image: `${window.location.origin}/logo-optimized.webp`
     },
     twitter: {
       card: 'summary_large_image',

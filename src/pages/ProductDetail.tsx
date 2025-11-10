@@ -81,7 +81,7 @@ const ProductDetail = () => {
   const productUrl = `${window.location.origin}/${currentCity.slug}/product/${id}`;
   const sellerName = listing.profiles?.display_name || listing.profiles?.full_name || 'Local Artisan';
   const categoryName = listing.categories?.name || 'Handmade Goods';
-  const imageUrl = listing.images?.[0] || `${window.location.origin}/images/logo.webp`;
+  const imageUrl = listing.images?.[0] || `${window.location.origin}/logo-optimized.webp`;
 
   const seoTitle = `${listing.title} - Handmade in ${currentCity.name} by ${sellerName} | Craft Chicago Finds`;
   const seoDescription = listing.description

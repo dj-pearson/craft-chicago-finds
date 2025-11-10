@@ -35,11 +35,11 @@ Allow: /blog/
 Allow: /guides/
 
 # Sitemap locations
-Sitemap: https://craftchicagofinds.com/sitemap.xml
-Sitemap: https://craftchicagofinds.com/sitemap-pages.xml
-Sitemap: https://craftchicagofinds.com/sitemap-products.xml
-Sitemap: https://craftchicagofinds.com/sitemap-cities.xml
-Sitemap: https://craftchicagofinds.com/sitemap-blog.xml
+Sitemap: https://craftlocal.net/sitemap.xml
+Sitemap: https://craftlocal.net/sitemap-pages.xml
+Sitemap: https://craftlocal.net/sitemap-products.xml
+Sitemap: https://craftlocal.net/sitemap-cities.xml
+Sitemap: https://craftlocal.net/sitemap-blog.xml
 
 # Crawl delay to be respectful
 Crawl-delay: 1

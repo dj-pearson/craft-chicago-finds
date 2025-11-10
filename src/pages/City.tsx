@@ -103,7 +103,7 @@ const City = () => {
     "name": `Craft Chicago Finds - ${currentCity.name} Marketplace`,
     "description": currentCity.description || seoDescription,
     "url": cityUrl,
-    "image": `${window.location.origin}/images/logo.webp`,
+    "image": `${window.location.origin}/logo-optimized.webp`,
     "address": {
       "@type": "PostalAddress",
       "addressLocality": currentCity.name,
@@ -158,7 +158,7 @@ const City = () => {
       description: seoDescription,
       type: 'website',
       url: cityUrl,
-      image: `${window.location.origin}/images/logo.webp`
+      image: `${window.location.origin}/logo-optimized.webp`
     },
     twitter: {
       card: 'summary',
