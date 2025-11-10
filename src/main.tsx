@@ -13,10 +13,11 @@ import { registerServiceWorker } from "./lib/serviceWorker";
 if (typeof window !== 'undefined') {
   initCoreWebVitals();
   
-  // Register service worker
-  if (import.meta.env.PROD) {
-    registerServiceWorker();
-  }
+  // Service worker disabled temporarily due to TypeScript syntax issues
+  // TODO: Convert service-worker.js to plain JavaScript or build it properly
+  // if (import.meta.env.PROD) {
+  //   registerServiceWorker();
+  // }
 }
 
 createRoot(document.getElementById("root")!).render(

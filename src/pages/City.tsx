@@ -127,7 +127,7 @@ const City = () => {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://craftchicagofinds.com"
+        "item": window.location.origin
       },
       {
         "@type": "ListItem",
@@ -158,7 +158,7 @@ const City = () => {
       description: seoDescription,
       type: 'website',
       url: cityUrl,
-      image: "https://craftchicagofinds.com/logo-optimized.webp"
+      image: `${window.location.origin}/images/logo.webp`
     },
     twitter: {
       card: 'summary',

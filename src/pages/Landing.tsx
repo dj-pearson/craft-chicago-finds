@@ -65,8 +65,8 @@ const Landing = () => {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Craft Chicago Finds",
-    "url": "https://craftchicagofinds.com",
-    "logo": "https://craftchicagofinds.com/logo-optimized.webp",
+    "url": window.location.origin,
+    "logo": `${window.location.origin}/images/logo.webp`,
     "description": "Local artisan marketplace connecting makers with communities",
     "sameAs": [
       "https://www.facebook.com/craftchicagofinds",
@@ -80,12 +80,12 @@ const Landing = () => {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Craft Chicago Finds",
-    "url": "https://craftchicagofinds.com",
+    "url": window.location.origin,
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": "https://craftchicagofinds.com/{city}/browse?q={search_term_string}"
+        "urlTemplate": `${window.location.origin}/{city}/browse?q={search_term_string}`
       },
       "query-input": "required name=search_term_string"
     }

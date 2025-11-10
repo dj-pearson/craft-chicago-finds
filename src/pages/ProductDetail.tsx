@@ -125,19 +125,19 @@ const ProductDetail = () => {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://craftchicagofinds.com"
+        "item": window.location.origin
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": currentCity.name,
-        "item": `https://craftchicagofinds.com/${currentCity.slug}`
+        "item": `${window.location.origin}/${currentCity.slug}`
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": "Browse",
-        "item": `https://craftchicagofinds.com/${currentCity.slug}/browse`
+        "item": `${window.location.origin}/${currentCity.slug}/browse`
       },
       {
         "@type": "ListItem",
