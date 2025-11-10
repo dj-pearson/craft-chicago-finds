@@ -64,16 +64,14 @@ export default defineConfig(({ mode }) => ({
       output: {
         // Improved manual chunking for better caching and reduced bundle sizes
         manualChunks: (id) => {
-          // Core vendor chunks
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+          // Core vendor chunks - include Radix UI with React to ensure proper loading order
+          if (id.includes('node_modules/react/') || 
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/@radix-ui/')) {
             return 'vendor';
           }
           if (id.includes('node_modules/react-router-dom/')) {
             return 'router';
-          }
-          // Group all Radix UI components together but separate from other vendor code
-          if (id.includes('node_modules/@radix-ui/')) {
-            return 'radix-ui';
           }
           // Separate large libraries
           if (id.includes('node_modules/framer-motion/')) {
