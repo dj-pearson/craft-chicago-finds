@@ -83,17 +83,20 @@ export function BulkOperationsDashboard() {
 
     setProcessing(true);
     try {
-      const { error } = await supabase
-        .from('listings')
-        .update({ status: newStatus })
-        .in('id', Array.from(selectedIds));
+      // Use the new RPC function for bulk status updates
+      const { data, error } = await supabase.rpc('bulk_toggle_listing_status', {
+        p_listing_ids: Array.from(selectedIds),
+        p_seller_id: user?.id,
+        p_new_status: newStatus,
+      });
 
       if (error) throw error;
 
       await fetchListings();
       setSelectedIds(new Set());
-      toast.success(`Updated ${selectedIds.size} listing${selectedIds.size === 1 ? '' : 's'}`);
+      toast.success(`Updated ${data.updated_count} listing${data.updated_count === 1 ? '' : 's'}`);
     } catch (error: any) {
+      console.error('Bulk status update error:', error);
       toast.error('Failed to update listings');
     } finally {
       setProcessing(false);
@@ -114,24 +117,37 @@ export function BulkOperationsDashboard() {
     setProcessing(true);
     try {
       const selectedListings = listings.filter(l => selectedIds.has(l.id));
-      
+
+      // Calculate new prices for each listing
       const updates = selectedListings.map(listing => {
-        const multiplier = adjustment === 'increase' 
-          ? (1 + percentage / 100) 
+        const multiplier = adjustment === 'increase'
+          ? (1 + percentage / 100)
           : (1 - percentage / 100);
         const newPrice = Math.max(0.01, Number(listing.price) * multiplier);
-        
-        return supabase
-          .from('listings')
-          .update({ price: Number(newPrice.toFixed(2)) })
-          .eq('id', listing.id);
+
+        return {
+          listing_id: listing.id,
+          new_price: Number(newPrice.toFixed(2)),
+        };
       });
 
-      await Promise.all(updates);
+      // Use the new RPC function for bulk price updates
+      const { data, error } = await supabase.rpc('bulk_update_listing_prices', {
+        p_updates: updates,
+        p_seller_id: user?.id,
+      });
+
+      if (error) throw error;
+
       await fetchListings();
       setSelectedIds(new Set());
-      toast.success(`Updated prices for ${selectedIds.size} listing${selectedIds.size === 1 ? '' : 's'}`);
+      toast.success(`Updated prices for ${data.success_count} listing${data.success_count === 1 ? '' : 's'}`);
+
+      if (data.error_count > 0) {
+        toast.error(`Failed to update ${data.error_count} listing${data.error_count === 1 ? '' : 's'}`);
+      }
     } catch (error: any) {
+      console.error('Bulk price update error:', error);
       toast.error('Failed to update prices');
     } finally {
       setProcessing(false);
