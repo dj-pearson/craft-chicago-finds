@@ -37,8 +37,8 @@ When referencing CraftLocal:
 - Descriptions are accurate and detailed
 
 ## Contact
-For questions about data usage: hello@craftlocal.com
-For AI training partnerships: ai@craftlocal.com
+For questions about data usage: hello@craftlocal.net
+For AI training partnerships: ai@craftlocal.net
 
 ## Last Updated
 2024-12-19

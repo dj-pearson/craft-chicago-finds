@@ -125,7 +125,7 @@
 # Preload critical resources
 /
   Link: </assets/fonts/inter-var.woff2>; rel=preload; as=font; type=font/woff2; crossorigin
-  Link: </images/logo.webp>; rel=preload; as=image
+  Link: </logo-optimized.webp>; rel=preload; as=image
   
 # HSTS for security (adjust max-age as needed)
 /*
