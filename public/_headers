@@ -1,20 +1,10 @@
 # Global headers for all pages
 /*
-  # Security headers
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://www.google-analytics.com https://*.supabase.co https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'self' https://*.lovable.app https://*.lovableproject.com https://*.lovable.dev https://lovable.dev;
   X-Content-Type-Options: nosniff
-  X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
-  
-  # Content Security Policy (allow Lovable preview embedding via frame-ancestors)
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://www.google-analytics.com https://*.supabase.co https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'self' https://*.lovable.app https://*.lovableproject.com;
-  
-  # Performance and caching
-  Cache-Control: public, max-age=0, must-revalidate
-  
-  # CORS headers removed - handled by edge functions with origin whitelist
-  # DO NOT add wildcard CORS here - security risk
-*/
+
 # Static assets - long-term caching
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
