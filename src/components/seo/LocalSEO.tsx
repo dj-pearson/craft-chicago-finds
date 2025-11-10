@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { SEOHead } from './SEOHead';
 import { generateCityPageSEO, generateSellerProfileSEO, generateListingSEO } from '@/lib/seo-utils';
 import { useCityContext } from '@/hooks/useCityContext';
-import { trackPageView, trackCityVisit, trackCategoryView, trackSellerView, trackViewItem } from '@/lib/analytics';
 
 interface LocalSEOProps {
   pageType?: 'city' | 'seller' | 'product' | 'category';
@@ -78,48 +77,58 @@ export const LocalSEO = ({ pageType = 'city', pageData, additionalSchema = [] }:
 
     setSeoConfig(config);
 
-    // Track page views with Google Analytics
-    const currentUrl = window.location.href;
-    trackPageView(currentUrl, config.title);
+    // Track page views with Google Analytics - lazy load to avoid circular deps
+    const trackAnalytics = async () => {
+      try {
+        const { trackPageView, trackCityVisit, trackCategoryView, trackSellerView, trackViewItem } = await import('@/lib/analytics');
+        
+        const currentUrl = window.location.href;
+        trackPageView(currentUrl, config.title);
 
-    // Track specific page types
-    switch (pageType) {
-      case 'city':
-        trackCityVisit({
-          city_slug: currentCity.slug,
-          city_name: currentCity.name,
-          state: currentCity.state
-        });
-        break;
-      
-      case 'seller':
-        trackSellerView({
-          seller_id: pageData.id,
-          shop_name: pageData.shop_name || pageData.name,
-          city: currentCity.name,
-          category: pageData.specialties?.[0] || 'General'
-        });
-        break;
-      
-      case 'product':
-        trackViewItem({
-          item_id: pageData.product.id,
-          item_name: pageData.product.title,
-          category: pageData.product.category || 'Handmade',
-          price: pageData.product.price,
-          currency: 'USD',
-          item_brand: pageData.seller.shop_name || pageData.seller.name
-        });
-        break;
-      
-      case 'category':
-        trackCategoryView({
-          category: pageData.name,
-          city: currentCity.name,
-          results_count: pageData.productCount
-        });
-        break;
-    }
+        // Track specific page types
+        switch (pageType) {
+          case 'city':
+            trackCityVisit({
+              city_slug: currentCity.slug,
+              city_name: currentCity.name,
+              state: currentCity.state
+            });
+            break;
+          
+          case 'seller':
+            trackSellerView({
+              seller_id: pageData.id,
+              shop_name: pageData.shop_name || pageData.name,
+              city: currentCity.name,
+              category: pageData.specialties?.[0] || 'General'
+            });
+            break;
+          
+          case 'product':
+            trackViewItem({
+              item_id: pageData.product.id,
+              item_name: pageData.product.title,
+              category: pageData.product.category || 'Handmade',
+              price: pageData.product.price,
+              currency: 'USD',
+              item_brand: pageData.seller.shop_name || pageData.seller.name
+            });
+            break;
+          
+          case 'category':
+            trackCategoryView({
+              category: pageData.name,
+              city: currentCity.name,
+              results_count: pageData.productCount
+            });
+            break;
+        }
+      } catch (error) {
+        console.error('Failed to load analytics:', error);
+      }
+    };
+
+    trackAnalytics();
   }, [currentCity, pageType, pageData, additionalSchema]);
 
   const generateCategorySEO = (categoryData: any, city: any) => {

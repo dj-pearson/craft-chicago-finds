@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import { GA_MEASUREMENT_ID } from '@/lib/analytics';
+import { GA_MEASUREMENT_ID } from '@/lib/analytics-constants';
 
 // Type declarations for Google Analytics
 declare global {

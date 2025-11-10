@@ -1,12 +1,8 @@
 // Google Analytics 4 utility functions
-declare global {
-  interface Window {
-    gtag: (...args: any[]) => void;
-    dataLayer: any[];
-  }
-}
+import { GA_MEASUREMENT_ID } from './analytics-constants';
 
-export const GA_MEASUREMENT_ID = 'G-3K5Z8EXE1P';
+// Re-export for backwards compatibility
+export { GA_MEASUREMENT_ID };
 
 // Initialize Google Analytics
 export const initGA = () => {
