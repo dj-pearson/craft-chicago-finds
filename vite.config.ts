@@ -77,9 +77,8 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('node_modules/framer-motion/')) {
             return 'framer';
           }
-          if (id.includes('node_modules/recharts/')) {
-            return 'recharts';
-          }
+          // Note: Recharts removed from manual chunking to avoid circular dependencies
+          // Let Vite handle Recharts bundling automatically with proper dependency resolution
           // Utility libraries
           if (id.includes('node_modules/clsx/') || id.includes('node_modules/tailwind-merge/') ||
               id.includes('node_modules/date-fns/')) {
