@@ -1,15 +1,34 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
+import { GA_MEASUREMENT_ID } from '@/lib/analytics';
 
-// Lazy import analytics to avoid circular dependencies
-const initGA = async () => {
-  const { initGA: init } = await import('@/lib/analytics');
-  return init();
+// Type declarations for Google Analytics
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+    dataLayer: any[];
+  }
+}
+
+// Inline Google Analytics functions to avoid circular dependencies
+const initGA = () => {
+  if (typeof window !== 'undefined' && !window.gtag) {
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function gtag() {
+      window.dataLayer.push(arguments);
+    };
+    window.gtag('js', new Date());
+    window.gtag('config', GA_MEASUREMENT_ID);
+  }
 };
 
-const trackPageView = async (url: string, title?: string) => {
-  const { trackPageView: track } = await import('@/lib/analytics');
-  return track(url, title);
+const trackPageView = (url: string, title?: string) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('config', GA_MEASUREMENT_ID, {
+      page_location: url,
+      page_title: title,
+    });
+  }
 };
 
 interface AnalyticsContextType {
@@ -39,9 +58,8 @@ export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({ children }
   // Initialize Google Analytics on mount
   useEffect(() => {
     if (typeof window !== 'undefined' && !isInitialized) {
-      initGA().then(() => {
-        setIsInitialized(true);
-      });
+      initGA();
+      setIsInitialized(true);
     }
   }, [isInitialized]);
 
