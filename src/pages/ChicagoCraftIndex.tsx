@@ -2,11 +2,13 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Minus, DollarSign, Package, Users, MapPin, Calendar } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, DollarSign, Package, Users, MapPin, Calendar, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useChicagoCraftIndexData } from "@/hooks/useChicagoCraftIndexData";
 
 const ChicagoCraftIndex = () => {
-  // This would normally come from your database/API
+  // Fetch real-time data from analytics tables
+  const { data: indexData, isLoading, error } = useChicagoCraftIndexData();
   const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
 
   const seoConfig = {
@@ -50,65 +52,83 @@ const ChicagoCraftIndex = () => {
     ]
   };
 
-  // Mock data - would come from analytics tables
-  const trendingCategories = [
-    { name: "Ceramic Mugs", change: 45, trend: "up", avgPrice: 32, searches: 1240 },
-    { name: "Minimalist Jewelry", change: 38, trend: "up", avgPrice: 48, searches: 980 },
-    { name: "Candles", change: 25, trend: "up", avgPrice: 22, searches: 856 },
-    { name: "Pottery Planters", change: 12, trend: "up", avgPrice: 38, searches: 723 },
-    { name: "Textile Wall Hangings", change: -8, trend: "down", avgPrice: 65, searches: 412 },
-  ];
+  // Add icons to key metrics from hook data
+  const keyMetrics = indexData?.keyMetrics.map(metric => ({
+    ...metric,
+    icon: metric.label === "Active Makers" ? Users :
+          metric.label === "Total Listings" ? Package :
+          metric.label === "Avg Item Price" ? DollarSign :
+          MapPin
+  })) || [];
 
-  const neighborhoodData = [
-    { name: "Wicker Park", pickups: 342, avgOrderValue: 58, topCategory: "Jewelry" },
-    { name: "Pilsen", pickups: 298, avgOrderValue: 42, topCategory: "Art Prints" },
-    { name: "Logan Square", pickups: 276, avgOrderValue: 51, topCategory: "Ceramics" },
-    { name: "Lincoln Park", pickups: 245, avgOrderValue: 72, topCategory: "Home Decor" },
-  ];
+  // Transform seasonal data for display
+  const seasonalInsights = indexData?.seasonalInsights.map(insight => ({
+    season: insight.month,
+    insight: `${insight.topCategory} trending at $${insight.avgPrice} avg. ${insight.seasonalNote}.`,
+    confidence: "High"
+  })) || [];
 
-  const keyMetrics = [
-    {
-      label: "Active Makers",
-      value: "523",
-      change: "+12% this month",
-      icon: Users,
-      trend: "up"
-    },
-    {
-      label: "Total Listings",
-      value: "8,400+",
-      change: "+340 this month",
-      icon: Package,
-      trend: "up"
-    },
-    {
-      label: "Avg Item Price",
-      value: "$42",
-      change: "+8% vs last year",
-      icon: DollarSign,
-      trend: "up"
-    },
-    {
-      label: "Same-Day Pickups",
-      value: "38%",
-      change: "of all orders",
-      icon: MapPin,
-      trend: "neutral"
-    },
-  ];
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SEOHead config={seoConfig} />
+        <Header />
+        <main className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+          <p className="text-muted-foreground">Loading Chicago Craft Economy Index...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
-  const seasonalInsights = [
-    {
-      season: "Q4 2024",
-      insight: "Holiday gift categories (ornaments, gift sets) expected to surge 3.2x normal demand starting October",
-      confidence: "High"
-    },
-    {
-      season: "Upcoming Trends",
-      insight: "Minimalist jewelry searches up 180% this month. Consider creating minimalist lines to capture trend.",
-      confidence: "High"
-    },
-  ];
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SEOHead config={seoConfig} />
+        <Header />
+        <main className="container mx-auto px-4 py-16">
+          <Card className="border-destructive">
+            <CardHeader>
+              <CardTitle>Error Loading Index Data</CardTitle>
+              <CardDescription>
+                We encountered an issue loading the Chicago Craft Economy Index. Please try again later.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Error: {error instanceof Error ? error.message : 'Unknown error'}
+              </p>
+            </CardContent>
+          </Card>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // No data state
+  if (!indexData) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SEOHead config={seoConfig} />
+        <Header />
+        <main className="container mx-auto px-4 py-16">
+          <Card>
+            <CardHeader>
+              <CardTitle>No Data Available</CardTitle>
+              <CardDescription>
+                The Chicago Craft Economy Index is currently unavailable. Please check back later.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -139,7 +159,7 @@ const ChicagoCraftIndex = () => {
                 Live Data
               </span>
               <span>•</span>
-              <span>Last updated: {new Date().toLocaleDateString()}</span>
+              <span>Last updated: {indexData.lastUpdated.toLocaleDateString()}</span>
               <span>•</span>
               <span>Public Dataset</span>
             </div>
@@ -186,7 +206,7 @@ const ChicagoCraftIndex = () => {
             </div>
 
             <div className="grid gap-4">
-              {trendingCategories.map((category, idx) => (
+              {indexData.trendingCategories.map((category, idx) => (
                 <Card key={idx}>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -224,7 +244,7 @@ const ChicagoCraftIndex = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {neighborhoodData.map((neighborhood, idx) => (
+              {indexData.neighborhoodData.map((neighborhood, idx) => (
                 <Card key={idx}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
