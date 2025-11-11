@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import { GA_MEASUREMENT_ID } from '@/lib/analytics-constants';
+import { initGA, trackPageView } from '@/lib/analytics';
 
 // Type declarations for Google Analytics
 declare global {
@@ -10,26 +10,8 @@ declare global {
   }
 }
 
-// Inline Google Analytics functions to avoid circular dependencies
-const initGA = () => {
-  if (typeof window !== 'undefined' && !window.gtag) {
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function gtag() {
-      window.dataLayer.push(arguments);
-    };
-    window.gtag('js', new Date());
-    window.gtag('config', GA_MEASUREMENT_ID);
-  }
-};
+// Analytics init and pageview are imported from '@/lib/analytics'
 
-const trackPageView = (url: string, title?: string) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('config', GA_MEASUREMENT_ID, {
-      page_location: url,
-      page_title: title,
-    });
-  }
-};
 
 interface AnalyticsContextType {
   isInitialized: boolean;
