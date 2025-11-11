@@ -116,40 +116,144 @@ export const AnalyticsProvider = ({ children }: { children: React.ReactNode }) =
   // PERFORMANCE FIX: Use optimized RPC function instead of N+1 queries
   // Before: 50+ queries (fetch categories, then 3 queries per category)
   // After: 1 query (98% reduction!)
+  // Fallback: If RPC doesn't exist, use direct queries
   const fetchTopCategories = async () => {
-    const { data, error } = await supabase
-      .rpc('get_top_categories_stats', { limit_count: 5 });
+    try {
+      const { data, error } = await supabase
+        .rpc('get_top_categories_stats', { limit_count: 5 });
 
-    if (error) {
+      // If RPC doesn't exist (404) or other error, use fallback
+      if (error) {
+        console.warn('RPC get_top_categories_stats not available, using fallback query:', error.message);
+        return await fetchTopCategoriesFallback();
+      }
+
+      return (data || []).map((cat: any) => ({
+        category: cat.category_name,
+        count: cat.listing_count,
+        revenue: cat.revenue
+      }));
+    } catch (error) {
       console.error('Error fetching top categories:', error);
+      return await fetchTopCategoriesFallback();
+    }
+  };
+
+  // Fallback query when RPC is not available
+  const fetchTopCategoriesFallback = async () => {
+    try {
+      const { data: categories } = await supabase
+        .from('categories')
+        .select('id, name')
+        .limit(10);
+
+      if (!categories || categories.length === 0) {
+        return [];
+      }
+
+      // Get stats for each category
+      const categoryStats = await Promise.all(
+        categories.slice(0, 5).map(async (cat) => {
+          const { count: listingCount } = await supabase
+            .from('listings')
+            .select('*', { count: 'exact', head: true })
+            .eq('category_id', cat.id);
+
+          const { data: orders } = await supabase
+            .from('orders')
+            .select('total_amount, listings!inner(category_id)')
+            .eq('listings.category_id', cat.id);
+
+          const revenue = orders?.reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0;
+
+          return {
+            category: cat.name,
+            count: listingCount || 0,
+            revenue: revenue
+          };
+        })
+      );
+
+      return categoryStats.sort((a, b) => b.revenue - a.revenue);
+    } catch (error) {
+      console.error('Fallback query failed:', error);
       return [];
     }
-
-    return (data || []).map((cat: any) => ({
-      category: cat.category_name,
-      count: cat.listing_count,
-      revenue: cat.revenue
-    }));
   };
 
   // PERFORMANCE FIX: Use optimized RPC function instead of N+1 queries
   // Before: 80+ queries (fetch cities, then 4 queries per city)
   // After: 1 query (98% reduction!)
+  // Fallback: If RPC doesn't exist, use direct queries
   const fetchTopCitiesAdmin = async () => {
-    const { data, error } = await supabase
-      .rpc('get_top_cities_stats', { limit_count: 5 });
+    try {
+      const { data, error } = await supabase
+        .rpc('get_top_cities_stats', { limit_count: 5 });
 
-    if (error) {
+      // If RPC doesn't exist (404) or other error, use fallback
+      if (error) {
+        console.warn('RPC get_top_cities_stats not available, using fallback query:', error.message);
+        return await fetchTopCitiesAdminFallback();
+      }
+
+      return (data || []).map((city: any) => ({
+        city: city.city_name,
+        users: city.user_count,
+        listings: city.listing_count,
+        revenue: city.revenue
+      }));
+    } catch (error) {
       console.error('Error fetching top cities:', error);
+      return await fetchTopCitiesAdminFallback();
+    }
+  };
+
+  // Fallback query when RPC is not available
+  const fetchTopCitiesAdminFallback = async () => {
+    try {
+      const { data: cities } = await supabase
+        .from('cities')
+        .select('id, name')
+        .limit(10);
+
+      if (!cities || cities.length === 0) {
+        return [];
+      }
+
+      // Get stats for each city
+      const cityStats = await Promise.all(
+        cities.slice(0, 5).map(async (city) => {
+          const { count: userCount } = await supabase
+            .from('profiles')
+            .select('*', { count: 'exact', head: true })
+            .eq('city_id', city.id);
+
+          const { count: listingCount } = await supabase
+            .from('listings')
+            .select('*', { count: 'exact', head: true })
+            .eq('city_id', city.id);
+
+          const { data: orders } = await supabase
+            .from('orders')
+            .select('total_amount, listings!inner(city_id)')
+            .eq('listings.city_id', city.id);
+
+          const revenue = orders?.reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0;
+
+          return {
+            city: city.name,
+            users: userCount || 0,
+            listings: listingCount || 0,
+            revenue: revenue
+          };
+        })
+      );
+
+      return cityStats.sort((a, b) => b.revenue - a.revenue);
+    } catch (error) {
+      console.error('Fallback query failed:', error);
       return [];
     }
-
-    return (data || []).map((city: any) => ({
-      city: city.city_name,
-      users: city.user_count,
-      listings: city.listing_count,
-      revenue: city.revenue
-    }));
   };
 
   const fetchSellerMetrics = async () => {

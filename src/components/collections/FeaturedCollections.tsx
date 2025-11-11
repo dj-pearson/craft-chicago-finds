@@ -50,11 +50,14 @@ export const FeaturedCollections = ({
       setLoading(true);
       setError(null);
 
+      // Try RPC first
       const { data, error: fetchError } = await supabase
         .rpc('get_featured_collections', { collection_limit: limit });
 
       if (fetchError) {
-        throw fetchError;
+        console.warn('RPC get_featured_collections not available, using fallback query:', fetchError.message);
+        // Fallback to direct query if RPC doesn't exist
+        return await fetchFeaturedCollectionsFallback();
       }
 
       // Add is_featured: true to all results since the function only returns featured collections
@@ -66,9 +69,65 @@ export const FeaturedCollections = ({
       setCollections(collectionsWithFeaturedFlag);
     } catch (error: any) {
       console.error('Error fetching featured collections:', error);
-      setError(error.message || 'Failed to load featured collections');
+      // Try fallback on any error
+      await fetchFeaturedCollectionsFallback();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchFeaturedCollectionsFallback = async () => {
+    try {
+      // Fallback query: get featured collections directly
+      const { data, error } = await supabase
+        .from('collections')
+        .select(`
+          id,
+          title,
+          description,
+          slug,
+          cover_image_url,
+          creator_id,
+          category,
+          item_count,
+          follow_count,
+          view_count,
+          created_at,
+          profiles!inner(display_name, avatar_url)
+        `)
+        .eq('is_public', true)
+        .eq('is_featured', true)
+        .order('follow_count', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        throw error;
+      }
+
+      // Map the response to match the Collection interface
+      const collectionsWithFeaturedFlag = (data || []).map((collection: any) => ({
+        id: collection.id,
+        title: collection.title,
+        description: collection.description,
+        slug: collection.slug,
+        cover_image_url: collection.cover_image_url,
+        creator_id: collection.creator_id,
+        creator_name: collection.profiles?.display_name || null,
+        creator_avatar: collection.profiles?.avatar_url || null,
+        category: collection.category,
+        is_featured: true,
+        item_count: collection.item_count || 0,
+        follow_count: collection.follow_count || 0,
+        view_count: collection.view_count || 0,
+        created_at: collection.created_at,
+      }));
+
+      setCollections(collectionsWithFeaturedFlag);
+    } catch (error: any) {
+      console.error('Fallback query failed:', error);
+      setError(error.message || 'Failed to load featured collections');
+      setCollections([]);
     }
   };
 
