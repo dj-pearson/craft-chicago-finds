@@ -32,28 +32,28 @@ export const Hero = () => {
 
           {/* Heading */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 leading-tight">
-            Sell Your Crafts in
-            <span className="block text-accent">{currentCity?.name || "Chicago"}</span>
+            Your Local Sales Engine
+            <span className="block text-accent">Not Just Another Marketplace</span>
           </h1>
 
           {/* Subheading */}
           <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
-            Join Chicago's premier marketplace for handmade goods. We're signing up talented artisans and makers to launch together. Sell jewelry, home decor, art, pottery, candles & more.
+            {currentCity?.name || "Chicago"}'s craft commerce infrastructure. Get Price Coach intelligence, same-day pickup tools, craft fair integration, and local demand data. Sell more with the platform that makers actually need.
           </p>
 
           {/* Stats */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 mb-10">
             <div className="flex items-center text-white/90">
               <Users className="w-5 h-5 mr-2 flex-shrink-0" />
-              <span className="font-semibold text-sm sm:text-base">Launch Founding Sellers</span>
+              <span className="font-semibold text-sm sm:text-base">500+ Chicago Makers</span>
             </div>
             <div className="flex items-center text-white/90">
               <Sparkles className="w-5 h-5 mr-2 flex-shrink-0" />
-              <span className="font-semibold text-sm sm:text-base">Low Commission</span>
+              <span className="font-semibold text-sm sm:text-base">Same-Day Pickup</span>
             </div>
             <div className="flex items-center text-white/90">
               <MapPin className="w-5 h-5 mr-2 flex-shrink-0" />
-              <span className="font-semibold text-sm sm:text-base">Chicago & National</span>
+              <span className="font-semibold text-sm sm:text-base">Market Mode Integration</span>
             </div>
           </div>
 

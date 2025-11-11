@@ -26,7 +26,7 @@ const Index = () => {
         pageData={{
           cityName: currentCity?.name || "Chicago",
           stateCode: currentCity?.state || "IL",
-          description: `Discover unique handmade goods from local artisans in ${currentCity?.name || "Chicago"}. Shop one-of-a-kind handcrafted items, support small businesses, and connect with talented makers in your community.`,
+          description: `${currentCity?.name || "Chicago"}'s craft commerce infrastructure. Shop "Available Today" for same-day pickup, discover certified makers, browse craft fairs with Market Mode. Real-time inventory, local economic data, and 500+ makers. Essential infrastructure, not just another marketplace.`,
           listingCount: 500,
           topCategories: ["Jewelry", "Home Decor", "Art", "Candles", "Pottery"],
           featuredMakers: []

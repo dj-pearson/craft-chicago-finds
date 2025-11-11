@@ -57,8 +57,8 @@ const Landing = () => {
   const activeCities = cities.filter(c => c.is_active);
   const cityNames = activeCities.map(c => c.name).join(', ');
 
-  const seoTitle = "Craft Chicago Finds - Local Handmade Goods Marketplace | Support Local Artisans";
-  const seoDescription = `Discover unique handmade products from local artisans. Shop pottery, jewelry, textiles, and art directly from makers in ${cityNames || 'your city'}. Support local craft and find one-of-a-kind treasures.`;
+  const seoTitle = "Craft Chicago Finds - Local Craft Commerce Infrastructure | Chicago's Operating System for Makers";
+  const seoDescription = `Chicago's essential infrastructure for local craft commerce. Same-day pickup from 500+ makers. Real-time inventory, craft fair integration, and local economic data. More than a marketplace—we're the platform Chicago's creative economy runs on.`;
 
   // Organization Schema
   const organizationSchema = {
@@ -67,7 +67,7 @@ const Landing = () => {
     "name": "Craft Chicago Finds",
     "url": window.location.origin,
     "logo": `${window.location.origin}/logo-optimized.webp`,
-    "description": "Local artisan marketplace connecting makers with communities",
+    "description": "Chicago's craft commerce infrastructure connecting physical and digital local commerce. Essential operating system for makers, buyers, and craft fairs.",
     "sameAs": [
       "https://www.facebook.com/craftchicagofinds",
       "https://www.instagram.com/craftchicagofinds",
@@ -95,16 +95,18 @@ const Landing = () => {
     title: seoTitle,
     description: seoDescription,
     keywords: [
-      'handmade marketplace',
-      'local artisans',
-      'handmade goods',
-      'support local',
-      'craft marketplace',
-      'artisan products',
-      'handmade jewelry',
-      'handmade pottery',
-      'local makers',
-      'buy handmade'
+      'Chicago craft infrastructure',
+      'same-day pickup handmade',
+      'local craft commerce',
+      'Chicago makers',
+      'craft economy Chicago',
+      'local artisan platform',
+      'Chicago craft fair integration',
+      'maker intelligence tools',
+      'support Chicago creative economy',
+      'local commerce infrastructure',
+      'Chicago craft data',
+      'certified Chicago makers'
     ],
     canonical: window.location.origin,
     openGraph: {
@@ -133,11 +135,11 @@ const Landing = () => {
         <section className="py-20 px-4">
           <div className="container mx-auto text-center max-w-4xl">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-              Discover Local Makers
-              <span className="text-primary block">In Your City</span>
+              Chicago's Craft Commerce
+              <span className="text-primary block">Infrastructure</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Connect with talented artisans and makers in your community. Shop handmade goods, support local creators, and find unique treasures.
+              More than a marketplace—we're the essential platform connecting Chicago's makers, buyers, and craft fairs. Same-day pickup, real-time inventory, and local economic data that strengthens our creative community.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {cities.find(c => c.is_active) && (
@@ -226,35 +228,35 @@ const Landing = () => {
         {/* Features */}
         <section className="py-16 px-4">
           <div className="container mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">Why Choose Craft Local?</h2>
+            <h2 className="text-3xl font-bold text-center mb-12">Infrastructure, Not Just Another Marketplace</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               <div className="text-center">
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ShoppingBag className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Local Pickup Available</h3>
+                <h3 className="text-xl font-semibold mb-3">Same-Day Pickup</h3>
                 <p className="text-muted-foreground">
-                  Skip shipping costs and meet makers in person. Many items available for local pickup.
+                  Shop "Available Today" from 500+ Chicago makers. Get handmade gifts urgently with pickup windows you choose. Zero shipping wait.
                 </p>
               </div>
-              
+
               <div className="text-center">
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Support Your Community</h3>
+                <h3 className="text-xl font-semibold mb-3">Chicago Economic Impact</h3>
                 <p className="text-muted-foreground">
-                  Every purchase directly supports local artisans and keeps money in your community.
+                  Supporting 1,500+ local jobs and $3M+ in maker earnings. Track Chicago's craft economy with our public data index. Infrastructure that matters.
                 </p>
               </div>
-              
+
               <div className="text-center">
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <MapPin className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Unique & Handmade</h3>
+                <h3 className="text-xl font-semibold mb-3">Craft Fair Integration</h3>
                 <p className="text-muted-foreground">
-                  Find one-of-a-kind items you won't see anywhere else, crafted with care and attention.
+                  Market Mode connects physical fairs with digital inventory. Reserve online, pickup at booths. The platform Chicago's craft fairs can't operate without.
                 </p>
               </div>
             </div>
@@ -269,11 +271,11 @@ const Landing = () => {
               faqs={[
                 {
                   question: "What is Craft Chicago Finds?",
-                  answer: "Craft Chicago Finds is a local artisan marketplace connecting handmade goods makers with communities. We focus on supporting independent artisans by providing a platform to sell their handcrafted products including pottery, jewelry, textiles, art, and more. Unlike national marketplaces, we emphasize local connections and community support."
+                  answer: "Craft Chicago Finds is Chicago's craft commerce infrastructure—the essential operating system connecting makers, buyers, and craft fairs. We're more than a marketplace: we provide same-day pickup, real-time inventory management, craft fair integration (Market Mode), and the Chicago Craft Economy Index. We're building irreplaceable local infrastructure that the creative economy depends on."
                 },
                 {
                   question: "How does Craft Chicago Finds work?",
-                  answer: "Browse our city-specific marketplaces to discover local artisans and their handmade products. When you find something you love, you can purchase directly through our platform. Many sellers offer local pickup options, or they can ship nationwide. Create a free account to message sellers, save favorites, and complete purchases."
+                  answer: "Filter by 'Available Today' to see items ready for same-day pickup within your radius. Browse by neighborhood collections (Pilsen Makers, Wicker Park Creatives) or check Market Mode to see which makers are at craft fairs today. Purchase through our platform with secure Stripe payments. Pickup directly from makers or have items shipped. Certified Chicago Makers carry our trust badge. All purchases support Chicago's creative economy—we track and publish this economic impact data."
                 },
                 {
                   question: "Is shipping available nationwide?",
@@ -305,7 +307,7 @@ const Landing = () => {
                 },
                 {
                   question: "How is Craft Chicago Finds different from Etsy?",
-                  answer: "While Etsy is a national marketplace, Craft Chicago Finds focuses exclusively on local artisan communities. This makes it easier to find makers in your city, arrange local pickup, meet artisans in person, and support your local creative economy. We prioritize community connections over scale."
+                  answer: "Etsy is a marketplace. We're infrastructure. We provide same-day pickup with 'Available Today' filtering, integrate physical craft fairs with Market Mode, publish the Chicago Craft Economy Index for economic transparency, offer maker intelligence tools (Price Coach, demand forecasting), and run a Certified Chicago Maker program for trust. We're building the layer that local commerce can't operate without—Etsy can't replicate our local data, physical integrations, or community depth."
                 }
               ]}
             />
