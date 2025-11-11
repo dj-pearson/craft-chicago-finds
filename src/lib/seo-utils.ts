@@ -145,25 +145,26 @@ export const generateCityPageSEO = (cityData: CityPageSEO): SEOMetadata => {
     featuredMakers,
   } = cityData;
 
-  const seoTitle = `Handmade Crafts in ${cityName}, ${stateCode} - Local Artisans & Makers | Craft Local`;
-  const seoDescription = `Discover ${listingCount}+ handmade items from local artisans in ${cityName}, ${stateCode}. Shop ${topCategories.join(
-    ", "
-  )} and more from talented local makers.`;
+  const seoTitle = `${cityName}'s Craft Commerce Infrastructure | Same-Day Pickup, Certified Makers & Market Mode`;
+  const seoDescription = description || `${cityName}'s essential craft commerce infrastructure. Same-day pickup from ${listingCount}+ makers, craft fair integration with Market Mode, and local economic data. More than a marketplace—the platform ${cityName}'s creative economy runs on.`;
 
   const keywords = [
-    `${cityName.toLowerCase()} handmade`,
-    `${cityName.toLowerCase()} artisans`,
-    `${cityName.toLowerCase()} crafts`,
-    `local makers ${cityName.toLowerCase()}`,
-    `handmade ${stateCode.toLowerCase()}`,
-    ...topCategories.map((cat) => cat.toLowerCase()),
+    `${cityName.toLowerCase()} craft infrastructure`,
+    `same-day pickup ${cityName.toLowerCase()}`,
+    `${cityName.toLowerCase()} makers`,
+    `craft commerce ${cityName.toLowerCase()}`,
+    `${cityName.toLowerCase()} craft fairs`,
+    `local craft economy ${cityName.toLowerCase()}`,
+    `certified ${cityName.toLowerCase()} makers`,
+    `Market Mode ${cityName.toLowerCase()}`,
+    ...topCategories.map((cat) => `${cat.toLowerCase()} ${cityName.toLowerCase()}`),
     ...featuredMakers.map((maker) => maker.toLowerCase()),
   ];
 
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    name: `Craft Local - ${cityName}`,
+    "@type": "Organization",
+    name: `Craft Chicago Finds - ${cityName}`,
     description: seoDescription,
     address: {
       "@type": "PostalAddress",
@@ -173,21 +174,37 @@ export const generateCityPageSEO = (cityData: CityPageSEO): SEOMetadata => {
     },
     url: `${window.location.origin}/city/${generateSlug(cityName)}`,
     sameAs: [
-      "https://www.facebook.com/craftlocal",
-      "https://www.instagram.com/craftlocal",
-      "https://twitter.com/craftlocal",
+      "https://www.facebook.com/craftchicagofinds",
+      "https://www.instagram.com/craftchicagofinds",
+      "https://twitter.com/craftchicago",
     ],
+    slogan: "Chicago's Craft Commerce Infrastructure",
+    knowsAbout: [
+      "Local craft commerce",
+      "Same-day pickup marketplace",
+      "Craft fair integration",
+      "Maker intelligence tools",
+      "Local economic data"
+    ],
+    areaServed: {
+      "@type": "City",
+      name: cityName,
+      containedInPlace: {
+        "@type": "State",
+        name: stateCode
+      }
+    }
   };
 
   return {
     title: seoTitle,
     description: seoDescription,
     keywords,
-    ogTitle: `Handmade Crafts in ${cityName}, ${stateCode}`,
+    ogTitle: `${cityName}'s Craft Commerce Infrastructure`,
     ogDescription: seoDescription,
     ogType: "website",
-    twitterCard: "summary",
-    twitterTitle: `Handmade Crafts in ${cityName}, ${stateCode}`,
+    twitterCard: "summary_large_image",
+    twitterTitle: `${cityName}'s Craft Commerce Infrastructure`,
     twitterDescription: seoDescription,
     structuredData,
   };

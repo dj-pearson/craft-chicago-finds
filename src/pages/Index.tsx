@@ -14,6 +14,7 @@ const FeaturedMakers = lazy(() => import("@/components/FeaturedMakers").then(mod
 const WelcomeBanner = lazy(() => import("@/components/marketplace/WelcomeBanner").then(module => ({ default: module.WelcomeBanner })));
 const MarketplaceStatus = lazy(() => import("@/components/marketplace/MarketplaceStatus").then(module => ({ default: module.MarketplaceStatus })));
 const QuickActions = lazy(() => import("@/components/marketplace/QuickActions").then(module => ({ default: module.QuickActions })));
+const AvailableTodayShowcase = lazy(() => import("@/components/marketplace/AvailableTodayShowcase").then(module => ({ default: module.AvailableTodayShowcase })));
 
 const Index = () => {
   const { currentCity } = useCityContext();
@@ -26,7 +27,7 @@ const Index = () => {
         pageData={{
           cityName: currentCity?.name || "Chicago",
           stateCode: currentCity?.state || "IL",
-          description: `Discover unique handmade goods from local artisans in ${currentCity?.name || "Chicago"}. Shop one-of-a-kind handcrafted items, support small businesses, and connect with talented makers in your community.`,
+          description: `${currentCity?.name || "Chicago"}'s craft commerce infrastructure. Shop "Available Today" for same-day pickup, discover certified makers, browse craft fairs with Market Mode. Real-time inventory, local economic data, and 500+ makers. Essential infrastructure, not just another marketplace.`,
           listingCount: 500,
           topCategories: ["Jewelry", "Home Decor", "Art", "Candles", "Pottery"],
           featuredMakers: []
@@ -58,6 +59,9 @@ const Index = () => {
         </Suspense>
         <ValueProposition />
         <CategoryGrid />
+        <Suspense fallback={<LoadingSpinner text="Loading features..." />}>
+          <AvailableTodayShowcase />
+        </Suspense>
         <Suspense fallback={<LoadingSpinner text="Loading features..." />}>
           <MarketplaceStatus />
         </Suspense>

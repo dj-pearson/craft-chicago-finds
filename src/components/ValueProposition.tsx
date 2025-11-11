@@ -11,11 +11,11 @@ export const ValueProposition = () => {
         {/* Main Heading */}
         <div className="max-w-3xl mx-auto text-center mb-12">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            Why Sell on CraftLocal {cityName}?
+            Infrastructure That Makes You Successful
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Join a marketplace built for artisans. We're recruiting founding sellers for our {cityName} launch. 
-            Keep more of what you earn with our low commission model, and reach customers who value handmade quality.
+            More than selling—get intelligence tools that help you price right, stock smart, and reach {cityName} buyers when they're ready to buy.
+            Join the platform that makers can't operate without.
           </p>
         </div>
 
@@ -25,9 +25,9 @@ export const ValueProposition = () => {
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Heart className="w-6 h-6 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Low Commission Rates</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Price Coach Intelligence</h3>
             <p className="text-sm text-muted-foreground">
-              Keep more of what you earn. We charge fair fees so you can price competitively while making a profit.
+              Get hyper-local pricing data for your category and neighborhood. Know what {cityName} buyers pay. Price confidently with competitive positioning insights.
             </p>
           </div>
 
@@ -35,9 +35,9 @@ export const ValueProposition = () => {
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Star className="w-6 h-6 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Built for Artisans</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Same-Day Pickup Tools</h3>
             <p className="text-sm text-muted-foreground">
-              Showcase your craft with beautiful product pages. Easy tools to manage inventory, orders, and shipping.
+              Toggle "Available Today" each morning. Buyers filter for urgent gifts—you get same-day sales. Zero shipping hassle, immediate revenue.
             </p>
           </div>
 
@@ -45,9 +45,9 @@ export const ValueProposition = () => {
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Truck className="w-6 h-6 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Flexible Fulfillment</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Market Mode for Craft Fairs</h3>
             <p className="text-sm text-muted-foreground">
-              Offer local pickup in {cityName}, ship nationally, or both. You control how you deliver your products.
+              At a craft fair? Enable Market Mode. Buyers reserve online, pickup at your booth. Capture sales even when items sell out. Physical + digital integration.
             </p>
           </div>
 
@@ -55,24 +55,24 @@ export const ValueProposition = () => {
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Shield className="w-6 h-6 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Secure Payments</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Demand Forecasting</h3>
             <p className="text-sm text-muted-foreground">
-              Get paid fast with Stripe. Direct deposits to your bank account. We handle all payment processing securely.
+              Know what to make next. Seasonal predictions, restock alerts, and {cityName} trend data. Stop guessing—build inventory based on local demand signals.
             </p>
           </div>
         </div>
 
         {/* How It Works */}
         <div className="bg-background p-6 sm:p-8 lg:p-10 rounded-lg border border-border">
-          <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-6 text-center">How to Get Started Selling</h3>
+          <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-6 text-center">How Infrastructure Helps You Sell More</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             <div className="text-center">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary text-white flex items-center justify-center text-lg sm:text-xl font-bold mx-auto mb-4">
                 1
               </div>
-              <h4 className="font-semibold text-foreground mb-2">Sign Up Free</h4>
+              <h4 className="font-semibold text-foreground mb-2">Get Local Intelligence</h4>
               <p className="text-sm text-muted-foreground">
-                Create your seller account in minutes. Tell us about your craft and what you make. No upfront fees to join.
+                Price Coach tells you what {cityName} buyers pay in your category. Demand forecasting predicts what to stock. Data you can't get anywhere else.
               </p>
             </div>
 
@@ -80,9 +80,9 @@ export const ValueProposition = () => {
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary text-white flex items-center justify-center text-lg sm:text-xl font-bold mx-auto mb-4">
                 2
               </div>
-              <h4 className="font-semibold text-foreground mb-2">List Your Products</h4>
+              <h4 className="font-semibold text-foreground mb-2">Reach Urgent Buyers</h4>
               <p className="text-sm text-muted-foreground">
-                Upload photos, set prices, and describe your handmade items. We'll help you get ready for launch day.
+                Enable "Available Today" when you're free for pickup. Capture same-day gift sales that other platforms miss. Turn availability into revenue.
               </p>
             </div>
 
@@ -90,9 +90,9 @@ export const ValueProposition = () => {
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary text-white flex items-center justify-center text-lg sm:text-xl font-bold mx-auto mb-4">
                 3
               </div>
-              <h4 className="font-semibold text-foreground mb-2">Launch & Sell</h4>
+              <h4 className="font-semibold text-foreground mb-2">Integrate Physical Sales</h4>
               <p className="text-sm text-muted-foreground">
-                Go live with the marketplace launch. Start selling to customers who love handmade goods in {cityName} and beyond.
+                Use Market Mode at craft fairs. Buyers browse your full catalog even when booth inventory runs out. One platform for all {cityName} sales channels.
               </p>
             </div>
           </div>

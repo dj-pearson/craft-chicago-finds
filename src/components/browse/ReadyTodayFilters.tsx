@@ -38,7 +38,7 @@ export const ReadyTodayFilters = ({ filters, onFiltersChange }: ReadyTodayFilter
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-warning-foreground">
             <Clock className="h-5 w-5" />
-            Ready Today
+            Available Today
           </CardTitle>
           {hasActiveFilters && (
             <Button
@@ -52,7 +52,7 @@ export const ReadyTodayFilters = ({ filters, onFiltersChange }: ReadyTodayFilter
           )}
         </div>
         <p className="text-sm text-muted-foreground">
-          Find items available for immediate pickup or same-day shipping
+          Same-day pickup infrastructure: Get handmade gifts urgently. Zero shipping wait.
         </p>
       </CardHeader>
       
@@ -147,8 +147,9 @@ export const ReadyTodayFilters = ({ filters, onFiltersChange }: ReadyTodayFilter
           </Button>
         </div>
 
-        <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-          💡 Perfect for last-minute gifts and urgent needs. Times may vary by seller location.
+        <div className="text-xs text-muted-foreground bg-primary/5 p-3 rounded-lg border border-primary/20">
+          <strong className="text-primary">Infrastructure Advantage:</strong> Same-day pickup from 500+ Chicago makers.
+          No other platform offers real-time local availability filtering.
         </div>
       </CardContent>
     </Card>

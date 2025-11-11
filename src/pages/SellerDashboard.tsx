@@ -28,6 +28,11 @@ import { SellerComplianceGuide } from "@/components/seller/SellerComplianceGuide
 import { SellerEducationRecommendations } from "@/components/seller/SellerEducationRecommendations";
 import { DiscountCodeManager } from "@/components/seller/DiscountCodeManager";
 import { PayoutDashboard } from "@/components/seller/PayoutDashboard";
+import { AvailableTodayPromo } from "@/components/seller/AvailableTodayPromo";
+import { VacationModeManager } from "@/components/seller/VacationModeManager";
+import { DemandForecast } from "@/components/seller/DemandForecast";
+import { CategoryTrendAlerts } from "@/components/seller/CategoryTrendAlerts";
+import { MarketModeManager } from "@/components/seller/MarketModeManager";
 
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,7 +58,10 @@ import {
   Shield,
   AlertTriangle,
   BookOpen,
-  Tag
+  Tag,
+  Lightbulb,
+  Zap,
+  Building2
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -78,6 +86,7 @@ export default function SellerDashboard() {
   const [isSellerVerified, setIsSellerVerified] = useState(false);
   const [showStripeOnboarding, setShowStripeOnboarding] = useState(false);
   const [showActivationWizard, setShowActivationWizard] = useState(false);
+  const [showAvailableTodayPromo, setShowAvailableTodayPromo] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -152,10 +161,24 @@ export default function SellerDashboard() {
       // Get listing stats
       const { data: listings, error: listingsError } = await supabase
         .from('listings')
-        .select('id, status, view_count, price')
+        .select('id, status, view_count, price, ready_today, ships_today, pickup_today')
         .eq('seller_id', user.id);
 
       if (listingsError) throw listingsError;
+
+      // Check if seller has active listings but none with "Available Today" enabled
+      const activeListingsCount = listings?.filter(l => l.status === 'active').length || 0;
+      const hasAvailableToday = listings?.some(l => l.ready_today || l.ships_today || l.pickup_today) || false;
+
+      // Show promo if: has active listings, hasn't enabled Available Today, and Stripe is set up
+      const { data: profileCheck } = await supabase
+        .from('profiles')
+        .select('stripe_account_id')
+        .eq('user_id', user.id)
+        .single();
+
+      const hasStripe = !!profileCheck?.stripe_account_id;
+      setShowAvailableTodayPromo(activeListingsCount > 0 && !hasAvailableToday && hasStripe && !localStorage.getItem("availableTodayPromoDismissed"));
 
       // Get order stats
       const { data: orders, error: ordersError } = await supabase
@@ -270,6 +293,16 @@ export default function SellerDashboard() {
         <div className="mb-8">
           <ComplianceNotifications />
         </div>
+
+        {/* Available Today Promo - Drive Feature Adoption */}
+        {showAvailableTodayPromo && (
+          <div className="mb-8">
+            <AvailableTodayPromo
+              onDismiss={() => setShowAvailableTodayPromo(false)}
+              showDismiss={true}
+            />
+          </div>
+        )}
 
         {/* Stripe Onboarding - Required */}
         {showStripeOnboarding && (
@@ -472,7 +505,7 @@ export default function SellerDashboard() {
 
         {/* Main Content */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-11 gap-1">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-14 gap-1">
             <TabsTrigger value="overview" className="flex items-center gap-1 text-xs">
               <TrendingUp className="h-3 w-3" />
               <span className="hidden sm:inline">Overview</span>
@@ -520,6 +553,18 @@ export default function SellerDashboard() {
             <TabsTrigger value="security" className="flex items-center gap-1 text-xs">
               <Shield className="h-3 w-3" />
               <span className="hidden sm:inline">Security</span>
+            </TabsTrigger>
+            <TabsTrigger value="forecast" className="flex items-center gap-1 text-xs">
+              <Lightbulb className="h-3 w-3" />
+              <span className="hidden sm:inline">Forecast</span>
+            </TabsTrigger>
+            <TabsTrigger value="trends" className="flex items-center gap-1 text-xs">
+              <Zap className="h-3 w-3" />
+              <span className="hidden sm:inline">Trends</span>
+            </TabsTrigger>
+            <TabsTrigger value="market-mode" className="flex items-center gap-1 text-xs">
+              <Building2 className="h-3 w-3" />
+              <span className="hidden sm:inline">Markets</span>
             </TabsTrigger>
           </TabsList>
 
@@ -625,6 +670,18 @@ export default function SellerDashboard() {
               </Card>
               <SellerEducationRecommendations />
             </div>
+          </TabsContent>
+
+          <TabsContent value="forecast">
+            <DemandForecast sellerId={user?.id || ''} />
+          </TabsContent>
+
+          <TabsContent value="trends">
+            <CategoryTrendAlerts sellerId={user?.id || ''} />
+          </TabsContent>
+
+          <TabsContent value="market-mode">
+            <MarketModeManager sellerId={user?.id || ''} />
           </TabsContent>
 
         </Tabs>

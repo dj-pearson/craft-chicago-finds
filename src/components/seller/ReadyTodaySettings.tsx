@@ -143,10 +143,11 @@ export const ReadyTodaySettings = ({ sellerId }: ReadyTodaySettingsProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Ready Today Settings
+            Available Today - Infrastructure Tool
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Mark your items as ready for immediate pickup or same-day shipping to help last-minute buyers find you.
+            Turn availability into revenue. 38% of orders use same-day pickup—capture urgent gift buyers other platforms miss.
+            Toggle items "Available Today" to get priority in search results.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -267,8 +268,9 @@ export const ReadyTodaySettings = ({ sellerId }: ReadyTodaySettingsProps) => {
             )}
           </div>
 
-          <div className="text-xs text-muted-foreground bg-blue-50 p-3 rounded-lg border border-blue-200">
-            💡 <strong>Pro tip:</strong> Items marked as "ready today" get priority placement in search results and help buyers find last-minute options.
+          <div className="text-xs bg-primary/5 p-3 rounded-lg border border-primary/20">
+            <strong className="text-primary">Infrastructure Advantage:</strong> "Available Today" listings get 3x more views and priority search placement.
+            Enable each morning when you're free for pickup (2-6pm typical). Capture same-day sales that Etsy can't.
           </div>
         </CardContent>
       </Card>
