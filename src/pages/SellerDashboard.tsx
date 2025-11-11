@@ -28,6 +28,8 @@ import { SellerComplianceGuide } from "@/components/seller/SellerComplianceGuide
 import { SellerEducationRecommendations } from "@/components/seller/SellerEducationRecommendations";
 import { DiscountCodeManager } from "@/components/seller/DiscountCodeManager";
 import { PayoutDashboard } from "@/components/seller/PayoutDashboard";
+import { AvailableTodayPromo } from "@/components/seller/AvailableTodayPromo";
+import { VacationModeManager } from "@/components/seller/VacationModeManager";
 
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -78,6 +80,7 @@ export default function SellerDashboard() {
   const [isSellerVerified, setIsSellerVerified] = useState(false);
   const [showStripeOnboarding, setShowStripeOnboarding] = useState(false);
   const [showActivationWizard, setShowActivationWizard] = useState(false);
+  const [showAvailableTodayPromo, setShowAvailableTodayPromo] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -152,10 +155,24 @@ export default function SellerDashboard() {
       // Get listing stats
       const { data: listings, error: listingsError } = await supabase
         .from('listings')
-        .select('id, status, view_count, price')
+        .select('id, status, view_count, price, ready_today, ships_today, pickup_today')
         .eq('seller_id', user.id);
 
       if (listingsError) throw listingsError;
+
+      // Check if seller has active listings but none with "Available Today" enabled
+      const activeListingsCount = listings?.filter(l => l.status === 'active').length || 0;
+      const hasAvailableToday = listings?.some(l => l.ready_today || l.ships_today || l.pickup_today) || false;
+
+      // Show promo if: has active listings, hasn't enabled Available Today, and Stripe is set up
+      const { data: profileCheck } = await supabase
+        .from('profiles')
+        .select('stripe_account_id')
+        .eq('user_id', user.id)
+        .single();
+
+      const hasStripe = !!profileCheck?.stripe_account_id;
+      setShowAvailableTodayPromo(activeListingsCount > 0 && !hasAvailableToday && hasStripe && !localStorage.getItem("availableTodayPromoDismissed"));
 
       // Get order stats
       const { data: orders, error: ordersError } = await supabase
@@ -270,6 +287,16 @@ export default function SellerDashboard() {
         <div className="mb-8">
           <ComplianceNotifications />
         </div>
+
+        {/* Available Today Promo - Drive Feature Adoption */}
+        {showAvailableTodayPromo && (
+          <div className="mb-8">
+            <AvailableTodayPromo
+              onDismiss={() => setShowAvailableTodayPromo(false)}
+              showDismiss={true}
+            />
+          </div>
+        )}
 
         {/* Stripe Onboarding - Required */}
         {showStripeOnboarding && (
