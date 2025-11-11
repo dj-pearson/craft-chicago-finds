@@ -58,8 +58,8 @@ export const CategoryTrends = ({ limit = 6, showGrowthRate = true }: CategoryTre
         });
 
       if (error) {
-        console.error('Error fetching trending categories:', error);
-        setTrendingCategories([]);
+        console.warn('RPC get_trending_categories not available, using fallback query:', error.message);
+        await fetchTrendingCategoriesFallback();
         return;
       }
 
@@ -78,9 +78,66 @@ export const CategoryTrends = ({ limit = 6, showGrowthRate = true }: CategoryTre
       setTrendingCategories(trendingCategories);
     } catch (error) {
       console.error('Error fetching trending categories:', error);
-      setTrendingCategories([]);
+      await fetchTrendingCategoriesFallback();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTrendingCategoriesFallback = async () => {
+    if (!currentCity) return;
+
+    try {
+      // Fallback query: get categories for the city with basic stats
+      const { data: categories, error } = await supabase
+        .from('categories')
+        .select('id, name, slug, image_url')
+        .eq('city_id', currentCity.id)
+        .eq('is_active', true)
+        .limit(limit * 2); // Get more to filter down
+
+      if (error) {
+        console.error('Fallback query error:', error);
+        setTrendingCategories([]);
+        return;
+      }
+
+      if (!categories || categories.length === 0) {
+        setTrendingCategories([]);
+        return;
+      }
+
+      // Get stats for each category (simplified version)
+      const categoryStats = await Promise.all(
+        categories.slice(0, limit).map(async (cat) => {
+          const { count: listingCount } = await supabase
+            .from('listings')
+            .select('*', { count: 'exact', head: true })
+            .eq('category_id', cat.id)
+            .eq('status', 'active');
+
+          return {
+            id: cat.id,
+            name: cat.name,
+            slug: cat.slug,
+            image_url: cat.image_url || undefined,
+            listing_count: listingCount || 0,
+            view_count: 0, // Not available in fallback
+            growth_rate: 0, // Not available in fallback
+            average_rating: 0 // Not available in fallback
+          };
+        })
+      );
+
+      // Filter out categories with no listings and sort by listing count
+      const filteredCategories = categoryStats
+        .filter(cat => cat.listing_count > 0)
+        .sort((a, b) => b.listing_count - a.listing_count);
+
+      setTrendingCategories(filteredCategories);
+    } catch (error) {
+      console.error('Fallback query failed:', error);
+      setTrendingCategories([]);
     }
   };
 
