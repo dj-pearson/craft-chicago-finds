@@ -156,6 +156,57 @@ GRANT EXECUTE ON FUNCTION get_trending_categories(UUID, INT) TO anon, authentica
 -- 4. Get Featured Collections
 -- Used by: src/components/collections/FeaturedCollections.tsx
 -- ========================================
+
+-- First, ensure the collections table exists (it should be created by migration 20250929060000)
+-- If it doesn't exist, create a minimal version for the function to work
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT FROM information_schema.tables 
+    WHERE table_schema = 'public' 
+    AND table_name = 'collections'
+  ) THEN
+    -- Create minimal collections table if it doesn't exist
+    CREATE TABLE public.collections (
+      id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+      creator_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+      title TEXT NOT NULL,
+      description TEXT,
+      slug TEXT NOT NULL UNIQUE,
+      cover_image_url TEXT,
+      is_public BOOLEAN NOT NULL DEFAULT true,
+      is_featured BOOLEAN NOT NULL DEFAULT false,
+      tags TEXT[] DEFAULT '{}',
+      category TEXT CHECK (category IN ('curated', 'seasonal', 'trending', 'gift_guide', 'style', 'occasion', 'custom')),
+      sort_order INTEGER DEFAULT 0,
+      view_count INTEGER DEFAULT 0,
+      follow_count INTEGER DEFAULT 0,
+      item_count INTEGER DEFAULT 0,
+      created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+      updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+    );
+    
+    -- Enable RLS
+    ALTER TABLE public.collections ENABLE ROW LEVEL SECURITY;
+    
+    -- Create basic policies
+    CREATE POLICY "Anyone can view public collections" 
+    ON public.collections 
+    FOR SELECT 
+    USING (is_public = true);
+    
+    CREATE POLICY "Users can manage their own collections" 
+    ON public.collections 
+    FOR ALL 
+    USING (auth.uid() = creator_id);
+    
+    -- Grant permissions
+    GRANT SELECT ON public.collections TO anon, authenticated;
+    
+    RAISE NOTICE 'Created collections table (should have been created by earlier migration)';
+  END IF;
+END $$;
+
 CREATE OR REPLACE FUNCTION get_featured_collections(collection_limit INTEGER DEFAULT 6)
 RETURNS TABLE (
   id UUID,
@@ -182,7 +233,7 @@ AS $$
     c.slug,
     c.cover_image_url,
     c.creator_id,
-    p.display_name,
+    COALESCE(p.display_name, 'Unknown')::TEXT,
     p.avatar_url,
     c.category,
     COALESCE(c.item_count, 0)::INTEGER,
@@ -269,8 +320,12 @@ BEGIN
       ON reviews(order_id, rating);
   END IF;
 
-  -- Index for collections featured
-  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_collections_featured_public') THEN
+  -- Index for collections featured (only if table exists)
+  IF EXISTS (
+    SELECT FROM information_schema.tables 
+    WHERE table_schema = 'public' 
+    AND table_name = 'collections'
+  ) AND NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_collections_featured_public') THEN
     CREATE INDEX idx_collections_featured_public
       ON collections(is_featured, is_public, follow_count DESC, created_at DESC)
       WHERE is_public = true AND is_featured = true;
