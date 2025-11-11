@@ -14,6 +14,7 @@ const FeaturedMakers = lazy(() => import("@/components/FeaturedMakers").then(mod
 const WelcomeBanner = lazy(() => import("@/components/marketplace/WelcomeBanner").then(module => ({ default: module.WelcomeBanner })));
 const MarketplaceStatus = lazy(() => import("@/components/marketplace/MarketplaceStatus").then(module => ({ default: module.MarketplaceStatus })));
 const QuickActions = lazy(() => import("@/components/marketplace/QuickActions").then(module => ({ default: module.QuickActions })));
+const AvailableTodayShowcase = lazy(() => import("@/components/marketplace/AvailableTodayShowcase").then(module => ({ default: module.AvailableTodayShowcase })));
 
 const Index = () => {
   const { currentCity } = useCityContext();
@@ -58,6 +59,9 @@ const Index = () => {
         </Suspense>
         <ValueProposition />
         <CategoryGrid />
+        <Suspense fallback={<LoadingSpinner text="Loading features..." />}>
+          <AvailableTodayShowcase />
+        </Suspense>
         <Suspense fallback={<LoadingSpinner text="Loading features..." />}>
           <MarketplaceStatus />
         </Suspense>
