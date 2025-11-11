@@ -32,6 +32,7 @@ import { AvailableTodayPromo } from "@/components/seller/AvailableTodayPromo";
 import { VacationModeManager } from "@/components/seller/VacationModeManager";
 import { DemandForecast } from "@/components/seller/DemandForecast";
 import { CategoryTrendAlerts } from "@/components/seller/CategoryTrendAlerts";
+import { MarketModeManager } from "@/components/seller/MarketModeManager";
 
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,7 +60,8 @@ import {
   BookOpen,
   Tag,
   Lightbulb,
-  Zap
+  Zap,
+  Building2
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -503,7 +505,7 @@ export default function SellerDashboard() {
 
         {/* Main Content */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-13 gap-1">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-14 gap-1">
             <TabsTrigger value="overview" className="flex items-center gap-1 text-xs">
               <TrendingUp className="h-3 w-3" />
               <span className="hidden sm:inline">Overview</span>
@@ -559,6 +561,10 @@ export default function SellerDashboard() {
             <TabsTrigger value="trends" className="flex items-center gap-1 text-xs">
               <Zap className="h-3 w-3" />
               <span className="hidden sm:inline">Trends</span>
+            </TabsTrigger>
+            <TabsTrigger value="market-mode" className="flex items-center gap-1 text-xs">
+              <Building2 className="h-3 w-3" />
+              <span className="hidden sm:inline">Markets</span>
             </TabsTrigger>
           </TabsList>
 
@@ -672,6 +678,10 @@ export default function SellerDashboard() {
 
           <TabsContent value="trends">
             <CategoryTrendAlerts sellerId={user?.id || ''} />
+          </TabsContent>
+
+          <TabsContent value="market-mode">
+            <MarketModeManager sellerId={user?.id || ''} />
           </TabsContent>
 
         </Tabs>
