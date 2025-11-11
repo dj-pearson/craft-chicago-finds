@@ -30,6 +30,8 @@ import { DiscountCodeManager } from "@/components/seller/DiscountCodeManager";
 import { PayoutDashboard } from "@/components/seller/PayoutDashboard";
 import { AvailableTodayPromo } from "@/components/seller/AvailableTodayPromo";
 import { VacationModeManager } from "@/components/seller/VacationModeManager";
+import { DemandForecast } from "@/components/seller/DemandForecast";
+import { CategoryTrendAlerts } from "@/components/seller/CategoryTrendAlerts";
 
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,7 +57,9 @@ import {
   Shield,
   AlertTriangle,
   BookOpen,
-  Tag
+  Tag,
+  Lightbulb,
+  Zap
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -499,7 +503,7 @@ export default function SellerDashboard() {
 
         {/* Main Content */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-11 gap-1">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-13 gap-1">
             <TabsTrigger value="overview" className="flex items-center gap-1 text-xs">
               <TrendingUp className="h-3 w-3" />
               <span className="hidden sm:inline">Overview</span>
@@ -547,6 +551,14 @@ export default function SellerDashboard() {
             <TabsTrigger value="security" className="flex items-center gap-1 text-xs">
               <Shield className="h-3 w-3" />
               <span className="hidden sm:inline">Security</span>
+            </TabsTrigger>
+            <TabsTrigger value="forecast" className="flex items-center gap-1 text-xs">
+              <Lightbulb className="h-3 w-3" />
+              <span className="hidden sm:inline">Forecast</span>
+            </TabsTrigger>
+            <TabsTrigger value="trends" className="flex items-center gap-1 text-xs">
+              <Zap className="h-3 w-3" />
+              <span className="hidden sm:inline">Trends</span>
             </TabsTrigger>
           </TabsList>
 
@@ -652,6 +664,14 @@ export default function SellerDashboard() {
               </Card>
               <SellerEducationRecommendations />
             </div>
+          </TabsContent>
+
+          <TabsContent value="forecast">
+            <DemandForecast sellerId={user?.id || ''} />
+          </TabsContent>
+
+          <TabsContent value="trends">
+            <CategoryTrendAlerts sellerId={user?.id || ''} />
           </TabsContent>
 
         </Tabs>
