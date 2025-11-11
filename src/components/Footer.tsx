@@ -69,9 +69,9 @@ export const Footer = () => {
   return (
     <footer className="bg-foreground text-background">
       <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand */}
-          <div className="lg:col-span-1">
+          <div>
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-sm">
@@ -86,8 +86,7 @@ export const Footer = () => {
               </div>
             </div>
             <p className="text-background/80 text-sm leading-relaxed mb-4">
-              Supporting local artisans and connecting communities with unique
-              handmade goods.
+              Chicago's craft commerce infrastructure connecting makers, buyers, and craft fairs.
             </p>
             <div className="flex items-center text-background/80 text-sm">
               <Heart className="w-4 h-4 mr-2 text-accent" />
@@ -184,6 +183,45 @@ export const Footer = () => {
                   className="text-background/80 hover:text-background transition-colors"
                 >
                   Prohibited Items
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Infrastructure */}
+          <div>
+            <h4 className="text-lg font-semibold mb-4">Infrastructure</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link
+                  to="/about"
+                  className="text-background/80 hover:text-background transition-colors"
+                >
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/chicago-craft-index"
+                  className="text-background/80 hover:text-background transition-colors"
+                >
+                  Chicago Craft Economy Index
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/for-craft-fairs"
+                  className="text-background/80 hover:text-background transition-colors"
+                >
+                  For Craft Fairs
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/tools/pricing-calculator"
+                  className="text-background/80 hover:text-background transition-colors"
+                >
+                  Pricing Calculator
                 </Link>
               </li>
             </ul>
