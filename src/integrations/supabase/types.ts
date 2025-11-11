@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_id: string | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: string | null
+          target_id: string | null
+          target_type: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          admin_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       ai_generation_logs: {
         Row: {
           created_at: string
@@ -295,6 +331,60 @@ export type Database = {
             columns: ["article_id"]
             isOneToOne: false
             referencedRelation: "blog_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_article_products: {
+        Row: {
+          article_id: string
+          clicks: number
+          conversions: number
+          created_at: string
+          custom_description: string | null
+          display_order: number
+          featured: boolean
+          id: string
+          listing_id: string
+          updated_at: string
+        }
+        Insert: {
+          article_id: string
+          clicks?: number
+          conversions?: number
+          created_at?: string
+          custom_description?: string | null
+          display_order?: number
+          featured?: boolean
+          id?: string
+          listing_id: string
+          updated_at?: string
+        }
+        Update: {
+          article_id?: string
+          clicks?: number
+          conversions?: number
+          created_at?: string
+          custom_description?: string | null
+          display_order?: number
+          featured?: boolean
+          id?: string
+          listing_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_article_products_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "blog_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_article_products_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
             referencedColumns: ["id"]
           },
         ]
@@ -3479,6 +3569,7 @@ export type Database = {
           updated_at: string
           user_id: string
           website: string | null
+          zapier_webhook_url: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -3509,6 +3600,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           website?: string | null
+          zapier_webhook_url?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -3539,6 +3631,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           website?: string | null
+          zapier_webhook_url?: string | null
         }
         Relationships: [
           {
@@ -4376,6 +4469,206 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_audit_schedules: {
+        Row: {
+          active: boolean | null
+          audit_config: Json | null
+          created_at: string | null
+          created_by: string | null
+          cron_expression: string | null
+          description: string | null
+          id: string
+          last_run_at: string | null
+          last_run_results: Json | null
+          last_run_status: string | null
+          name: string
+          next_run_at: string | null
+          notification_channels: string[] | null
+          notification_recipients: string[] | null
+          schedule_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          audit_config?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          cron_expression?: string | null
+          description?: string | null
+          id?: string
+          last_run_at?: string | null
+          last_run_results?: Json | null
+          last_run_status?: string | null
+          name: string
+          next_run_at?: string | null
+          notification_channels?: string[] | null
+          notification_recipients?: string[] | null
+          schedule_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          audit_config?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          cron_expression?: string | null
+          description?: string | null
+          id?: string
+          last_run_at?: string | null
+          last_run_results?: Json | null
+          last_run_status?: string | null
+          name?: string
+          next_run_at?: string | null
+          notification_channels?: string[] | null
+          notification_recipients?: string[] | null
+          schedule_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      seo_autofix_history: {
+        Row: {
+          applied_at: string | null
+          applied_by: string | null
+          approved_by: string | null
+          error_message: string | null
+          fix_applied: Json
+          id: string
+          issue_id: string | null
+          issue_type: string
+          result: string
+          rollback_reason: string | null
+          rolled_back_at: string | null
+          rule_id: string | null
+        }
+        Insert: {
+          applied_at?: string | null
+          applied_by?: string | null
+          approved_by?: string | null
+          error_message?: string | null
+          fix_applied: Json
+          id?: string
+          issue_id?: string | null
+          issue_type: string
+          result: string
+          rollback_reason?: string | null
+          rolled_back_at?: string | null
+          rule_id?: string | null
+        }
+        Update: {
+          applied_at?: string | null
+          applied_by?: string | null
+          approved_by?: string | null
+          error_message?: string | null
+          fix_applied?: Json
+          id?: string
+          issue_id?: string | null
+          issue_type?: string
+          result?: string
+          rollback_reason?: string | null
+          rolled_back_at?: string | null
+          rule_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_autofix_history_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "seo_autofix_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_autofix_rules: {
+        Row: {
+          active: boolean | null
+          applied_count: number | null
+          auto_apply: boolean | null
+          conditions: Json | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          failure_count: number | null
+          fix_action: Json
+          id: string
+          issue_type: string
+          name: string
+          priority: number | null
+          requires_approval: boolean | null
+          success_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          applied_count?: number | null
+          auto_apply?: boolean | null
+          conditions?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          failure_count?: number | null
+          fix_action: Json
+          id?: string
+          issue_type: string
+          name: string
+          priority?: number | null
+          requires_approval?: boolean | null
+          success_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          applied_count?: number | null
+          auto_apply?: boolean | null
+          conditions?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          failure_count?: number | null
+          fix_action?: Json
+          id?: string
+          issue_type?: string
+          name?: string
+          priority?: number | null
+          requires_approval?: boolean | null
+          success_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      seo_automation_logs: {
+        Row: {
+          automation_id: string | null
+          automation_type: string
+          created_at: string | null
+          details: Json | null
+          duration_ms: number | null
+          id: string
+          message: string | null
+          status: string
+        }
+        Insert: {
+          automation_id?: string | null
+          automation_type: string
+          created_at?: string | null
+          details?: Json | null
+          duration_ms?: number | null
+          id?: string
+          message?: string | null
+          status: string
+        }
+        Update: {
+          automation_id?: string | null
+          automation_type?: string
+          created_at?: string | null
+          details?: Json | null
+          duration_ms?: number | null
+          id?: string
+          message?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       seo_backlink_opportunities: {
         Row: {
           contact_email: string | null
@@ -4644,6 +4937,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      seo_competitor_tracking: {
+        Row: {
+          active: boolean | null
+          alert_on_content_updates: boolean | null
+          alert_on_new_backlinks: boolean | null
+          alert_on_rank_change: boolean | null
+          check_frequency: string | null
+          competitor_domain: string
+          competitor_name: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          keywords: string[] | null
+          last_checked_at: string | null
+          metadata: Json | null
+          next_check_at: string | null
+          notification_channels: string[] | null
+          notification_recipients: string[] | null
+          rank_change_threshold: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          alert_on_content_updates?: boolean | null
+          alert_on_new_backlinks?: boolean | null
+          alert_on_rank_change?: boolean | null
+          check_frequency?: string | null
+          competitor_domain: string
+          competitor_name?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          keywords?: string[] | null
+          last_checked_at?: string | null
+          metadata?: Json | null
+          next_check_at?: string | null
+          notification_channels?: string[] | null
+          notification_recipients?: string[] | null
+          rank_change_threshold?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          alert_on_content_updates?: boolean | null
+          alert_on_new_backlinks?: boolean | null
+          alert_on_rank_change?: boolean | null
+          check_frequency?: string | null
+          competitor_domain?: string
+          competitor_name?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          keywords?: string[] | null
+          last_checked_at?: string | null
+          metadata?: Json | null
+          next_check_at?: string | null
+          notification_channels?: string[] | null
+          notification_recipients?: string[] | null
+          rank_change_threshold?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       seo_core_web_vitals: {
         Row: {
@@ -5423,6 +5779,54 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_notification_queue: {
+        Row: {
+          channels: string[]
+          created_at: string | null
+          data: Json | null
+          error_message: string | null
+          id: string
+          message: string
+          notification_type: string
+          recipients: string[]
+          retry_count: number | null
+          sent_at: string | null
+          severity: string
+          status: string | null
+          title: string
+        }
+        Insert: {
+          channels: string[]
+          created_at?: string | null
+          data?: Json | null
+          error_message?: string | null
+          id?: string
+          message: string
+          notification_type: string
+          recipients: string[]
+          retry_count?: number | null
+          sent_at?: string | null
+          severity: string
+          status?: string | null
+          title: string
+        }
+        Update: {
+          channels?: string[]
+          created_at?: string | null
+          data?: Json | null
+          error_message?: string | null
+          id?: string
+          message?: string
+          notification_type?: string
+          recipients?: string[]
+          retry_count?: number | null
+          sent_at?: string | null
+          severity?: string
+          status?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       seo_page_scores: {
         Row: {
           alt_text_coverage: number | null
@@ -5662,6 +6066,104 @@ export type Database = {
           redirect_type?: string | null
           source_url?: string
           total_time_ms?: number | null
+        }
+        Relationships: []
+      }
+      seo_report_history: {
+        Row: {
+          file_url: string | null
+          generated_at: string | null
+          generation_time_ms: number | null
+          id: string
+          report_data: Json
+          report_type: string
+          schedule_id: string | null
+          sent_to: string[] | null
+        }
+        Insert: {
+          file_url?: string | null
+          generated_at?: string | null
+          generation_time_ms?: number | null
+          id?: string
+          report_data: Json
+          report_type: string
+          schedule_id?: string | null
+          sent_to?: string[] | null
+        }
+        Update: {
+          file_url?: string | null
+          generated_at?: string | null
+          generation_time_ms?: number | null
+          id?: string
+          report_data?: Json
+          report_type?: string
+          schedule_id?: string | null
+          sent_to?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_report_history_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "seo_scheduled_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_scheduled_reports: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          created_by: string | null
+          cron_expression: string | null
+          delivery_channels: string[] | null
+          description: string | null
+          format: string | null
+          id: string
+          last_generated_at: string | null
+          name: string
+          next_generation_at: string | null
+          recipients: string[]
+          report_config: Json | null
+          report_type: string
+          schedule_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          cron_expression?: string | null
+          delivery_channels?: string[] | null
+          description?: string | null
+          format?: string | null
+          id?: string
+          last_generated_at?: string | null
+          name: string
+          next_generation_at?: string | null
+          recipients: string[]
+          report_config?: Json | null
+          report_type: string
+          schedule_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          cron_expression?: string | null
+          delivery_channels?: string[] | null
+          description?: string | null
+          format?: string | null
+          id?: string
+          last_generated_at?: string | null
+          name?: string
+          next_generation_at?: string | null
+          recipients?: string[]
+          report_config?: Json | null
+          report_type?: string
+          schedule_type?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -6227,6 +6729,356 @@ export type Database = {
           },
         ]
       }
+      support_canned_responses: {
+        Row: {
+          category: string
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          shortcode: string | null
+          title: string
+          updated_at: string | null
+          usage_count: number | null
+          variables: string[] | null
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          shortcode?: string | null
+          title: string
+          updated_at?: string | null
+          usage_count?: number | null
+          variables?: string[] | null
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          shortcode?: string | null
+          title?: string
+          updated_at?: string | null
+          usage_count?: number | null
+          variables?: string[] | null
+        }
+        Relationships: []
+      }
+      support_kb_articles: {
+        Row: {
+          category: string
+          content: string
+          created_at: string | null
+          created_by: string | null
+          excerpt: string | null
+          helpful_count: number | null
+          id: string
+          is_featured: boolean | null
+          is_published: boolean | null
+          keywords: string[] | null
+          last_updated_by: string | null
+          not_helpful_count: number | null
+          published_at: string | null
+          related_article_ids: string[] | null
+          slug: string
+          title: string
+          updated_at: string | null
+          view_count: number | null
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          excerpt?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          keywords?: string[] | null
+          last_updated_by?: string | null
+          not_helpful_count?: number | null
+          published_at?: string | null
+          related_article_ids?: string[] | null
+          slug: string
+          title: string
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          excerpt?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          keywords?: string[] | null
+          last_updated_by?: string | null
+          not_helpful_count?: number | null
+          published_at?: string | null
+          related_article_ids?: string[] | null
+          slug?: string
+          title?: string
+          updated_at?: string | null
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      support_messages: {
+        Row: {
+          attachment_urls: string[] | null
+          created_at: string | null
+          id: string
+          is_internal: boolean | null
+          message: string
+          read_at: string | null
+          read_by_admin: boolean | null
+          read_by_user: boolean | null
+          sender_id: string
+          sender_type: string
+          ticket_id: string
+        }
+        Insert: {
+          attachment_urls?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_internal?: boolean | null
+          message: string
+          read_at?: string | null
+          read_by_admin?: boolean | null
+          read_by_user?: boolean | null
+          sender_id: string
+          sender_type: string
+          ticket_id: string
+        }
+        Update: {
+          attachment_urls?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_internal?: boolean | null
+          message?: string
+          read_at?: string | null
+          read_by_admin?: boolean | null
+          read_by_user?: boolean | null
+          sender_id?: string
+          sender_type?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_metrics_daily: {
+        Row: {
+          avg_first_response_minutes: number | null
+          avg_resolution_minutes: number | null
+          avg_satisfaction_rating: number | null
+          calculated_at: string | null
+          date: string
+          id: string
+          satisfaction_responses: number | null
+          sla_breached_count: number | null
+          sla_met_count: number | null
+          tickets_by_admin: Json | null
+          tickets_by_category: Json | null
+          tickets_by_priority: Json | null
+          tickets_closed: number | null
+          tickets_created: number | null
+          tickets_resolved: number | null
+        }
+        Insert: {
+          avg_first_response_minutes?: number | null
+          avg_resolution_minutes?: number | null
+          avg_satisfaction_rating?: number | null
+          calculated_at?: string | null
+          date: string
+          id?: string
+          satisfaction_responses?: number | null
+          sla_breached_count?: number | null
+          sla_met_count?: number | null
+          tickets_by_admin?: Json | null
+          tickets_by_category?: Json | null
+          tickets_by_priority?: Json | null
+          tickets_closed?: number | null
+          tickets_created?: number | null
+          tickets_resolved?: number | null
+        }
+        Update: {
+          avg_first_response_minutes?: number | null
+          avg_resolution_minutes?: number | null
+          avg_satisfaction_rating?: number | null
+          calculated_at?: string | null
+          date?: string
+          id?: string
+          satisfaction_responses?: number | null
+          sla_breached_count?: number | null
+          sla_met_count?: number | null
+          tickets_by_admin?: Json | null
+          tickets_by_category?: Json | null
+          tickets_by_priority?: Json | null
+          tickets_closed?: number | null
+          tickets_created?: number | null
+          tickets_resolved?: number | null
+        }
+        Relationships: []
+      }
+      support_ticket_activity: {
+        Row: {
+          activity_type: string
+          actor_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          new_value: string | null
+          old_value: string | null
+          ticket_id: string
+        }
+        Insert: {
+          activity_type: string
+          actor_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          ticket_id: string
+        }
+        Update: {
+          activity_type?: string
+          actor_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_activity_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          assigned_admin_id: string | null
+          auto_created: boolean | null
+          auto_created_from: string | null
+          category: string
+          closed_at: string | null
+          created_at: string | null
+          first_response_at: string | null
+          id: string
+          internal_notes: string | null
+          priority: string
+          related_dispute_id: string | null
+          related_listing_id: string | null
+          related_order_id: string | null
+          resolved_at: string | null
+          sla_deadline: string | null
+          status: string
+          subject: string
+          tags: string[] | null
+          ticket_number: string
+          updated_at: string | null
+          user_id: string
+          user_satisfaction_comment: string | null
+          user_satisfaction_rating: number | null
+        }
+        Insert: {
+          assigned_admin_id?: string | null
+          auto_created?: boolean | null
+          auto_created_from?: string | null
+          category: string
+          closed_at?: string | null
+          created_at?: string | null
+          first_response_at?: string | null
+          id?: string
+          internal_notes?: string | null
+          priority?: string
+          related_dispute_id?: string | null
+          related_listing_id?: string | null
+          related_order_id?: string | null
+          resolved_at?: string | null
+          sla_deadline?: string | null
+          status?: string
+          subject: string
+          tags?: string[] | null
+          ticket_number: string
+          updated_at?: string | null
+          user_id: string
+          user_satisfaction_comment?: string | null
+          user_satisfaction_rating?: number | null
+        }
+        Update: {
+          assigned_admin_id?: string | null
+          auto_created?: boolean | null
+          auto_created_from?: string | null
+          category?: string
+          closed_at?: string | null
+          created_at?: string | null
+          first_response_at?: string | null
+          id?: string
+          internal_notes?: string | null
+          priority?: string
+          related_dispute_id?: string | null
+          related_listing_id?: string | null
+          related_order_id?: string | null
+          resolved_at?: string | null
+          sla_deadline?: string | null
+          status?: string
+          subject?: string
+          tags?: string[] | null
+          ticket_number?: string
+          updated_at?: string | null
+          user_id?: string
+          user_satisfaction_comment?: string | null
+          user_satisfaction_rating?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_related_dispute_id_fkey"
+            columns: ["related_dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_related_listing_id_fkey"
+            columns: ["related_listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_related_order_id_fkey"
+            columns: ["related_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       system_health_checks: {
         Row: {
           components: Json
@@ -6254,6 +7106,36 @@ export type Database = {
           response_time?: number | null
           score?: number
           status?: string
+        }
+        Relationships: []
+      }
+      system_metrics: {
+        Row: {
+          id: string
+          metadata: Json | null
+          metric_name: string
+          metric_type: string
+          recorded_at: string | null
+          unit: string | null
+          value: number
+        }
+        Insert: {
+          id?: string
+          metadata?: Json | null
+          metric_name: string
+          metric_type: string
+          recorded_at?: string | null
+          unit?: string | null
+          value: number
+        }
+        Update: {
+          id?: string
+          metadata?: Json | null
+          metric_name?: string
+          metric_type?: string
+          recorded_at?: string | null
+          unit?: string | null
+          value?: number
         }
         Relationships: []
       }
@@ -6364,6 +7246,33 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_activity_log: {
+        Row: {
+          activity_data: Json | null
+          activity_type: string
+          created_at: string | null
+          id: string
+          page_url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: string
+          created_at?: string | null
+          id?: string
+          page_url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: string
+          created_at?: string | null
+          id?: string
+          page_url?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -6785,12 +7694,21 @@ export type Database = {
         }
         Returns: number
       }
-      calculate_next_run_time: {
-        Args: {
-          schedule_record: Database["public"]["Tables"]["seo_monitoring_schedules"]["Row"]
-        }
-        Returns: string
-      }
+      calculate_next_run_time:
+        | {
+            Args: {
+              schedule_record: Database["public"]["Tables"]["seo_monitoring_schedules"]["Row"]
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              p_cron_expression?: string
+              p_current_time?: string
+              p_schedule_type: string
+            }
+            Returns: string
+          }
       calculate_platform_fee: {
         Args: {
           p_calculation_date?: string
@@ -6804,6 +7722,10 @@ export type Database = {
           fee_rate: number
           flat_fee: number
         }[]
+      }
+      calculate_sla_deadline: {
+        Args: { priority_level: string }
+        Returns: string
       }
       calculate_sla_metrics: {
         Args: { end_date: string; start_date: string }
@@ -6855,7 +7777,61 @@ export type Database = {
         Returns: undefined
       }
       generate_performance_recommendations: { Args: never; Returns: number }
+      generate_ticket_number: { Args: never; Returns: string }
+      get_seller_metrics: { Args: { p_seller_id: string }; Returns: Json }
+      get_system_health_summary: {
+        Args: never
+        Returns: {
+          avg_value: number
+          count: number
+          max_value: number
+          metric_type: string
+          min_value: number
+        }[]
+      }
+      get_top_categories_stats: {
+        Args: { limit_count?: number }
+        Returns: {
+          category_id: string
+          category_name: string
+          listing_count: number
+          revenue: number
+        }[]
+      }
+      get_top_cities_stats: {
+        Args: { limit_count?: number }
+        Returns: {
+          city_id: string
+          city_name: string
+          listing_count: number
+          revenue: number
+          user_count: number
+        }[]
+      }
+      get_trending_categories: {
+        Args: { p_city_id: string; p_limit?: number }
+        Returns: {
+          average_rating: number
+          category_id: string
+          category_image_url: string
+          category_name: string
+          category_slug: string
+          growth_rate: number
+          listing_count: number
+          view_count: number
+        }[]
+      }
       get_user_scopes: { Args: { user_uuid: string }; Returns: string[] }
+      get_user_statistics: {
+        Args: never
+        Returns: {
+          active_users_24h: number
+          active_users_7d: number
+          admin_count: number
+          total_users: number
+          users_with_subscriptions: number
+        }[]
+      }
       has_role: {
         Args: {
           _city_id?: string
@@ -6863,6 +7839,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_blog_product_click: {
+        Args: { p_article_id: string; p_listing_id: string }
+        Returns: undefined
       }
       increment_blog_view_count: {
         Args: { article_slug: string }
@@ -6877,6 +7857,40 @@ export type Database = {
         Args: { _city_id: string; _user_id: string }
         Returns: boolean
       }
+      log_admin_action: {
+        Args: {
+          p_action: string
+          p_admin_id: string
+          p_details?: Json
+          p_ip_address?: string
+          p_target_id?: string
+          p_target_type?: string
+          p_user_agent?: string
+        }
+        Returns: string
+      }
+      log_automation_execution: {
+        Args: {
+          p_automation_id: string
+          p_automation_type: string
+          p_details?: Json
+          p_duration_ms?: number
+          p_message?: string
+          p_status: string
+        }
+        Returns: string
+      }
+      log_error: {
+        Args: {
+          p_error_message: string
+          p_error_type: string
+          p_severity?: string
+          p_stack_trace?: string
+          p_user_context?: Json
+          p_user_id: string
+        }
+        Returns: string
+      }
       log_oauth_event: {
         Args: {
           _client_id?: string
@@ -6889,10 +7903,41 @@ export type Database = {
         }
         Returns: string
       }
+      log_user_activity: {
+        Args: {
+          p_activity_data?: Json
+          p_activity_type: string
+          p_page_url?: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       mark_all_notifications_read: { Args: never; Returns: undefined }
       mark_notification_read: {
         Args: { notification_id: string }
         Returns: undefined
+      }
+      queue_seo_notification: {
+        Args: {
+          p_channels: string[]
+          p_data?: Json
+          p_message: string
+          p_notification_type: string
+          p_recipients: string[]
+          p_severity: string
+          p_title: string
+        }
+        Returns: string
+      }
+      record_system_metric: {
+        Args: {
+          p_metadata?: Json
+          p_metric_name: string
+          p_metric_type: string
+          p_unit?: string
+          p_value: number
+        }
+        Returns: string
       }
       seed_mock_seller_data: { Args: never; Returns: Json }
       should_flag_transaction: {
@@ -6903,7 +7948,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      track_blog_product_conversion: {
+        Args: { p_article_id: string; p_listing_id: string }
+        Returns: undefined
+      }
       trigger_compliance_check: { Args: never; Returns: Json }
+      update_autofix_rule_stats: {
+        Args: { p_rule_id: string; p_success: boolean }
+        Returns: undefined
+      }
       update_last_seen: { Args: { _user_id: string }; Returns: undefined }
       update_user_trust_score: {
         Args: { target_user_id: string }
