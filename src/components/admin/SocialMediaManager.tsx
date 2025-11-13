@@ -23,14 +23,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Calendar,
   Plus,
   Edit,
   Trash2,
   Send,
-  Clock,
-  CheckCircle,
-  XCircle,
   Sparkles,
   Facebook,
   Instagram,
@@ -41,7 +37,6 @@ import {
   TrendingUp,
   RefreshCw,
   Webhook,
-  Settings,
   Zap,
   Globe,
 } from "lucide-react";
