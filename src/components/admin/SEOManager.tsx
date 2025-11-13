@@ -9,9 +9,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import {
-  BarChart3, FileText, Link2, Search, Settings, TrendingUp, Globe, Image as ImageIcon,
-  Shield, Smartphone, Zap, Target, Eye, Code, AlertCircle, Activity, FileSearch,
-  Clock, CheckCircle, ExternalLink, Layers, Repeat, Copy, FileCode, Bell, Link as LinkIcon
+  BarChart3, FileText, Link2, Search, Globe, Image as ImageIcon,
+  Shield, Smartphone, Zap, Target, Code, Activity,
+  Clock, Layers, Repeat, Copy, FileCode, Link as LinkIcon
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SEOResultsDisplay } from "./SEOResultsDisplay";

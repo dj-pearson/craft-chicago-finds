@@ -4,9 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, XCircle, Clock, AlertTriangle, FileText } from "lucide-react";
+import { CheckCircle, XCircle, AlertTriangle, FileText } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -102,7 +101,6 @@ export function ComplianceVerification() {
       setProcessing(true);
 
       // Verification is handled by Stripe - no manual rejections needed
-      const error = null;
 
       toast({
         title: "Verification Rejected",

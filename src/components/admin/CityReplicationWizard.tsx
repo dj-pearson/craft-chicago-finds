@@ -208,7 +208,7 @@ export const CityReplicationWizard = ({ open, onOpenChange, onSuccess }: CityRep
 
     setSubmitting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('setup-city', {
+      const { error } = await supabase.functions.invoke('setup-city', {
         body: {
           action: 'replicate',
           cityData: {

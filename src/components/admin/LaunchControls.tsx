@@ -13,14 +13,11 @@ import {
   UserPlus,
   Mail,
   Calendar,
-  Clock,
-  Settings,
   Shield,
   AlertTriangle,
   CheckCircle,
   XCircle,
   Eye,
-  EyeOff,
   Save,
   RefreshCw,
   TrendingUp,
@@ -29,8 +26,6 @@ import {
   MapPin
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { LAUNCH_CONFIG, isLaunched, isPreLaunch, getDaysUntilLaunch, getLaunchCountdown, formatLaunchDate } from "@/lib/launch-config";
 
 interface LaunchSettings {
@@ -63,7 +58,6 @@ interface LaunchControlsProps {
 
 export const LaunchControls = ({ className }: LaunchControlsProps) => {
   const { toast } = useToast();
-  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<LaunchSettings>({
