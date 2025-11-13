@@ -27,11 +27,9 @@ import { toast } from "sonner";
 import { 
   Users, 
   Shield, 
-  Settings, 
   Search, 
   Filter,
   Crown,
-  MoreHorizontal,
   UserCheck,
   UserX
 } from "lucide-react";

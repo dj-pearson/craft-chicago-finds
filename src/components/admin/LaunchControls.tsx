@@ -26,7 +26,7 @@ import {
   MapPin
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { LAUNCH_CONFIG, isLaunched, isPreLaunch, getDaysUntilLaunch, getLaunchCountdown, formatLaunchDate } from "@/lib/launch-config";
+import { LAUNCH_CONFIG, getLaunchCountdown, formatLaunchDate } from "@/lib/launch-config";
 
 interface LaunchSettings {
   registration_enabled: boolean;

@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { 
   Shield, 
@@ -166,20 +165,6 @@ export const FraudDetectionDashboard = () => {
       });
 
       setTrustDistribution(distribution);
-    }
-  };
-
-  const getTimeFilter = (range: string): string => {
-    const now = new Date();
-    switch (range) {
-      case '24h':
-        return new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-      case '7d':
-        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
-      case '30d':
-        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-      default:
-        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
     }
   };
 

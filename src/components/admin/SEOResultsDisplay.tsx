@@ -28,12 +28,6 @@ export function SEOResultsDisplay({ results }: SEOResultsDisplayProps) {
     return "text-red-600";
   };
 
-  const getScoreBg = (score: number) => {
-    if (score >= 80) return "bg-green-100";
-    if (score >= 60) return "bg-yellow-100";
-    return "bg-red-100";
-  };
-
   return (
     <div className="space-y-6">
       {/* Overall Score */}

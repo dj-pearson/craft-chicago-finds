@@ -6,7 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import {
   User,
   Mail,
@@ -14,14 +13,12 @@ import {
   MapPin,
   Calendar,
   ShoppingBag,
-  MessageSquare,
   Shield,
   AlertTriangle,
   CheckCircle,
   Clock,
   DollarSign,
   TrendingUp,
-  FileText,
   Star
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -63,7 +60,6 @@ interface UserStats {
 
 interface Order {
   id: string;
-  order_number: string;
   total_amount: number;
   status: string;
   created_at: string;
@@ -75,14 +71,6 @@ interface Dispute {
   status: string;
   dispute_type: string;
   created_at: string;
-}
-
-interface Review {
-  id: string;
-  rating: number;
-  comment: string;
-  created_at: string;
-  listing_title?: string;
 }
 
 interface ActivityEvent {
@@ -99,7 +87,6 @@ export const UserProfilePanel = ({ userId, onClose }: UserProfilePanelProps) => 
   const [stats, setStats] = useState<UserStats | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [disputes, setDisputes] = useState<Dispute[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
   const [activities, setActivities] = useState<ActivityEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
@@ -161,7 +148,7 @@ export const UserProfilePanel = ({ userId, onClose }: UserProfilePanelProps) => 
       // Load recent orders
       const { data: ordersData } = await supabase
         .from('orders')
-        .select('id, order_number, total_amount, status, created_at')
+        .select('id, total_amount, status, created_at')
         .eq('buyer_id', userId)
         .order('created_at', { ascending: false })
         .limit(5);
@@ -178,16 +165,6 @@ export const UserProfilePanel = ({ userId, onClose }: UserProfilePanelProps) => 
 
       setDisputes(disputesData || []);
 
-      // Load reviews
-      const { data: reviewsData } = await supabase
-        .from('reviews')
-        .select('id, rating, comment, created_at, listing_id')
-        .eq('reviewer_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      setReviews(reviewsData || []);
-
       // Build activity timeline
       const timeline: ActivityEvent[] = [];
 
@@ -196,7 +173,7 @@ export const UserProfilePanel = ({ userId, onClose }: UserProfilePanelProps) => 
         timeline.push({
           id: `order-${order.id}`,
           type: 'order',
-          description: `Placed order ${order.order_number} - $${order.total_amount.toFixed(2)}`,
+          description: `Placed order - $${order.total_amount.toFixed(2)}`,
           timestamp: order.created_at,
           icon: ShoppingBag,
           color: 'text-blue-600'
@@ -212,18 +189,6 @@ export const UserProfilePanel = ({ userId, onClose }: UserProfilePanelProps) => 
           timestamp: dispute.created_at,
           icon: AlertTriangle,
           color: 'text-orange-600'
-        });
-      });
-
-      // Add reviews to timeline
-      reviewsData?.forEach(review => {
-        timeline.push({
-          id: `review-${review.id}`,
-          type: 'review',
-          description: `Left ${review.rating}-star review`,
-          timestamp: review.created_at,
-          icon: Star,
-          color: 'text-yellow-600'
         });
       });
 
@@ -439,11 +404,11 @@ export const UserProfilePanel = ({ userId, onClose }: UserProfilePanelProps) => 
                   {orders.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-8">No orders yet</p>
                   ) : (
-                    <div className="space-y-2">
+                     <div className="space-y-2">
                       {orders.map((order) => (
                         <div key={order.id} className="p-3 border rounded-lg">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="font-medium text-sm">{order.order_number}</span>
+                            <span className="font-medium text-sm">Order #{order.id.slice(0, 8)}</span>
                             <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
                           </div>
                           <div className="flex items-center justify-between text-xs text-muted-foreground">
