@@ -12,11 +12,10 @@ import {
   DialogContent, 
   DialogDescription, 
   DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
+  DialogTitle
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Edit, MapPin, Calendar, Settings, Loader2, Sparkles, Copy } from "lucide-react";
+import { Plus, Edit, MapPin, Calendar, Settings, Loader2, Sparkles } from "lucide-react";
 import { CityReplicationWizard } from "./CityReplicationWizard";
 
 interface City {
@@ -111,7 +110,7 @@ export const CityManager = () => {
     setSubmitting(true);
     try {
       // Call edge function to create city with all setup
-      const { data, error } = await supabase.functions.invoke('setup-city', {
+      const { error } = await supabase.functions.invoke('setup-city', {
         body: {
           action: 'create',
           cityData: formData
@@ -185,7 +184,7 @@ export const CityManager = () => {
   const setupCityInfrastructure = async (cityId: string) => {
     setSubmitting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('setup-city', {
+      const { error } = await supabase.functions.invoke('setup-city', {
         body: {
           action: 'setup-infrastructure',
           cityId

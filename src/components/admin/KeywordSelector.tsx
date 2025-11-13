@@ -27,7 +27,6 @@ import {
   Calendar,
   MapPin,
   Sparkles,
-  BarChart3,
   RefreshCw,
   Check,
   Star,

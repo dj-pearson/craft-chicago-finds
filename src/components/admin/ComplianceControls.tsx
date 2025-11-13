@@ -14,7 +14,7 @@ export const ComplianceControls = () => {
   const triggerComplianceCheck = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc('trigger_compliance_check');
+      const { error } = await supabase.rpc('trigger_compliance_check');
       
       if (error) throw error;
 
