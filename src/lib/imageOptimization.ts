@@ -19,37 +19,29 @@ interface ResponsiveImageResult {
 }
 
 /**
- * Generate srcset string for responsive images
+ * Generate srcset string for responsive images using Cloudflare Image Resizing
  *
  * @example
  * generateSrcSet({
  *   src: 'https://example.com/image.jpg',
  *   widths: [400, 800, 1200]
  * })
- * // Returns: "https://example.com/image.jpg?width=400 400w, ..."
+ * // Returns: "/cdn-cgi/image/width=400.../image.jpg 400w, ..."
  */
 export function generateSrcSet({
   src,
   widths = [400, 800, 1200, 1600],
-  format = 'original',
+  format = 'auto',
   quality = 85
 }: ResponsiveImageOptions): string {
   return widths
     .map(width => {
-      const url = new URL(src, window.location.origin);
-
-      // Add width parameter
-      url.searchParams.set('width', width.toString());
-
-      // Add format if WebP
-      if (format === 'webp') {
-        url.searchParams.set('format', 'webp');
-      }
-
-      // Add quality
-      url.searchParams.set('quality', quality.toString());
-
-      return `${url.toString()} ${width}w`;
+      const optimizedUrl = getOptimizedImageUrl(src, {
+        width,
+        format: format as 'webp' | 'avif' | 'jpg' | 'png' | 'auto',
+        quality
+      });
+      return `${optimizedUrl} ${width}w`;
     })
     .join(', ');
 }
@@ -104,7 +96,7 @@ export function supportsTransformation(url: string): boolean {
 }
 
 /**
- * Get optimized image URL with transformations
+ * Get optimized image URL with Cloudflare Image Resizing
  *
  * @example
  * getOptimizedImageUrl('image.jpg', { width: 800, format: 'webp' })
@@ -114,26 +106,52 @@ export function getOptimizedImageUrl(
   options: {
     width?: number;
     height?: number;
-    format?: 'webp' | 'avif' | 'jpg' | 'png';
+    format?: 'webp' | 'avif' | 'jpg' | 'png' | 'auto';
     quality?: number;
-    fit?: 'cover' | 'contain' | 'fill';
+    fit?: 'cover' | 'contain' | 'scale-down' | 'crop' | 'pad';
+    gravity?: 'auto' | 'center' | 'left' | 'right' | 'top' | 'bottom';
   } = {}
 ): string {
-  // If the URL doesn't support transformation, return as-is
-  if (!supportsTransformation(src)) {
-    return src;
-  }
+  // Default to WebP for better compression
+  const {
+    width,
+    height,
+    format = 'auto',
+    quality = 85,
+    fit = 'scale-down',
+    gravity = 'auto'
+  } = options;
 
   try {
-    const url = new URL(src, window.location.origin);
+    // For external URLs or Supabase storage, use Cloudflare Image Resizing
+    // Cloudflare Image Resizing URL format:
+    // https://yourdomain.com/cdn-cgi/image/{options}/{source-url}
 
-    if (options.width) url.searchParams.set('width', options.width.toString());
-    if (options.height) url.searchParams.set('height', options.height.toString());
-    if (options.format) url.searchParams.set('format', options.format);
-    if (options.quality) url.searchParams.set('quality', options.quality.toString());
-    if (options.fit) url.searchParams.set('fit', options.fit);
+    const params: string[] = [];
 
-    return url.toString();
+    if (width) params.push(`width=${width}`);
+    if (height) params.push(`height=${height}`);
+    if (format) params.push(`format=${format}`);
+    if (quality) params.push(`quality=${quality}`);
+    if (fit) params.push(`fit=${fit}`);
+    if (gravity) params.push(`gravity=${gravity}`);
+
+    // Always add these for better performance
+    params.push('anim=false'); // Disable animation for static images
+    params.push('sharpen=1'); // Light sharpening
+
+    const optionsString = params.join(',');
+
+    // If it's already an absolute URL, use it directly
+    if (src.startsWith('http://') || src.startsWith('https://')) {
+      // Use Cloudflare Image Resizing proxy
+      return `/cdn-cgi/image/${optionsString}/${src}`;
+    }
+
+    // For relative URLs, make them absolute first
+    const absoluteUrl = new URL(src, window.location.origin).toString();
+    return `/cdn-cgi/image/${optionsString}/${absoluteUrl}`;
+
   } catch (error) {
     console.warn('Failed to generate optimized image URL:', error);
     return src;
