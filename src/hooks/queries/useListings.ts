@@ -71,7 +71,8 @@ export const useListings = (
         .select(
           `
           *,
-          categories(id, name, slug)
+          categories(id, name, slug),
+          profiles(id, display_name, avatar_url, bio, seller_verified)
         `
         )
         .eq('city_id', cityId)
