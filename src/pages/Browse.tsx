@@ -19,6 +19,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { ProductGridSkeleton } from "@/components/ui/skeleton-loader";
+import { FAQSection } from "@/components/seo/FAQSection";
+import { getCategoryContent } from "@/components/seo/CategoryContent";
+import { Card, CardContent } from "@/components/ui/card";
 
 // Re-export types for other components
 export type { Listing, Category, FilterOptions };
@@ -302,6 +305,40 @@ const Browse = () => {
             />
           </div>
         </div>
+
+        {/* Category-Specific SEO Content */}
+        {filters.category && !searchQuery && (() => {
+          const categoryContent = getCategoryContent(filters.category);
+          const hasContent = categoryContent.intro || categoryContent.faqs.length > 0;
+
+          if (!hasContent) return null;
+
+          return (
+            <div className="mt-16 space-y-8">
+              {/* Category Introduction */}
+              {categoryContent.intro && (
+                <Card className="bg-muted/30">
+                  <CardContent className="pt-6">
+                    <h2 className="text-2xl font-bold mb-4">
+                      {categoryContent.intro.title}
+                    </h2>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {categoryContent.intro.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Category FAQs */}
+              {categoryContent.faqs.length > 0 && (
+                <FAQSection
+                  title={`Frequently Asked Questions`}
+                  faqs={categoryContent.faqs}
+                />
+              )}
+            </div>
+          );
+        })()}
       </main>
       <Footer />
     </div>
