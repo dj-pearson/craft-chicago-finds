@@ -12,7 +12,7 @@ import { useCityContext } from "@/hooks/useCityContext";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
-import { FAQSection } from "@/components/seo/FAQSection";
+import { FAQSection, chicagoHandmadeFAQs, sameDayPickupFAQs } from "@/components/seo/FAQSection";
 import { Card, CardContent } from "@/components/ui/card";
 
 const City = () => {
@@ -249,36 +249,11 @@ const City = () => {
           </Card>
         </div>
 
-        {/* FAQ Section for AI Search */}
+        {/* FAQ Section - Optimized for AI Search (GEO) */}
         <div className="container mx-auto px-4 pb-16">
           <FAQSection
-            title={`Frequently Asked Questions - ${currentCity.name} Marketplace`}
-            faqs={[
-              {
-                question: `What can I buy on the ${currentCity.name} marketplace?`,
-                answer: `The ${currentCity.name} marketplace features a wide variety of handmade goods from local artisans including pottery and ceramics, handcrafted jewelry, textiles and fiber arts, paintings and wall art, woodwork and furniture, candles and home fragrances, leather goods, paper crafts and stationery, and seasonal decorations. All items are handmade by independent makers in ${currentCity.name}.`
-              },
-              {
-                question: `How do I support ${currentCity.name} artisans?`,
-                answer: `Support ${currentCity.name} artisans by shopping directly through our platform. When you purchase handmade items, you're helping local makers earn a sustainable income from their craft. You can also follow your favorite artisans, leave reviews, share their work on social media, and recommend them to friends and family.`
-              },
-              {
-                question: `Are there local pickup options in ${currentCity.name}?`,
-                answer: `Yes! Many ${currentCity.name} artisans offer local pickup options. When browsing products, check the product page or contact the seller directly to arrange pickup. This is a great way to avoid shipping costs and meet the maker behind your purchase.`
-              },
-              {
-                question: `Can I request custom orders from ${currentCity.name} makers?`,
-                answer: `Absolutely! Most ${currentCity.name} artisans welcome custom orders and commissions. Browse their shops to see their style, then message them directly through our platform to discuss your custom project. Custom orders may require additional time and have different pricing.`
-              },
-              {
-                question: `How is Craft Chicago Finds different from Etsy?`,
-                answer: `Craft Chicago Finds focuses exclusively on local artisans in ${currentCity.name}, making it easier to find makers in your area and support your local creative community. Unlike national marketplaces, we prioritize local connections, offer opportunities for in-person pickup, and help you discover the talented makers right in your own city.`
-              },
-              {
-                question: `Do ${currentCity.name} sellers ship nationwide?`,
-                answer: `Yes! While our ${currentCity.name} marketplace emphasizes local connections, most artisans ship their handmade goods anywhere in the United States. Check individual product pages for specific shipping information, rates, and estimated delivery times.`
-              }
-            ]}
+            title={`Frequently Asked Questions - ${currentCity.name} Handmade Marketplace`}
+            faqs={[...chicagoHandmadeFAQs, ...sameDayPickupFAQs]}
           />
         </div>
       </main>

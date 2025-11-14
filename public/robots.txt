@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-# AI Crawlers - Allow all for better AI search visibility
+# AI Crawlers - Allow all for GEO optimization
 User-agent: GPTBot
 Allow: /
 User-agent: Google-Extended
@@ -18,28 +18,31 @@ User-agent: YouBot
 Allow: /
 
 # Disallow admin and private areas
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /checkout
-Disallow: /cart
-Disallow: /login
-Disallow: /register
-Disallow: /account
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /auth/
+Disallow: /messages/
+Disallow: /orders/
+Disallow: /profile/
 
-# Allow important pages
-Allow: /products/
-Allow: /sellers/
-Allow: /cities/
-Allow: /categories/
+# Allow important pages for crawling
+Allow: /chicago/
 Allow: /blog/
-Allow: /guides/
+Allow: /about
+Allow: /pricing
+Allow: /tools/
+Allow: /chicago-craft-index
+Allow: /for-craft-fairs
+Allow: /featured-makers
 
 # Sitemap locations
-Sitemap: https://craftlocal.net/sitemap.xml
-Sitemap: https://craftlocal.net/sitemap-pages.xml
-Sitemap: https://craftlocal.net/sitemap-products.xml
-Sitemap: https://craftlocal.net/sitemap-cities.xml
-Sitemap: https://craftlocal.net/sitemap-blog.xml
+Sitemap: https://craftchicagofinds.com/sitemap.xml
+Sitemap: https://craftchicagofinds.com/sitemap-products.xml
+Sitemap: https://craftchicagofinds.com/sitemap-blogs.xml
+Sitemap: https://craftchicagofinds.com/sitemap-makers.xml
+Sitemap: https://craftchicagofinds.com/sitemap-static.xml
 
-# Crawl delay to be respectful
+# Crawl delay for respectful crawling
 Crawl-delay: 1

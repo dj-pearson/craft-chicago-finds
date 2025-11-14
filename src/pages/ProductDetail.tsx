@@ -88,7 +88,7 @@ const ProductDetail = () => {
     ? `${listing.description.substring(0, 157)}...`
     : `Shop this unique handmade ${categoryName.toLowerCase()} by ${sellerName} in ${currentCity.name}. $${listing.price} - Support local artisans on Craft Chicago Finds.`;
 
-  // Product Schema (JSON-LD)
+  // Enhanced Product Schema (JSON-LD) for SEO & GEO optimization
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -103,17 +103,49 @@ const ProductDetail = () => {
       "@type": "Offer",
       "url": productUrl,
       "priceCurrency": "USD",
-      "price": listing.price,
+      "price": listing.price.toString(),
       "availability": listing.inventory_count && listing.inventory_count > 0
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
+      "itemCondition": "https://schema.org/NewCondition",
       "seller": {
-        "@type": "Person",
-        "name": sellerName
+        "@type": "LocalBusiness",
+        "name": sellerName,
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": currentCity.name,
+          "addressRegion": currentCity.state || "IL",
+          "addressCountry": "US"
+        },
+        ...(listing.profiles?.id && {
+          "url": `${window.location.origin}/profile/${listing.profiles.id}`
+        }),
+        "description": `Chicago-based maker specializing in handmade ${categoryName.toLowerCase()}`
+      },
+      "shippingDetails": {
+        "@type": "OfferShippingDetails",
+        "shippingDestination": {
+          "@type": "DefinedRegion",
+          "addressCountry": "US"
+        },
+        "deliveryTime": {
+          "@type": "ShippingDeliveryTime",
+          "handlingTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 0,
+            "maxValue": 1,
+            "unitCode": "DAY"
+          }
+        }
       }
     },
     "category": categoryName,
-    "sku": listing.id
+    "sku": listing.id,
+    "material": "Handmade",
+    "isRelatedTo": {
+      "@type": "Product",
+      "name": `Handmade ${categoryName} from ${currentCity.name}`
+    }
   };
 
   // Breadcrumb Schema

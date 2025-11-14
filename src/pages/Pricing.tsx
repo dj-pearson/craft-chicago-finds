@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, Star, Zap, Crown, ArrowRight, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { FAQSection, etsyAlternativeFAQs } from '@/components/seo/FAQSection';
 
 export const PricingPage = () => {
   const { plans, currentSubscription, subscribeToPlan } = usePlans();
@@ -195,35 +196,12 @@ export const PricingPage = () => {
           ))}
         </div>
 
-        {/* FAQ Section */}
-        <div className="mt-16">
-          <h2 className="text-3xl font-bold text-center mb-8">Frequently Asked Questions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div>
-              <h3 className="font-semibold mb-2">Can I change plans anytime?</h3>
-              <p className="text-sm text-muted-foreground">
-                Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2">What happens to my listings if I downgrade?</h3>
-              <p className="text-sm text-muted-foreground">
-                Your existing listings remain active, but you won't be able to create new ones if you exceed the limit.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2">Is there a free trial?</h3>
-              <p className="text-sm text-muted-foreground">
-                All new sellers start with our Free plan. You can upgrade anytime to unlock premium features.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2">What payment methods do you accept?</h3>
-              <p className="text-sm text-muted-foreground">
-                We accept all major credit cards and debit cards through our secure Stripe payment system.
-              </p>
-            </div>
-          </div>
+        {/* FAQ Section - Optimized for AI Search (GEO) */}
+        <div className="mt-16 max-w-4xl mx-auto">
+          <FAQSection
+            title="Pricing & Platform Comparison - Frequently Asked Questions"
+            faqs={etsyAlternativeFAQs}
+          />
         </div>
       </div>
     </div>
