@@ -8,3 +8,4 @@ export { ProductFilters } from "./ProductFilters";
 export { ProductGrid } from "./ProductGrid";
 export { SearchResults } from "./SearchResults";
 export { VisualSearch } from "./VisualSearch";
+export { QuickViewModal } from "./QuickViewModal";

@@ -13,6 +13,7 @@ import { CustomOrderChat } from "./CustomOrderChat";
 import { BundleBuilder } from "./BundleBuilder";
 import { DeliveryPromiseBar } from "./DeliveryPromiseBar";
 import { SellerBadges } from "../seller/SellerBadges";
+import { TrustBadges } from "@/components/ui/trust-badges";
 import { supabase } from "@/integrations/supabase/client";
 import type { Listing } from "@/pages/Browse";
 import { sanitizeText } from "@/lib/sanitize";
@@ -115,6 +116,14 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
             <div className="text-3xl font-bold text-primary">
               ${listing.price}
             </div>
+            <TrustBadges
+              verified={listing.profiles?.seller_verified}
+              localMade={true}
+              handmade={true}
+              fastShipping={listing.ships_today}
+              responsive={true}
+              className="mt-2"
+            />
           </div>
           <div className="flex gap-2">
             <Button
