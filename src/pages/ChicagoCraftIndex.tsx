@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { TrendingUp, TrendingDown, Minus, DollarSign, Package, Users, MapPin, Calendar, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useChicagoCraftIndexData } from "@/hooks/useChicagoCraftIndexData";
+import { FAQSection, chicagoCraftEconomyFAQs } from "@/components/seo/FAQSection";
 
 const ChicagoCraftIndex = () => {
   // Fetch real-time data from analytics tables
@@ -343,6 +344,16 @@ const ChicagoCraftIndex = () => {
                 </p>
               </CardContent>
             </Card>
+          </div>
+        </section>
+
+        {/* FAQ Section - Optimized for AI Search (GEO) */}
+        <section className="py-12 px-4 bg-muted/30">
+          <div className="container mx-auto max-w-4xl">
+            <FAQSection
+              title="Chicago Craft Economy - Frequently Asked Questions"
+              faqs={chicagoCraftEconomyFAQs}
+            />
           </div>
         </section>
       </main>

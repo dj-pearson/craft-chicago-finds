@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SEOHead } from "@/components/seo/SEOHead";
-import { FAQSection } from "@/components/seo/FAQSection";
+import { FAQSection, chicagoHandmadeFAQs } from "@/components/seo/FAQSection";
 import { FeaturedCollections } from "@/components/collections/FeaturedCollections";
 
 interface City {
@@ -263,53 +263,12 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* FAQ Section for AI Search Optimization */}
+        {/* FAQ Section - Optimized for AI Search (GEO) */}
         <section className="py-16 px-4 bg-muted/30">
           <div className="container mx-auto max-w-4xl">
             <FAQSection
               title="Frequently Asked Questions"
-              faqs={[
-                {
-                  question: "What is Craft Chicago Finds?",
-                  answer: "Craft Chicago Finds is Chicago's craft commerce infrastructure—the essential operating system connecting makers, buyers, and craft fairs. We're more than a marketplace: we provide same-day pickup, real-time inventory management, craft fair integration (Market Mode), and the Chicago Craft Economy Index. We're building irreplaceable local infrastructure that the creative economy depends on."
-                },
-                {
-                  question: "How does Craft Chicago Finds work?",
-                  answer: "Filter by 'Available Today' to see items ready for same-day pickup within your radius. Browse by neighborhood collections (Pilsen Makers, Wicker Park Creatives) or check Market Mode to see which makers are at craft fairs today. Purchase through our platform with secure Stripe payments. Pickup directly from makers or have items shipped. Certified Chicago Makers carry our trust badge. All purchases support Chicago's creative economy—we track and publish this economic impact data."
-                },
-                {
-                  question: "Is shipping available nationwide?",
-                  answer: "Yes! While we focus on local connections, most of our artisans ship their handmade goods anywhere in the United States. Shipping costs and times vary by seller and location. Check individual product pages for specific shipping information."
-                },
-                {
-                  question: "Are all products handmade?",
-                  answer: "Yes, absolutely. All products on Craft Chicago Finds are handmade by independent artisans. We verify each seller to ensure authentic, handcrafted goods. Every purchase supports a real person pursuing their creative passion and contributes to the local economy."
-                },
-                {
-                  question: "How do I become a seller?",
-                  answer: "We welcome local artisans and makers! Create a free seller account, set up your shop, and start listing your handmade products. Our platform provides tools for inventory management, order processing, customer communication, and analytics. We charge a small commission on sales to maintain the platform."
-                },
-                {
-                  question: "What payment methods are accepted?",
-                  answer: "We accept all major credit cards, debit cards, and digital payment methods through our secure Stripe integration. All transactions are processed securely, and your payment information is never stored on our servers."
-                },
-                {
-                  question: "Can I return handmade items?",
-                  answer: "Return policies vary by seller, as each artisan sets their own shop policies. We encourage buyers to review the seller's return policy before purchasing and to contact sellers with questions. Most artisans are happy to work with you if there's an issue with your order."
-                },
-                {
-                  question: "How do I contact sellers?",
-                  answer: "Once you create a free account, you can message sellers directly through our platform. This allows you to ask questions about products, request custom orders, arrange local pickup, or discuss any special requirements before purchasing."
-                },
-                {
-                  question: "What cities are currently available?",
-                  answer: `We're currently active in ${cityNames || 'several cities'} with more cities launching soon. If your city isn't listed yet, request it and we'll notify you when we launch in your area. Our goal is to connect artisan communities nationwide.`
-                },
-                {
-                  question: "How is Craft Chicago Finds different from Etsy?",
-                  answer: "Etsy is a marketplace. We're infrastructure. We provide same-day pickup with 'Available Today' filtering, integrate physical craft fairs with Market Mode, publish the Chicago Craft Economy Index for economic transparency, offer maker intelligence tools (Price Coach, demand forecasting), and run a Certified Chicago Maker program for trust. We're building the layer that local commerce can't operate without—Etsy can't replicate our local data, physical integrations, or community depth."
-                }
-              ]}
+              faqs={chicagoHandmadeFAQs}
             />
           </div>
         </section>
