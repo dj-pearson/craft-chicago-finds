@@ -246,3 +246,118 @@ export function BreadcrumbStructuredData({
 
   return <StructuredData type="BreadcrumbList" data={data} />;
 }
+
+/**
+ * FAQPage structured data helper - Critical for GEO
+ */
+export function FAQPageStructuredData({
+  questions,
+}: {
+  questions: { question: string; answer: string }[];
+}) {
+  const data = {
+    mainEntity: questions.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  };
+
+  return <StructuredData type="FAQPage" data={data} />;
+}
+
+/**
+ * LocalBusiness structured data helper
+ */
+export function LocalBusinessStructuredData({
+  name,
+  description,
+  address,
+  phone,
+  url,
+  image,
+  priceRange,
+  openingHours,
+}: {
+  name: string;
+  description: string;
+  address: {
+    streetAddress?: string;
+    addressLocality: string;
+    addressRegion: string;
+    postalCode?: string;
+    addressCountry: string;
+  };
+  phone?: string;
+  url: string;
+  image?: string;
+  priceRange?: string;
+  openingHours?: string[];
+}) {
+  const data = {
+    name,
+    description,
+    address: {
+      '@type': 'PostalAddress',
+      ...address,
+    },
+    url,
+    ...(phone && { telephone: phone }),
+    ...(image && { image }),
+    ...(priceRange && { priceRange }),
+    ...(openingHours && { openingHoursSpecification: openingHours }),
+  };
+
+  return <StructuredData type="LocalBusiness" data={data} />;
+}
+
+/**
+ * Organization structured data helper with enhanced GEO properties
+ */
+export function OrganizationStructuredData({
+  name,
+  description,
+  url,
+  logo,
+  sameAs,
+  address,
+  knowsAbout,
+  slogan,
+}: {
+  name: string;
+  description: string;
+  url: string;
+  logo: string;
+  sameAs?: string[];
+  address?: {
+    addressLocality: string;
+    addressRegion: string;
+    addressCountry: string;
+  };
+  knowsAbout?: string[];
+  slogan?: string;
+}) {
+  const data = {
+    name,
+    description,
+    url,
+    logo: {
+      '@type': 'ImageObject',
+      url: logo,
+    },
+    ...(sameAs && { sameAs }),
+    ...(address && {
+      address: {
+        '@type': 'PostalAddress',
+        ...address,
+      },
+    }),
+    ...(knowsAbout && { knowsAbout }),
+    ...(slogan && { slogan }),
+  };
+
+  return <StructuredData type="Organization" data={data} />;
+}
