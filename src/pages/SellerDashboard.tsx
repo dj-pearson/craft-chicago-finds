@@ -33,6 +33,7 @@ import { VacationModeManager } from "@/components/seller/VacationModeManager";
 import { DemandForecast } from "@/components/seller/DemandForecast";
 import { CategoryTrendAlerts } from "@/components/seller/CategoryTrendAlerts";
 import { MarketModeManager } from "@/components/seller/MarketModeManager";
+import { PriorityDashboard } from "@/components/seller/PriorityDashboard";
 
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -570,6 +571,7 @@ export default function SellerDashboard() {
 
           <TabsContent value="overview">
             <div className="space-y-6">
+              <PriorityDashboard />
               <VacationModeManager />
               <InventoryAlerts />
               <SellerPerformanceMetrics />

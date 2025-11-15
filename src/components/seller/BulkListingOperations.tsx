@@ -41,8 +41,10 @@ import {
   TrendingUp,
   Edit2,
   Save,
+  Eye,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { BulkOperationTemplates } from './BulkOperationTemplates';
 
 interface Listing {
   id: string;
@@ -292,6 +294,27 @@ export function BulkListingOperations({ listings, onUpdate }: BulkListingOperati
     }
   };
 
+  const handleApplyTemplate = (template: any) => {
+    // Apply template operations to form state
+    template.operations.forEach((op: any) => {
+      switch (op.type) {
+        case 'price':
+          setBulkAction('price');
+          setPriceAdjustmentType('percentage');
+          setPriceAdjustment(op.value);
+          break;
+        case 'status':
+          setBulkAction('status');
+          setNewStatus(op.value);
+          break;
+        case 'shipping':
+          setBulkAction('delivery_options');
+          setShippingEnabled(op.value);
+          break;
+      }
+    });
+  };
+
   const selectedCount = selectedListings.length;
 
   return (
@@ -330,7 +353,10 @@ export function BulkListingOperations({ listings, onUpdate }: BulkListingOperati
 
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                      <Label>Action</Label>
+                      <div className="flex items-center justify-between">
+                        <Label>Action</Label>
+                        <BulkOperationTemplates onApplyTemplate={handleApplyTemplate} />
+                      </div>
                       <Select value={bulkAction} onValueChange={setBulkAction}>
                         <SelectTrigger>
                           <SelectValue />
