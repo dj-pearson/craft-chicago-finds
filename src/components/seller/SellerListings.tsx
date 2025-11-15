@@ -132,28 +132,64 @@ export const SellerListings = () => {
         description: "Creating a copy of your listing.",
       });
 
-      const { data: newListingId, error } = await supabase.rpc('duplicate_listing', {
-        p_listing_id: listingId,
-        p_seller_id: user.id,
-      });
+      // Fetch the original listing
+      const { data: originalListing, error: fetchError } = await supabase
+        .from('listings')
+        .select('*')
+        .eq('id', listingId)
+        .eq('seller_id', user.id)
+        .single();
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
+      if (!originalListing) throw new Error('Listing not found');
+
+      // Create a duplicate with modified title and draft status
+      const duplicateData = {
+        seller_id: user.id,
+        city_id: originalListing.city_id,
+        category_id: originalListing.category_id,
+        title: `${originalListing.title} (Copy)`,
+        description: originalListing.description,
+        price: originalListing.price,
+        images: originalListing.images,
+        tags: originalListing.tags,
+        inventory_count: originalListing.inventory_count,
+        shipping_available: originalListing.shipping_available,
+        local_pickup_available: originalListing.local_pickup_available,
+        pickup_location: originalListing.pickup_location,
+        ready_today: originalListing.ready_today,
+        ships_today: originalListing.ships_today,
+        pickup_today: originalListing.pickup_today,
+        status: 'draft', // Always create as draft
+      };
+
+      const { data: newListing, error: createError } = await supabase
+        .from('listings')
+        .insert([duplicateData])
+        .select()
+        .single();
+
+      if (createError) throw createError;
 
       toast({
         title: "Listing duplicated!",
-        description: "Your listing has been copied as a draft. You can now edit it.",
+        description: "Your listing has been copied as a draft. Opening editor...",
       });
 
       // Refresh listings to show the new duplicate
       await fetchListings();
 
       // Navigate to edit the new listing
-      navigate(`/edit-listing/${newListingId}`);
+      if (newListing) {
+        setTimeout(() => {
+          navigate(`/edit-listing/${newListing.id}`);
+        }, 500);
+      }
     } catch (error) {
       console.error('Error duplicating listing:', error);
       toast({
         title: "Error",
-        description: "Failed to duplicate listing.",
+        description: error instanceof Error ? error.message : "Failed to duplicate listing.",
         variant: "destructive"
       });
     }
