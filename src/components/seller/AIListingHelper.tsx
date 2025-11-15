@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Wand2, FileText, Tags, DollarSign, RefreshCw } from "lucide-react";
+import { Loader2, Wand2, FileText, Tags, DollarSign, RefreshCw, Star, Trash2, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +34,16 @@ interface GeneratedContent {
   };
 }
 
+interface SavedGeneration {
+  id: string;
+  title: string;
+  description: string;
+  tags: string[];
+  category: string;
+  tone: string;
+  savedAt: number;
+}
+
 export const AIListingHelper = ({
   imageUrl,
   category,
@@ -49,6 +59,68 @@ export const AIListingHelper = ({
   const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
   const [selectedTone, setSelectedTone] = useState<string>("professional");
   const [regeneratingField, setRegeneratingField] = useState<string | null>(null);
+  const [savedGenerations, setSavedGenerations] = useState<SavedGeneration[]>([]);
+  const [showSaved, setShowSaved] = useState(false);
+
+  // Load saved generations from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('ai_saved_generations');
+    if (saved) {
+      try {
+        setSavedGenerations(JSON.parse(saved));
+      } catch (e) {
+        console.error('Error loading saved generations:', e);
+      }
+    }
+  }, []);
+
+  const saveGeneration = () => {
+    if (!generatedContent) return;
+
+    const newSave: SavedGeneration = {
+      id: Date.now().toString(),
+      title: generatedContent.title,
+      description: generatedContent.description,
+      tags: generatedContent.tags,
+      category: category || 'General',
+      tone: selectedTone,
+      savedAt: Date.now(),
+    };
+
+    const updated = [newSave, ...savedGenerations].slice(0, 10); // Keep last 10
+    setSavedGenerations(updated);
+    localStorage.setItem('ai_saved_generations', JSON.stringify(updated));
+
+    toast({
+      title: "Saved!",
+      description: "AI generation saved to your favorites",
+    });
+  };
+
+  const loadSavedGeneration = (saved: SavedGeneration) => {
+    setGeneratedContent({
+      title: saved.title,
+      description: saved.description,
+      tags: saved.tags,
+      suggested_price_range: { min: 0, max: 0 }, // Not saved
+    });
+    setSelectedTone(saved.tone);
+    setShowSaved(false);
+    toast({
+      title: "Loaded!",
+      description: "Saved generation loaded. Click 'Use All' to apply.",
+    });
+  };
+
+  const deleteSavedGeneration = (id: string) => {
+    const updated = savedGenerations.filter(s => s.id !== id);
+    setSavedGenerations(updated);
+    localStorage.setItem('ai_saved_generations', JSON.stringify(updated));
+    toast({
+      title: "Deleted",
+      description: "Saved generation removed",
+    });
+  };
 
   const regenerateField = async (field: 'title' | 'description' | 'tags') => {
     if (!generatedContent && !sellerNotes.trim()) {
@@ -470,10 +542,86 @@ Format as JSON:
               )}
 
               {/* Use All Button */}
-              <Button onClick={useGeneratedContent} className="w-full">
-                Use All Generated Content
+              <div className="flex gap-2">
+                <Button onClick={useGeneratedContent} className="flex-1">
+                  Use All Generated Content
+                </Button>
+                <Button
+                  onClick={saveGeneration}
+                  variant="outline"
+                  className="gap-2"
+                  title="Save this generation for later"
+                >
+                  <Star className="h-4 w-4" />
+                  Save
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Saved Generations */}
+        {savedGenerations.length > 0 && (
+          <div className="border-t pt-6">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-medium text-sm">Saved Generations ({savedGenerations.length}/10)</h4>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowSaved(!showSaved)}
+              >
+                {showSaved ? 'Hide' : 'Show'}
               </Button>
             </div>
+
+            {showSaved && (
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {savedGenerations.map((saved) => (
+                  <Card key={saved.id} className="p-3 hover:bg-muted/50 transition-colors">
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{saved.title}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="secondary" className="text-xs">
+                              {saved.category}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {saved.tone}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => loadSavedGeneration(saved)}
+                            className="h-7 px-2"
+                          >
+                            Load
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => deleteSavedGeneration(saved.id)}
+                            className="h-7 px-2 text-destructive"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {saved.description}
+                      </p>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        {new Date(saved.savedAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
