@@ -13,19 +13,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { 
-  ArrowLeft, 
-  Upload, 
-  X, 
-  Save, 
+import {
+  ArrowLeft,
+  Upload,
+  X,
+  Save,
   Eye,
   Loader2,
-  ImageIcon
+  ImageIcon,
+  Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
 import { AIPhotoHelper } from "@/components/seller/AIPhotoHelper";
 import { AIListingHelper } from "@/components/seller/AIListingHelper";
 import { PriceCoach } from "@/components/seller/PriceCoach";
+import { ListingTemplatesLibrary } from "@/components/seller/ListingTemplatesLibrary";
 import { useContentModeration } from "@/hooks/useContentModeration";
 
 interface Category {
@@ -236,6 +238,21 @@ const CreateEditListing = () => {
     }
   };
 
+  const handleTemplateSelect = (template: any) => {
+    setFormData(prev => ({
+      ...prev,
+      title: template.title,
+      description: template.description,
+      price: template.price_range.min.toString(),
+      tags: template.tags.join(', '),
+      inventory_count: template.suggested_inventory.toString(),
+      pickup_location: template.pickup_location_hint,
+    }));
+
+    // Scroll to top of form to see changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleSubmit = async () => {
     if (!user || !currentCity) return;
 
@@ -380,6 +397,26 @@ const CreateEditListing = () => {
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
+          {/* Quick Start Templates - Only show for new listings */}
+          {!isEditing && (
+            <Card className="mb-6 bg-gradient-to-r from-primary/5 to-purple-500/5 border-primary/20">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                      Quick Start with a Template
+                    </CardTitle>
+                    <CardDescription className="mt-1">
+                      Save time! Choose from 10+ professionally crafted listing templates for common products.
+                    </CardDescription>
+                  </div>
+                  <ListingTemplatesLibrary onTemplateSelect={handleTemplateSelect} />
+                </div>
+              </CardHeader>
+            </Card>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Form */}
             <div className="lg:col-span-2 space-y-6">
