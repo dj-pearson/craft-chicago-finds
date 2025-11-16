@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import { getErrorMessage } from "../_shared/types.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -60,7 +61,7 @@ serve(async (req) => {
     console.error("Error in crawl-site function:", error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: getErrorMessage(error),
       }),
       {
         status: 500,
@@ -167,7 +168,7 @@ async function crawlSite(startUrl: string, maxPages: number, maxDepth: number, s
         }
       }
     } catch (error) {
-      console.error(`Error crawling ${current.url}:`, error.message);
+      console.error(`Error crawling ${current.url}:`, getErrorMessage(error));
       results.push({
         crawl_session_id: sessionId,
         start_url: startUrl,
