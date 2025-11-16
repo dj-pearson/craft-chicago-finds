@@ -281,7 +281,7 @@ function performContentChecks(html: string, meta: any) {
 async function performPerformanceChecks(url: string) {
   const issues: Issue[] = [];
   const warnings: Warning[] = [];
-  const passed: string[] = [];
+  const passed: any[] = [];
 
   // Measure page load time
   const startTime = Date.now();
