@@ -83,7 +83,7 @@ serve(async (req) => {
     console.error("Error in seo-audit function:", error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: getErrorMessage(error),
       }),
       {
         status: 500,
@@ -253,9 +253,9 @@ function performTechnicalChecks(meta: any, headings: any, html: string) {
 }
 
 function performContentChecks(html: string, meta: any) {
-  const issues = [];
-  const warnings = [];
-  const passed = [];
+  const issues: Issue[] = [];
+  const warnings: Warning[] = [];
+  const passed: string[] = [];
 
   // Remove HTML tags for word count
   const textContent = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -279,9 +279,9 @@ function performContentChecks(html: string, meta: any) {
 }
 
 async function performPerformanceChecks(url: string) {
-  const issues = [];
-  const warnings = [];
-  const passed = [];
+  const issues: Issue[] = [];
+  const warnings: Warning[] = [];
+  const passed: string[] = [];
 
   // Measure page load time
   const startTime = Date.now();

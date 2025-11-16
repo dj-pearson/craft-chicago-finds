@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import { getErrorMessage } from "../_shared/types.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -189,12 +190,13 @@ async function sendEmailNotification(email: string, alert: any, preferences: any
 
 async function sendSlackNotification(webhookUrl: string, alert: any): Promise<boolean> {
   try {
-    const color = {
+    const colorMap: Record<string, string> = {
       low: "#36a64f",
       medium: "#ff9800",
       high: "#ff5722",
       critical: "#f44336",
-    }[alert.severity] || "#cccccc";
+    };
+    const color = colorMap[alert.priority as string] || "#757575";
 
     const payload = {
       text: `SEO Alert: ${alert.title}`,
