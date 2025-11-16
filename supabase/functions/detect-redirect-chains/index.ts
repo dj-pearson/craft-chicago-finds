@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import { getErrorMessage } from "../_shared/types.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -42,7 +43,7 @@ serve(async (req) => {
           break;
         }
       } catch (error) {
-        console.error(`Error checking URL ${currentUrl}:`, error.message);
+        console.error(`Error checking URL ${currentUrl}:`, getErrorMessage(error));
         break;
       }
     }
@@ -118,7 +119,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error detecting redirect chains:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

@@ -168,7 +168,7 @@ async function crawlSite(startUrl: string, maxPages: number, maxDepth: number, s
         }
       }
     } catch (error) {
-      console.error(`Error crawling ${current.url}:`, error.message);
+      console.error(`Error crawling ${current.url}:`, getErrorMessage(error));
       results.push({
         crawl_session_id: sessionId,
         start_url: startUrl,
