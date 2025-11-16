@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import { getErrorMessage, Issue, Warning } from "../_shared/types.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -82,7 +83,7 @@ serve(async (req) => {
     console.error("Error in seo-audit function:", error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: getErrorMessage(error),
       }),
       {
         status: 500,
@@ -93,10 +94,10 @@ serve(async (req) => {
 });
 
 async function performSEOAudit(url: string, html: string) {
-  const issues: any[] = [];
-  const warnings: any[] = [];
-  const recommendations: any[] = [];
-  const passed_checks: any[] = [];
+  const issues: Issue[] = [];
+  const warnings: Warning[] = [];
+  const recommendations: string[] = [];
+  const passed_checks: string[] = [];
 
   // Extract meta information
   const meta = extractMetaData(html);
@@ -252,7 +253,7 @@ function performTechnicalChecks(meta: any, headings: any, html: string) {
 }
 
 function performContentChecks(html: string, meta: any) {
-  const issues = [];
+  const issues: Issue[] = [];
   const warnings = [];
   const passed = [];
 
@@ -278,7 +279,7 @@ function performContentChecks(html: string, meta: any) {
 }
 
 async function performPerformanceChecks(url: string) {
-  const issues = [];
+  const issues: Issue[] = [];
   const warnings = [];
   const passed = [];
 
