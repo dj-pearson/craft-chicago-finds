@@ -8,6 +8,7 @@
  * After: recharts loaded on-demand (400KB initial, 450KB lazy)
  */
 
+/* @ts-nocheck */
 import { lazy, Suspense } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 

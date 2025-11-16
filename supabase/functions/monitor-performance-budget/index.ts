@@ -127,11 +127,11 @@ serve(async (req) => {
     Object.entries(estimatedSizes).forEach(([type, size]) => {
       const budget = budgets[type as keyof typeof budgets];
       if (budget && size > budget * 0.8 && size <= budget) {
+        const percentage = Math.round((size / budget) * 100);
         warnings.push({
-          resource_type: type,
-          current_size: size,
-          budget,
-          percentage: Math.round((size / budget) * 100),
+          type: 'budget_approaching',
+          message: `${type} resource at ${percentage}% of budget`,
+          severity: 'warning',
         });
       }
     });

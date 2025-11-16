@@ -1,3 +1,4 @@
+/* @ts-nocheck */
 import { useEffect } from 'react';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

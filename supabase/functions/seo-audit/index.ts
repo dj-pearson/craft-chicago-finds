@@ -208,18 +208,15 @@ function performTechnicalChecks(meta: any, headings: any, html: string) {
   } else if (meta.title.length > 60) {
     warnings.push({ type: 'title_too_long', message: 'Title tag is too long (> 60 characters)', severity: 'warning' });
   } else {
-    passed.push({ type: 'title_length', message: 'Title tag length is optimal' });
+    passed.push('Title tag length is optimal');
   }
-
-  // Meta description
-  if (!meta.description) {
-    issues.push({ type: 'missing_description', message: 'Missing meta description', severity: 'critical' });
+...
   } else if (meta.description.length < 50) {
     warnings.push({ type: 'description_too_short', message: 'Meta description is too short (< 50 characters)', severity: 'warning' });
   } else if (meta.description.length > 160) {
     warnings.push({ type: 'description_too_long', message: 'Meta description is too long (> 160 characters)', severity: 'warning' });
   } else {
-    passed.push({ type: 'description_length', message: 'Meta description length is optimal' });
+    passed.push('Meta description length is optimal');
   }
 
   // H1 tags
@@ -228,25 +225,22 @@ function performTechnicalChecks(meta: any, headings: any, html: string) {
   } else if (headings.h1.length > 1) {
     warnings.push({ type: 'multiple_h1', message: 'Multiple H1 tags found', severity: 'warning' });
   } else {
-    passed.push({ type: 'h1_present', message: 'Single H1 tag present' });
+    passed.push('Single H1 tag present');
   }
-
-  // Canonical URL
+...
   if (!meta.canonical) {
     warnings.push({ type: 'missing_canonical', message: 'Missing canonical URL', severity: 'warning' });
   } else {
-    passed.push({ type: 'canonical_present', message: 'Canonical URL is set' });
+    passed.push('Canonical URL is set');
   }
 
   // Robots meta
   if (meta.robots && (meta.robots.includes('noindex') || meta.robots.includes('nofollow'))) {
-    warnings.push({ type: 'robots_restricted', message: 'Page has robots restrictions', severity: 'warning', value: meta.robots });
+    warnings.push({ type: 'robots_restricted', message: 'Page has robots restrictions', severity: 'warning' });
   }
-
-  // HTTPS check
-  const hasHttps = html.includes('https://');
+...
   if (hasHttps) {
-    passed.push({ type: 'https', message: 'HTTPS detected in links' });
+    passed.push('HTTPS detected in links');
   }
 
   return { issues, warnings, passed };
@@ -262,17 +256,15 @@ function performContentChecks(html: string, meta: any) {
   const wordCount = textContent.split(' ').length;
 
   if (wordCount < 300) {
-    warnings.push({ type: 'low_word_count', message: 'Low word count (< 300 words)', severity: 'warning', value: wordCount });
+    warnings.push({ type: 'low_word_count', message: 'Low word count (< 300 words)', severity: 'warning' });
   } else {
-    passed.push({ type: 'word_count', message: `Adequate word count: ${wordCount} words` });
+    passed.push(`Adequate word count: ${wordCount} words`);
   }
-
-  // Internal links
-  const internalLinkMatches = Array.from(html.matchAll(/<a[^>]+href=["'][^http][^"']*["']/gi));
+...
   if (internalLinkMatches.length < 3) {
-    warnings.push({ type: 'few_internal_links', message: 'Few internal links (< 3)', severity: 'warning', value: internalLinkMatches.length });
+    warnings.push({ type: 'few_internal_links', message: 'Few internal links (< 3)', severity: 'warning' });
   } else {
-    passed.push({ type: 'internal_links', message: `Internal links present: ${internalLinkMatches.length}` });
+    passed.push(`Internal links present: ${internalLinkMatches.length}`);
   }
 
   return { issues, warnings, passed };
@@ -290,9 +282,9 @@ async function performPerformanceChecks(url: string) {
     const loadTime = Date.now() - startTime;
 
     if (loadTime > 3000) {
-      warnings.push({ type: 'slow_load_time', message: 'Slow page load time (> 3 seconds)', severity: 'warning', value: loadTime });
+      warnings.push({ type: 'slow_load_time', message: 'Slow page load time (> 3 seconds)', severity: 'warning' });
     } else {
-      passed.push({ type: 'load_time', message: `Page load time: ${loadTime}ms` });
+      passed.push(`Page load time: ${loadTime}ms`);
     }
   } catch (error) {
     warnings.push({ type: 'load_error', message: 'Could not measure load time', severity: 'info' });
