@@ -60,7 +60,7 @@ serve(async (req) => {
     console.error("Error in crawl-site function:", error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: (error instanceof Error ? error.message : String(error)),
       }),
       {
         status: 500,
@@ -167,7 +167,7 @@ async function crawlSite(startUrl: string, maxPages: number, maxDepth: number, s
         }
       }
     } catch (error) {
-      console.error(`Error crawling ${current.url}:`, error.message);
+      console.error(`Error crawling ${current.url}:`, (error instanceof Error ? error.message : String(error)));
       results.push({
         crawl_session_id: sessionId,
         start_url: startUrl,

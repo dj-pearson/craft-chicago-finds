@@ -96,7 +96,7 @@ serve(async (req) => {
           event_type: `scheduled_${schedule.task_type}_error`,
           severity: "error",
           page_url: schedule.target_url,
-          details: { error: error.message },
+          details: { error: (error instanceof Error ? error.message : String(error)) },
         });
 
         results.push({
@@ -104,7 +104,7 @@ serve(async (req) => {
           task_type: schedule.task_type,
           target_url: schedule.target_url,
           success: false,
-          error: error.message,
+          error: (error instanceof Error ? error.message : String(error)),
         });
       }
     }
@@ -119,7 +119,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error running scheduled audits:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: (error instanceof Error ? error.message : String(error)) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
