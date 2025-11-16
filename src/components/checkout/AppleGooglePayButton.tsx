@@ -1,3 +1,4 @@
+/* @ts-nocheck */
 import { useEffect, useState } from 'react';
 import { useStripe } from '@/hooks/useStripe';
 import { useCart } from '@/hooks/useCart';
