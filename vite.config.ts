@@ -16,7 +16,8 @@ export default defineConfig(({ mode }) => ({
         server.middlewares.use((req, res, next) => {
           // Security headers for development server
           res.setHeader('X-Content-Type-Options', 'nosniff');
-          res.setHeader('X-Frame-Options', 'DENY');
+          // NOTE: Do NOT set X-Frame-Options in dev; Lovable preview runs in an iframe
+          // res.setHeader('X-Frame-Options', 'DENY');
           res.setHeader('X-XSS-Protection', '1; mode=block');
           res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
           res.setHeader(
