@@ -262,17 +262,17 @@ function performContentChecks(html: string, meta: any) {
   const wordCount = textContent.split(' ').length;
 
   if (wordCount < 300) {
-    warnings.push({ type: 'low_word_count', message: 'Low word count (< 300 words)', severity: 'warning', value: wordCount });
+    warnings.push({ type: 'low_word_count', message: 'Low word count (< 300 words)', severity: 'warning' });
   } else {
-    passed.push({ type: 'word_count', message: `Adequate word count: ${wordCount} words` });
+    passed.push(`Adequate word count: ${wordCount} words`);
   }
 
   // Internal links
   const internalLinkMatches = Array.from(html.matchAll(/<a[^>]+href=["'][^http][^"']*["']/gi));
   if (internalLinkMatches.length < 3) {
-    warnings.push({ type: 'few_internal_links', message: 'Few internal links (< 3)', severity: 'warning', value: internalLinkMatches.length });
+    warnings.push({ type: 'few_internal_links', message: 'Few internal links (< 3)', severity: 'warning' });
   } else {
-    passed.push({ type: 'internal_links', message: `Internal links present: ${internalLinkMatches.length}` });
+    passed.push(`Internal links present: ${internalLinkMatches.length}`);
   }
 
   return { issues, warnings, passed };
@@ -290,9 +290,9 @@ async function performPerformanceChecks(url: string) {
     const loadTime = Date.now() - startTime;
 
     if (loadTime > 3000) {
-      warnings.push({ type: 'slow_load_time', message: 'Slow page load time (> 3 seconds)', severity: 'warning', value: loadTime });
+      warnings.push({ type: 'slow_load_time', message: 'Slow page load time (> 3 seconds)', severity: 'warning' });
     } else {
-      passed.push({ type: 'load_time', message: `Page load time: ${loadTime}ms` });
+      passed.push(`Page load time: ${loadTime}ms`);
     }
   } catch (error) {
     warnings.push({ type: 'load_error', message: 'Could not measure load time', severity: 'info' });
@@ -309,9 +309,9 @@ function performAccessibilityChecks(html: string, images: any[]) {
   // Images without alt text
   const imagesWithoutAlt = images.filter(img => !img.alt || img.alt.trim() === '');
   if (imagesWithoutAlt.length > 0) {
-    issues.push({ type: 'missing_alt_text', message: `${imagesWithoutAlt.length} images missing alt text`, severity: 'critical', value: imagesWithoutAlt.length });
+    issues.push({ type: 'missing_alt_text', message: `${imagesWithoutAlt.length} images missing alt text`, severity: 'critical' });
   } else if (images.length > 0) {
-    passed.push({ type: 'alt_text', message: 'All images have alt text' });
+    passed.push('All images have alt text');
   }
 
   // Viewport meta tag
