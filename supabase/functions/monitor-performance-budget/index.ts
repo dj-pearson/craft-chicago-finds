@@ -128,10 +128,9 @@ serve(async (req) => {
       const budget = budgets[type as keyof typeof budgets];
       if (budget && size > budget * 0.8 && size <= budget) {
         warnings.push({
-          resource_type: type,
-          current_size: size,
-          budget,
-          percentage: Math.round((size / budget) * 100),
+          type: 'budget_near_limit',
+          message: `${type} is at ${Math.round((size / budget) * 100)}% of budget (${size} / ${budget} bytes)`,
+          severity: 'warning',
         });
       }
     });

@@ -240,7 +240,7 @@ function performTechnicalChecks(meta: any, headings: any, html: string) {
 
   // Robots meta
   if (meta.robots && (meta.robots.includes('noindex') || meta.robots.includes('nofollow'))) {
-    warnings.push({ type: 'robots_restricted', message: 'Page has robots restrictions', severity: 'warning', value: meta.robots });
+    warnings.push({ type: 'robots_restricted', message: 'Page has robots restrictions', severity: 'warning' });
   }
 
   // HTTPS check
@@ -255,14 +255,14 @@ function performTechnicalChecks(meta: any, headings: any, html: string) {
 function performContentChecks(html: string, meta: any) {
   const issues: Issue[] = [];
   const warnings: Warning[] = [];
-  const passed: string[] = [];
+  const passed: any[] = [];
 
   // Remove HTML tags for word count
   const textContent = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
   const wordCount = textContent.split(' ').length;
 
   if (wordCount < 300) {
-    warnings.push({ type: 'low_word_count', message: 'Low word count (< 300 words)', severity: 'warning', value: wordCount });
+    warnings.push({ type: 'low_word_count', message: 'Low word count (< 300 words)', severity: 'warning' });
   } else {
     passed.push({ type: 'word_count', message: `Adequate word count: ${wordCount} words` });
   }
@@ -270,7 +270,7 @@ function performContentChecks(html: string, meta: any) {
   // Internal links
   const internalLinkMatches = Array.from(html.matchAll(/<a[^>]+href=["'][^http][^"']*["']/gi));
   if (internalLinkMatches.length < 3) {
-    warnings.push({ type: 'few_internal_links', message: 'Few internal links (< 3)', severity: 'warning', value: internalLinkMatches.length });
+    warnings.push({ type: 'few_internal_links', message: 'Few internal links (< 3)', severity: 'warning' });
   } else {
     passed.push({ type: 'internal_links', message: `Internal links present: ${internalLinkMatches.length}` });
   }
@@ -290,7 +290,7 @@ async function performPerformanceChecks(url: string) {
     const loadTime = Date.now() - startTime;
 
     if (loadTime > 3000) {
-      warnings.push({ type: 'slow_load_time', message: 'Slow page load time (> 3 seconds)', severity: 'warning', value: loadTime });
+      warnings.push({ type: 'slow_load_time', message: 'Slow page load time (> 3 seconds)', severity: 'warning' });
     } else {
       passed.push({ type: 'load_time', message: `Page load time: ${loadTime}ms` });
     }
@@ -309,7 +309,7 @@ function performAccessibilityChecks(html: string, images: any[]) {
   // Images without alt text
   const imagesWithoutAlt = images.filter(img => !img.alt || img.alt.trim() === '');
   if (imagesWithoutAlt.length > 0) {
-    issues.push({ type: 'missing_alt_text', message: `${imagesWithoutAlt.length} images missing alt text`, severity: 'critical', value: imagesWithoutAlt.length });
+    issues.push({ type: 'missing_alt_text', message: `${imagesWithoutAlt.length} images missing alt text`, severity: 'critical' });
   } else if (images.length > 0) {
     passed.push({ type: 'alt_text', message: 'All images have alt text' });
   }
