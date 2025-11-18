@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
+import { useDiscountCodes } from "@/hooks/useDiscountCodes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,10 +19,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Loader2, Info } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Loader2, Info, Tag, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GiftModeToggle } from "@/components/cart/GiftModeToggle";
 import { SubtleSignupPrompt } from "@/components/auth/SubtleSignupPrompt";
+import { useToast } from "@/hooks/use-toast";
+import type { AppliedDiscount } from "@/types/discount";
 
 export const CartPage = () => {
   const {
@@ -31,6 +35,9 @@ export const CartPage = () => {
     totalAmount,
     itemCount,
   } = useCart();
+  const { user } = useAuth();
+  const { validateDiscountCode, calculateDiscountAmount } = useDiscountCodes();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
@@ -43,9 +50,31 @@ export const CartPage = () => {
     hidePrices: false,
   });
 
+  // Discount code state per seller
+  const [discountCodes, setDiscountCodes] = useState<Record<string, string>>({});
+  const [appliedDiscounts, setAppliedDiscounts] = useState<Record<string, AppliedDiscount>>({});
+  const [validatingDiscount, setValidatingDiscount] = useState<string | null>(null);
+
   const platformFeeRate = 0.1; // 10%
-  const platformFee = totalAmount * platformFeeRate;
-  const finalTotal = totalAmount + platformFee;
+
+  // Calculate totals with discounts
+  const calculateTotals = () => {
+    const subtotal = totalAmount;
+    let totalDiscount = 0;
+
+    Object.values(appliedDiscounts).forEach((discount) => {
+      totalDiscount += discount.discount_amount;
+    });
+
+    const discountedSubtotal = subtotal - totalDiscount;
+    const platformFee = discountedSubtotal * platformFeeRate;
+    const finalTotal = discountedSubtotal + platformFee;
+
+    return { subtotal, totalDiscount, discountedSubtotal, platformFee, finalTotal };
+  };
+
+  const totals = calculateTotals();
+  const { subtotal, totalDiscount, discountedSubtotal, platformFee, finalTotal } = totals;
 
   // Group items by seller for better organization
   const itemsBySeller = items.reduce((acc, item) => {
@@ -53,15 +82,109 @@ export const CartPage = () => {
       acc[item.seller_id] = {
         seller_name: item.seller_name,
         items: [],
+        subtotal: 0,
       };
     }
     acc[item.seller_id].items.push(item);
+    acc[item.seller_id].subtotal += item.price * item.quantity;
     return acc;
-  }, {} as Record<string, { seller_name: string; items: typeof items }>);
+  }, {} as Record<string, { seller_name: string; items: typeof items; subtotal: number }>);
+
+  // Apply discount code
+  const handleApplyDiscount = async (sellerId: string) => {
+    const code = discountCodes[sellerId]?.trim();
+    if (!code) {
+      toast({
+        title: "Error",
+        description: "Please enter a discount code",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to use discount codes",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setValidatingDiscount(sellerId);
+    try {
+      const sellerSubtotal = itemsBySeller[sellerId].subtotal;
+
+      // Validate the discount code
+      const validation = await validateDiscountCode(code, sellerId, sellerSubtotal);
+
+      if (!validation.valid) {
+        toast({
+          title: "Invalid code",
+          description: validation.error || "This discount code is not valid",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Calculate discount amount
+      const discountAmount = await calculateDiscountAmount(
+        validation.discount_type!,
+        validation.discount_value!,
+        sellerSubtotal,
+        validation.maximum_discount_amount
+      );
+
+      // Apply the discount
+      setAppliedDiscounts((prev) => ({
+        ...prev,
+        [sellerId]: {
+          code,
+          discount_code_id: validation.discount_code_id!,
+          discount_type: validation.discount_type!,
+          discount_amount: discountAmount,
+          original_total: sellerSubtotal,
+          final_total: sellerSubtotal - discountAmount,
+        },
+      }));
+
+      toast({
+        title: "Discount applied!",
+        description: `You saved $${discountAmount.toFixed(2)}`,
+      });
+    } catch (error) {
+      console.error("Error applying discount:", error);
+      toast({
+        title: "Error",
+        description: "Failed to apply discount code",
+        variant: "destructive",
+      });
+    } finally {
+      setValidatingDiscount(null);
+    }
+  };
+
+  // Remove applied discount
+  const handleRemoveDiscount = (sellerId: string) => {
+    setAppliedDiscounts((prev) => {
+      const updated = { ...prev };
+      delete updated[sellerId];
+      return updated;
+    });
+    setDiscountCodes((prev) => {
+      const updated = { ...prev };
+      delete updated[sellerId];
+      return updated;
+    });
+    toast({
+      title: "Discount removed",
+      description: "The discount code has been removed",
+    });
+  };
 
   const handleCheckout = () => {
     setIsCheckingOut(true);
-    navigate("/checkout", { state: { giftMode } });
+    navigate("/checkout", { state: { giftMode, appliedDiscounts } });
   };
 
   const handleRemoveItem = (listingId: string) => {
@@ -245,6 +368,83 @@ export const CartPage = () => {
                         </div>
                       </div>
                     ))}
+
+                    {/* Discount Code Section */}
+                    <div className="mt-4 pt-4 border-t">
+                      {appliedDiscounts[sellerId] ? (
+                        // Show applied discount
+                        <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Check className="h-4 w-4 text-green-600" />
+                            <div>
+                              <p className="text-sm font-semibold text-green-900">
+                                Code "{appliedDiscounts[sellerId].code}" applied
+                              </p>
+                              <p className="text-xs text-green-700">
+                                You saved ${appliedDiscounts[sellerId].discount_amount.toFixed(2)}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleRemoveDiscount(sellerId)}
+                            className="text-green-700 hover:text-green-900"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        // Show discount code input
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Tag className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">Have a discount code?</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Enter code"
+                              value={discountCodes[sellerId] || ""}
+                              onChange={(e) =>
+                                setDiscountCodes((prev) => ({
+                                  ...prev,
+                                  [sellerId]: e.target.value.toUpperCase(),
+                                }))
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleApplyDiscount(sellerId);
+                                }
+                              }}
+                              disabled={validatingDiscount === sellerId}
+                              className="flex-1"
+                            />
+                            <Button
+                              onClick={() => handleApplyDiscount(sellerId)}
+                              disabled={
+                                validatingDiscount === sellerId ||
+                                !discountCodes[sellerId]?.trim()
+                              }
+                              size="sm"
+                            >
+                              {validatingDiscount === sellerId ? (
+                                <>
+                                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                                  Applying...
+                                </>
+                              ) : (
+                                "Apply"
+                              )}
+                            </Button>
+                          </div>
+                          {!user && (
+                            <p className="text-xs text-muted-foreground">
+                              Sign in to use discount codes
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               )
@@ -281,8 +481,25 @@ export const CartPage = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Subtotal ({itemCount} items)</span>
-                    <span>${totalAmount.toFixed(2)}</span>
+                    <span>${subtotal.toFixed(2)}</span>
                   </div>
+
+                  {totalDiscount > 0 && (
+                    <>
+                      <div className="flex justify-between text-green-600">
+                        <div className="flex items-center gap-1">
+                          <Tag className="h-3 w-3" />
+                          <span>Discount</span>
+                        </div>
+                        <span>-${totalDiscount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between font-medium">
+                        <span>Discounted subtotal</span>
+                        <span>${discountedSubtotal.toFixed(2)}</span>
+                      </div>
+                    </>
+                  )}
+
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <span>Platform fee (10%)</span>
@@ -304,6 +521,12 @@ export const CartPage = () => {
                     <span>Total</span>
                     <span>${finalTotal.toFixed(2)}</span>
                   </div>
+
+                  {totalDiscount > 0 && (
+                    <div className="text-xs text-green-600 font-medium text-right">
+                      You're saving ${totalDiscount.toFixed(2)}!
+                    </div>
+                  )}
                 </div>
 
                 <Button
