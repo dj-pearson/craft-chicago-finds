@@ -25,6 +25,11 @@ export const Header = () => {
   const { user, profile, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
   const location = useLocation();
 
   // Determine which logo to show based on current page
@@ -156,7 +161,7 @@ export const Header = () => {
                     My Orders
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut}>
+                  <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
