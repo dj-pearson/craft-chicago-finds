@@ -12,6 +12,7 @@ import {
   Activity,
   Search,
   MessageSquare,
+  CreditCard,
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,6 +38,7 @@ const navigationItems = [
       { id: "overview", label: "Overview", icon: BarChart3 },
       { id: "cities", label: "Cities", icon: MapPin },
       { id: "users", label: "Users", icon: Users },
+      { id: "subscriptions", label: "Subscriptions", icon: CreditCard },
       { id: "content", label: "Content", icon: Edit },
       { id: "support", label: "Support Hub", icon: MessageSquare },
     ],

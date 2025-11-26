@@ -84,12 +84,19 @@ export const Header = () => {
             >
               Browse
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               className="h-9 px-3 text-sm font-medium hover:text-primary transition-colors"
               onClick={() => navigate("/sell")}
             >
               Sell
+            </Button>
+            <Button
+              variant="ghost"
+              className="h-9 px-3 text-sm font-medium hover:text-primary transition-colors"
+              onClick={() => navigate("/pricing")}
+            >
+              Pricing
             </Button>
           </nav>
 
@@ -226,8 +233,8 @@ export const Header = () => {
               >
                 Browse Categories
               </Button>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto"
                 onClick={() => {
                   navigate("/sell");
@@ -235,6 +242,16 @@ export const Header = () => {
                 }}
               >
                 Start Selling
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto"
+                onClick={() => {
+                  navigate("/pricing");
+                  setIsMenuOpen(false);
+                }}
+              >
+                Pricing
               </Button>
             </nav>
           </div>

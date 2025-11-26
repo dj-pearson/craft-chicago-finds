@@ -4,13 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Crown, 
-  Star, 
-  TrendingUp, 
-  Eye, 
-  BarChart3, 
-  Headphones, 
+import {
+  Crown,
+  Star,
+  TrendingUp,
+  Eye,
+  BarChart3,
+  Headphones,
   Palette,
   Calendar,
   CreditCard,
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CancelSubscriptionFlow } from './CancelSubscriptionFlow';
 
 export const SubscriptionManagement = () => {
   const { 
@@ -31,29 +32,7 @@ export const SubscriptionManagement = () => {
   } = usePlans();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [canceling, setCanceling] = useState(false);
-
-  const handleCancelSubscription = async () => {
-    if (!currentSubscription) return;
-
-    setCanceling(true);
-    try {
-      await cancelSubscription();
-      toast({
-        title: 'Subscription canceled',
-        description: 'Your subscription has been canceled. You can continue using premium features until the end of your billing period.',
-      });
-    } catch (error) {
-      console.error('Cancel subscription error:', error);
-      toast({
-        title: 'Cancellation failed',
-        description: error instanceof Error ? error.message : 'Failed to cancel subscription',
-        variant: 'destructive'
-      });
-    } finally {
-      setCanceling(false);
-    }
-  };
+  const [showCancelFlow, setShowCancelFlow] = useState(false);
 
   const handleUpgrade = async (planId: string) => {
     try {
@@ -248,13 +227,12 @@ export const SubscriptionManagement = () => {
               View All Plans
             </Button>
             
-            <Button 
-              onClick={handleCancelSubscription}
-              disabled={canceling}
+            <Button
+              onClick={() => setShowCancelFlow(true)}
               variant="outline"
               className="text-destructive hover:text-destructive"
             >
-              {canceling ? 'Canceling...' : 'Cancel Subscription'}
+              Cancel Subscription
             </Button>
           </div>
         </CardContent>
@@ -314,6 +292,18 @@ export const SubscriptionManagement = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Cancel Subscription Flow */}
+      <CancelSubscriptionFlow
+        open={showCancelFlow}
+        onOpenChange={setShowCancelFlow}
+        onCanceled={() => {
+          toast({
+            title: 'Subscription canceled',
+            description: 'Your subscription has been canceled. You can continue using premium features until the end of your billing period.',
+          });
+        }}
+      />
     </div>
   );
 };

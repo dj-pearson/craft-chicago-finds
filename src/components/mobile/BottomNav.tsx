@@ -25,8 +25,8 @@ export function BottomNav() {
     {
       icon: PlusCircle,
       label: "Sell",
-      href: "/seller/create-listing",
-      active: location.pathname.includes("/seller")
+      href: "/sell",
+      active: location.pathname === "/sell" || location.pathname.includes("/dashboard")
     },
     {
       icon: MessageSquare,

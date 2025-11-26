@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, MapPin, ShoppingBag, Users, Settings } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowRight, MapPin, ShoppingBag, Users, Store, DollarSign, Zap } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,7 @@ interface City {
 const Landing = () => {
   const { user } = useAuth();
   const { isAdmin } = useAdmin();
+  const navigate = useNavigate();
   const [cities, setCities] = useState<City[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -149,10 +150,19 @@ const Landing = () => {
                   </Link>
                 </Button>
               )}
-              <Button variant="outline" size="lg" className="text-lg px-8">
-                Request Your City
+              <Button
+                variant="outline"
+                size="lg"
+                className="text-lg px-8"
+                onClick={() => navigate("/sell")}
+              >
+                <Store className="mr-2 h-5 w-5" />
+                Start Selling
               </Button>
             </div>
+            <p className="mt-6 text-sm text-muted-foreground">
+              Already a maker? <button onClick={() => navigate("/sell")} className="text-primary hover:underline font-medium">See why 500+ Chicago artisans choose us over Etsy</button>
+            </p>
           </div>
         </section>
 
@@ -260,6 +270,44 @@ const Landing = () => {
                 </p>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Seller CTA Section */}
+        <section className="py-16 px-4 bg-primary text-primary-foreground">
+          <div className="container mx-auto max-w-4xl text-center">
+            <h2 className="text-3xl font-bold mb-4">
+              Ready to Sell Your Handmade Goods?
+            </h2>
+            <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
+              Join 500+ Chicago makers earning more with lower fees, local pickup options, and a community that values handmade.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-primary-foreground/10 rounded-lg p-6">
+                <DollarSign className="h-10 w-10 mx-auto mb-3 opacity-90" />
+                <h3 className="font-semibold text-lg mb-2">Lower Fees</h3>
+                <p className="text-sm opacity-80">Save up to 40% compared to Etsy</p>
+              </div>
+              <div className="bg-primary-foreground/10 rounded-lg p-6">
+                <Zap className="h-10 w-10 mx-auto mb-3 opacity-90" />
+                <h3 className="font-semibold text-lg mb-2">Quick Setup</h3>
+                <p className="text-sm opacity-80">Live in under 10 minutes</p>
+              </div>
+              <div className="bg-primary-foreground/10 rounded-lg p-6">
+                <MapPin className="h-10 w-10 mx-auto mb-3 opacity-90" />
+                <h3 className="font-semibold text-lg mb-2">Local Pickup</h3>
+                <p className="text-sm opacity-80">No shipping required</p>
+              </div>
+            </div>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="text-lg px-8"
+              onClick={() => navigate("/sell")}
+            >
+              Start Selling Free
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
           </div>
         </section>
 
