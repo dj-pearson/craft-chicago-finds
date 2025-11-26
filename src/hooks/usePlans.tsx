@@ -105,7 +105,7 @@ export const PlansProvider = ({ children }: { children: React.ReactNode }) => {
       const { data, error } = await supabase.functions.invoke('create-subscription', {
         body: {
           plan_id: planId,
-          success_url: `${window.location.origin}/seller-dashboard?subscription=success`,
+          success_url: `${window.location.origin}/dashboard?subscription=success`,
           cancel_url: `${window.location.origin}/pricing`
         }
       });
