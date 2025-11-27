@@ -73,10 +73,12 @@ export const ProductCard = memo(({
             <div className="absolute top-2 left-2 flex items-center gap-2 bg-background/90 backdrop-blur-sm rounded-full px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <Avatar className="h-6 w-6">
                 {listing.profiles.avatar_url ? (
-                  <img
+                  <LazyImage
                     src={listing.profiles.avatar_url}
                     alt={listing.profiles.display_name || 'Seller'}
-                    className="object-cover"
+                    className="h-full w-full object-cover rounded-full"
+                    loading="lazy"
+                    sizes="24px"
                   />
                 ) : (
                   <AvatarFallback className="text-xs bg-primary text-primary-foreground">
@@ -193,10 +195,12 @@ export const ProductCard = memo(({
           <div className="flex items-center gap-2 mb-3">
             <Avatar className="h-6 w-6">
               {listing.profiles.avatar_url ? (
-                <img
+                <LazyImage
                   src={listing.profiles.avatar_url}
                   alt={listing.profiles.display_name || 'Seller'}
-                  className="object-cover"
+                  className="h-full w-full object-cover rounded-full"
+                  loading="lazy"
+                  sizes="24px"
                 />
               ) : (
                 <AvatarFallback className="text-xs bg-primary text-primary-foreground">

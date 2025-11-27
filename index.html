@@ -1,32 +1,44 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google tag (gtag.js) - Deferred for performance -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- DNS Prefetch & Preconnect for faster loading - placed early for best effect -->
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="dns-prefetch" href="https://slamtlgebisrimijeoid.supabase.co">
+    <link rel="preconnect" href="https://slamtlgebisrimijeoid.supabase.co" crossorigin>
+    <link rel="dns-prefetch" href="https://js.stripe.com">
+    <link rel="preconnect" href="https://js.stripe.com" crossorigin>
+
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/logo-optimized.webp" as="image" type="image/webp">
+
+    <link rel="icon" href="/favicon.png" type="image/png">
+
+    <!-- Google tag (gtag.js) - Uses requestIdleCallback for non-blocking load -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-3K5Z8EXE1P');
-      
-      // Load GA script after page load
-      window.addEventListener('load', function() {
+
+      // Load GA script when browser is idle or after load (fallback)
+      function loadGAScript() {
         var script = document.createElement('script');
         script.async = true;
         script.src = 'https://www.googletagmanager.com/gtag/js?id=G-3K5Z8EXE1P';
         document.head.appendChild(script);
-      });
+      }
+
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadGAScript, { timeout: 3000 });
+      } else {
+        window.addEventListener('load', loadGAScript);
+      }
     </script>
-    
-    <meta charset="UTF-8" />
-    
-    <!-- DNS Prefetch & Preconnect for faster loading -->
-    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
-    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
-    <link rel="dns-prefetch" href="https://slamtlgebisrimijeoid.supabase.co">
-    <link rel="preconnect" href="https://slamtlgebisrimijeoid.supabase.co" crossorigin>
-    
-    <link rel="icon" href="/favicon.png" type="image/png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chicago Handmade Marketplace | Shop Local Makers & Artisans | Craft Chicago Finds</title>
     <meta name="description" content="Discover unique handmade gifts from 200+ Chicago makers. Shop local ceramics, jewelry, home decor & art. 10% commission, free listings, same-day pickup available. Support local craft economy.">
     <meta name="author" content="Craft Chicago Finds" />
