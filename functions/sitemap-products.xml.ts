@@ -6,7 +6,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 export async function onRequest(context: any) {
-  const baseUrl = 'https://craftchicagofinds.com';
+  // Use environment variable or fall back to production URL
+  const baseUrl = context.env?.SITE_URL || 'https://craftchicagofinds.com';
 
   try {
     // Initialize Supabase client with environment variables
@@ -20,10 +21,10 @@ export async function onRequest(context: any) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all active listings with necessary fields
+    // Fetch all active listings with necessary fields including images
     const { data: listings, error } = await supabase
       .from('listings')
-      .select('id, title, slug, updated_at, category, city_id, created_at')
+      .select('id, title, slug, updated_at, category, city_id, created_at, images, description')
       .eq('status', 'live')
       .order('updated_at', { ascending: false })
       .limit(50000); // Google's sitemap limit
@@ -77,7 +78,17 @@ export async function onRequest(context: any) {
         .replace(/^-+|-+$/g, '');
     };
 
-    // Generate URL entries
+    // Helper to escape XML special characters
+    const escapeXml = (str: string): string => {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+    };
+
+    // Generate URL entries with image data
     const urlset = listings
       .map((listing) => {
         const slug = listing.slug || generateSlug(listing.title);
@@ -86,11 +97,27 @@ export async function onRequest(context: any) {
         const changefreq = determineChangeFreq(listing);
         const lastmod = new Date(listing.updated_at || listing.created_at).toISOString();
 
+        // Generate image entries for sitemap
+        const images = listing.images || [];
+        const imageEntries = images.slice(0, 5).map((imageUrl: string, index: number) => {
+          const title = escapeXml(listing.title || 'Handmade Product');
+          const caption = index === 0
+            ? escapeXml(`${listing.title} - Handmade in Chicago`)
+            : escapeXml(`${listing.title} - Image ${index + 1}`);
+
+          return `    <image:image>
+      <image:loc>${escapeXml(imageUrl)}</image:loc>
+      <image:title>${title}</image:title>
+      <image:caption>${caption}</image:caption>
+    </image:image>`;
+        }).join('\n');
+
         return `  <url>
     <loc>${baseUrl}/chicago/product/${listing.id}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority.toFixed(1)}</priority>
+${imageEntries}
   </url>`;
       })
       .join('\n');

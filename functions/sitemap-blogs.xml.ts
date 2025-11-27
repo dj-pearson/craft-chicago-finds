@@ -6,7 +6,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 export async function onRequest(context: any) {
-  const baseUrl = 'https://craftchicagofinds.com';
+  // Use environment variable or fall back to production URL
+  const baseUrl = context.env?.SITE_URL || 'https://craftchicagofinds.com';
 
   try {
     // Initialize Supabase client

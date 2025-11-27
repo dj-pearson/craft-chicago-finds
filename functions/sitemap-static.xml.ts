@@ -4,8 +4,25 @@
  */
 
 export async function onRequest(context: any) {
-  const baseUrl = 'https://craftchicagofinds.com';
+  // Use environment variable or fall back to production URL
+  const baseUrl = context.env?.SITE_URL || 'https://craftchicagofinds.com';
   const now = new Date().toISOString();
+
+  // Category slugs for browse pages
+  const categories = [
+    'ceramics',
+    'jewelry',
+    'home-decor',
+    'art',
+    'candles',
+    'textiles',
+    'woodwork',
+    'leather',
+    'glass',
+    'paper',
+    'bath-body',
+    'food-drink'
+  ];
 
   const staticPages = [
     { url: '', priority: '1.0', changefreq: 'daily' }, // Homepage
@@ -28,6 +45,12 @@ export async function onRequest(context: any) {
     { url: '/safety-guidelines', priority: '0.5', changefreq: 'monthly' },
     { url: '/dispute-resolution', priority: '0.5', changefreq: 'monthly' },
     { url: '/cookie-policy', priority: '0.3', changefreq: 'yearly' },
+    // Category browse pages for better SEO
+    ...categories.map(category => ({
+      url: `/chicago/browse?category=${category}`,
+      priority: '0.7',
+      changefreq: 'daily'
+    }))
   ];
 
   const urlset = staticPages
