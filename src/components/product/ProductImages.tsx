@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight, Package, Maximize2, X } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { LazyImage } from "@/components/ui/lazy-image";
 
 interface ProductImagesProps {
   images: string[];
@@ -75,10 +76,12 @@ export const ProductImages = ({ images, title }: ProductImagesProps) => {
               className="w-full h-full cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
               aria-label="Click to view full size image"
             >
-              <img
+              <LazyImage
                 src={images[currentImageIndex]}
                 alt={`${title} - Image ${currentImageIndex + 1}`}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                loading="eager"
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             </button>
 
@@ -127,10 +130,12 @@ export const ProductImages = ({ images, title }: ProductImagesProps) => {
               }`}
               aria-label={`View image ${index + 1}`}
             >
-              <img
+              <LazyImage
                 src={image}
                 alt={`${title} - Thumbnail ${index + 1}`}
                 className="w-full h-full object-cover"
+                loading="lazy"
+                sizes="100px"
               />
             </button>
           ))}
@@ -146,10 +151,12 @@ export const ProductImages = ({ images, title }: ProductImagesProps) => {
 
           <div className="relative w-full h-full flex items-center justify-center">
             {/* Full-size image */}
-            <img
+            <LazyImage
               src={images[currentImageIndex]}
               alt={`${title} - Full size image ${currentImageIndex + 1}`}
               className="max-w-full max-h-full object-contain"
+              loading="eager"
+              sizes="100vw"
             />
 
             {/* Close button */}
