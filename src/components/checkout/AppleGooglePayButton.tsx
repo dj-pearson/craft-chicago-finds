@@ -53,12 +53,17 @@ export const AppleGooglePayButton = ({ onSuccess, onError, disabled }: AppleGoog
     });
 
     // Check if payment request is available
-    pr.canMakePayment().then((result) => {
-      if (result) {
-        setCanMakePayment(true);
-        setPaymentRequest(pr);
-      }
-    });
+    pr.canMakePayment()
+      .then((result) => {
+        if (result) {
+          setCanMakePayment(true);
+          setPaymentRequest(pr);
+        }
+      })
+      .catch((error) => {
+        // Apple/Google Pay not available - this is expected on many devices/browsers
+        console.debug("Apple/Google Pay availability check failed:", error);
+      });
 
     pr.on('paymentmethod', async (event) => {
       try {

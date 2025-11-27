@@ -107,16 +107,17 @@ export function CancelSubscriptionFlow({
   const handleConfirmCancel = async () => {
     setLoading(true);
     try {
-      // Log the cancellation reason for analytics
+      // Log the cancellation reason for analytics (non-blocking)
       if (currentSubscription) {
-        await supabase.from("subscription_cancellations").insert({
+        supabase.from("subscription_cancellations").insert({
           subscription_id: currentSubscription.id,
           reason: cancelReason,
           other_reason: cancelReason === "other" ? otherReason : null,
         }).then(() => {
-          // Silently handle - table may not exist
-        }).catch(() => {
-          // Silently handle - table may not exist
+          console.debug("Cancellation reason logged successfully");
+        }).catch((error) => {
+          // Non-critical: analytics table may not exist in all environments
+          console.debug("Could not log cancellation reason:", error?.message || "Unknown error");
         });
       }
 
