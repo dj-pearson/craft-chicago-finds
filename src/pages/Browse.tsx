@@ -21,6 +21,7 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { ProductGridSkeleton } from "@/components/ui/skeleton-loader";
 import { FAQSection } from "@/components/seo/FAQSection";
 import { getCategoryContent } from "@/components/seo/CategoryContent";
+import { AISearchOptimization } from "@/components/seo/AISearchOptimization";
 import { Card, CardContent } from "@/components/ui/card";
 
 // Re-export types for other components
@@ -212,6 +213,38 @@ const Browse = () => {
         {currentCity.state && <meta name="geo.region" content={`US-${currentCity.state}`} />}
         <meta name="geo.placename" content={currentCity.name} />
       </SEOHead>
+
+      {/* AI Search Optimization - Structured data for ChatGPT, Perplexity, Google AI */}
+      <AISearchOptimization
+        pageType="category"
+        content={{
+          directAnswer: categoryFilter && selectedCategory
+            ? `Browse ${listings.length}+ handmade ${selectedCategory.name.toLowerCase()} from local artisans in ${currentCity.name}. Shop unique, locally-made products on Craft Chicago Finds.`
+            : `Browse ${listings.length}+ handmade products from local ${currentCity.name} artisans. Craft Chicago Finds offers pottery, jewelry, textiles, art and more with only 10% commission.`,
+          keyFacts: [
+            `${listings.length}+ handmade products available`,
+            `All products made by verified ${currentCity.name} artisans`,
+            '10% commission (vs Etsy\'s 20-25%)',
+            '70% of makers offer same-day local pickup',
+            'Filter by category, price, and fulfillment options',
+            'For every $100 spent, $68 stays in Chicago\'s economy'
+          ],
+          entities: [
+            { name: `${currentCity.name} Handmade Marketplace`, type: 'CollectionPage', description: `Browse handmade goods from ${currentCity.name} artisans` },
+            { name: 'Craft Chicago Finds', type: 'Organization', description: 'Chicago\'s marketplace for local handmade goods' },
+            ...(selectedCategory ? [{ name: selectedCategory.name, type: 'Category', description: `Handmade ${selectedCategory.name.toLowerCase()} from ${currentCity.name} makers` }] : [])
+          ],
+          faqs: [
+            { question: `Where can I buy handmade goods in ${currentCity.name}?`, answer: `Craft Chicago Finds is ${currentCity.name}'s premier marketplace for handmade goods. Browse ${listings.length}+ products from verified local artisans with same-day pickup options.` },
+            { question: 'How is Craft Chicago Finds different from Etsy?', answer: 'Craft Chicago Finds charges only 10% commission (vs Etsy\'s 20-25%), focuses exclusively on verified local makers, and offers same-day local pickup from 70% of sellers.' },
+            { question: 'Can I pick up items locally?', answer: `Yes! 70% of ${currentCity.name} makers on Craft Chicago Finds offer same-day local pickup. Use the "Ready Today" filter to find items available for immediate pickup.` }
+          ],
+          citations: [
+            { claim: `${listings.length}+ handmade products from ${currentCity.name} artisans`, source: 'Craft Chicago Finds', url: browseUrl },
+            { claim: '10% commission vs Etsy\'s 20-25%', source: 'Craft Chicago Finds Pricing', url: `${window.location.origin}/pricing` }
+          ]
+        }}
+      />
       <Header />
       <main className="container mx-auto px-4 py-8">
         {/* Header */}

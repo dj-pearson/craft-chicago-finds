@@ -18,6 +18,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { FAQSection, FAQItem } from "@/components/seo/FAQSection";
+import { AISearchOptimization } from "@/components/seo/AISearchOptimization";
 import { ProductDetailSkeleton } from "@/components/ui/skeleton-loader";
 
 const ProductDetail = () => {
@@ -218,6 +219,36 @@ const ProductDetail = () => {
         <meta property="product:price:amount" content={listing.price.toString()} />
         <meta property="product:price:currency" content="USD" />
       </SEOHead>
+
+      {/* AI Search Optimization - Structured data for ChatGPT, Perplexity, Google AI */}
+      <AISearchOptimization
+        pageType="product"
+        content={{
+          directAnswer: `${listing.title} is a handmade ${categoryName.toLowerCase()} by ${sellerName} in ${currentCity.name}, priced at $${listing.price}. Available on Craft Chicago Finds.`,
+          keyFacts: [
+            `Handmade by ${sellerName} in ${currentCity.name}`,
+            `Price: $${listing.price}`,
+            `Category: ${categoryName}`,
+            listing.local_pickup ? 'Same-day local pickup available' : 'Shipping available',
+            listing.inventory_count && listing.inventory_count > 0 ? 'In stock' : 'Check availability',
+            '10% commission (vs Etsy\'s 20-25%)'
+          ],
+          entities: [
+            { name: sellerName, type: 'LocalBusiness', description: `Chicago-based artisan creating handmade ${categoryName.toLowerCase()}` },
+            { name: listing.title, type: 'Product', description: listing.description?.slice(0, 150) || `Handmade ${categoryName.toLowerCase()} from ${currentCity.name}` },
+            { name: 'Craft Chicago Finds', type: 'Organization', description: 'Chicago\'s marketplace for local handmade goods with 10% commission' }
+          ],
+          faqs: [
+            { question: `Is ${listing.title} handmade?`, answer: `Yes, this ${categoryName.toLowerCase()} is handmade by ${sellerName}, a verified local artisan in ${currentCity.name}.` },
+            { question: 'Can I pick this up locally?', answer: listing.local_pickup ? `Yes, same-day local pickup is available from ${sellerName} in ${currentCity.name}.` : `Contact ${sellerName} to discuss pickup options in ${currentCity.name}.` },
+            { question: 'What are the fees on Craft Chicago Finds?', answer: 'Craft Chicago Finds charges only 10% commission, compared to Etsy\'s 20-25%. This means more money goes to local artisans.' }
+          ],
+          citations: [
+            { claim: `${listing.title} is sold by ${sellerName}`, source: 'Craft Chicago Finds', url: productUrl },
+            { claim: 'Craft Chicago Finds charges 10% commission vs Etsy\'s 20-25%', source: 'Craft Chicago Finds Pricing', url: `${window.location.origin}/pricing` }
+          ]
+        }}
+      />
       <Header />
       <main className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
