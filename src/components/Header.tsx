@@ -44,12 +44,16 @@ export const Header = () => {
         <div className="flex h-14 sm:h-16 items-center justify-between gap-2 sm:gap-3">
           {/* Logo */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
+            <button
+              className="flex items-center cursor-pointer bg-transparent border-none p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+              onClick={() => navigate("/")}
+              aria-label="Go to homepage"
+            >
               <picture>
                 <source srcSet={logoSrcWebP} type="image/webp" />
-                <img 
-                  src={logoSrcFallback} 
-                  alt={logoAlt} 
+                <img
+                  src={logoSrcFallback}
+                  alt={logoAlt}
                   className="h-7 sm:h-8 object-contain"
                   style={{ width: 'auto', aspectRatio: '96/33' }}
                   width="96"
@@ -57,7 +61,7 @@ export const Header = () => {
                   loading="eager"
                 />
               </picture>
-            </div>
+            </button>
             <div className="hidden md:block">
               <CitySelector />
             </div>

@@ -76,14 +76,17 @@ export function ShopThisArticle({ articleId, citySlug }: ShopThisArticleProps) {
 
   // Track product clicks
   const trackClick = async (productLinkId: string, listingId: string, productCitySlug: string) => {
-    // Track the click asynchronously (fire and forget)
+    // Track the click asynchronously, but always navigate regardless of tracking success
     supabase.rpc("increment_blog_product_click", {
       p_article_id: articleId,
       p_listing_id: listingId,
-    }).then(() => {
-      // Navigate after tracking
-      navigate(`/${productCitySlug}/product/${listingId}`);
+    }).catch((error) => {
+      // Log tracking errors but don't block navigation
+      console.error("Failed to track blog product click:", error);
     });
+
+    // Navigate immediately - don't block on analytics
+    navigate(`/${productCitySlug}/product/${listingId}`);
   };
 
   // Don't render if no products
