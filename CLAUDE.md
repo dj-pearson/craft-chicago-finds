@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Craft Chicago Finds is a production-ready React-based marketplace application for local artisans and crafters. Built with Vite, TypeScript, React, shadcn/ui, and Tailwind CSS. The application uses Supabase for backend services and is deployed on Cloudflare Pages with edge functions.
 
-**Scale**: 402 TypeScript files, 42 pages, 33 custom hooks, 59 UI components, 95 database migrations
+**Scale**: 407 TypeScript files, 43 pages, 35 custom hooks, 58 UI components, 95 database migrations
 
 ## Development Commands
 
@@ -89,10 +89,10 @@ npm run pages:dev
 │   │   ├── seo/            # SEO components (CategoryContent, FAQSection)
 │   │   ├── subscription/   # Subscription management
 │   │   └── wishlist/       # Wishlist/favorites
-│   ├── hooks/              # 33 custom React hooks + context providers
+│   ├── hooks/              # 35 custom React hooks + context providers
 │   ├── integrations/       # Supabase integration + types (252KB)
 │   ├── lib/                # 29 utility files (analytics, seo, validation, etc.)
-│   ├── pages/              # 42 route components (all lazy-loaded)
+│   ├── pages/              # 43 route components (all lazy-loaded)
 │   └── styles/             # Global CSS files
 ├── functions/              # Cloudflare Pages edge functions
 │   ├── _middleware.ts      # CORS headers
@@ -189,7 +189,7 @@ The app uses multiple context providers in a specific hierarchy:
 - React Native mobile app (separate `/mobile` directory)
 
 #### Advanced Features
-- Lazy loading: All 42 pages are lazy-loaded for performance
+- Lazy loading: All 43 pages are lazy-loaded for performance
 - Accessibility panel and provider
 - Dark mode support (next-themes)
 - Performance monitoring (Core Web Vitals)
@@ -300,7 +300,7 @@ The app uses multiple context providers in a specific hierarchy:
 - **Persistence**: localStorage for cart, recently viewed
 - **Optimistic Updates**: Cart operations with immediate UI feedback
 
-### Custom Hooks (33 total)
+### Custom Hooks (35 total)
 Key hooks to be aware of:
 - `useAuth` - Authentication & user sessions
 - `useCart` - Shopping cart with localStorage persistence
@@ -325,6 +325,12 @@ Key hooks to be aware of:
 - `useOptimisticCart` - Optimistic UI updates
 - `useDebounce` - Debounce utility
 - `useIntersectionObserver` - Lazy loading
+- `useMobile` - Mobile device detection
+- `useToast` - Toast notifications
+- `useAnalytics` - Analytics tracking
+- `useDemandForecast` - Demand forecasting
+- `useCategoryTrendAlerts` - Category trend alerts
+- `useChicagoCraftIndexData` - Chicago Craft Index data
 
 ### Library Utilities (29 files in `src/lib/`)
 Key utilities:
@@ -542,13 +548,15 @@ import { cn } from "@/lib/utils";
 ## Project Status
 
 **Status**: Production-ready, actively maintained
-**Recent Activity**: 188 commits since November 1, 2024
+**Recent Activity**: 193 commits since November 1, 2024
 **Last Major Updates**:
-- Edge function improvements and error handling
+- Error handling and keyboard accessibility improvements
+- AI search optimization and sitemap enhancements
+- PageSpeed performance optimizations
+- Edge function improvements
 - Seller feature enhancements (AI generations, bulk operations, templates)
 - SEO strategy implementation with blog content
 - Mobile optimizations (bottom nav, sticky search)
-- Performance optimizations
 
 ## Additional Resources
 
