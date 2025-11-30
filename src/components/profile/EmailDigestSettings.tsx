@@ -36,6 +36,7 @@ export const EmailDigestSettings = () => {
     updatePreference,
     subscribeToDigest,
     unsubscribeFromDigest,
+    unsubscribeFromAll,
     refreshPreferences,
   } = useEmailDigest();
 
@@ -260,7 +261,7 @@ export const EmailDigestSettings = () => {
 
           <div className="flex gap-2">
             <Button
-              onClick={() => console.log('Unsubscribe all not yet implemented')}
+              onClick={unsubscribeFromAll}
               variant="outline"
               className="text-destructive hover:text-destructive"
             >
