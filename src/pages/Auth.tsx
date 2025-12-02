@@ -7,14 +7,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthRateLimit } from '@/hooks/useAuthRateLimit';
+import { useAccountLockout } from '@/hooks/useAccountLockout';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
 import { validators } from '@/lib/validation';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -27,11 +29,19 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const { user, signIn, signUp, resetPassword, loading: authLoading } = useAuth();
   const { checkRateLimit, recordAttempt } = useAuthRateLimit();
+  const { checkLockout, recordLoginAttempt, getTimeUntilUnlock, formatLockReason } = useAccountLockout();
   const [loading, setLoading] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Account lockout state
+  const [lockoutInfo, setLockoutInfo] = useState<{
+    isLocked: boolean;
+    lockedUntil: Date | null;
+    remainingAttempts: number;
+  } | null>(null);
 
   // Get redirect URL from query params
   const redirectTo = searchParams.get('redirect') || '/';
@@ -52,10 +62,44 @@ export default function Auth() {
     }
   }, [user, navigate, redirectTo]);
 
+  // Check lockout status when email changes
+  useEffect(() => {
+    const checkEmailLockout = async () => {
+      if (signInEmail && signInEmail.includes('@')) {
+        const result = await checkLockout(signInEmail);
+        setLockoutInfo({
+          isLocked: result.isLocked,
+          lockedUntil: result.lockedUntil,
+          remainingAttempts: result.remainingAttempts,
+        });
+      } else {
+        setLockoutInfo(null);
+      }
+    };
+
+    const debounce = setTimeout(checkEmailLockout, 500);
+    return () => clearTimeout(debounce);
+  }, [signInEmail, checkLockout]);
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Check rate limit BEFORE attempting login
+    // Check server-side lockout first
+    const lockoutCheck = await checkLockout(signInEmail);
+    if (lockoutCheck.isLocked) {
+      const timeRemaining = getTimeUntilUnlock(lockoutCheck.lockedUntil);
+      toast.error(
+        `Account is temporarily locked. Please try again in ${timeRemaining}.`
+      );
+      setLockoutInfo({
+        isLocked: true,
+        lockedUntil: lockoutCheck.lockedUntil,
+        remainingAttempts: 0,
+      });
+      return;
+    }
+
+    // Also check client-side rate limit as a backup
     const { allowed, retryAfter } = checkRateLimit();
     if (!allowed) {
       toast.error(
@@ -79,18 +123,41 @@ export default function Auth() {
 
     const { error } = await signIn(signInEmail, signInPassword);
 
-    // Record attempt for rate limiting
+    // Record attempt for both client and server-side tracking
     recordAttempt(!error);
 
+    // Record server-side login attempt and get updated lockout status
+    const lockoutResult = await recordLoginAttempt(
+      signInEmail,
+      !error,
+      error?.message
+    );
+
     if (error) {
-      if (error.message.includes('Invalid login credentials')) {
-        toast.error('Invalid email or password');
+      // Update lockout info
+      setLockoutInfo({
+        isLocked: lockoutResult.isLocked,
+        lockedUntil: lockoutResult.lockedUntil,
+        remainingAttempts: lockoutResult.remainingAttempts,
+      });
+
+      if (lockoutResult.isLocked) {
+        const timeRemaining = getTimeUntilUnlock(lockoutResult.lockedUntil);
+        toast.error(
+          `Account locked due to too many failed attempts. Please try again in ${timeRemaining}.`
+        );
+      } else if (error.message.includes('Invalid login credentials')) {
+        const attemptsWarning = lockoutResult.remainingAttempts <= 2
+          ? ` (${lockoutResult.remainingAttempts} attempts remaining)`
+          : '';
+        toast.error(`Invalid email or password${attemptsWarning}`);
       } else if (error.message.includes('Email not confirmed')) {
         toast.error('Please confirm your email address');
       } else {
         toast.error(error.message || 'Failed to sign in');
       }
     } else {
+      setLockoutInfo(null);
       toast.success('Welcome back!');
       navigate(redirectTo);
     }
@@ -204,6 +271,31 @@ export default function Auth() {
 
           <TabsContent value="signin">
             <div className="bg-card p-6 rounded-lg border border-border shadow-lg">
+              {/* Account Lockout Warning */}
+              {lockoutInfo?.isLocked && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    This account is temporarily locked due to too many failed login attempts.
+                    {lockoutInfo.lockedUntil && (
+                      <span className="block mt-1">
+                        Try again in {getTimeUntilUnlock(lockoutInfo.lockedUntil)}.
+                      </span>
+                    )}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Low Attempts Warning */}
+              {!lockoutInfo?.isLocked && lockoutInfo?.remainingAttempts !== undefined && lockoutInfo.remainingAttempts <= 2 && lockoutInfo.remainingAttempts > 0 && (
+                <Alert className="mb-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
+                  <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                  <AlertDescription className="text-yellow-700 dark:text-yellow-400">
+                    Warning: {lockoutInfo.remainingAttempts} login attempt{lockoutInfo.remainingAttempts !== 1 ? 's' : ''} remaining before account lockout.
+                  </AlertDescription>
+                </Alert>
+              )}
+
               {!showPasswordReset ? (
                 <>
                   <form onSubmit={handleSignIn} className="space-y-4">
@@ -245,12 +337,14 @@ export default function Auth() {
                       />
                     </div>
 
-                    <Button type="submit" className="w-full" disabled={loading}>
+                    <Button type="submit" className="w-full" disabled={loading || lockoutInfo?.isLocked}>
                       {loading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Signing in...
                         </>
+                      ) : lockoutInfo?.isLocked ? (
+                        'Account Locked'
                       ) : (
                         'Sign In'
                       )}
