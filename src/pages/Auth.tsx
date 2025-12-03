@@ -19,6 +19,7 @@ import { z } from 'zod';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { validators } from '@/lib/validation';
 import { supabase } from '@/integrations/supabase/client';
+import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = validators.password; // Use strong password policy (8+ chars with complexity)
@@ -517,9 +518,7 @@ export default function Auth() {
                     required
                     autoComplete="new-password"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Must be at least 8 characters with uppercase, lowercase, and a number
-                  </p>
+                  <PasswordStrengthMeter password={signUpPassword} />
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>

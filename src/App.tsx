@@ -16,6 +16,7 @@ import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import "./styles/accessibility.css";
 import "@/lib/errorHandler"; // Initialize global error handler
+import { SessionTimeoutWarning } from "@/components/auth/SessionTimeoutWarning";
 
 // Lazy load all pages for optimal code splitting
 const Landing = lazy(() => import("./pages/Landing"));
@@ -73,6 +74,7 @@ const App = () => {
                   <TooltipProvider>
                   <Toaster />
                   <Sonner />
+                  <SessionTimeoutWarning />
           
             <CityProvider>
               <Suspense fallback={<LoadingSpinner />}>
