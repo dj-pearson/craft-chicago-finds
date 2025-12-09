@@ -13,6 +13,7 @@ import {
   Search,
   MessageSquare,
   CreditCard,
+  Database,
 } from "lucide-react";
 import {
   Sidebar,
@@ -62,6 +63,7 @@ const navigationItems = [
   {
     group: "Security",
     items: [
+      { id: "data-security", label: "Data Security", icon: Database },
       { id: "moderation", label: "Listing Moderation", icon: ShieldAlert },
       { id: "smart-moderation", label: "Smart Moderation", icon: Brain },
       { id: "reviews", label: "Review Moderation", icon: ShieldAlert },

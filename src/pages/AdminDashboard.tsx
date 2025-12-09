@@ -45,6 +45,7 @@ import { SupportHub } from "@/components/admin/support";
 import { SmartModerationQueue } from "@/components/admin/SmartModerationQueue";
 import { ProactiveOperationsDashboard } from "@/components/admin/ProactiveOperationsDashboard";
 import { SubscriptionDashboard } from "@/components/admin/SubscriptionDashboard";
+import { DataSecurityDashboard } from "@/components/admin/DataSecurityDashboard";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -296,6 +297,7 @@ const AdminDashboard = () => {
               </div>
             )}
 
+            {activeTab === "data-security" && <DataSecurityDashboard />}
             {activeTab === "fraud" && <FraudDetectionDashboard />}
             {activeTab === "reviews" && <ReviewModerationQueue />}
             {activeTab === "claims" && <ProtectionClaimsQueue />}
