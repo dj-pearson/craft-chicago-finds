@@ -66,6 +66,7 @@ import { seoManager } from "@/lib/seo-utils";
 import { KeywordSelector } from "./KeywordSelector";
 import { BlogTemplateSelector } from "./BlogTemplateSelector";
 import { BlogProductLinker } from "./BlogProductLinker";
+import { BlogQuickTemplates } from "./BlogQuickTemplates";
 
 interface BlogPost {
   id: string;
@@ -571,6 +572,20 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
     return score;
   };
 
+  const handleTemplateSelect = (template: any) => {
+    setPostForm((prev) => ({
+      ...prev,
+      title: template.title,
+      content: template.content,
+      meta_description: template.meta_description,
+      keywords: template.keywords,
+    }));
+    toast({
+      title: "Template applied!",
+      description: "Customize the content to make it your own.",
+    });
+  };
+
   const savePost = async () => {
     try {
       if (!user) {
@@ -1015,9 +1030,14 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
               // Post Editor
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">
-                    {selectedPost ? "Edit Post" : "Create New Post"}
-                  </h3>
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-lg font-semibold">
+                      {selectedPost ? "Edit Post" : "Create New Post"}
+                    </h3>
+                    {!selectedPost && (
+                      <BlogQuickTemplates onTemplateSelect={handleTemplateSelect} />
+                    )}
+                  </div>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"

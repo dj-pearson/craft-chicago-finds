@@ -29,6 +29,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+generate-apple-secret.js
 
 /deployment
 db_cluster*

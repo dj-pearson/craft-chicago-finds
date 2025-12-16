@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import { getErrorMessage, Issue, Warning } from "../_shared/types.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -82,7 +83,7 @@ serve(async (req) => {
     console.error("Error in seo-audit function:", error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: getErrorMessage(error),
       }),
       {
         status: 500,
@@ -252,35 +253,35 @@ function performTechnicalChecks(meta: any, headings: any, html: string) {
 }
 
 function performContentChecks(html: string, meta: any) {
-  const issues = [];
-  const warnings = [];
-  const passed = [];
+  const issues: Issue[] = [];
+  const warnings: Warning[] = [];
+  const passed: string[] = [];
 
   // Remove HTML tags for word count
   const textContent = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
   const wordCount = textContent.split(' ').length;
 
   if (wordCount < 300) {
-    warnings.push({ type: 'low_word_count', message: 'Low word count (< 300 words)', severity: 'warning', value: wordCount });
+    warnings.push({ type: 'low_word_count', message: 'Low word count (< 300 words)', severity: 'warning' });
   } else {
-    passed.push({ type: 'word_count', message: `Adequate word count: ${wordCount} words` });
+    passed.push(`Adequate word count: ${wordCount} words`);
   }
 
   // Internal links
   const internalLinkMatches = Array.from(html.matchAll(/<a[^>]+href=["'][^http][^"']*["']/gi));
   if (internalLinkMatches.length < 3) {
-    warnings.push({ type: 'few_internal_links', message: 'Few internal links (< 3)', severity: 'warning', value: internalLinkMatches.length });
+    warnings.push({ type: 'few_internal_links', message: 'Few internal links (< 3)', severity: 'warning' });
   } else {
-    passed.push({ type: 'internal_links', message: `Internal links present: ${internalLinkMatches.length}` });
+    passed.push(`Internal links present: ${internalLinkMatches.length}`);
   }
 
   return { issues, warnings, passed };
 }
 
 async function performPerformanceChecks(url: string) {
-  const issues = [];
-  const warnings = [];
-  const passed = [];
+  const issues: Issue[] = [];
+  const warnings: Warning[] = [];
+  const passed: string[] = [];
 
   // Measure page load time
   const startTime = Date.now();
@@ -289,9 +290,9 @@ async function performPerformanceChecks(url: string) {
     const loadTime = Date.now() - startTime;
 
     if (loadTime > 3000) {
-      warnings.push({ type: 'slow_load_time', message: 'Slow page load time (> 3 seconds)', severity: 'warning', value: loadTime });
+      warnings.push({ type: 'slow_load_time', message: 'Slow page load time (> 3 seconds)', severity: 'warning' });
     } else {
-      passed.push({ type: 'load_time', message: `Page load time: ${loadTime}ms` });
+      passed.push(`Page load time: ${loadTime}ms`);
     }
   } catch (error) {
     warnings.push({ type: 'load_error', message: 'Could not measure load time', severity: 'info' });

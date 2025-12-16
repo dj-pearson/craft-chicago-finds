@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Wand2, FileText, Tags, DollarSign } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Wand2, FileText, Tags, DollarSign, RefreshCw, Star, Trash2, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,16 @@ interface GeneratedContent {
   };
 }
 
+interface SavedGeneration {
+  id: string;
+  title: string;
+  description: string;
+  tags: string[];
+  category: string;
+  tone: string;
+  savedAt: number;
+}
+
 export const AIListingHelper = ({
   imageUrl,
   category,
@@ -46,6 +57,143 @@ export const AIListingHelper = ({
   const [generating, setGenerating] = useState(false);
   const [sellerNotes, setSellerNotes] = useState("");
   const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
+  const [selectedTone, setSelectedTone] = useState<string>("professional");
+  const [regeneratingField, setRegeneratingField] = useState<string | null>(null);
+  const [savedGenerations, setSavedGenerations] = useState<SavedGeneration[]>([]);
+  const [showSaved, setShowSaved] = useState(false);
+
+  // Load saved generations from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('ai_saved_generations');
+    if (saved) {
+      try {
+        setSavedGenerations(JSON.parse(saved));
+      } catch (e) {
+        console.error('Error loading saved generations:', e);
+      }
+    }
+  }, []);
+
+  const saveGeneration = () => {
+    if (!generatedContent) return;
+
+    const newSave: SavedGeneration = {
+      id: Date.now().toString(),
+      title: generatedContent.title,
+      description: generatedContent.description,
+      tags: generatedContent.tags,
+      category: category || 'General',
+      tone: selectedTone,
+      savedAt: Date.now(),
+    };
+
+    const updated = [newSave, ...savedGenerations].slice(0, 10); // Keep last 10
+    setSavedGenerations(updated);
+    localStorage.setItem('ai_saved_generations', JSON.stringify(updated));
+
+    toast({
+      title: "Saved!",
+      description: "AI generation saved to your favorites",
+    });
+  };
+
+  const loadSavedGeneration = (saved: SavedGeneration) => {
+    setGeneratedContent({
+      title: saved.title,
+      description: saved.description,
+      tags: saved.tags,
+      suggested_price_range: { min: 0, max: 0 }, // Not saved
+    });
+    setSelectedTone(saved.tone);
+    setShowSaved(false);
+    toast({
+      title: "Loaded!",
+      description: "Saved generation loaded. Click 'Use All' to apply.",
+    });
+  };
+
+  const deleteSavedGeneration = (id: string) => {
+    const updated = savedGenerations.filter(s => s.id !== id);
+    setSavedGenerations(updated);
+    localStorage.setItem('ai_saved_generations', JSON.stringify(updated));
+    toast({
+      title: "Deleted",
+      description: "Saved generation removed",
+    });
+  };
+
+  const regenerateField = async (field: 'title' | 'description' | 'tags') => {
+    if (!generatedContent && !sellerNotes.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please provide seller notes first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setRegeneratingField(field);
+    try {
+      const fieldPrompts = {
+        title: `Generate only a compelling, SEO-friendly product title (max 80 characters) in a ${selectedTone} tone.`,
+        description: `Generate only a detailed product description (150-300 words) in a ${selectedTone} tone.`,
+        tags: `Generate only 8-12 relevant searchability tags as a JSON array.`
+      };
+
+      const prompt = `
+Context:
+- Category: ${category || "General craft item"}
+- Seller notes: ${sellerNotes}
+- Tone: ${selectedTone}
+
+${fieldPrompts[field]}
+
+Product context: ${generatedContent?.title || currentTitle || "Handmade craft item"}
+
+Return only the ${field} as plain text${field === 'tags' ? ' (JSON array format)' : ''}.
+`;
+
+      const { data, error } = await supabase.functions.invoke("ai-generate-content", {
+        body: {
+          prompt,
+          generation_type: `listing_${field}`,
+          context: { category, tone: selectedTone },
+        },
+      });
+
+      if (error) throw error;
+
+      // Update only the regenerated field
+      setGeneratedContent(prev => {
+        if (!prev) return prev;
+        const updated = { ...prev };
+        if (field === 'tags') {
+          try {
+            updated.tags = JSON.parse(data.content.replace(/```json|```/g, '').trim());
+          } catch {
+            updated.tags = data.content.split(',').map((t: string) => t.trim());
+          }
+        } else {
+          updated[field] = data.content.trim();
+        }
+        return updated;
+      });
+
+      toast({
+        title: `${field.charAt(0).toUpperCase() + field.slice(1)} regenerated!`,
+        description: `New ${field} with ${selectedTone} tone generated successfully`,
+      });
+    } catch (error) {
+      console.error(`Error regenerating ${field}:`, error);
+      toast({
+        title: "Regeneration failed",
+        description: error instanceof Error ? error.message : `Failed to regenerate ${field}`,
+        variant: "destructive",
+      });
+    } finally {
+      setRegeneratingField(null);
+    }
+  };
 
   const generateContent = async () => {
     if (!imageUrl && !sellerNotes.trim()) {
@@ -70,10 +218,11 @@ Context:
 - Current description: ${currentDescription}
 - Current tags: ${currentTags}
 - Has image: ${imageUrl ? "Yes" : "No"}
+- Tone: ${selectedTone}
 
 Please generate:
-1. A compelling, SEO-friendly title (max 80 characters)
-2. A detailed product description (150-300 words) that highlights:
+1. A compelling, SEO-friendly title (max 80 characters) in a ${selectedTone} tone
+2. A detailed product description (150-300 words) in a ${selectedTone} tone that highlights:
    - What makes this item special/unique
    - Materials and craftsmanship details
    - Use cases and benefits
@@ -108,6 +257,7 @@ Format as JSON:
             category,
             seller_notes: sellerNotes,
             has_image: !!imageUrl,
+            tone: selectedTone,
             current_content: {
               title: currentTitle,
               description: currentDescription,
@@ -222,6 +372,26 @@ Format as JSON:
           </p>
         </div>
 
+        {/* Tone Selection */}
+        <div className="space-y-2">
+          <Label htmlFor="tone">Writing Tone</Label>
+          <Select value={selectedTone} onValueChange={setSelectedTone}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="professional">Professional</SelectItem>
+              <SelectItem value="friendly">Friendly & Warm</SelectItem>
+              <SelectItem value="casual">Casual & Relaxed</SelectItem>
+              <SelectItem value="enthusiastic">Enthusiastic</SelectItem>
+              <SelectItem value="storytelling">Storytelling</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Choose the tone that matches your brand voice
+          </p>
+        </div>
+
         {/* Generate Button */}
         <Button
           onClick={generateContent}
@@ -254,13 +424,27 @@ Format as JSON:
                     <FileText className="h-4 w-4" />
                     Title
                   </Label>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => usePartialContent('title')}
-                  >
-                    Use Title
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => regenerateField('title')}
+                      disabled={regeneratingField === 'title'}
+                    >
+                      {regeneratingField === 'title' ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-3 w-3" />
+                      )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => usePartialContent('title')}
+                    >
+                      Use Title
+                    </Button>
+                  </div>
                 </div>
                 <div className="p-3 bg-muted rounded-lg">
                   <p className="text-sm font-medium">{generatedContent.title}</p>
@@ -274,13 +458,27 @@ Format as JSON:
                     <FileText className="h-4 w-4" />
                     Description
                   </Label>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => usePartialContent('description')}
-                  >
-                    Use Description
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => regenerateField('description')}
+                      disabled={regeneratingField === 'description'}
+                    >
+                      {regeneratingField === 'description' ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-3 w-3" />
+                      )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => usePartialContent('description')}
+                    >
+                      Use Description
+                    </Button>
+                  </div>
                 </div>
                 <div className="p-3 bg-muted rounded-lg">
                   <p className="text-sm whitespace-pre-wrap">{generatedContent.description}</p>
@@ -294,13 +492,27 @@ Format as JSON:
                     <Tags className="h-4 w-4" />
                     Tags
                   </Label>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => usePartialContent('tags')}
-                  >
-                    Use Tags
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => regenerateField('tags')}
+                      disabled={regeneratingField === 'tags'}
+                    >
+                      {regeneratingField === 'tags' ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-3 w-3" />
+                      )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => usePartialContent('tags')}
+                    >
+                      Use Tags
+                    </Button>
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {generatedContent.tags.map((tag, index) => (
@@ -330,10 +542,86 @@ Format as JSON:
               )}
 
               {/* Use All Button */}
-              <Button onClick={useGeneratedContent} className="w-full">
-                Use All Generated Content
+              <div className="flex gap-2">
+                <Button onClick={useGeneratedContent} className="flex-1">
+                  Use All Generated Content
+                </Button>
+                <Button
+                  onClick={saveGeneration}
+                  variant="outline"
+                  className="gap-2"
+                  title="Save this generation for later"
+                >
+                  <Star className="h-4 w-4" />
+                  Save
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Saved Generations */}
+        {savedGenerations.length > 0 && (
+          <div className="border-t pt-6">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-medium text-sm">Saved Generations ({savedGenerations.length}/10)</h4>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowSaved(!showSaved)}
+              >
+                {showSaved ? 'Hide' : 'Show'}
               </Button>
             </div>
+
+            {showSaved && (
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {savedGenerations.map((saved) => (
+                  <Card key={saved.id} className="p-3 hover:bg-muted/50 transition-colors">
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{saved.title}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="secondary" className="text-xs">
+                              {saved.category}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {saved.tone}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => loadSavedGeneration(saved)}
+                            className="h-7 px-2"
+                          >
+                            Load
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => deleteSavedGeneration(saved.id)}
+                            className="h-7 px-2 text-destructive"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {saved.description}
+                      </p>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        {new Date(saved.savedAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

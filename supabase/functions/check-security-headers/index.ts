@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import type { SecurityAnalysis } from "../_shared/types.ts";
+import { getErrorMessage } from "../_shared/types.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -30,13 +32,14 @@ serve(async (req) => {
       "x-xss-protection": headers.get("x-xss-protection"),
     };
 
-    const analysis = {
+    const analysis: SecurityAnalysis = {
       has_https: url.startsWith("https://"),
       has_hsts: !!securityHeaders["strict-transport-security"],
       has_csp: !!securityHeaders["content-security-policy"],
       has_x_frame_options: !!securityHeaders["x-frame-options"],
       has_x_content_type_options: !!securityHeaders["x-content-type-options"],
       has_referrer_policy: !!securityHeaders["referrer-policy"],
+      security_score: 0,
       security_headers: securityHeaders,
     };
 
@@ -107,7 +110,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error checking security headers:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

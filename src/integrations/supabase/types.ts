@@ -928,6 +928,131 @@ export type Database = {
         }
         Relationships: []
       }
+      collection_follows: {
+        Row: {
+          collection_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          collection_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          collection_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_follows_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collection_items: {
+        Row: {
+          added_by: string
+          collection_id: string
+          created_at: string
+          id: string
+          listing_id: string
+          note: string | null
+          sort_order: number
+        }
+        Insert: {
+          added_by: string
+          collection_id: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          note?: string | null
+          sort_order?: number
+        }
+        Update: {
+          added_by?: string
+          collection_id?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          note?: string | null
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_items_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_items_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collections: {
+        Row: {
+          category: string | null
+          cover_image_url: string | null
+          created_at: string
+          creator_id: string
+          description: string | null
+          follow_count: number
+          id: string
+          is_featured: boolean
+          is_public: boolean
+          item_count: number
+          slug: string
+          title: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          category?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          creator_id: string
+          description?: string | null
+          follow_count?: number
+          id?: string
+          is_featured?: boolean
+          is_public?: boolean
+          item_count?: number
+          slug: string
+          title: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          category?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          creator_id?: string
+          description?: string | null
+          follow_count?: number
+          id?: string
+          is_featured?: boolean
+          is_public?: boolean
+          item_count?: number
+          slug?: string
+          title?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
       commission_payouts: {
         Row: {
           adjustment_amount: number | null
@@ -7778,6 +7903,24 @@ export type Database = {
       }
       generate_performance_recommendations: { Args: never; Returns: number }
       generate_ticket_number: { Args: never; Returns: string }
+      get_featured_collections: {
+        Args: { collection_limit?: number }
+        Returns: {
+          category: string
+          cover_image_url: string
+          created_at: string
+          creator_avatar: string
+          creator_id: string
+          creator_name: string
+          description: string
+          follow_count: number
+          id: string
+          item_count: number
+          slug: string
+          title: string
+          view_count: number
+        }[]
+      }
       get_seller_metrics: { Args: { p_seller_id: string }; Returns: Json }
       get_system_health_summary: {
         Args: never

@@ -12,6 +12,8 @@ import {
   Activity,
   Search,
   MessageSquare,
+  CreditCard,
+  Database,
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,6 +39,7 @@ const navigationItems = [
       { id: "overview", label: "Overview", icon: BarChart3 },
       { id: "cities", label: "Cities", icon: MapPin },
       { id: "users", label: "Users", icon: Users },
+      { id: "subscriptions", label: "Subscriptions", icon: CreditCard },
       { id: "content", label: "Content", icon: Edit },
       { id: "support", label: "Support Hub", icon: MessageSquare },
     ],
@@ -60,6 +63,7 @@ const navigationItems = [
   {
     group: "Security",
     items: [
+      { id: "data-security", label: "Data Security", icon: Database },
       { id: "moderation", label: "Listing Moderation", icon: ShieldAlert },
       { id: "smart-moderation", label: "Smart Moderation", icon: Brain },
       { id: "reviews", label: "Review Moderation", icon: ShieldAlert },

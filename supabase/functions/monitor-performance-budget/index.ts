@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import { getErrorMessage, Warning, Violation } from "../_shared/types.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -56,8 +57,8 @@ serve(async (req) => {
     };
 
     // Check budget violations
-    const violations = [];
-    const warnings = [];
+    const violations: Violation[] = [];
+    const warnings: Warning[] = [];
 
     if (estimatedSizes.html > budgets.html) {
       violations.push({
@@ -127,10 +128,9 @@ serve(async (req) => {
       const budget = budgets[type as keyof typeof budgets];
       if (budget && size > budget * 0.8 && size <= budget) {
         warnings.push({
-          resource_type: type,
-          current_size: size,
-          budget,
-          percentage: Math.round((size / budget) * 100),
+          type: `${type}_approaching_limit`,
+          message: `${type} size (${size} bytes) is ${Math.round((size / budget) * 100)}% of budget (${budget} bytes)`,
+          severity: 'warning'
         });
       }
     });
@@ -178,7 +178,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error monitoring performance budget:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

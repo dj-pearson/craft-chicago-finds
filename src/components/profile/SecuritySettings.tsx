@@ -11,6 +11,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { validators } from "@/lib/validation";
 import { z } from "zod";
+import { MFASettings } from "./MFASettings";
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
@@ -115,29 +116,22 @@ export const SecuritySettings = ({ user }: SecuritySettingsProps) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div>
-                <p className="font-medium">Email Verification</p>
-                <p className="text-sm text-muted-foreground">
-                  {user.email_confirmed_at ? "Verified" : "Not verified"}
-                </p>
-              </div>
-              <Badge variant={user.email_confirmed_at ? "default" : "destructive"}>
-                {user.email_confirmed_at ? "✓" : "!"}
-              </Badge>
+          <div className="flex items-center justify-between p-3 border rounded-lg">
+            <div>
+              <p className="font-medium">Email Verification</p>
+              <p className="text-sm text-muted-foreground">
+                {user.email_confirmed_at ? "Verified" : "Not verified"}
+              </p>
             </div>
-
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div>
-                <p className="font-medium">Two-Factor Authentication</p>
-                <p className="text-sm text-muted-foreground">Not enabled</p>
-              </div>
-              <Badge variant="secondary">Coming Soon</Badge>
-            </div>
+            <Badge variant={user.email_confirmed_at ? "default" : "destructive"}>
+              {user.email_confirmed_at ? "✓" : "!"}
+            </Badge>
           </div>
         </CardContent>
       </Card>
+
+      {/* MFA Settings */}
+      <MFASettings />
 
       {/* Change Password */}
       <Card>

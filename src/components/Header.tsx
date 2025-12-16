@@ -25,6 +25,11 @@ export const Header = () => {
   const { user, profile, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
   const location = useLocation();
 
   // Determine which logo to show based on current page
@@ -39,12 +44,16 @@ export const Header = () => {
         <div className="flex h-14 sm:h-16 items-center justify-between gap-2 sm:gap-3">
           {/* Logo */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
+            <button
+              className="flex items-center cursor-pointer bg-transparent border-none p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+              onClick={() => navigate("/")}
+              aria-label="Go to homepage"
+            >
               <picture>
                 <source srcSet={logoSrcWebP} type="image/webp" />
-                <img 
-                  src={logoSrcFallback} 
-                  alt={logoAlt} 
+                <img
+                  src={logoSrcFallback}
+                  alt={logoAlt}
                   className="h-7 sm:h-8 object-contain"
                   style={{ width: 'auto', aspectRatio: '96/33' }}
                   width="96"
@@ -52,7 +61,7 @@ export const Header = () => {
                   loading="eager"
                 />
               </picture>
-            </div>
+            </button>
             <div className="hidden md:block">
               <CitySelector />
             </div>
@@ -79,12 +88,19 @@ export const Header = () => {
             >
               Browse
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               className="h-9 px-3 text-sm font-medium hover:text-primary transition-colors"
               onClick={() => navigate("/sell")}
             >
               Sell
+            </Button>
+            <Button
+              variant="ghost"
+              className="h-9 px-3 text-sm font-medium hover:text-primary transition-colors"
+              onClick={() => navigate("/pricing")}
+            >
+              Pricing
             </Button>
           </nav>
 
@@ -156,7 +172,7 @@ export const Header = () => {
                     My Orders
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut}>
+                  <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
@@ -221,8 +237,8 @@ export const Header = () => {
               >
                 Browse Categories
               </Button>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto"
                 onClick={() => {
                   navigate("/sell");
@@ -230,6 +246,16 @@ export const Header = () => {
                 }}
               >
                 Start Selling
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto"
+                onClick={() => {
+                  navigate("/pricing");
+                  setIsMenuOpen(false);
+                }}
+              >
+                Pricing
               </Button>
             </nav>
           </div>

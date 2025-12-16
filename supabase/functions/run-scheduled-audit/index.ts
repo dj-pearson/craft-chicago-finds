@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import { getErrorMessage } from "../_shared/types.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -96,7 +97,7 @@ serve(async (req) => {
           event_type: `scheduled_${schedule.task_type}_error`,
           severity: "error",
           page_url: schedule.target_url,
-          details: { error: error.message },
+          details: { error: getErrorMessage(error) },
         });
 
         results.push({
@@ -104,7 +105,7 @@ serve(async (req) => {
           task_type: schedule.task_type,
           target_url: schedule.target_url,
           success: false,
-          error: error.message,
+          error: getErrorMessage(error),
         });
       }
     }
@@ -119,7 +120,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error running scheduled audits:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

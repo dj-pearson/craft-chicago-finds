@@ -6,6 +6,133 @@
 import { z } from 'zod';
 
 /**
+ * Common weak passwords list
+ * Top 100 most commonly used passwords that should be blocked
+ */
+const COMMON_PASSWORDS = new Set([
+  'password', 'password1', 'password123', '123456', '12345678', '123456789',
+  '1234567890', 'qwerty', 'qwerty123', 'abc123', 'letmein', 'welcome',
+  'monkey', 'dragon', 'master', 'login', 'princess', 'sunshine',
+  'passw0rd', 'shadow', 'admin', 'admin123', 'root', 'toor',
+  'administrator', 'changeme', 'guest', 'default', 'test', 'test123',
+  'qazwsx', 'trustno1', 'iloveyou', 'football', 'baseball', 'basketball',
+  'soccer', 'hockey', 'batman', 'superman', 'starwars', 'harrypotter',
+  'pokemon', 'whatever', 'nothing', 'secret', 'access', 'password!',
+  'summer', 'winter', 'spring', 'autumn', 'fall', 'january', 'february',
+  'march', 'april', 'may', 'june', 'july', 'august', 'september',
+  'october', 'november', 'december', 'monday', 'tuesday', 'wednesday',
+  'thursday', 'friday', 'saturday', 'sunday', 'computer', 'internet',
+  'freedom', 'america', 'jesus', 'heaven', 'love', 'money', 'power',
+  '654321', 'qwertyuiop', 'asdfghjkl', 'zxcvbnm', '1q2w3e4r', '1qaz2wsx',
+  'passpass', 'pass1234', 'p@ssw0rd', 'p@ssword', 'P@ssw0rd', 'Password1',
+  'letmein1', 'welcome1', 'admin1', 'user', 'user123', 'guest123',
+  'password1!', 'Password1!', 'Passw0rd!', 'Welcome1!', 'Qwerty123!',
+]);
+
+/**
+ * Check if password is in the common passwords list
+ */
+function isCommonPassword(password: string): boolean {
+  const normalizedPassword = password.toLowerCase();
+  return COMMON_PASSWORDS.has(normalizedPassword);
+}
+
+/**
+ * Password strength levels
+ */
+export type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong' | 'very-strong';
+
+/**
+ * Password strength result with details
+ */
+export interface PasswordStrengthResult {
+  strength: PasswordStrength;
+  score: number; // 0-100
+  feedback: string[];
+  requirements: {
+    length: boolean;
+    uppercase: boolean;
+    lowercase: boolean;
+    number: boolean;
+    special: boolean;
+    notCommon: boolean;
+  };
+}
+
+/**
+ * Calculate password strength with detailed feedback
+ */
+export function calculatePasswordStrength(password: string): PasswordStrengthResult {
+  const requirements = {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+    notCommon: !isCommonPassword(password),
+  };
+
+  const feedback: string[] = [];
+  let score = 0;
+
+  // Base score from requirements
+  if (requirements.length) score += 15;
+  else feedback.push('Use at least 8 characters');
+
+  if (requirements.uppercase) score += 15;
+  else feedback.push('Add an uppercase letter');
+
+  if (requirements.lowercase) score += 15;
+  else feedback.push('Add a lowercase letter');
+
+  if (requirements.number) score += 15;
+  else feedback.push('Add a number');
+
+  if (requirements.special) score += 15;
+  else feedback.push('Add a special character (!@#$%^&*...)');
+
+  if (!requirements.notCommon) {
+    feedback.push('Avoid common passwords');
+    score = Math.max(0, score - 30);
+  }
+
+  // Bonus points for length beyond minimum
+  if (password.length >= 12) score += 10;
+  if (password.length >= 16) score += 5;
+  if (password.length >= 20) score += 5;
+
+  // Penalty for repeated characters
+  if (/(.)\1{2,}/.test(password)) {
+    score = Math.max(0, score - 10);
+    feedback.push('Avoid repeated characters');
+  }
+
+  // Penalty for sequential characters
+  if (/012|123|234|345|456|567|678|789|890|abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz/i.test(password)) {
+    score = Math.max(0, score - 10);
+    feedback.push('Avoid sequential characters');
+  }
+
+  // Cap score at 100
+  score = Math.min(100, score);
+
+  // Determine strength level
+  let strength: PasswordStrength;
+  if (score < 30) strength = 'weak';
+  else if (score < 50) strength = 'fair';
+  else if (score < 70) strength = 'good';
+  else if (score < 90) strength = 'strong';
+  else strength = 'very-strong';
+
+  return {
+    strength,
+    score,
+    feedback,
+    requirements,
+  };
+}
+
+/**
  * Common validators
  */
 export const validators = {
@@ -17,7 +144,12 @@ export const validators = {
     .max(128, { message: 'Password must be less than 128 characters' })
     .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
     .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
-    .regex(/[0-9]/, { message: 'Password must contain at least one number' }),
+    .regex(/[0-9]/, { message: 'Password must contain at least one number' })
+    .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, { message: 'Password must contain at least one special character (!@#$%^&*()_+-=[]{};\':"|,.<>/?)' })
+    .refine(
+      (password) => !isCommonPassword(password),
+      { message: 'This password is too common. Please choose a more secure password.' }
+    ),
 
   displayName: z
     .string()

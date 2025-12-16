@@ -16,6 +16,7 @@ import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import "./styles/accessibility.css";
 import "@/lib/errorHandler"; // Initialize global error handler
+import { SessionTimeoutWarning } from "@/components/auth/SessionTimeoutWarning";
 
 // Lazy load all pages for optimal code splitting
 const Landing = lazy(() => import("./pages/Landing"));
@@ -60,6 +61,7 @@ const PricingCalculator = lazy(() => import("./pages/PricingCalculator"));
 const ChicagoCraftIndex = lazy(() => import("./pages/ChicagoCraftIndex"));
 const ForCraftFairs = lazy(() => import("./pages/ForCraftFairs"));
 const About = lazy(() => import("./pages/About"));
+const Sell = lazy(() => import("./pages/Sell"));
 
 const App = () => {
   return (
@@ -72,6 +74,7 @@ const App = () => {
                   <TooltipProvider>
                   <Toaster />
                   <Sonner />
+                  <SessionTimeoutWarning />
           
             <CityProvider>
               <Suspense fallback={<LoadingSpinner />}>
@@ -162,6 +165,7 @@ const App = () => {
                 <Route path="/chicago-craft-index" element={<ChicagoCraftIndex />} />
                 <Route path="/for-craft-fairs" element={<ForCraftFairs />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/sell" element={<Sell />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/:citySlug/blog/:slug" element={<BlogArticle />} />
                 <Route path="/:city/browse" element={<Browse />} />

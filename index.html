@@ -1,36 +1,48 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google tag (gtag.js) - Deferred for performance -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- DNS Prefetch & Preconnect for faster loading - placed early for best effect -->
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="dns-prefetch" href="https://slamtlgebisrimijeoid.supabase.co">
+    <link rel="preconnect" href="https://slamtlgebisrimijeoid.supabase.co" crossorigin>
+    <link rel="dns-prefetch" href="https://js.stripe.com">
+    <link rel="preconnect" href="https://js.stripe.com" crossorigin>
+
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/logo-optimized.webp" as="image" type="image/webp">
+
+    <link rel="icon" href="/favicon.png" type="image/png">
+
+    <!-- Google tag (gtag.js) - Uses requestIdleCallback for non-blocking load -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-3K5Z8EXE1P');
-      
-      // Load GA script after page load
-      window.addEventListener('load', function() {
+
+      // Load GA script when browser is idle or after load (fallback)
+      function loadGAScript() {
         var script = document.createElement('script');
         script.async = true;
         script.src = 'https://www.googletagmanager.com/gtag/js?id=G-3K5Z8EXE1P';
         document.head.appendChild(script);
-      });
+      }
+
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadGAScript, { timeout: 3000 });
+      } else {
+        window.addEventListener('load', loadGAScript);
+      }
     </script>
-    
-    <meta charset="UTF-8" />
-    
-    <!-- DNS Prefetch & Preconnect for faster loading -->
-    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
-    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
-    <link rel="dns-prefetch" href="https://slamtlgebisrimijeoid.supabase.co">
-    <link rel="preconnect" href="https://slamtlgebisrimijeoid.supabase.co" crossorigin>
-    
-    <link rel="icon" href="/favicon.png" type="image/png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Craft Chicago Finds - Local Craft Commerce Infrastructure | Chicago's Operating System for Makers</title>
-    <meta name="description" content="Chicago's essential craft commerce infrastructure. Same-day pickup from 500+ makers, real-time inventory, craft fair integration (Market Mode), and local economic data. More than a marketplace—the platform Chicago's creative economy runs on.">
+    <title>Chicago Handmade Marketplace | Shop Local Makers & Artisans | Craft Chicago Finds</title>
+    <meta name="description" content="Discover unique handmade gifts from 200+ Chicago makers. Shop local ceramics, jewelry, home decor & art. 10% commission, free listings, same-day pickup available. Support local craft economy.">
     <meta name="author" content="Craft Chicago Finds" />
-    <meta name="keywords" content="Chicago craft infrastructure, same-day pickup handmade, local craft commerce, Chicago makers, craft economy data, Market Mode craft fairs, certified Chicago makers, maker intelligence tools, local commerce platform">
+    <meta name="keywords" content="Chicago handmade marketplace, Chicago artisan gifts, local Chicago makers, handmade ceramics Chicago, Chicago craft fair online, same-day pickup handmade, artisan jewelry Chicago, support local Chicago artists, Chicago pottery for sale, handmade home decor Chicago">
 
     
     
@@ -40,10 +52,52 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@craftlocal" />
     <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/wcypz3EDJFhwVLaFeV7jXD0F2jF3/social-images/social-1759286626951-Cover.png">
-    <meta property="og:title" content="Craft Chicago Finds - Chicago's Craft Commerce Infrastructure">
-  <meta name="twitter:title" content="Craft Chicago Finds - Chicago's Craft Commerce Infrastructure">
-  <meta property="og:description" content="Chicago's essential craft commerce infrastructure. Same-day pickup from 500+ makers, Market Mode craft fair integration, and local economic data. More than a marketplace—irreplaceable infrastructure for Chicago's creative economy.">
-  <meta name="twitter:description" content="Chicago's essential craft commerce infrastructure. Same-day pickup from 500+ makers, Market Mode craft fair integration, and local economic data. More than a marketplace—irreplaceable infrastructure for Chicago's creative economy.">
+    <meta property="og:title" content="Chicago Handmade Marketplace | Shop Local Makers & Artisans">
+  <meta name="twitter:title" content="Chicago Handmade Marketplace | Shop Local Makers & Artisans">
+  <meta property="og:description" content="Discover unique handmade gifts from 200+ Chicago makers. Shop local ceramics, jewelry, home decor & art. Same-day pickup available. Support Chicago's craft economy.">
+  <meta name="twitter:description" content="Discover unique handmade gifts from 200+ Chicago makers. Shop local ceramics, jewelry, home decor & art. Same-day pickup available. Support Chicago's craft economy.">
+
+  <!-- Schema.org Organization Markup for GEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Craft Chicago Finds",
+    "alternateName": ["Craft Chicago", "Chicago Makers Marketplace"],
+    "description": "Chicago's marketplace for handmade goods from 200+ local makers",
+    "url": "https://craftchicagofinds.com",
+    "logo": "https://craftchicagofinds.com/logo.png",
+    "foundingDate": "2024",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Chicago",
+      "addressRegion": "IL",
+      "addressCountry": "US"
+    },
+    "sameAs": [
+      "https://facebook.com/craftchicagofinds",
+      "https://instagram.com/craftchicagofinds",
+      "https://twitter.com/craftchicago"
+    ],
+    "knowsAbout": [
+      "Handmade goods",
+      "Chicago craft economy",
+      "Local makers",
+      "Artisan marketplace",
+      "Same-day pickup",
+      "Local craft commerce"
+    ],
+    "slogan": "Chicago's Marketplace for Local Handmade Goods",
+    "areaServed": {
+      "@type": "City",
+      "name": "Chicago",
+      "containedInPlace": {
+        "@type": "State",
+        "name": "Illinois"
+      }
+    }
+  }
+  </script>
 </head>
 
   <body>

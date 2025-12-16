@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import type { Issue, ImageAnalysis } from "../_shared/types.ts";
+import { getErrorMessage } from "../_shared/types.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -16,7 +18,7 @@ serve(async (req) => {
 
     // Extract all images
     const imgMatches = Array.from(html.matchAll(/<img[^>]+>/gi));
-    const images = [];
+    const images: ImageAnalysis[] = [];
 
     for (const match of imgMatches) {
       const imgTag = match[0];
@@ -96,7 +98,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error analyzing images:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

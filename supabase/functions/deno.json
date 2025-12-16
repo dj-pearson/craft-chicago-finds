@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.window", "dom", "dom.iterable", "esnext"],
+    "strict": false,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
+  },
+  "lint": {
+    "files": {
+      "exclude": []
+    }
+  },
+  "fmt": {
+    "files": {
+      "exclude": []
+    }
+  }
+}

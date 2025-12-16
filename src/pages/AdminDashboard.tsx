@@ -44,6 +44,8 @@ import { DisputeManagement } from "@/components/admin/DisputeManagement";
 import { SupportHub } from "@/components/admin/support";
 import { SmartModerationQueue } from "@/components/admin/SmartModerationQueue";
 import { ProactiveOperationsDashboard } from "@/components/admin/ProactiveOperationsDashboard";
+import { SubscriptionDashboard } from "@/components/admin/SubscriptionDashboard";
+import { DataSecurityDashboard } from "@/components/admin/DataSecurityDashboard";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -273,6 +275,7 @@ const AdminDashboard = () => {
 
             {activeTab === "cities" && <CityManager />}
             {activeTab === "users" && <UserManager />}
+            {activeTab === "subscriptions" && <SubscriptionDashboard />}
             {activeTab === "content" && <ContentManager />}
             {activeTab === "support" && <SupportHub />}
             {activeTab === "ai" && <AISettingsManager />}
@@ -294,6 +297,7 @@ const AdminDashboard = () => {
               </div>
             )}
 
+            {activeTab === "data-security" && <DataSecurityDashboard />}
             {activeTab === "fraud" && <FraudDetectionDashboard />}
             {activeTab === "reviews" && <ReviewModerationQueue />}
             {activeTab === "claims" && <ProtectionClaimsQueue />}

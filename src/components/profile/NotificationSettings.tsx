@@ -1,11 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Bell, Mail, MessageCircle, Package, AlertCircle } from "lucide-react";
+import { Bell, Mail, MessageCircle, Package, AlertCircle, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
+
+interface NotificationPreferences {
+  email_orders: boolean;
+  email_messages: boolean;
+  email_marketing: boolean;
+  push_orders: boolean;
+  push_messages: boolean;
+  push_marketing: boolean;
+}
 
 interface NotificationSettingsProps {
   user: User;
@@ -15,27 +25,56 @@ interface NotificationSettingsProps {
 export const NotificationSettings = ({ user, profile }: NotificationSettingsProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
-  const [notifications, setNotifications] = useState({
-    email_orders: profile?.notification_preferences?.email_orders ?? true,
-    email_messages: profile?.notification_preferences?.email_messages ?? true,
-    email_marketing: profile?.notification_preferences?.email_marketing ?? false,
-    push_orders: false, // Not implemented yet
-    push_messages: false, // Not implemented yet
-    push_marketing: false, // Not implemented yet
-  });
+  const defaultPreferences: NotificationPreferences = {
+    email_orders: true,
+    email_messages: true,
+    email_marketing: false,
+    push_orders: false,
+    push_messages: false,
+    push_marketing: false,
+  };
+
+  const [notifications, setNotifications] = useState<NotificationPreferences>(() => ({
+    email_orders: profile?.notification_preferences?.email_orders ?? defaultPreferences.email_orders,
+    email_messages: profile?.notification_preferences?.email_messages ?? defaultPreferences.email_messages,
+    email_marketing: profile?.notification_preferences?.email_marketing ?? defaultPreferences.email_marketing,
+    push_orders: profile?.notification_preferences?.push_orders ?? defaultPreferences.push_orders,
+    push_messages: profile?.notification_preferences?.push_messages ?? defaultPreferences.push_messages,
+    push_marketing: profile?.notification_preferences?.push_marketing ?? defaultPreferences.push_marketing,
+  }));
+
+  const [originalNotifications, setOriginalNotifications] = useState<NotificationPreferences>(notifications);
+
+  // Track changes
+  useEffect(() => {
+    const changed = JSON.stringify(notifications) !== JSON.stringify(originalNotifications);
+    setHasChanges(changed);
+  }, [notifications, originalNotifications]);
 
   const handleSave = async () => {
     setLoading(true);
     try {
-      // TODO: Implement notification preferences update in Supabase
-      console.log("Notification preferences update:", notifications);
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          notification_preferences: notifications,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setOriginalNotifications(notifications);
+      setHasChanges(false);
 
       toast({
         title: "Preferences updated",
         description: "Your notification preferences have been saved.",
       });
     } catch (error) {
+      console.error('Error saving notification preferences:', error);
       toast({
         title: "Update failed",
         description: "Something went wrong. Please try again.",
@@ -193,9 +232,15 @@ export const NotificationSettings = ({ user, profile }: NotificationSettingsProp
         </CardContent>
       </Card>
 
-      <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={loading}>
-          {loading ? "Saving..." : "Save Preferences"}
+      <div className="flex items-center justify-end gap-3">
+        {!hasChanges && (
+          <span className="text-sm text-muted-foreground flex items-center gap-1">
+            <CheckCircle className="h-4 w-4 text-green-500" />
+            Saved
+          </span>
+        )}
+        <Button onClick={handleSave} disabled={loading || !hasChanges}>
+          {loading ? "Saving..." : hasChanges ? "Save Preferences" : "No Changes"}
         </Button>
       </div>
     </div>

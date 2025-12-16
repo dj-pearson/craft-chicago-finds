@@ -41,8 +41,10 @@ import {
   TrendingUp,
   Edit2,
   Save,
+  Eye,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { BulkOperationTemplates } from './BulkOperationTemplates';
 
 interface Listing {
   id: string;
@@ -61,11 +63,21 @@ interface BulkListingOperationsProps {
   onUpdate: () => void;
 }
 
+interface PreviewItem {
+  id: string;
+  title: string;
+  oldValue: string;
+  newValue: string;
+  change: string;
+}
+
 export function BulkListingOperations({ listings, onUpdate }: BulkListingOperationsProps) {
   const { user } = useAuth();
   const [selectedListings, setSelectedListings] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewItems, setPreviewItems] = useState<PreviewItem[]>([]);
 
   // Bulk update form state
   const [bulkAction, setBulkAction] = useState<string>('status');
@@ -199,7 +211,76 @@ export function BulkListingOperations({ listings, onUpdate }: BulkListingOperati
     }
   };
 
+  const generatePreview = () => {
+    const preview: PreviewItem[] = [];
+
+    selectedListings.forEach(listingId => {
+      const listing = listings.find(l => l.id === listingId);
+      if (!listing) return;
+
+      let previewItem: PreviewItem;
+
+      switch (bulkAction) {
+        case 'status':
+          previewItem = {
+            id: listing.id,
+            title: listing.title,
+            oldValue: listing.status,
+            newValue: newStatus,
+            change: `Status: ${listing.status} → ${newStatus}`
+          };
+          break;
+        case 'price':
+          let newPrice = listing.price;
+          if (priceAdjustmentType === 'percentage') {
+            newPrice = listing.price * (1 + priceAdjustment / 100);
+          } else {
+            newPrice = listing.price + priceAdjustment;
+          }
+          newPrice = Math.round(newPrice * 100) / 100;
+
+          previewItem = {
+            id: listing.id,
+            title: listing.title,
+            oldValue: `$${listing.price.toFixed(2)}`,
+            newValue: `$${newPrice.toFixed(2)}`,
+            change: `Price: $${listing.price.toFixed(2)} → $${newPrice.toFixed(2)} (${priceAdjustment > 0 ? '+' : ''}${priceAdjustmentType === 'percentage' ? `${priceAdjustment}%` : `$${priceAdjustment}`})`
+          };
+          break;
+        case 'delivery_options':
+          const oldOptions = [];
+          const newOptions = [];
+          if (listing.shipping_available) oldOptions.push('Shipping');
+          if (listing.local_pickup) oldOptions.push('Pickup');
+          if (listing.local_delivery) oldOptions.push('Delivery');
+
+          if (shippingEnabled) newOptions.push('Shipping');
+          if (pickupEnabled) newOptions.push('Pickup');
+          if (deliveryEnabled) newOptions.push('Delivery');
+
+          previewItem = {
+            id: listing.id,
+            title: listing.title,
+            oldValue: oldOptions.join(', ') || 'None',
+            newValue: newOptions.join(', ') || 'None',
+            change: `Options: ${oldOptions.join(', ') || 'None'} → ${newOptions.join(', ') || 'None'}`
+          };
+          break;
+        default:
+          return;
+      }
+
+      preview.push(previewItem);
+    });
+
+    setPreviewItems(preview);
+    setShowPreview(true);
+  };
+
   const handleBulkUpdate = async () => {
+    // Close preview
+    setShowPreview(false);
+
     switch (bulkAction) {
       case 'status':
         await handleBulkStatusUpdate();
@@ -211,6 +292,27 @@ export function BulkListingOperations({ listings, onUpdate }: BulkListingOperati
         await handleBulkFieldUpdate();
         break;
     }
+  };
+
+  const handleApplyTemplate = (template: any) => {
+    // Apply template operations to form state
+    template.operations.forEach((op: any) => {
+      switch (op.type) {
+        case 'price':
+          setBulkAction('price');
+          setPriceAdjustmentType('percentage');
+          setPriceAdjustment(op.value);
+          break;
+        case 'status':
+          setBulkAction('status');
+          setNewStatus(op.value);
+          break;
+        case 'shipping':
+          setBulkAction('delivery_options');
+          setShippingEnabled(op.value);
+          break;
+      }
+    });
   };
 
   const selectedCount = selectedListings.length;
@@ -251,7 +353,10 @@ export function BulkListingOperations({ listings, onUpdate }: BulkListingOperati
 
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                      <Label>Action</Label>
+                      <div className="flex items-center justify-between">
+                        <Label>Action</Label>
+                        <BulkOperationTemplates onApplyTemplate={handleApplyTemplate} />
+                      </div>
                       <Select value={bulkAction} onValueChange={setBulkAction}>
                         <SelectTrigger>
                           <SelectValue />
@@ -352,16 +457,98 @@ export function BulkListingOperations({ listings, onUpdate }: BulkListingOperati
                     <Button variant="outline" onClick={() => setBulkDialogOpen(false)}>
                       Cancel
                     </Button>
+                    <Button onClick={generatePreview} disabled={loading}>
+                      <Eye className="mr-2 h-4 w-4" />
+                      Preview Changes
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              {/* Preview Dialog */}
+              <Dialog open={showPreview} onOpenChange={setShowPreview}>
+                <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-hidden flex flex-col">
+                  <DialogHeader>
+                    <DialogTitle>Preview Bulk Changes</DialogTitle>
+                    <DialogDescription>
+                      Review the changes before applying them to {selectedCount} listing{selectedCount !== 1 ? 's' : ''}
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <div className="flex-1 overflow-y-auto border rounded-lg">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Listing</TableHead>
+                          <TableHead>Current</TableHead>
+                          <TableHead className="text-center">→</TableHead>
+                          <TableHead>New</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {previewItems.map((item) => (
+                          <TableRow key={item.id}>
+                            <TableCell className="font-medium max-w-[200px]">
+                              <p className="truncate" title={item.title}>{item.title}</p>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">
+                              {item.oldValue}
+                            </TableCell>
+                            <TableCell className="text-center text-primary">
+                              <TrendingUp className="h-4 w-4 mx-auto" />
+                            </TableCell>
+                            <TableCell className="font-medium text-green-600">
+                              {item.newValue}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Summary */}
+                  <div className="border-t pt-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        Total listings to update:
+                      </span>
+                      <Badge variant="secondary" className="text-base">
+                        {selectedCount}
+                      </Badge>
+                    </div>
+                    {bulkAction === 'price' && (
+                      <div className="flex items-center justify-between text-sm mt-2">
+                        <span className="text-muted-foreground">
+                          Estimated revenue impact:
+                        </span>
+                        <span className="font-medium">
+                          {(() => {
+                            const impact = previewItems.reduce((sum, item) => {
+                              const oldPrice = parseFloat(item.oldValue.replace('$', ''));
+                              const newPrice = parseFloat(item.newValue.replace('$', ''));
+                              return sum + (newPrice - oldPrice);
+                            }, 0);
+                            return impact > 0 ? `+$${impact.toFixed(2)}` : `$${impact.toFixed(2)}`;
+                          })()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setShowPreview(false)}>
+                      Cancel
+                    </Button>
                     <Button onClick={handleBulkUpdate} disabled={loading}>
                       {loading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Updating...
+                          Applying...
                         </>
                       ) : (
                         <>
                           <Save className="mr-2 h-4 w-4" />
-                          Apply Changes
+                          Confirm & Apply
                         </>
                       )}
                     </Button>
