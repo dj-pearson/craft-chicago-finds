@@ -32,5 +32,9 @@ dist-ssr
 generate-apple-secret.js
 
 /deployment
+deployment/edge-functions/functions/
+deployment/edge-functions/.env
+deployment/edge-functions/.deno_cache/
 db_cluster*
 backup*
+/edge-functions-template

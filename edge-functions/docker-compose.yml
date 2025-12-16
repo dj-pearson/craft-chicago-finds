@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  edge-functions:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: craftlocal-edge-functions
+    ports:
+      - "8000:8000"
+    environment:
+      # Supabase Configuration
+      # IMPORTANT: These values reference environment variables from .env file
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      
+      # Additional API Keys (add as needed)
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      
+      # Server Configuration
+      - PORT=8000
+      - DENO_DIR=/app/.deno_cache
+    volumes:
+      # Mount functions directory for hot reload during development
+      # Comment out in production for better security
+      - ./functions:/app/functions:ro
+      - ./server.ts:/app/server.ts:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/_health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - craftlocal
+
+networks:
+  craftlocal:
+    driver: bridge
+
+# Production Deployment Notes:
+# 1. Remove volume mounts for security
+# 2. Use Docker secrets instead of environment variables
+# 3. Set up reverse proxy (nginx/traefik) for HTTPS
+# 4. Configure domain: functions.craftlocal.net
+# 5. Enable logging and monitoring
+
+# Usage:
+# Development:
+#   docker-compose up                 # Start with logs
+#   docker-compose up -d              # Start detached
+#   docker-compose logs -f            # View logs
+#   docker-compose down               # Stop
+#   docker-compose up --build         # Rebuild and start
+#
+# Production:
+#   docker-compose -f docker-compose.prod.yml up -d

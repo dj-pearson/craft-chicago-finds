@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  edge-functions:
+    image: craftlocal/edge-functions:latest
+    container_name: craftlocal-edge-functions-prod
+    ports:
+      - "8000:8000"
+    environment:
+      # Use Docker secrets in production
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PORT=8000
+    # No volume mounts in production - code is baked into image
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/_health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - craftlocal
+    # Resource limits for production
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  craftlocal:
+    driver: bridge
+
+# Production Notes:
+# - Build image: docker build -t craftlocal/edge-functions:latest .
+# - Push to registry: docker push craftlocal/edge-functions:latest
+# - Deploy: docker-compose -f docker-compose.prod.yml up -d
+# - Set up reverse proxy (nginx/traefik) for HTTPS
+# - Configure domain: functions.craftlocal.net → localhost:8000
