@@ -31,10 +31,13 @@ dist-ssr
 *.sw?
 generate-apple-secret.js
 
-/deployment
+# Deployment folder - exclude specific runtime files only (not the folder itself)
 deployment/edge-functions/functions/
 deployment/edge-functions/.env
+deployment/edge-functions/.env.local
 deployment/edge-functions/.deno_cache/
+
+# Exclude these directories completely
 db_cluster*
 backup*
 /edge-functions-template
