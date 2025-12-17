@@ -1,8 +1,8 @@
 // Quick script to insert cities into Supabase
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://slamtlgebisrimijeoid.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsYW10bGdlYmlzcmltaWplb2lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwNjk4ODAsImV4cCI6MjA3NDY0NTg4MH0.qjGMY4uUdhDOGmgwlqZrjwTwbiPu4tSJOdSYLtgz0Fo';
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://api.craftlocal.net';
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzM0NDAwMDAwLCJleHAiOjIwNTAwMDAwMDB9.ALT0l4BuD8yD9_TSEpasKyr7IIRuhcEYDqaEUBRBYVM';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 

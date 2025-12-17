@@ -8,7 +8,7 @@ export class CraftLocalWidget extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this._accessToken = null;
-    this._apiBase = 'https://slamtlgebisrimijeoid.supabase.co';
+    this._apiBase = 'https://api.craftlocal.net';
   }
 
   connectedCallback() {
