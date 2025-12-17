@@ -4,6 +4,8 @@
  */
 
 const ALLOWED_ORIGINS = [
+  'https://craftlocal.net',  // Production domain
+  'https://www.craftlocal.net',  // www production domain
   'https://craft-chicago-finds.pages.dev',
   'https://www.craftlocalfinds.com',
   'http://localhost:5173',  // Vite dev server

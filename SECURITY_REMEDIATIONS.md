@@ -83,8 +83,10 @@ export const corsHeaders = {
  */
 
 const ALLOWED_ORIGINS = [
+  'https://craftlocal.net',  // Production domain
+  'https://www.craftlocal.net',  // www production domain
   'https://craft-chicago-finds.pages.dev',
-  'https://www.craftlocalfinds.com',  // Add your production domain
+  'https://www.craftlocalfinds.com',
   'http://localhost:5173',  // Vite dev server
   'http://localhost:8080',  // Alt dev server
   'http://localhost:3000',  // Preview server

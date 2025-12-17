@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CraftLocal Database Connection Test</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .status {
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    .warning {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px 10px 0;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+    pre {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0,0,0,.1);
+      border-radius: 50%;
+      border-top-color: #007bff;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 CraftLocal Database Connection Test</h1>
+    <p>This page tests the connection to your self-hosted Supabase instance at <code>api.craftlocal.net</code></p>
+
+    <div class="test-section">
+      <h3>Configuration Check</h3>
+      <div id="config-status"></div>
+      <pre id="config-details"></pre>
+    </div>
+
+    <div class="test-section">
+      <h3>CORS Test</h3>
+      <button onclick="testCORS()" id="cors-btn">Test CORS</button>
+      <div id="cors-status"></div>
+      <pre id="cors-details"></pre>
+    </div>
+
+    <div class="test-section">
+      <h3>API Connection Test</h3>
+      <button onclick="testAPI()" id="api-btn">Test API Connection</button>
+      <div id="api-status"></div>
+      <pre id="api-details"></pre>
+    </div>
+
+    <div class="test-section">
+      <h3>Database Query Test</h3>
+      <button onclick="testDatabase()" id="db-btn">Test Database Query</button>
+      <div id="db-status"></div>
+      <pre id="db-details"></pre>
+    </div>
+
+    <div class="test-section">
+      <h3>WebSocket Test (Realtime)</h3>
+      <button onclick="testWebSocket()" id="ws-btn">Test WebSocket</button>
+      <div id="ws-status"></div>
+      <pre id="ws-details"></pre>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://api.craftlocal.net';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzM0NDAwMDAwLCJleHAiOjIwNTAwMDAwMDB9.ALT0l4BuD8yD9_TSEpasKyr7IIRuhcEYDqaEUBRBYVM';
+
+    // Show configuration
+    document.getElementById('config-details').textContent = JSON.stringify({
+      url: SUPABASE_URL,
+      keyLength: SUPABASE_ANON_KEY.length,
+      origin: window.location.origin,
+      userAgent: navigator.userAgent
+    }, null, 2);
+
+    document.getElementById('config-status').innerHTML = '<div class="info">✓ Configuration loaded</div>';
+
+    async function testCORS() {
+      const statusEl = document.getElementById('cors-status');
+      const detailsEl = document.getElementById('cors-details');
+      const btn = document.getElementById('cors-btn');
+      
+      btn.disabled = true;
+      statusEl.innerHTML = '<div class="info"><span class="loading"></span> Testing CORS...</div>';
+      detailsEl.textContent = '';
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+          method: 'OPTIONS',
+          headers: {
+            'Origin': window.location.origin,
+            'Access-Control-Request-Method': 'GET',
+            'Access-Control-Request-Headers': 'apikey, content-type'
+          }
+        });
+
+        const headers = {};
+        response.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+
+        detailsEl.textContent = JSON.stringify({
+          status: response.status,
+          statusText: response.statusText,
+          headers: headers
+        }, null, 2);
+
+        if (response.ok) {
+          const allowOrigin = response.headers.get('access-control-allow-origin');
+          if (allowOrigin === window.location.origin || allowOrigin === '*') {
+            statusEl.innerHTML = '<div class="success">✓ CORS is properly configured!</div>';
+          } else {
+            statusEl.innerHTML = '<div class="warning">⚠ CORS allows different origin: ' + allowOrigin + '</div>';
+          }
+        } else {
+          statusEl.innerHTML = '<div class="error">✗ CORS preflight failed</div>';
+        }
+      } catch (error) {
+        statusEl.innerHTML = '<div class="error">✗ CORS test failed: ' + error.message + '</div>';
+        detailsEl.textContent = error.stack;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function testAPI() {
+      const statusEl = document.getElementById('api-status');
+      const detailsEl = document.getElementById('api-details');
+      const btn = document.getElementById('api-btn');
+      
+      btn.disabled = true;
+      statusEl.innerHTML = '<div class="info"><span class="loading"></span> Testing API connection...</div>';
+      detailsEl.textContent = '';
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const headers = {};
+        response.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+
+        detailsEl.textContent = JSON.stringify({
+          status: response.status,
+          statusText: response.statusText,
+          headers: headers
+        }, null, 2);
+
+        if (response.ok || response.status === 404) {
+          statusEl.innerHTML = '<div class="success">✓ API is reachable!</div>';
+        } else {
+          statusEl.innerHTML = '<div class="error">✗ API returned error: ' + response.status + '</div>';
+        }
+      } catch (error) {
+        statusEl.innerHTML = '<div class="error">✗ API connection failed: ' + error.message + '</div>';
+        detailsEl.textContent = error.stack;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function testDatabase() {
+      const statusEl = document.getElementById('db-status');
+      const detailsEl = document.getElementById('db-details');
+      const btn = document.getElementById('db-btn');
+      
+      btn.disabled = true;
+      statusEl.innerHTML = '<div class="info"><span class="loading"></span> Testing database query...</div>';
+      detailsEl.textContent = '';
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/cities?select=*&order=name.asc&limit=5`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        detailsEl.textContent = JSON.stringify({
+          status: response.status,
+          statusText: response.statusText,
+          dataReceived: Array.isArray(data),
+          recordCount: Array.isArray(data) ? data.length : 0,
+          data: data
+        }, null, 2);
+
+        if (response.ok && Array.isArray(data)) {
+          statusEl.innerHTML = '<div class="success">✓ Database query successful! Retrieved ' + data.length + ' cities.</div>';
+        } else {
+          statusEl.innerHTML = '<div class="error">✗ Database query failed: ' + (data.message || response.statusText) + '</div>';
+        }
+      } catch (error) {
+        statusEl.innerHTML = '<div class="error">✗ Database query failed: ' + error.message + '</div>';
+        detailsEl.textContent = error.stack;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function testWebSocket() {
+      const statusEl = document.getElementById('ws-status');
+      const detailsEl = document.getElementById('ws-details');
+      const btn = document.getElementById('ws-btn');
+      
+      btn.disabled = true;
+      statusEl.innerHTML = '<div class="info"><span class="loading"></span> Testing WebSocket connection...</div>';
+      detailsEl.textContent = '';
+
+      try {
+        const wsUrl = SUPABASE_URL.replace('https://', 'wss://').replace('http://', 'ws://');
+        const ws = new WebSocket(`${wsUrl}/realtime/v1/websocket?apikey=${SUPABASE_ANON_KEY}&vsn=1.0.0`);
+        
+        const timeout = setTimeout(() => {
+          ws.close();
+          statusEl.innerHTML = '<div class="warning">⚠ WebSocket connection timeout</div>';
+          detailsEl.textContent = 'Connection timed out after 5 seconds';
+          btn.disabled = false;
+        }, 5000);
+
+        ws.onopen = () => {
+          clearTimeout(timeout);
+          statusEl.innerHTML = '<div class="success">✓ WebSocket connected!</div>';
+          detailsEl.textContent = 'WebSocket connection established successfully';
+          ws.close();
+          btn.disabled = false;
+        };
+
+        ws.onerror = (error) => {
+          clearTimeout(timeout);
+          statusEl.innerHTML = '<div class="error">✗ WebSocket connection failed</div>';
+          detailsEl.textContent = JSON.stringify(error, null, 2);
+          btn.disabled = false;
+        };
+
+        ws.onclose = (event) => {
+          if (event.code !== 1000) {
+            clearTimeout(timeout);
+            statusEl.innerHTML = '<div class="error">✗ WebSocket closed unexpectedly</div>';
+            detailsEl.textContent = JSON.stringify({
+              code: event.code,
+              reason: event.reason,
+              wasClean: event.wasClean
+            }, null, 2);
+            btn.disabled = false;
+          }
+        };
+      } catch (error) {
+        statusEl.innerHTML = '<div class="error">✗ WebSocket test failed: ' + error.message + '</div>';
+        detailsEl.textContent = error.stack;
+        btn.disabled = false;
+      }
+    }
+
+    // Auto-run configuration check
+    window.onload = () => {
+      console.log('🔍 Database Connection Test Page Loaded');
+      console.log('Supabase URL:', SUPABASE_URL);
+      console.log('Origin:', window.location.origin);
+    };
+  </script>
+</body>
+</html>
+

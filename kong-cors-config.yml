@@ -1,0 +1,136 @@
+# Kong CORS Configuration for CraftLocal Self-Hosted Supabase
+# Apply this configuration to your Kong gateway at api.craftlocal.net
+
+# This configuration allows your frontend (craftlocal.net) to communicate with your backend (api.craftlocal.net)
+
+plugins:
+  # CORS Plugin Configuration
+  - name: cors
+    config:
+      # Allowed origins - your frontend domains
+      origins:
+        - "https://craftlocal.net"
+        - "https://www.craftlocal.net"
+        - "https://craft-chicago-finds.pages.dev"
+        - "http://localhost:5173"
+        - "http://localhost:8080"
+        - "http://localhost:3000"
+      
+      # Allowed HTTP methods
+      methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+        - PATCH
+        - HEAD
+      
+      # Allowed headers
+      headers:
+        - Accept
+        - Accept-Version
+        - Authorization
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - X-Auth-Token
+        - apikey
+        - x-client-info
+        - x-supabase-api-version
+        - x-api-key
+      
+      # Exposed headers (headers the browser can access)
+      exposed_headers:
+        - X-Auth-Token
+        - X-Total-Count
+        - Content-Range
+      
+      # Allow credentials (cookies, authorization headers)
+      credentials: true
+      
+      # Cache preflight requests for 1 hour
+      max_age: 3600
+      
+      # Preflight continue (don't terminate OPTIONS requests)
+      preflight_continue: false
+
+# Alternative: If you're using Kong declarative config (kong.yml)
+# Add this to your services configuration:
+
+# services:
+#   - name: supabase-api
+#     url: http://supabase-kong:8000
+#     routes:
+#       - name: supabase-api-route
+#         paths:
+#           - /
+#     plugins:
+#       - name: cors
+#         config:
+#           origins:
+#             - "https://craftlocal.net"
+#             - "https://www.craftlocal.net"
+#             - "https://craft-chicago-finds.pages.dev"
+#           methods:
+#             - GET
+#             - POST
+#             - PUT
+#             - DELETE
+#             - OPTIONS
+#             - PATCH
+#             - HEAD
+#           headers:
+#             - Accept
+#             - Authorization
+#             - Content-Type
+#             - apikey
+#             - x-client-info
+#           credentials: true
+#           max_age: 3600
+
+# How to Apply This Configuration:
+
+# Method 1: Using Kong Admin API
+# curl -X POST http://localhost:8001/plugins \
+#   --data "name=cors" \
+#   --data "config.origins=https://craftlocal.net" \
+#   --data "config.origins=https://www.craftlocal.net" \
+#   --data "config.methods=GET" \
+#   --data "config.methods=POST" \
+#   --data "config.methods=PUT" \
+#   --data "config.methods=DELETE" \
+#   --data "config.methods=OPTIONS" \
+#   --data "config.methods=PATCH" \
+#   --data "config.headers=Accept" \
+#   --data "config.headers=Authorization" \
+#   --data "config.headers=Content-Type" \
+#   --data "config.headers=apikey" \
+#   --data "config.headers=x-client-info" \
+#   --data "config.credentials=true" \
+#   --data "config.max_age=3600"
+
+# Method 2: Using Kong declarative config
+# 1. Add the above configuration to your kong.yml file
+# 2. Restart Kong: docker-compose restart kong
+
+# Method 3: Using Supabase CLI (if available)
+# Update your supabase/config.toml:
+# [api]
+# cors_allowed_origins = ["https://craftlocal.net", "https://www.craftlocal.net"]
+
+# Verification:
+# After applying, test with:
+# curl -X OPTIONS https://api.craftlocal.net/rest/v1/cities \
+#   -H "Origin: https://craftlocal.net" \
+#   -H "Access-Control-Request-Method: GET" \
+#   -v
+
+# Expected response headers:
+# Access-Control-Allow-Origin: https://craftlocal.net
+# Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD
+# Access-Control-Allow-Headers: Accept, Authorization, Content-Type, apikey, x-client-info
+# Access-Control-Allow-Credentials: true
+# Access-Control-Max-Age: 3600
+

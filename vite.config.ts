@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => ({
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' ws: wss: https://*.supabase.co https://api.stripe.com",
+              "connect-src 'self' ws: wss: https://*.supabase.co https://api.craftlocal.net wss://api.craftlocal.net https://api.stripe.com",
               "frame-src 'self' https://js.stripe.com",
             ].join('; ')
           );

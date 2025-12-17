@@ -9,6 +9,14 @@ const SUPABASE_PUBLISHABLE_KEY =
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzM0NDAwMDAwLCJleHAiOjIwNTAwMDAwMDB9.ALT0l4BuD8yD9_TSEpasKyr7IIRuhcEYDqaEUBRBYVM";
 
+// Debug logging to confirm configuration
+console.log("🔍 Supabase Configuration:", {
+  url: SUPABASE_URL,
+  hasEnvUrl: !!import.meta.env.VITE_SUPABASE_URL,
+  hasEnvKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+  usingFallback: !import.meta.env.VITE_SUPABASE_URL
+});
+
 if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   console.error(
     "Missing Supabase environment variables - using hardcoded fallbacks"
