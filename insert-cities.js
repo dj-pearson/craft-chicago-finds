@@ -5,8 +5,8 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('ERROR: Missing required environment variables');
-  console.error('Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
+  console.error("ERROR: Missing required environment variables");
+  console.error("Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY");
   process.exit(1);
 }
 

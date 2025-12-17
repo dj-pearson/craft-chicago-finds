@@ -9,10 +9,13 @@ export class CraftLocalWidget extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this._accessToken = null;
     // API base should be configured via attribute or global config
-    this._apiBase = this.getAttribute('api-base') || window.CRAFTLOCAL_API_BASE || '';
-    
+    this._apiBase =
+      this.getAttribute("api-base") || window.CRAFTLOCAL_API_BASE || "";
+
     if (!this._apiBase) {
-      console.error('CraftLocal Widget: API base URL not configured. Set via api-base attribute or window.CRAFTLOCAL_API_BASE');
+      console.error(
+        "CraftLocal Widget: API base URL not configured. Set via api-base attribute or window.CRAFTLOCAL_API_BASE"
+      );
     }
   }
 

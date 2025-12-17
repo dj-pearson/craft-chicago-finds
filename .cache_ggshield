@@ -1,1 +1,1 @@
-{"last_found_secrets": [{"match": "fb10223e12abaed9b1e915e9e4ffa1d81d2d846cf68ec1b2f20796fdaf9e6701", "name": "JSON Web Token - c:\\Users\\pears\\Documents\\Craft-Local\\craft-chicago-finds\\src\\integrations\\supabase\\client.ts"}]}
+{"last_found_secrets": [{"name": "JSON Web Token - c:\\Users\\pears\\Documents\\Craft-Local\\craft-chicago-finds\\supabase\\migrations\\20251002232627_77b5b69d-8ad6-4949-9fe9-043f4bdf59d5.sql", "match": "fb10223e12abaed9b1e915e9e4ffa1d81d2d846cf68ec1b2f20796fdaf9e6701"}]}

@@ -28,33 +28,60 @@
   </head>
   <body>
     <h1>Supabase Database Connection Test</h1>
-    
-    <div style="margin-bottom: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px;">
-      <label>Supabase URL:<br>
-        <input type="text" id="urlInput" placeholder="https://api.craftlocal.net" style="width: 100%; padding: 8px; margin-top: 5px;">
+
+    <div
+      style="
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f0f0f0;
+        border-radius: 5px;
+      "
+    >
+      <label
+        >Supabase URL:<br />
+        <input
+          type="text"
+          id="urlInput"
+          placeholder="https://api.craftlocal.net"
+          style="width: 100%; padding: 8px; margin-top: 5px"
+        />
       </label>
-      <br><br>
-      <label>Anon Key:<br>
-        <input type="password" id="keyInput" placeholder="Your anon key" style="width: 100%; padding: 8px; margin-top: 5px;">
+      <br /><br />
+      <label
+        >Anon Key:<br />
+        <input
+          type="password"
+          id="keyInput"
+          placeholder="Your anon key"
+          style="width: 100%; padding: 8px; margin-top: 5px"
+        />
       </label>
-      <br><br>
-      <button onclick="testConnection()" style="padding: 10px 20px; cursor: pointer;">Test Connection</button>
+      <br /><br />
+      <button
+        onclick="testConnection()"
+        style="padding: 10px 20px; cursor: pointer"
+      >
+        Test Connection
+      </button>
     </div>
-    
-    <div id="status" class="loading">Enter credentials above and click "Test Connection"</div>
+
+    <div id="status" class="loading">
+      Enter credentials above and click "Test Connection"
+    </div>
     <h2>Cities Data:</h2>
     <pre id="output">Awaiting test...</pre>
 
     <script type="module">
       import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-      window.testConnection = async function() {
-        const supabaseUrl = document.getElementById('urlInput').value.trim();
-        const supabaseKey = document.getElementById('keyInput').value.trim();
+      window.testConnection = async function () {
+        const supabaseUrl = document.getElementById("urlInput").value.trim();
+        const supabaseKey = document.getElementById("keyInput").value.trim();
 
         if (!supabaseUrl || !supabaseKey) {
           document.getElementById("status").className = "error";
-          document.getElementById("status").textContent = "❌ Please enter both URL and Key";
+          document.getElementById("status").textContent =
+            "❌ Please enter both URL and Key";
           return;
         }
 
@@ -62,7 +89,8 @@
 
         try {
           document.getElementById("status").className = "loading";
-          document.getElementById("status").textContent = "Testing connection...";
+          document.getElementById("status").textContent =
+            "Testing connection...";
           console.log("Testing Supabase connection...");
 
           const { data, error } = await supabase
