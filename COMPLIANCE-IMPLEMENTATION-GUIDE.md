@@ -178,7 +178,7 @@ select cron.schedule(
   $$
   select
     net.http_post(
-        url:='https://slamtlgebisrimijeoid.supabase.co/functions/v1/send-compliance-reminders',
+        url:='https://functions.craftlocal.net/send-compliance-reminders',
         headers:='{"Content-Type": "application/json", "Authorization": "Bearer YOUR_ANON_KEY"}'::jsonb,
         body:='{}'::jsonb
     ) as request_id;
