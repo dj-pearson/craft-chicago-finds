@@ -2,6 +2,32 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Rules
+
+# Project Instructions
+
+## Security Requirements (MANDATORY)
+
+- **NEVER** include API keys, secrets, passwords, or tokens in any committed file
+- **NEVER** hardcode Supabase URLs, anon keys, or service role keys
+- **ALWAYS** use environment variables for all sensitive configuration
+
+## Environment Variable Strategy
+
+- **Cloudflare Pages**: Set secrets in dashboard → Settings → Environment Variables
+- **Self-hosted Supabase**: Configure via `.env` on server (never committed)
+- **Local development**: Use `.env.local` (must be in .gitignore)
+
+## Required Files
+
+- `.env.example` - Template with dummy values only
+- `.gitignore` - Must include: .env, .env.local, .env.\*.local
+
+## Code Patterns
+
+Use `import.meta.env.VITE_*` for Vite/Cloudflare frontend
+Use `process.env.*` for Node.js backends
+
 ## Project Overview
 
 Craft Chicago Finds is a production-ready React-based marketplace application for local artisans and crafters. Built with Vite, TypeScript, React, shadcn/ui, and Tailwind CSS. The application uses Supabase for backend services and is deployed on Cloudflare Pages with edge functions.
@@ -36,6 +62,7 @@ npm run pages:dev
 ## Architecture
 
 ### Technology Stack
+
 - **Frontend**: React 18 + TypeScript 5.6 + Vite 7
 - **UI Components**: shadcn/ui with Radix UI primitives (47 packages)
 - **Styling**: Tailwind CSS 3.4 with CSS variables, dark mode support
@@ -52,6 +79,7 @@ npm run pages:dev
 - **Node**: >=20.19.0, npm >=10.0.0
 
 ### Key Directory Structure
+
 ```
 /
 ├── src/                    # Main application source (402 TypeScript files)
@@ -110,7 +138,9 @@ npm run pages:dev
 ```
 
 ### Provider Architecture
+
 The app uses multiple context providers in a specific hierarchy:
+
 ```
 1. QueryClientProvider (React Query) - 5min stale, 10min cache
 2. HelmetProvider (SEO meta tags)
@@ -130,6 +160,7 @@ The app uses multiple context providers in a specific hierarchy:
 ### Key Features
 
 #### E-commerce Core
+
 - Multi-city marketplace with dynamic routing (`/:city`)
 - Product browsing with filters, search, visual search
 - Shopping cart with personalization options & localStorage persistence
@@ -140,6 +171,7 @@ The app uses multiple context providers in a specific hierarchy:
 - Order tracking and purchase protection claims
 
 #### Seller Features
+
 - Comprehensive seller dashboard with priority view
 - Listing creation with AI assistance & templates library
 - Bulk operations and listing duplication
@@ -149,6 +181,7 @@ The app uses multiple context providers in a specific hierarchy:
 - Saved AI generations
 
 #### Admin Features
+
 - Admin dashboard with analytics and insights
 - User management and content management
 - Blog manager with templates & blog-product linking
@@ -163,6 +196,7 @@ The app uses multiple context providers in a specific hierarchy:
 - Bulk notifications
 
 #### Content & SEO
+
 - Blog system with 4 SEO-optimized articles
 - Dynamic sitemap generation (static, products, blogs, makers)
 - Edge functions for sitemap delivery
@@ -173,6 +207,7 @@ The app uses multiple context providers in a specific hierarchy:
 - Chicago Craft Index
 
 #### Communication & Social
+
 - Real-time messaging between buyers and sellers
 - Notification system with email digests
 - Support ticketing system
@@ -182,6 +217,7 @@ The app uses multiple context providers in a specific hierarchy:
 - Recently viewed products
 
 #### Mobile Experience
+
 - Mobile-first responsive design
 - Bottom navigation bar (mobile component)
 - Sticky search (mobile component)
@@ -189,6 +225,7 @@ The app uses multiple context providers in a specific hierarchy:
 - React Native mobile app (separate `/mobile` directory)
 
 #### Advanced Features
+
 - Lazy loading: All 43 pages are lazy-loaded for performance
 - Accessibility panel and provider
 - Dark mode support (next-themes)
@@ -203,7 +240,9 @@ The app uses multiple context providers in a specific hierarchy:
 ## Configuration Files
 
 ### Build & Development
+
 - **vite.config.ts** - Vite configuration with:
+
   - React SWC plugin for fast refresh
   - Security headers middleware
   - Manual code splitting (vendor, router, framer, supabase, stripe, react-query)
@@ -212,6 +251,7 @@ The app uses multiple context providers in a specific hierarchy:
   - Path alias (`@/` → `src/`)
 
 - **tailwind.config.ts** - Tailwind CSS with:
+
   - Dark mode support
   - Custom color system with CSS variables
   - Extended theme (gradients, shadows, animations)
@@ -222,7 +262,9 @@ The app uses multiple context providers in a specific hierarchy:
 - **postcss.config.js** - PostCSS with Tailwind and Autoprefixer
 
 ### Testing
+
 - **playwright.config.ts** - E2E testing setup:
+
   - Tests in `/e2e` directory
   - Cross-browser (Chromium, Firefox, WebKit)
   - Mobile viewport testing (Pixel 5, iPhone 12)
@@ -235,10 +277,13 @@ The app uses multiple context providers in a specific hierarchy:
   - `/e2e/messaging.spec.ts` - Messaging tests
 
 ### Code Quality
+
 - **eslint.config.js** - ESLint 9 with TypeScript ESLint, React Hooks rules
 
 ### Deployment
+
 - **wrangler.toml** - Cloudflare Pages configuration:
+
   - Compatibility date: 2024-12-19
   - Build output: `dist/`
   - HTTPS redirect enforcement
@@ -248,19 +293,22 @@ The app uses multiple context providers in a specific hierarchy:
   - Slate base color with CSS variables
 
 ### PWA
+
 - **public/manifest.json** - Progressive Web App manifest:
+
   - Name: "CraftLocal - Handmade Marketplace"
   - Standalone display mode, 8 icon sizes
   - Shopping & lifestyle categories
   - Shortcuts: Browse, Cart
 
 - **public/service-worker.js** - Service worker for offline functionality
-- **public/_headers** - Cloudflare headers (security, caching, CSP)
-- **public/_redirects** - URL redirects configuration
+- **public/\_headers** - Cloudflare headers (security, caching, CSP)
+- **public/\_redirects** - URL redirects configuration
 
 ## Development Notes
 
 ### Path Aliases
+
 - `@/` maps to `src/`
 - `@/components` for UI components
 - `@/lib` for utilities
@@ -268,6 +316,7 @@ The app uses multiple context providers in a specific hierarchy:
 - `@/integrations` for external services
 
 ### Build Optimization
+
 - Manual code splitting for vendor libraries, UI components, and utilities
 - Terser minification with console.log removal in production
 - Asset optimization with consistent naming for long-term caching
@@ -275,6 +324,7 @@ The app uses multiple context providers in a specific hierarchy:
 - React Query caching: 5 min stale time, 10 min cache time
 
 ### Database Integration
+
 - Supabase client configured in `src/integrations/supabase/client.ts`
 - Type definitions auto-generated in `types.ts` (252KB, comprehensive)
 - 95 SQL migrations in `/supabase/migrations/`
@@ -283,6 +333,7 @@ The app uses multiple context providers in a specific hierarchy:
 - Storage for image uploads
 
 ### Key Database Tables
+
 - **Core**: profiles, listings, orders, cart_items
 - **Commerce**: subscriptions, discount_codes, bundles, shipping_rates
 - **Communication**: messages, notifications, support_tickets
@@ -294,6 +345,7 @@ The app uses multiple context providers in a specific hierarchy:
 - **Social**: reviews, favorites, recently_viewed
 
 ### State Management Patterns
+
 - **Server State**: React Query for all Supabase queries
 - **Global State**: Context API for auth, cart, city, admin, accessibility
 - **Local State**: useState/useReducer for component state
@@ -301,7 +353,9 @@ The app uses multiple context providers in a specific hierarchy:
 - **Optimistic Updates**: Cart operations with immediate UI feedback
 
 ### Custom Hooks (35 total)
+
 Key hooks to be aware of:
+
 - `useAuth` - Authentication & user sessions
 - `useCart` - Shopping cart with localStorage persistence
 - `useAdmin` - Admin functionality
@@ -333,7 +387,9 @@ Key hooks to be aware of:
 - `useChicagoCraftIndexData` - Chicago Craft Index data
 
 ### Library Utilities (29 files in `src/lib/`)
+
 Key utilities:
+
 - `queryClient.ts` - React Query configuration
 - `analytics.ts` - Google Analytics 4 integration
 - `seo.ts` & `seo-utils.ts` - SEO utilities
@@ -355,6 +411,7 @@ Key utilities:
 - `utils.ts` - General utilities (cn, formatters, etc.)
 
 ### Security Features
+
 - **Input Sanitization**: DOMPurify for all user-generated content
 - **File Validation**: Type, size, dimension checks for uploads
 - **Fraud Detection**: Custom fraud detection system with dashboard
@@ -366,6 +423,7 @@ Key utilities:
 - **Row Level Security**: Supabase RLS policies enforced
 
 ### Deployment
+
 - Builds to `dist/` directory for Cloudflare Pages
 - Uses Wrangler for deployment and local development
 - Compatibility date set to 2024-12-19
@@ -373,6 +431,7 @@ Key utilities:
 - CI/CD via GitHub Actions (`.github/workflows/`)
 
 ### CI/CD Pipelines
+
 - **test-and-build.yml**: Runs on push/PR to main/develop
   - Checkout, install, lint, type check, build
   - Uploads build artifacts (7-day retention)
@@ -382,7 +441,9 @@ Key utilities:
   - Requires: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
 
 ### Edge Functions (Cloudflare Pages)
+
 Located in `/functions/`:
+
 - `_middleware.ts` - CORS headers for all functions
 - `sitemap.xml.ts` - Main sitemap index
 - `sitemap-static.xml.ts` - Static pages sitemap
@@ -392,12 +453,14 @@ Located in `/functions/`:
 - `api/health.ts` - Health check endpoint
 
 ### Performance Monitoring
+
 - Core Web Vitals tracking in `src/lib/performance.ts`
 - Google Analytics 4 with e-commerce events
 - Custom performance monitoring hook
 - Error boundary for graceful error handling
 
 ### Accessibility
+
 - Dedicated AccessibilityProvider context
 - Accessibility panel component
 - ARIA labels and semantic HTML
@@ -405,6 +468,7 @@ Located in `/functions/`:
 - Screen reader optimization
 
 ### SEO Strategy
+
 - Server-side sitemap generation via edge functions
 - Dynamic meta tags with react-helmet-async
 - Structured data (Schema.org)
@@ -416,6 +480,7 @@ Located in `/functions/`:
 ## Important Patterns & Conventions
 
 ### Code Splitting
+
 ```typescript
 // All pages are lazy-loaded
 const PageName = lazy(() => import("./pages/PageName"));
@@ -423,10 +488,11 @@ const PageName = lazy(() => import("./pages/PageName"));
 // Wrapped in Suspense with LoadingSpinner
 <Suspense fallback={<LoadingSpinner />}>
   <PageName />
-</Suspense>
+</Suspense>;
 ```
 
 ### Form Validation
+
 ```typescript
 // Use React Hook Form + Zod
 import { useForm } from "react-hook-form";
@@ -439,6 +505,7 @@ const schema = z.object({
 ```
 
 ### Sanitization
+
 ```typescript
 // Always sanitize user-generated content
 import { sanitizeUserInput } from "@/lib/sanitization";
@@ -447,6 +514,7 @@ const clean = sanitizeUserInput(userInput);
 ```
 
 ### Supabase Queries
+
 ```typescript
 // Use React Query with Supabase
 import { useQuery } from "@tanstack/react-query";
@@ -466,6 +534,7 @@ const { data } = useQuery({
 ```
 
 ### Error Handling
+
 ```typescript
 // Use error boundary and custom error handler
 import { handleError } from "@/lib/errorHandler";
@@ -478,21 +547,24 @@ try {
 ```
 
 ### Styling
+
 ```typescript
 // Use Tailwind with cn utility
 import { cn } from "@/lib/utils";
 
-<div className={cn("base-class", conditional && "conditional-class")} />
+<div className={cn("base-class", conditional && "conditional-class")} />;
 ```
 
 ## Related Projects
 
 ### Mobile App
+
 - React Native mobile app in `/mobile` directory
 - Separate from web app but shares design system
 - See `/mobile/README.md` for details
 
 ### ChatGPT Integration
+
 - MCP server and widgets in `/chatgpt-integration`
 - OAuth implementation
 - Deployment and testing guides included
@@ -500,6 +572,7 @@ import { cn } from "@/lib/utils";
 ## Notes for AI Assistants
 
 ### When Making Changes
+
 1. **Always use path aliases**: `@/` instead of relative paths
 2. **Sanitize user input**: Use `sanitizeUserInput` from `@/lib/sanitization`
 3. **Validate files**: Use `validateFile` from `@/lib/fileValidation`
@@ -514,33 +587,39 @@ import { cn } from "@/lib/utils";
 ### Common Tasks
 
 **Adding a new page:**
+
 1. Create component in `src/pages/PageName.tsx`
 2. Lazy load in `src/App.tsx`
 3. Add route to router configuration
 4. Update sitemap if necessary
 
 **Adding a UI component:**
+
 1. Use shadcn/ui CLI: `npx shadcn-ui@latest add [component]`
 2. Or create in `src/components/` with proper structure
 3. Follow existing patterns for accessibility
 
 **Adding a database query:**
+
 1. Create hook in `src/hooks/`
 2. Use React Query with proper error handling
 3. Leverage types from `@/integrations/supabase/types`
 
 **Adding an edge function:**
+
 1. Create in `functions/` directory
 2. Follow middleware pattern for CORS
 3. Test locally with `npm run pages:dev`
 
 ### Testing
+
 - **E2E tests**: Add to `/e2e/` directory
 - **Run tests**: `npx playwright test`
 - **Debug**: `npx playwright test --debug`
 - **UI mode**: `npx playwright test --ui`
 
 ### Deployment
+
 - **Production**: Push to `main` branch (auto-deploys via GitHub Actions)
 - **Manual**: `npm run build && wrangler pages deploy dist`
 - **Local preview**: `npm run pages:dev` (after building)
@@ -550,6 +629,7 @@ import { cn } from "@/lib/utils";
 **Status**: Production-ready, actively maintained
 **Recent Activity**: 193 commits since November 1, 2024
 **Last Major Updates**:
+
 - Error handling and keyboard accessibility improvements
 - AI search optimization and sitemap enhancements
 - PageSpeed performance optimizations

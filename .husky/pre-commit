@@ -1,0 +1,6 @@
+#!/bin/sh
+# Block commits containing potential secrets
+if git diff --cached | grep -iE "(sk_live|password\s*=|api_key\s*=|secret\s*=)" ; then
+  echo "Potential secret detected. Commit blocked."
+  exit 1
+fi

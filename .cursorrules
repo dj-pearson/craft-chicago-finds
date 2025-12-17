@@ -1,0 +1,19 @@
+# Security Rules
+
+## Sensitive Data
+
+- NEVER hardcode API keys, secrets, passwords, or tokens in any file
+- NEVER commit .env files or any file containing credentials
+- Always use environment variables for sensitive configuration
+
+## Environment Variables
+
+- Cloudflare Pages: Reference secrets via `env.VARIABLE_NAME` in functions
+- Supabase (self-hosted): Use SUPABASE_URL and SUPABASE_ANON_KEY from environment
+- All secrets must be configured in deployment platform dashboards, never in code
+
+## Required Patterns
+
+- Use `process.env.VARIABLE_NAME` or platform-specific env access
+- Create `.env.example` with placeholder values (no real secrets)
+- Ensure `.env*` is in .gitignore
