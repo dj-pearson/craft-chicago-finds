@@ -18,8 +18,8 @@ SELECT cron.schedule(
   $$
   SELECT
     net.http_post(
-        url:='https://slamtlgebisrimijeoid.supabase.co/functions/v1/send-compliance-reminders',
-        headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsYW10bGdlYmlzcmltaWplb2lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwNjk4ODAsImV4cCI6MjA3NDY0NTg4MH0.qjGMY4uWdhDOGmgwlqZrjwTwbiPu4tSJOdSYLtgz0Fo"}'::jsonb,
+        url:='https://functions.craftlocal.net/send-compliance-reminders',
+        headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzM0NDAwMDAwLCJleHAiOjIwNTAwMDAwMDB9.ALT0l4BuD8yD9_TSEpasKyr7IIRuhcEYDqaEUBRBYVM"}'::jsonb,
         body:='{}'::jsonb
     ) as request_id;
   $$
@@ -43,8 +43,8 @@ LIMIT 10;
 /*
 SELECT
   net.http_post(
-      url:='https://slamtlgebisrimijeoid.supabase.co/functions/v1/send-compliance-reminders',
-      headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsYW10bGdlYmlzcmltaWplb2lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwNjk4ODAsImV4cCI6MjA3NDY0NTg4MH0.qjGMY4uWdhDOGmgwlqZrjwTwbiPu4tSJOdSYLtgz0Fo"}'::jsonb,
+      url:='https://functions.craftlocal.net/send-compliance-reminders',
+      headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzM0NDAwMDAwLCJleHAiOjIwNTAwMDAwMDB9.ALT0l4BuD8yD9_TSEpasKyr7IIRuhcEYDqaEUBRBYVM"}'::jsonb,
       body:='{}'::jsonb
   ) as request_id;
 */
