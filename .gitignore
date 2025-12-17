@@ -60,3 +60,6 @@ deployment/SUPABASE-RESTART-GUIDE.md
 deployment/test-current-kong-key.ps1
 deployment/test-new-anon-key.ps1
 deployment/RESTORE_DATABASE.md
+configure-kong-cors-simple.ps1
+configure-kong-cors.ps1
+find-kong-admin.sh
