@@ -41,3 +41,6 @@ deployment/edge-functions/.deno_cache/
 db_cluster*
 backup*
 /edge-functions-template
+deployment/quick-fix-migrations.ps1
+deployment/SCRIPT_USAGE.md
+deployment/SETUP_SSH_KEYS.md
