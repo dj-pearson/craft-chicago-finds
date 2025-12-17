@@ -23,10 +23,10 @@ This guide configures Supabase Auth to work as an OAuth 2.1 provider for ChatGPT
 
 Supabase Auth provides OAuth 2.0 endpoints out of the box:
 
-- **Authorization**: `https://slamtlgebisrimijeoid.supabase.co/auth/v1/authorize`
-- **Token**: `https://slamtlgebisrimijeoid.supabase.co/auth/v1/token`
-- **User Info**: `https://slamtlgebisrimijeoid.supabase.co/auth/v1/user`
-- **JWKS**: `https://slamtlgebisrimijeoid.supabase.co/auth/v1/.well-known/jwks.json`
+- **Authorization**: `https://api.craftlocal.net/auth/v1/authorize`
+- **Token**: `https://api.craftlocal.net/auth/v1/token`
+- **User Info**: `https://api.craftlocal.net/auth/v1/user`
+- **JWKS**: `https://api.craftlocal.net/auth/v1/.well-known/jwks.json`
 
 ---
 
@@ -184,7 +184,7 @@ Update your MCP server `.env` file:
 ```env
 # OAuth Configuration
 USE_SUPABASE_AUTH=true
-JWT_ISSUER=https://slamtlgebisrimijeoid.supabase.co/auth/v1
+JWT_ISSUER=https://api.craftlocal.net/auth/v1
 JWT_AUDIENCE=authenticated
 
 # Supabase will handle OAuth, no need for Auth0
@@ -206,8 +206,8 @@ curl http://localhost:3001/.well-known/oauth-protected-resource
 # Expected response:
 {
   "resource": "http://localhost:3001",
-  "authorization_endpoint": "https://slamtlgebisrimijeoid.supabase.co/auth/v1/authorize",
-  "token_endpoint": "https://slamtlgebisrimijeoid.supabase.co/auth/v1/token",
+  "authorization_endpoint": "https://api.craftlocal.net/auth/v1/authorize",
+  "token_endpoint": "https://api.craftlocal.net/auth/v1/token",
   "scopes_supported": [
     "listings.read",
     "listings.write",
@@ -231,7 +231,7 @@ curl http://localhost:3001/.well-known/jwks.json
 1. **Start Authorization:**
 
 ```
-https://slamtlgebisrimijeoid.supabase.co/auth/v1/authorize?
+https://api.craftlocal.net/auth/v1/authorize?
   client_id=chatgpt-craftlocal&
   redirect_uri=https://chatgpt.com/oauth/callback&
   response_type=code&
@@ -244,7 +244,7 @@ https://slamtlgebisrimijeoid.supabase.co/auth/v1/authorize?
 3. **Exchange code for token:**
 
 ```bash
-curl -X POST https://slamtlgebisrimijeoid.supabase.co/auth/v1/token \
+curl -X POST https://api.craftlocal.net/auth/v1/token \
   -H "Content-Type: application/json" \
   -d '{
     "grant_type": "authorization_code",

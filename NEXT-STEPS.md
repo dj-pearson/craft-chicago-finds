@@ -118,7 +118,7 @@ Look for these tables in `src/integrations/supabase/types.ts`:
 4. Check that session persists
 
 **To disable email confirmation (for testing):**
-1. Visit: https://supabase.com/dashboard/project/slamtlgebisrimijeoid/auth/providers
+1. Visit: https://supabase.com/dashboard/project/craftlocal-self-hosted/auth/providers
 2. Disable "Confirm email"
 3. Users can sign in immediately
 

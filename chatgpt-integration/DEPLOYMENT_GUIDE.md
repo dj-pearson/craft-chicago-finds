@@ -74,7 +74,7 @@ cd chatgpt-integration/mcp-server
 fly launch --name craftlocal-mcp
 
 # Set environment variables
-fly secrets set SUPABASE_URL=https://slamtlgebisrimijeoid.supabase.co
+fly secrets set SUPABASE_URL=https://api.craftlocal.net
 fly secrets set SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 fly secrets set SUPABASE_ANON_KEY=your_anon_key
 
@@ -115,7 +115,7 @@ railway up
 Set these in your hosting platform:
 
 ```bash
-SUPABASE_URL=https://slamtlgebisrimijeoid.supabase.co
+SUPABASE_URL=https://api.craftlocal.net
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 PORT=8080
@@ -173,7 +173,7 @@ In ChatGPT GPT settings:
 ```json
 {
   "oauth": {
-    "authorization_url": "https://slamtlgebisrimijeoid.supabase.co/auth/v1/authorize",
+    "authorization_url": "https://api.craftlocal.net/auth/v1/authorize",
     "token_url": "https://your-mcp-server.fly.dev/oauth/callback",
     "client_id": "your_oauth_client_id",
     "scope": "listings.read listings.write orders.read orders.write",

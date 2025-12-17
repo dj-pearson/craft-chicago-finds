@@ -93,7 +93,7 @@ import { AuthProvider } from './hooks/useAuth';
 
 **Problem:**
 ```typescript
-const SUPABASE_URL = "https://slamtlgebisrimijeoid.supabase.co";
+const SUPABASE_URL = "https://api.craftlocal.net";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
 ```
 

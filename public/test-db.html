@@ -1,60 +1,105 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Supabase Connection Test</title>
-  <style>
-    body { font-family: Arial; padding: 20px; max-width: 800px; margin: 0 auto; }
-    pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
-    .error { color: red; }
-    .success { color: green; }
-    .loading { color: blue; }
-  </style>
-</head>
-<body>
-  <h1>Supabase Database Connection Test</h1>
-  <div id="status" class="loading">Testing connection...</div>
-  <h2>Cities Data:</h2>
-  <pre id="output">Loading...</pre>
-  
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  <head>
+    <title>Supabase Connection Test</title>
+    <style>
+      body {
+        font-family: Arial;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      pre {
+        background: #f4f4f4;
+        padding: 15px;
+        border-radius: 5px;
+        overflow-x: auto;
+      }
+      .error {
+        color: red;
+      }
+      .success {
+        color: green;
+      }
+      .loading {
+        color: blue;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Supabase Database Connection Test</h1>
     
-    const supabaseUrl = 'https://api.craftlocal.net';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzM0NDAwMDAwLCJleHAiOjIwNTAwMDAwMDB9.ALT0l4BuD8yD9_TSEpasKyr7IIRuhcEYDqaEUBRBYVM';
+    <div style="margin-bottom: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px;">
+      <label>Supabase URL:<br>
+        <input type="text" id="urlInput" placeholder="https://api.craftlocal.net" style="width: 100%; padding: 8px; margin-top: 5px;">
+      </label>
+      <br><br>
+      <label>Anon Key:<br>
+        <input type="password" id="keyInput" placeholder="Your anon key" style="width: 100%; padding: 8px; margin-top: 5px;">
+      </label>
+      <br><br>
+      <button onclick="testConnection()" style="padding: 10px 20px; cursor: pointer;">Test Connection</button>
+    </div>
     
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    
-    async function testConnection() {
-      try {
-        console.log('Testing Supabase connection...');
-        
-        const { data, error } = await supabase
-          .from('cities')
-          .select('*')
-          .order('name');
-        
-        if (error) {
-          document.getElementById('status').className = 'error';
-          document.getElementById('status').textContent = '❌ Connection Error';
-          document.getElementById('output').textContent = JSON.stringify(error, null, 2);
-          console.error('Error:', error);
+    <div id="status" class="loading">Enter credentials above and click "Test Connection"</div>
+    <h2>Cities Data:</h2>
+    <pre id="output">Awaiting test...</pre>
+
+    <script type="module">
+      import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+      window.testConnection = async function() {
+        const supabaseUrl = document.getElementById('urlInput').value.trim();
+        const supabaseKey = document.getElementById('keyInput').value.trim();
+
+        if (!supabaseUrl || !supabaseKey) {
+          document.getElementById("status").className = "error";
+          document.getElementById("status").textContent = "❌ Please enter both URL and Key";
           return;
         }
-        
-        document.getElementById('status').className = 'success';
-        document.getElementById('status').textContent = `✅ Connection Successful - Found ${data.length} cities`;
-        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
-        console.log('Cities data:', data);
-        
-      } catch (err) {
-        document.getElementById('status').className = 'error';
-        document.getElementById('status').textContent = '❌ Exception';
-        document.getElementById('output').textContent = err.toString();
-        console.error('Exception:', err);
-      }
-    }
-    
-    testConnection();
-  </script>
-</body>
+
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        try {
+          document.getElementById("status").className = "loading";
+          document.getElementById("status").textContent = "Testing connection...";
+          console.log("Testing Supabase connection...");
+
+          const { data, error } = await supabase
+            .from("cities")
+            .select("*")
+            .order("name");
+
+          if (error) {
+            document.getElementById("status").className = "error";
+            document.getElementById("status").textContent =
+              "❌ Connection Error";
+            document.getElementById("output").textContent = JSON.stringify(
+              error,
+              null,
+              2
+            );
+            console.error("Error:", error);
+            return;
+          }
+
+          document.getElementById("status").className = "success";
+          document.getElementById(
+            "status"
+          ).textContent = `✅ Connection Successful - Found ${data.length} cities`;
+          document.getElementById("output").textContent = JSON.stringify(
+            data,
+            null,
+            2
+          );
+          console.log("Cities data:", data);
+        } catch (err) {
+          document.getElementById("status").className = "error";
+          document.getElementById("status").textContent = "❌ Exception";
+          document.getElementById("output").textContent = err.toString();
+          console.error("Exception:", err);
+        }
+      };
+    </script>
+  </body>
 </html>

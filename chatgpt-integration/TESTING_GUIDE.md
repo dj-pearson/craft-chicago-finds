@@ -305,7 +305,7 @@ ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 # Get a user access token (from your app's auth flow)
 USER_TOKEN="your_user_access_token"
 
-curl -X POST https://slamtlgebisrimijeoid.supabase.co/functions/v1/chatgpt-create-checkout \
+curl -X POST https://api.craftlocal.net/functions/v1/chatgpt-create-checkout \
   -H "Authorization: Bearer $USER_TOKEN" \
   -H "apikey: $ANON_KEY" \
   -H "Content-Type: application/json" \
@@ -362,7 +362,7 @@ Expected response:
 
 ```bash
 # Step 1: Get authorization URL
-echo "https://slamtlgebisrimijeoid.supabase.co/auth/v1/authorize?client_id=chatgpt-integration&redirect_uri=http://localhost:8080/oauth/callback&response_type=code&scope=listings.read+listings.write+orders.read+orders.write"
+echo "https://api.craftlocal.net/auth/v1/authorize?client_id=chatgpt-integration&redirect_uri=http://localhost:8080/oauth/callback&response_type=code&scope=listings.read+listings.write+orders.read+orders.write"
 
 # Step 2: Open in browser, login, get code from URL
 # Step 3: Exchange code for token

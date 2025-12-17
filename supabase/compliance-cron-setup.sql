@@ -12,14 +12,17 @@ CREATE EXTENSION IF NOT EXISTS pg_net;
 -- Step 2: Schedule daily compliance reminders
 -- Runs every day at 9:00 AM UTC
 -- Adjust the time as needed for your timezone
+--
+-- ⚠️  IMPORTANT: Replace YOUR_FUNCTIONS_URL and YOUR_ANON_KEY below
+-- with your actual values from environment variables before running!
 SELECT cron.schedule(
   'daily-compliance-reminders',
   '0 9 * * *', -- Cron format: minute hour day month weekday
   $$
   SELECT
     net.http_post(
-        url:='https://functions.craftlocal.net/send-compliance-reminders',
-        headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzM0NDAwMDAwLCJleHAiOjIwNTAwMDAwMDB9.ALT0l4BuD8yD9_TSEpasKyr7IIRuhcEYDqaEUBRBYVM"}'::jsonb,
+        url:='YOUR_FUNCTIONS_URL/send-compliance-reminders',
+        headers:='{"Content-Type": "application/json", "Authorization": "Bearer YOUR_ANON_KEY"}'::jsonb,
         body:='{}'::jsonb
     ) as request_id;
   $$
@@ -39,12 +42,13 @@ LIMIT 10;
 -- ============================================
 -- To test the compliance reminders immediately, run this:
 -- (This will send emails to sellers who need compliance actions)
+-- ⚠️  IMPORTANT: Replace YOUR_FUNCTIONS_URL and YOUR_ANON_KEY with actual values!
 
 /*
 SELECT
   net.http_post(
-      url:='https://functions.craftlocal.net/send-compliance-reminders',
-      headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzM0NDAwMDAwLCJleHAiOjIwNTAwMDAwMDB9.ALT0l4BuD8yD9_TSEpasKyr7IIRuhcEYDqaEUBRBYVM"}'::jsonb,
+      url:='YOUR_FUNCTIONS_URL/send-compliance-reminders',
+      headers:='{"Content-Type": "application/json", "Authorization": "Bearer YOUR_ANON_KEY"}'::jsonb,
       body:='{}'::jsonb
   ) as request_id;
 */

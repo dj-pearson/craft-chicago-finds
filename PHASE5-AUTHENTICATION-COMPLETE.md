@@ -194,7 +194,7 @@ Email confirmation is **enabled by default**.
 ### For Testing (Optional)
 To skip email confirmation during development:
 
-1. Go to: [Supabase Auth Settings](https://supabase.com/dashboard/project/slamtlgebisrimijeoid/auth/providers)
+1. Go to: [Supabase Auth Settings](https://supabase.com/dashboard/project/craftlocal-self-hosted/auth/providers)
 2. Find "Confirm email" setting
 3. Toggle OFF
 4. Users can sign in immediately

@@ -69,7 +69,7 @@ Once marketplace UI is ready:
 **Current Setting:** Email confirmation may be enabled.
 
 **If you need faster testing:**
-1. Visit [Supabase Auth Settings](https://supabase.com/dashboard/project/slamtlgebisrimijeoid/auth/providers)
+1. Visit [Supabase Auth Settings](https://supabase.com/dashboard/project/craftlocal-self-hosted/auth/providers)
 2. Disable "Confirm email"
 3. Sign in immediately after signup
 
@@ -272,8 +272,8 @@ Watch for new features as they're released. The marketplace UI is coming very so
 - `MARKETPLACE-IMPLEMENTATION-GUIDE.md` - Roadmap
 
 **Developer Resources:**
-- Database: [Supabase Dashboard](https://supabase.com/dashboard/project/slamtlgebisrimijeoid)
-- Auth Settings: [Auth Providers](https://supabase.com/dashboard/project/slamtlgebisrimijeoid/auth/providers)
+- Database: [Supabase Dashboard](https://supabase.com/dashboard/project/craftlocal-self-hosted)
+- Auth Settings: [Auth Providers](https://supabase.com/dashboard/project/craftlocal-self-hosted/auth/providers)
 
 ---
 

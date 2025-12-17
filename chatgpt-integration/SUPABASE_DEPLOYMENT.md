@@ -6,7 +6,7 @@ Everything now runs on Supabase - no external hosting needed!
 
 ### 1. **Widgets → Supabase Storage**
 
-CDN URL: `https://slamtlgebisrimijeoid.supabase.co/storage/v1/object/public/chatgpt-widgets/craftlocal-widgets.js`
+CDN URL: `https://api.craftlocal.net/storage/v1/object/public/chatgpt-widgets/craftlocal-widgets.js`
 
 ### 2. **MCP Server → Supabase Edge Functions**
 
@@ -49,7 +49,7 @@ All edge functions are automatically deployed with your Supabase project.
 
 **Test Search (no auth):**
 ```bash
-curl -X POST https://slamtlgebisrimijeoid.supabase.co/functions/v1/chatgpt-search-listings \
+curl -X POST https://api.craftlocal.net/functions/v1/chatgpt-search-listings \
   -H "Content-Type: application/json" \
   -H "apikey: YOUR_ANON_KEY" \
   -d '{"query": "jewelry", "city": "chicago", "limit": 5}'
@@ -57,7 +57,7 @@ curl -X POST https://slamtlgebisrimijeoid.supabase.co/functions/v1/chatgpt-searc
 
 **Test Get Listing (no auth):**
 ```bash
-curl -X POST https://slamtlgebisrimijeoid.supabase.co/functions/v1/chatgpt-get-listing \
+curl -X POST https://api.craftlocal.net/functions/v1/chatgpt-get-listing \
   -H "Content-Type: application/json" \
   -H "apikey: YOUR_ANON_KEY" \
   -d '{"listing_id": "YOUR_LISTING_ID"}'
@@ -65,7 +65,7 @@ curl -X POST https://slamtlgebisrimijeoid.supabase.co/functions/v1/chatgpt-get-l
 
 **Test Seller Dashboard (requires auth):**
 ```bash
-curl -X POST https://slamtlgebisrimijeoid.supabase.co/functions/v1/chatgpt-seller-dashboard \
+curl -X POST https://api.craftlocal.net/functions/v1/chatgpt-seller-dashboard \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_USER_TOKEN" \
   -H "apikey: YOUR_ANON_KEY" \
@@ -74,7 +74,7 @@ curl -X POST https://slamtlgebisrimijeoid.supabase.co/functions/v1/chatgpt-selle
 
 **Test Create Listing (requires auth):**
 ```bash
-curl -X POST https://slamtlgebisrimijeoid.supabase.co/functions/v1/chatgpt-create-listing \
+curl -X POST https://api.craftlocal.net/functions/v1/chatgpt-create-listing \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_USER_TOKEN" \
   -H "apikey: YOUR_ANON_KEY" \
@@ -95,7 +95,7 @@ curl -X POST https://slamtlgebisrimijeoid.supabase.co/functions/v1/chatgpt-creat
 
 Register your integration with ChatGPT:
 
-**Base URL:** `https://slamtlgebisrimijeoid.supabase.co/functions/v1`
+**Base URL:** `https://api.craftlocal.net/functions/v1`
 
 **Available Functions:**
 - `/chatgpt-search-listings` - Search products
@@ -113,8 +113,8 @@ Register your integration with ChatGPT:
 **OAuth Flow:**
 ```json
 {
-  "authorization_url": "https://slamtlgebisrimijeoid.supabase.co/auth/v1/authorize",
-  "token_url": "https://slamtlgebisrimijeoid.supabase.co/auth/v1/token",
+  "authorization_url": "https://api.craftlocal.net/auth/v1/authorize",
+  "token_url": "https://api.craftlocal.net/auth/v1/token",
   "client_id": "your_client_id",
   "scope": "openid email profile"
 }
@@ -206,7 +206,7 @@ All functions return a `widget` field with embeddable HTML:
 ```json
 {
   "results": [...],
-  "widget": "<script src='https://slamtlgebisrimijeoid.supabase.co/storage/v1/object/public/chatgpt-widgets/craftlocal-widgets.js'></script><craftlocal-product-grid listings='[...]'></craftlocal-product-grid>"
+  "widget": "<script src='https://api.craftlocal.net/storage/v1/object/public/chatgpt-widgets/craftlocal-widgets.js'></script><craftlocal-product-grid listings='[...]'></craftlocal-product-grid>"
 }
 ```
 

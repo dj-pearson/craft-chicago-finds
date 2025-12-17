@@ -131,7 +131,7 @@ This document summarizes all fixes applied to resolve the issues identified in `
 
 **Fix Applied:**
 - Updated all API redirect URLs in `public/_redirects` to use actual Supabase project URL:
-  - `https://slamtlgebisrimijeoid.supabase.co`
+  - `https://api.craftlocal.net`
 
 **Files Changed:**
 - `public/_redirects`

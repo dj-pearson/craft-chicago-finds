@@ -51,8 +51,8 @@ The platform has excellent design, comprehensive features, and solid infrastruct
 **Issue**: Supabase database is either not connected properly or has no data  
 **Database Info**:
 
-- URL: `https://slamtlgebisrimijeoid.supabase.co`
-- Project ID: `slamtlgebisrimijeoid`
+- URL: `https://api.craftlocal.net`
+- Project ID: `craftlocal-self-hosted`
 - Connection file: `src/integrations/supabase/client.ts`
 
 **Schema Status**:
@@ -748,7 +748,7 @@ All policy pages load correctly with comprehensive content:
 
 ```bash
 # Supabase
-VITE_SUPABASE_URL=https://slamtlgebisrimijeoid.supabase.co
+VITE_SUPABASE_URL=https://api.craftlocal.net
 VITE_SUPABASE_ANON_KEY=[current key in code]
 SUPABASE_SERVICE_ROLE_KEY=[needed for backend]
 

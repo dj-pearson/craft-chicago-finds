@@ -6,9 +6,14 @@
 export class CraftLocalWidget extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
+    this.attachShadow({ mode: "open" });
     this._accessToken = null;
-    this._apiBase = 'https://api.craftlocal.net';
+    // API base should be configured via attribute or global config
+    this._apiBase = this.getAttribute('api-base') || window.CRAFTLOCAL_API_BASE || '';
+    
+    if (!this._apiBase) {
+      console.error('CraftLocal Widget: API base URL not configured. Set via api-base attribute or window.CRAFTLOCAL_API_BASE');
+    }
   }
 
   connectedCallback() {
@@ -32,14 +37,14 @@ export class CraftLocalWidget extends HTMLElement {
    */
   async apiCall(endpoint, options = {}) {
     if (!this._accessToken) {
-      throw new Error('Access token not set');
+      throw new Error("Access token not set");
     }
 
     const response = await fetch(`${this._apiBase}${endpoint}`, {
       ...options,
       headers: {
-        'Authorization': `Bearer ${this._accessToken}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this._accessToken}`,
+        "Content-Type": "application/json",
         ...options.headers,
       },
     });
@@ -161,20 +166,22 @@ export class CraftLocalWidget extends HTMLElement {
    * Emit custom event
    */
   emit(eventName, detail = {}) {
-    this.dispatchEvent(new CustomEvent(eventName, {
-      detail,
-      bubbles: true,
-      composed: true,
-    }));
+    this.dispatchEvent(
+      new CustomEvent(eventName, {
+        detail,
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   /**
    * Format price
    */
   formatPrice(amount) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   }
 
@@ -182,10 +189,10 @@ export class CraftLocalWidget extends HTMLElement {
    * Format date
    */
   formatDate(dateString) {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     }).format(new Date(dateString));
   }
 
