@@ -4,10 +4,10 @@
 # Domain redirects - force www to non-www (or vice versa)
 https://www.craftlocal.net/* https://craftlocal.net/:splat 301!
 
-# API redirects to Supabase Edge Functions
-/api/sitemap/* https://slamtlgebisrimijeoid.supabase.co/functions/v1/generate-sitemap?type=:splat 200
-/api/ai-generate-content/* https://slamtlgebisrimijeoid.supabase.co/functions/v1/ai-generate-content/:splat 200
-/api/optimize-image/* https://slamtlgebisrimijeoid.supabase.co/functions/v1/optimize-image/:splat 200
+# API redirects to Self-Hosted Supabase Edge Functions
+/api/sitemap/* https://functions.craftlocal.net/generate-sitemap?type=:splat 200
+/api/ai-generate-content/* https://functions.craftlocal.net/ai-generate-content/:splat 200
+/api/optimize-image/* https://functions.craftlocal.net/optimize-image/:splat 200
 
 # Static sitemap.xml is served from /public/sitemap.xml
 # Dynamic sitemap generation for other sitemaps
