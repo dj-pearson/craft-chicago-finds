@@ -41,6 +41,22 @@ deployment/edge-functions/.deno_cache/
 db_cluster*
 backup*
 /edge-functions-template
-deployment/quick-fix-migrations.ps1
+v deployment/quick-fix-migrations.ps1
 deployment/SCRIPT_USAGE.md
 deployment/SETUP_SSH_KEYS.md
+deployment/check-database-permissions.ps1
+deployment/check-jwt-config.ps1
+deployment/check-kong-jwt.ps1
+deployment/coolify-anon-key-update.ps1
+deployment/diagnose-supabase.ps1
+deployment/find-supabase-config.ps1
+deployment/fix-database-permissions.ps1
+deployment/full-diagnostic.ps1
+deployment/generate-anon-key.ps1
+deployment/get-correct-anon-key.ps1
+deployment/quick-fix-migrations.ps1
+deployment/RESTORE_DATABASE.md
+deployment/SUPABASE-RESTART-GUIDE.md
+deployment/test-current-kong-key.ps1
+deployment/test-new-anon-key.ps1
+deployment/RESTORE_DATABASE.md

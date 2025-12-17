@@ -41,7 +41,7 @@ abc123def456   supabase/postgres:...   "docker-entrypoint.s…"   supabase-db-ig
 
 ```bash
 # Replace <CONTAINER_ID> with the actual container ID or name from step 3
-docker exec -i supabase-db-p0ckg4w84gswkscog0wg4gck psql -U postgres -d postgres < /tmp/restore.sql
+docker exec -i supabase-db-ewo444s0404gok00s8k8gkog psql -U postgres -d postgres < /tmp/restore.sql
 ```
 
 **For your specific setup**, use:
