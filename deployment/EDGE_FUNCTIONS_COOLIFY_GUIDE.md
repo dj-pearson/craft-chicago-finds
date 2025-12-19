@@ -42,8 +42,8 @@ DB_HOST=209.145.59.219
 DB_PORT=5434
 DB_PASSWORD=your-db-password
 
-# Supabase
-SUPABASE_URL=https://api.repclub.net
+# Supabase (Self-Hosted)
+SUPABASE_URL=https://api.craftlocal.net
 SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
@@ -57,7 +57,7 @@ RESEND_API_KEY=your-resend-key
 ### Deploy
 
 ```powershell
-cd C:\Users\dpearson\Documents\Rep-Club\gym-unity-suite\deployment
+cd deployment
 .\deploy-edge-functions-coolify.ps1
 ```
 
@@ -77,18 +77,18 @@ If you prefer to deploy manually:
 
 ```powershell
 # From project root
-scp Dockerfile.functions root@209.145.59.219:/root/repclub-edge-functions/
-scp docker-compose.functions.yml root@209.145.59.219:/root/repclub-edge-functions/
-scp -r supabase/functions root@209.145.59.219:/root/repclub-edge-functions/supabase/
+scp Dockerfile.functions root@YOUR_SERVER_IP:/root/craftlocal-edge-functions/
+scp docker-compose.functions.yml root@YOUR_SERVER_IP:/root/craftlocal-edge-functions/
+scp -r supabase/functions root@YOUR_SERVER_IP:/root/craftlocal-edge-functions/supabase/
 ```
 
 ### Step 2: Create .env on Server
 
-SSH into your server and create `/root/repclub-edge-functions/.env`:
+SSH into your server and create `/root/craftlocal-edge-functions/.env`:
 
 ```bash
-ssh root@209.145.59.219
-cd /root/repclub-edge-functions
+ssh root@YOUR_SERVER_IP
+cd /root/craftlocal-edge-functions
 nano .env
 ```
 
@@ -104,10 +104,10 @@ docker-compose -f docker-compose.functions.yml build
 docker-compose -f docker-compose.functions.yml up -d
 
 # Check status
-docker ps | grep repclub-edge-functions
+docker ps | grep craftlocal-edge-functions
 
 # Check logs
-docker logs -f repclub-edge-functions
+docker logs -f craftlocal-edge-functions
 
 # Test health endpoint
 curl http://localhost:8000/health
@@ -118,7 +118,7 @@ curl http://localhost:8000/health
 ### Health Check
 
 ```bash
-curl http://209.145.59.219:8000/health
+curl http://YOUR_SERVER_IP:8000/health
 ```
 
 Should return: `{"message":"ok"}`
@@ -127,15 +127,14 @@ Should return: `{"message":"ok"}`
 
 ```bash
 # Example: Test generate-sitemap
-curl -X POST http://209.145.59.219:8000/generate-sitemap \
+curl -X POST http://YOUR_SERVER_IP:8000/generate-sitemap \
   -H "Authorization: Bearer YOUR_ANON_KEY" \
   -H "Content-Type: application/json"
 
-# Example: Test get-org-by-domain
-curl -X POST http://209.145.59.219:8000/get-org-by-domain \
+# Example: Test stripe-webhook
+curl -X POST http://YOUR_SERVER_IP:8000/stripe-webhook \
   -H "Authorization: Bearer YOUR_ANON_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"domain": "example.com"}'
+  -H "Content-Type: application/json"
 ```
 
 ## Adding to Coolify (Optional)
@@ -144,7 +143,7 @@ To manage this service through Coolify dashboard:
 
 1. Go to Coolify → Services → Add New Service
 2. Choose "Docker Compose"
-3. Point to: `/root/repclub-edge-functions/docker-compose.functions.yml`
+3. Point to: `/root/craftlocal-edge-functions/docker-compose.functions.yml`
 4. Add environment variables in Coolify UI
 5. Deploy
 
@@ -162,9 +161,9 @@ Or manually:
 
 ```bash
 # SSH into server
-ssh root@209.145.59.219
+ssh root@YOUR_SERVER_IP
 
-cd /root/repclub-edge-functions
+cd /root/craftlocal-edge-functions
 
 # Pull latest changes (if using git)
 git pull
@@ -183,7 +182,7 @@ If you want to route traffic through Kong (API Gateway), configure a service:
 # Example Kong service configuration
 curl -X POST http://localhost:8001/services \
   --data name=edge-functions \
-  --data url=http://repclub-edge-functions:8000
+  --data url=http://craftlocal-edge-functions:8000
 
 curl -X POST http://localhost:8001/services/edge-functions/routes \
   --data "paths[]=/functions" \
@@ -191,7 +190,7 @@ curl -X POST http://localhost:8001/services/edge-functions/routes \
 ```
 
 Then functions will be available at:
-`https://api.repclub.net/functions/function-name`
+`https://functions.craftlocal.net/function-name`
 
 ## Troubleshooting
 
@@ -199,13 +198,13 @@ Then functions will be available at:
 
 ```bash
 # Check logs
-docker logs repclub-edge-functions
+docker logs craftlocal-edge-functions
 
 # Check if port 8000 is already in use
 netstat -tulpn | grep 8000
 
 # Try starting manually to see errors
-cd /root/repclub-edge-functions
+cd /root/craftlocal-edge-functions
 docker-compose -f docker-compose.functions.yml up
 ```
 
@@ -213,20 +212,20 @@ docker-compose -f docker-compose.functions.yml up
 
 ```bash
 # Check environment variables
-docker exec repclub-edge-functions env | grep SUPABASE
+docker exec craftlocal-edge-functions env | grep SUPABASE
 
 # Check function logs
-docker logs -f repclub-edge-functions
+docker logs -f craftlocal-edge-functions
 ```
 
 ### Health Check Fails
 
 ```bash
 # Verify Supabase CLI is installed
-docker exec repclub-edge-functions supabase --version
+docker exec craftlocal-edge-functions supabase --version
 
 # Check if functions are mounted correctly
-docker exec repclub-edge-functions ls -la /app/functions
+docker exec craftlocal-edge-functions ls -la /app/functions
 ```
 
 ## Environment Variables Reference
@@ -277,7 +276,7 @@ Once deployed, these functions are available:
 ## Support
 
 If you encounter issues:
-1. Check container logs: `docker logs repclub-edge-functions`
+1. Check container logs: `docker logs craftlocal-edge-functions`
 2. Verify environment variables are set correctly
 3. Test health endpoint first
 4. Test individual functions one at a time

@@ -1,8 +1,9 @@
 import {createClient} from '@supabase/supabase-js';
 import {supabaseSecureStorage} from '../security/secureStorage';
 
-// TODO: Replace with your Supabase project credentials
-const SUPABASE_URL = process.env.SUPABASE_URL || 'your-supabase-url';
+// Self-hosted Supabase configuration
+// Set these environment variables in your React Native config
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://api.craftlocal.net';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'your-supabase-anon-key';
 
 /**

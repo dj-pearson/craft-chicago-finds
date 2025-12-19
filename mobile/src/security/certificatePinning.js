@@ -10,15 +10,16 @@ import {Platform, NativeModules} from 'react-native';
  * Contains SHA-256 fingerprints of trusted certificates
  */
 const CERTIFICATE_PINS = {
-  // Supabase domain certificates
-  'supabase.co': {
+  // Self-hosted Supabase domain certificates
+  // TODO: Update these pins with your actual certificate SHA-256 fingerprints
+  'api.craftlocal.net': {
     pins: [
-      // Primary certificate pin (SHA-256)
+      // Primary certificate pin (SHA-256) - UPDATE WITH YOUR CERTIFICATE
       'sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
-      // Backup certificate pin
+      // Backup certificate pin - UPDATE WITH YOUR BACKUP CERTIFICATE
       'sha256/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=',
     ],
-    includeSubdomains: true,
+    includeSubdomains: false,
     expirationDate: '2025-12-31',
   },
 

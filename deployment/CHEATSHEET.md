@@ -20,11 +20,11 @@ cd deployment
 
 ```powershell
 # Upload backup and import to PostgreSQL container
-scp backup/your-backup.sql root@209.145.59.219:/tmp/restore.sql
+scp backup/your-backup.sql root@YOUR_SERVER_IP:/tmp/restore.sql
 
 # SSH and run
-ssh root@209.145.59.219
-docker exec -i supabase-db-ig8ow4o4okkogowggkog4cww psql -U postgres -d postgres < /tmp/restore.sql
+ssh root@YOUR_SERVER_IP
+docker exec -i YOUR_DB_CONTAINER psql -U postgres -d postgres < /tmp/restore.sql
 
 # Or use the automated script
 cd deployment
@@ -50,16 +50,16 @@ cd deployment
 .\verify-deployment.ps1
 
 # Check database connection on server
-ssh root@209.145.59.219
+ssh root@YOUR_SERVER_IP
 docker ps | grep postgres
-docker exec -i supabase-db-ig8ow4o4okkogowggkog4cww psql -U postgres -d postgres -c "SELECT version();"
+docker exec -i YOUR_DB_CONTAINER psql -U postgres -d postgres -c "SELECT version();"
 
 # Check Edge Functions logs
-ssh root@209.145.59.219
-docker logs -f e4w00swgkg48gkww80kosows-193034284180
+ssh root@YOUR_SERVER_IP
+docker logs -f craftlocal-edge-functions
 
 # Test Edge Functions endpoint
-curl https://functions.tryeatpal.com/_health
+curl https://functions.craftlocal.net/_health
 ```
 
 ## ⚙️ Configuration

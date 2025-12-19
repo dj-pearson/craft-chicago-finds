@@ -41,7 +41,7 @@ Write-Host ""
 Write-Host "Step 1: Uploading files to server..." -ForegroundColor Yellow
 Write-Host "-------------------------------------" -ForegroundColor Yellow
 
-$remotePath = "/root/repclub-edge-functions"
+$remotePath = "/root/craftlocal-edge-functions"
 
 Write-Host "Creating remote directory..." -ForegroundColor White
 ssh ${SERVER_USER}@${SERVER_HOST} "mkdir -p $remotePath"
@@ -108,7 +108,7 @@ sleep 10
 
 echo ""
 echo "Checking container status..."
-docker ps | grep repclub-edge-functions || echo "Container not found!"
+docker ps | grep craftlocal-edge-functions || echo "Container not found!"
 
 echo ""
 echo "Checking health endpoint..."
@@ -116,7 +116,7 @@ curl -f http://localhost:8000/health && echo "✅ Health check passed!" || echo 
 
 echo ""
 echo "Container logs (last 20 lines):"
-docker logs --tail 20 repclub-edge-functions
+docker logs --tail 20 craftlocal-edge-functions
 "@
 
 $deployScript | ssh ${SERVER_USER}@${SERVER_HOST} "cat > $remotePath/deploy.sh && chmod +x $remotePath/deploy.sh && $remotePath/deploy.sh"
