@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,9 +45,21 @@ export const SellerSettings = ({ user, profile }: SellerSettingsProps) => {
 
     try {
       const validatedData = sellerSchema.parse(formData);
-      
-      // TODO: Implement seller settings update in Supabase
-      console.log("Seller settings update:", validatedData);
+
+      // Update seller settings in Supabase
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          business_name: validatedData.business_name || null,
+          seller_description: validatedData.seller_description || null,
+          business_address: validatedData.business_address || null,
+          website: validatedData.website || null,
+          tax_id: validatedData.tax_id || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
 
       toast({
         title: "Seller settings updated",
@@ -62,6 +75,7 @@ export const SellerSettings = ({ user, profile }: SellerSettingsProps) => {
         });
         setErrors(fieldErrors);
       } else {
+        console.error('Seller settings update error:', error);
         toast({
           title: "Update failed",
           description: "Something went wrong. Please try again.",

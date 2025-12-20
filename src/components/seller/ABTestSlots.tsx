@@ -99,88 +99,50 @@ export const ABTestSlots = ({ listingId, className }: ABTestSlotsProps) => {
 
     setLoading(true);
     try {
-      // Get user's listings first
-      const { data: listings, error: listingsError } = await supabase
-        .from("listings")
-        .select("id, title")
+      // Query real A/B tests from database if table exists
+      const { data, error } = await supabase
+        .from("listing_ab_tests")
+        .select(`
+          *,
+          listing:listing_id(id, title)
+        `)
         .eq("seller_id", user.id)
-        .eq("city_id", currentCity.id);
+        .order("created_at", { ascending: false });
 
-      if (listingsError) throw listingsError;
+      if (error) {
+        // Table may not exist yet - show empty state
+        console.log('A/B tests table not available yet');
+        setTests([]);
+        return;
+      }
 
-      // Generate mock A/B tests (in production, this would come from a database)
-      const mockTests = generateMockTests(listings || [], listingId);
-      setTests(mockTests);
+      const transformedTests: ABTest[] = (data || []).map(test => ({
+        id: test.id,
+        listing_id: test.listing_id,
+        listing_title: test.listing?.title || 'Unknown Listing',
+        test_type: test.test_type as ABTest['test_type'],
+        status: test.status as ABTest['status'],
+        variant_a: test.variant_a || { name: 'Original', content: '' },
+        variant_b: test.variant_b || { name: 'Variant B', content: '' },
+        metrics: test.metrics || {
+          variant_a: { views: 0, clicks: 0, conversions: 0, conversion_rate: 0, click_through_rate: 0 },
+          variant_b: { views: 0, clicks: 0, conversions: 0, conversion_rate: 0, click_through_rate: 0 }
+        },
+        winner: test.winner,
+        confidence_level: test.confidence_level || 0,
+        start_date: test.start_date,
+        end_date: test.end_date,
+        duration_days: test.duration_days || 14,
+        min_sample_size: test.min_sample_size || 100
+      }));
+
+      setTests(transformedTests);
     } catch (error) {
       console.error("Error fetching A/B tests:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load A/B tests",
-        variant: "destructive",
-      });
+      setTests([]);
     } finally {
       setLoading(false);
     }
-  };
-
-  const generateMockTests = (listings: any[], focusListingId?: string): ABTest[] => {
-    const tests: ABTest[] = [];
-    
-    // Generate some sample tests
-    const sampleTests = [
-      {
-        listing_id: listings[0]?.id || 'sample-1',
-        listing_title: listings[0]?.title || 'Handmade Ceramic Bowl',
-        test_type: 'photo' as const,
-        status: 'running' as const,
-        variant_a: {
-          name: 'Original Photo',
-          content: 'original-photo.jpg',
-          image_url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400'
-        },
-        variant_b: {
-          name: 'Lifestyle Photo',
-          content: 'lifestyle-photo.jpg',
-          image_url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400'
-        },
-        metrics: {
-          variant_a: { views: 1250, clicks: 89, conversions: 12, conversion_rate: 13.5, click_through_rate: 7.1 },
-          variant_b: { views: 1180, clicks: 126, conversions: 18, conversions_rate: 14.3, click_through_rate: 10.7 }
-        },
-        confidence_level: 87,
-        start_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        duration_days: 14
-      },
-      {
-        listing_id: listings[1]?.id || 'sample-2',
-        listing_title: listings[1]?.title || 'Knitted Winter Scarf',
-        test_type: 'title' as const,
-        status: 'completed' as const,
-        variant_a: {
-          name: 'Original Title',
-          content: 'Handmade Knitted Scarf'
-        },
-        variant_b: {
-          name: 'SEO Title',
-          content: 'Cozy Hand-Knitted Winter Scarf - Soft Wool Blend'
-        },
-        metrics: {
-          variant_a: { views: 2100, clicks: 147, conversions: 19, conversion_rate: 12.9, click_through_rate: 7.0 },
-          variant_b: { views: 2050, clicks: 189, conversions: 28, conversion_rate: 14.8, click_through_rate: 9.2 }
-        },
-        winner: 'b' as const,
-        confidence_level: 94,
-        start_date: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
-        end_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        duration_days: 14
-      }
-    ];
-
-    return sampleTests.map((test, index) => ({
-      ...test,
-      id: `test-${index}`,
-      min_sample_size: 100
-    })) as ABTest[];
   };
 
   const createABTest = async () => {

@@ -43,9 +43,32 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
   useEffect(() => {
     const fetchPersonalizationOptions = async () => {
       try {
-        // TODO: Implement personalization when personalization_options table exists
-        console.log('Personalization options not yet implemented');
-        setPersonalizationOptions([]);
+        const { data, error } = await supabase
+          .from('personalization_options')
+          .select('*')
+          .eq('listing_id', listing.id)
+          .order('display_order', { ascending: true });
+
+        if (error) {
+          // Table may not exist yet
+          console.log('Personalization options table not available');
+          setPersonalizationOptions([]);
+          return;
+        }
+
+        // Transform to expected format
+        const options = (data || []).map(opt => ({
+          id: opt.id,
+          option_key: opt.id,
+          label: opt.label,
+          type: opt.option_type,
+          is_required: opt.required,
+          choices: opt.choices || [],
+          max_length: opt.max_length,
+          additional_cost: Number(opt.price_modifier) || 0
+        }));
+
+        setPersonalizationOptions(options);
       } catch (fetchError) {
         console.error('Error fetching personalization options:', fetchError);
         setPersonalizationOptions([]);

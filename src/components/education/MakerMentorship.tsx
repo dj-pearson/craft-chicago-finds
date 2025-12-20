@@ -187,217 +187,88 @@ export const MakerMentorship = ({ className }: MakerMentorshipProps) => {
 
   const fetchSessions = async () => {
     try {
-      if (user) {
-        const mockSessions = generateMockSessions(user.id);
-        setSessions(mockSessions);
+      if (!user) {
+        setSessions([]);
+        return;
       }
+
+      // Query real sessions from database if table exists
+      const { data, error } = await supabase
+        .from('mentorship_sessions')
+        .select('*')
+        .or(`mentor_id.eq.${user.id},mentee_id.eq.${user.id}`)
+        .order('scheduled_time', { ascending: true });
+
+      if (error) {
+        // Table may not exist yet - show empty state
+        console.log('Sessions table not available yet');
+        setSessions([]);
+        return;
+      }
+
+      const transformedSessions: MentorshipSession[] = (data || []).map(session => ({
+        id: session.id,
+        mentor_id: session.mentor_id,
+        mentee_id: session.mentee_id,
+        title: session.title,
+        description: session.description || '',
+        session_type: session.session_type as MentorshipSession['session_type'],
+        duration_minutes: session.duration_minutes,
+        scheduled_time: session.scheduled_time,
+        status: session.status as MentorshipSession['status'],
+        price: Number(session.price || 0),
+        meeting_link: session.meeting_link,
+        notes: session.notes,
+        rating: session.rating,
+        feedback: session.feedback,
+        created_at: session.created_at
+      }));
+
+      setSessions(transformedSessions);
     } catch (error) {
       console.error("Error fetching sessions:", error);
+      setSessions([]);
     }
   };
 
   const fetchPrograms = async () => {
     try {
-      const mockPrograms = generateMockPrograms();
-      setPrograms(mockPrograms);
+      // Query real programs from mentorship_programs table
+      const { data, error } = await supabase
+        .from('mentorship_programs')
+        .select(`
+          *,
+          mentor:mentor_id(id, display_name, avatar_url)
+        `)
+        .eq('is_accepting', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.log('Error fetching programs:', error);
+        setPrograms([]);
+        return;
+      }
+
+      const transformedPrograms: MentorshipProgram[] = (data || []).map(program => ({
+        id: program.id,
+        title: program.title,
+        description: program.description || '',
+        duration_weeks: program.duration_weeks || 8,
+        session_count: program.session_count || 8,
+        price: Number(program.price || 0),
+        skills_covered: program.skills_covered || [program.craft_specialty],
+        graduation_requirements: program.graduation_requirements || [],
+        success_rate: program.success_rate || 0,
+        graduate_count: program.graduate_count || 0,
+        next_cohort_date: program.next_cohort_date || new Date().toISOString(),
+        is_open_for_enrollment: program.is_accepting
+      }));
+
+      setPrograms(transformedPrograms);
     } catch (error) {
       console.error("Error fetching programs:", error);
+      setPrograms([]);
     }
-  };
-
-  const generateMockMentors = (): Mentor[] => {
-    const specialties = ['Pottery', 'Jewelry Making', 'Woodworking', 'Business', 'Photography', 'Marketing'];
-    const mentorshipStyles = ['Hands-on', 'Analytical', 'Supportive', 'Direct', 'Creative'];
-    
-    return [
-      {
-        id: 'mentor-1',
-        name: 'Sarah Chen',
-        shop_name: 'Chicago Clay Studio',
-        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=100',
-        bio: 'Master potter with 15 years of experience. I help new makers develop their technical skills and build sustainable craft businesses. Specializing in wheel throwing and glazing techniques.',
-        specialties: ['Pottery', 'Business', 'Glazing'],
-        experience_years: 15,
-        rating: 4.9,
-        review_count: 89,
-        mentee_count: 156,
-        hourly_rate: 75,
-        response_time: '< 2 hours',
-        availability: {
-          timezone: 'CST',
-          available_days: ['Monday', 'Wednesday', 'Friday', 'Saturday'],
-          preferred_times: ['Morning', 'Afternoon']
-        },
-        skills_offered: [
-          { skill: 'Wheel Throwing', level: 'advanced' },
-          { skill: 'Glazing Techniques', level: 'advanced' },
-          { skill: 'Business Planning', level: 'intermediate' },
-          { skill: 'Pricing Strategy', level: 'intermediate' }
-        ],
-        success_stories: 23,
-        is_verified: true,
-        is_available: true,
-        location: 'Logan Square, Chicago',
-        languages: ['English', 'Mandarin'],
-        mentorship_style: ['Hands-on', 'Supportive'],
-        created_at: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: 'mentor-2',
-        name: 'Marcus Johnson',
-        shop_name: 'Windy City Woodworks',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100',
-        bio: 'Award-winning furniture maker and business mentor. I focus on helping makers scale their operations and develop premium product lines. Expert in woodworking and digital marketing.',
-        specialties: ['Woodworking', 'Business', 'Marketing'],
-        experience_years: 12,
-        rating: 4.8,
-        review_count: 67,
-        mentee_count: 98,
-        hourly_rate: 85,
-        response_time: '< 4 hours',
-        availability: {
-          timezone: 'CST',
-          available_days: ['Tuesday', 'Thursday', 'Saturday', 'Sunday'],
-          preferred_times: ['Evening', 'Weekend']
-        },
-        skills_offered: [
-          { skill: 'Fine Woodworking', level: 'advanced' },
-          { skill: 'Digital Marketing', level: 'advanced' },
-          { skill: 'Product Photography', level: 'intermediate' },
-          { skill: 'Pricing & Positioning', level: 'advanced' }
-        ],
-        success_stories: 31,
-        is_verified: true,
-        is_available: true,
-        location: 'Wicker Park, Chicago',
-        languages: ['English', 'Spanish'],
-        mentorship_style: ['Analytical', 'Direct'],
-        created_at: new Date(Date.now() - 280 * 24 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: 'mentor-3',
-        name: 'Elena Rodriguez',
-        shop_name: 'Prairie Jewelry Co.',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100',
-        bio: 'Jewelry designer and craft business coach. I help makers transition from hobby to full-time business. Specializing in metalworking, stone setting, and e-commerce strategy.',
-        specialties: ['Jewelry Making', 'Business', 'E-commerce'],
-        experience_years: 8,
-        rating: 4.7,
-        review_count: 45,
-        mentee_count: 72,
-        hourly_rate: 65,
-        response_time: '< 6 hours',
-        availability: {
-          timezone: 'CST',
-          available_days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday'],
-          preferred_times: ['Morning', 'Afternoon']
-        },
-        skills_offered: [
-          { skill: 'Metalworking', level: 'advanced' },
-          { skill: 'Stone Setting', level: 'intermediate' },
-          { skill: 'E-commerce Setup', level: 'advanced' },
-          { skill: 'Social Media Marketing', level: 'intermediate' }
-        ],
-        success_stories: 18,
-        is_verified: false,
-        is_available: true,
-        location: 'Lincoln Park, Chicago',
-        languages: ['English', 'Spanish'],
-        mentorship_style: ['Creative', 'Supportive'],
-        created_at: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString()
-      }
-    ];
-  };
-
-  const generateMockSessions = (userId: string): MentorshipSession[] => {
-    return [
-      {
-        id: 'session-1',
-        mentor_id: 'mentor-1',
-        mentee_id: userId,
-        title: 'Pottery Business Planning Session',
-        description: 'Review business plan and pricing strategy for pottery shop',
-        session_type: 'video_call',
-        duration_minutes: 60,
-        scheduled_time: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-        status: 'scheduled',
-        price: 75,
-        meeting_link: 'https://zoom.us/j/example',
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 'session-2',
-        mentor_id: 'mentor-2',
-        mentee_id: userId,
-        title: 'Woodworking Technique Review',
-        description: 'Advanced joinery techniques and tool recommendations',
-        session_type: 'video_call',
-        duration_minutes: 90,
-        scheduled_time: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        status: 'completed',
-        price: 127.50,
-        rating: 5,
-        feedback: 'Excellent session! Marcus provided detailed feedback on my technique and recommended specific tools that really improved my work.',
-        created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
-      }
-    ];
-  };
-
-  const generateMockPrograms = (): MentorshipProgram[] => {
-    return [
-      {
-        id: 'program-1',
-        title: 'Hobby to Business Bootcamp',
-        description: 'Transform your craft hobby into a profitable business in 8 weeks. Learn pricing, marketing, operations, and financial management.',
-        duration_weeks: 8,
-        session_count: 12,
-        price: 497,
-        skills_covered: [
-          'Business Planning',
-          'Pricing Strategy',
-          'Marketing Fundamentals',
-          'Financial Management',
-          'Customer Service',
-          'Legal Basics'
-        ],
-        graduation_requirements: [
-          'Complete all 12 sessions',
-          'Submit business plan',
-          'Launch first product line',
-          'Achieve first $1000 in sales'
-        ],
-        success_rate: 87,
-        graduate_count: 143,
-        next_cohort_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-        is_open_for_enrollment: true
-      },
-      {
-        id: 'program-2',
-        title: 'Master Craftsperson Certification',
-        description: 'Advanced 12-week program for experienced makers looking to achieve master-level skills and mentor others.',
-        duration_weeks: 12,
-        session_count: 18,
-        price: 897,
-        skills_covered: [
-          'Advanced Techniques',
-          'Teaching & Mentoring',
-          'Quality Control',
-          'Innovation & Design',
-          'Business Scaling',
-          'Leadership'
-        ],
-        graduation_requirements: [
-          'Complete all 18 sessions',
-          'Create masterpiece portfolio',
-          'Mentor 2 junior makers',
-          'Pass practical examination'
-        ],
-        success_rate: 92,
-        graduate_count: 67,
-        next_cohort_date: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString(),
-        is_open_for_enrollment: true
-      }
-    ];
   };
 
   const bookSession = async (mentorId: string) => {

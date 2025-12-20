@@ -23,6 +23,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format, formatDistanceToNow } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PlatformHealth {
   overall_score: number; // 0-100
@@ -123,190 +124,338 @@ export const ProactiveOperationsDashboard = () => {
 
   const loadPlatformHealth = async () => {
     try {
-      // TODO: Fetch real platform health metrics
-      // For now, mock data
-      const mockHealth: PlatformHealth = {
-        overall_score: 98,
-        system_status: 'operational',
-        active_users_now: 247,
-        active_users_hour: 1523,
-        active_users_day: 8942,
-        orders_per_hour: 156,
-        orders_avg_hourly: 142,
-        error_rate_hour: 0.8,
-        api_response_time: 245,
-        payment_success_rate: 99.2,
-        database_query_avg: 48
+      const now = new Date();
+      const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+      // Fetch real metrics from database
+      const [ordersHourResult, ordersDayResult, usersResult, sellersResult] = await Promise.all([
+        supabase
+          .from('orders')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', oneHourAgo.toISOString()),
+        supabase
+          .from('orders')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', oneDayAgo.toISOString()),
+        supabase
+          .from('profiles')
+          .select('id', { count: 'exact', head: true }),
+        supabase
+          .from('profiles')
+          .select('id', { count: 'exact', head: true })
+          .eq('is_seller', true)
+      ]);
+
+      const ordersPerHour = ordersHourResult.count || 0;
+      const ordersPerDay = ordersDayResult.count || 0;
+      const totalUsers = usersResult.count || 0;
+      const totalSellers = sellersResult.count || 0;
+
+      // Calculate health score based on available metrics
+      // System is operational if we can query the database
+      const systemStatus: 'operational' | 'degraded' | 'down' =
+        ordersHourResult.error || usersResult.error ? 'degraded' : 'operational';
+
+      // Simple health score calculation
+      const healthScore = systemStatus === 'operational' ? 95 : 70;
+
+      const health: PlatformHealth = {
+        overall_score: healthScore,
+        system_status: systemStatus,
+        active_users_now: Math.floor(totalUsers * 0.03), // Estimate ~3% online
+        active_users_hour: Math.floor(totalUsers * 0.15), // Estimate ~15% active in hour
+        active_users_day: totalUsers,
+        orders_per_hour: ordersPerHour,
+        orders_avg_hourly: Math.floor(ordersPerDay / 24),
+        error_rate_hour: 0, // Would need error tracking infrastructure
+        api_response_time: 100, // Would need APM infrastructure
+        payment_success_rate: 99, // Would need payment analytics
+        database_query_avg: 50 // Would need query monitoring
       };
 
-      setPlatformHealth(mockHealth);
+      setPlatformHealth(health);
     } catch (error) {
       console.error('Error loading platform health:', error);
+      // Fallback to default state
+      setPlatformHealth({
+        overall_score: 0,
+        system_status: 'down',
+        active_users_now: 0,
+        active_users_hour: 0,
+        active_users_day: 0,
+        orders_per_hour: 0,
+        orders_avg_hourly: 0,
+        error_rate_hour: 100,
+        api_response_time: 0,
+        payment_success_rate: 0,
+        database_query_avg: 0
+      });
     }
   };
 
   const loadPredictiveAlerts = async () => {
     try {
-      // TODO: Fetch real predictive alerts
-      // For now, mock alerts
-      const mockAlerts: PredictiveAlert[] = [
-        {
-          id: '1',
-          type: 'compliance',
-          severity: 'high',
-          title: '3 Sellers Approaching $600 Threshold',
-          message: 'Three sellers will hit the $600 revenue threshold this week and will require W-9 forms.',
-          suggested_action: 'Send proactive compliance reminders now',
-          impact: 'Prevents compliance violations and manual follow-up',
-          created_at: new Date().toISOString(),
-          acknowledged: false
-        },
-        {
-          id: '2',
-          type: 'fraud',
-          severity: 'critical',
-          title: 'Unusual Spike in Velocity Signals from Chicago',
-          message: 'Detected 340% increase in transaction velocity signals from Chicago area in the past 2 hours.',
-          suggested_action: 'Investigate fraud patterns and consider temporary rate limiting',
-          impact: 'Potential fraud prevention, $2,500+ at risk',
-          created_at: new Date().toISOString(),
-          acknowledged: false
-        },
-        {
-          id: '3',
-          type: 'support',
-          severity: 'medium',
-          title: 'Ticket Volume Up 40% Today',
-          message: 'Support ticket volume is 40% above normal. Common issue: checkout process errors.',
-          suggested_action: 'Investigate checkout flow for potential bugs',
-          impact: 'User experience degradation, potential revenue loss',
-          created_at: new Date().toISOString(),
-          acknowledged: false
-        },
-        {
-          id: '4',
-          type: 'revenue',
-          severity: 'medium',
-          title: 'Commission Revenue Down 15% This Week',
-          message: 'Weekly commission revenue is trending 15% below forecast.',
-          suggested_action: 'Analyze seller activity and promotional opportunities',
-          impact: '$1,200 weekly revenue shortfall',
-          created_at: new Date().toISOString(),
-          acknowledged: false
-        }
-      ];
+      const alerts: PredictiveAlert[] = [];
 
-      setAlerts(mockAlerts);
+      // Check for pending support tickets
+      const { count: pendingTickets } = await supabase
+        .from('support_tickets')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'open');
+
+      if (pendingTickets && pendingTickets > 10) {
+        alerts.push({
+          id: 'support-volume',
+          type: 'support',
+          severity: pendingTickets > 25 ? 'high' : 'medium',
+          title: `${pendingTickets} Open Support Tickets`,
+          message: `There are ${pendingTickets} support tickets awaiting response.`,
+          suggested_action: 'Review and respond to pending support tickets',
+          impact: 'Customer satisfaction and response time',
+          created_at: new Date().toISOString(),
+          acknowledged: false
+        });
+      }
+
+      // Check for pending moderation items
+      const { count: moderationItems } = await supabase
+        .from('content_moderation_queue')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      if (moderationItems && moderationItems > 5) {
+        alerts.push({
+          id: 'moderation-queue',
+          type: 'compliance',
+          severity: moderationItems > 20 ? 'high' : 'medium',
+          title: `${moderationItems} Items Pending Moderation`,
+          message: `Content moderation queue has ${moderationItems} items waiting for review.`,
+          suggested_action: 'Review pending moderation items',
+          impact: 'Content quality and compliance',
+          created_at: new Date().toISOString(),
+          acknowledged: false
+        });
+      }
+
+      // Check for fraud reports
+      const { count: fraudReports } = await supabase
+        .from('fraud_reports')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      if (fraudReports && fraudReports > 0) {
+        alerts.push({
+          id: 'fraud-reports',
+          type: 'fraud',
+          severity: fraudReports > 5 ? 'critical' : 'high',
+          title: `${fraudReports} Pending Fraud Reports`,
+          message: `There are ${fraudReports} fraud reports requiring investigation.`,
+          suggested_action: 'Investigate and resolve fraud reports immediately',
+          impact: 'Platform security and financial risk',
+          created_at: new Date().toISOString(),
+          acknowledged: false
+        });
+      }
+
+      // Check for pending disputes
+      const { count: disputes } = await supabase
+        .from('disputes')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'open');
+
+      if (disputes && disputes > 0) {
+        alerts.push({
+          id: 'disputes',
+          type: 'support',
+          severity: disputes > 10 ? 'high' : 'medium',
+          title: `${disputes} Open Disputes`,
+          message: `There are ${disputes} buyer-seller disputes requiring resolution.`,
+          suggested_action: 'Review and mediate open disputes',
+          impact: 'Customer trust and platform reputation',
+          created_at: new Date().toISOString(),
+          acknowledged: false
+        });
+      }
+
+      // If no alerts, the system is healthy
+      if (alerts.length === 0) {
+        // No alerts needed - system is healthy
+      }
+
+      setAlerts(alerts);
     } catch (error) {
       console.error('Error loading alerts:', error);
+      setAlerts([]);
     }
   };
 
   const loadActionItems = async () => {
     try {
-      // TODO: Generate action items from various sources
-      const mockActions: ActionItem[] = [
-        {
-          id: '1',
-          title: 'Send compliance reminders to 3 sellers',
-          description: 'Sellers approaching $600 threshold need W-9 notification',
-          priority: 'critical',
-          category: 'Compliance',
-          action_type: 'one_click',
-          estimated_time: '30 seconds',
-          action_handler: async () => {
-            // Execute bulk notification
-            toast({ title: 'Success', description: '3 compliance reminders sent' });
-          }
-        },
-        {
-          id: '2',
-          title: 'Investigate fraud spike in Chicago',
-          description: '340% increase in velocity signals requires immediate review',
+      const actions: ActionItem[] = [];
+
+      // Check for pending support tickets
+      const { count: pendingTickets } = await supabase
+        .from('support_tickets')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'open');
+
+      if (pendingTickets && pendingTickets > 0) {
+        actions.push({
+          id: 'support-tickets',
+          title: `Review ${pendingTickets} open support tickets`,
+          description: 'Respond to customer support requests',
+          priority: pendingTickets > 20 ? 'critical' : pendingTickets > 10 ? 'high' : 'medium',
+          category: 'Support',
+          action_type: 'review',
+          estimated_time: `${Math.ceil(pendingTickets * 3)} minutes`
+        });
+      }
+
+      // Check for pending moderation items
+      const { count: moderationItems } = await supabase
+        .from('content_moderation_queue')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      if (moderationItems && moderationItems > 0) {
+        actions.push({
+          id: 'moderation-queue',
+          title: `Review ${moderationItems} pending moderation items`,
+          description: 'Approve or reject flagged content',
+          priority: moderationItems > 15 ? 'high' : 'medium',
+          category: 'Moderation',
+          action_type: 'review',
+          estimated_time: `${Math.ceil(moderationItems * 2)} minutes`
+        });
+      }
+
+      // Check for pending fraud reports
+      const { count: fraudReports } = await supabase
+        .from('fraud_reports')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      if (fraudReports && fraudReports > 0) {
+        actions.push({
+          id: 'fraud-investigation',
+          title: `Investigate ${fraudReports} fraud reports`,
+          description: 'Review and resolve suspected fraud cases',
           priority: 'critical',
           category: 'Security',
           action_type: 'review',
-          estimated_time: '10 minutes'
-        },
-        {
-          id: '3',
-          title: 'Auto-approve 12 low-risk moderation items',
-          description: 'Items with <20% confidence score from verified sellers',
-          priority: 'high',
-          category: 'Moderation',
-          action_type: 'one_click',
-          estimated_time: '15 seconds',
-          action_handler: async () => {
-            toast({ title: 'Success', description: '12 items auto-approved' });
-          }
-        },
-        {
-          id: '4',
-          title: 'Review checkout flow errors',
-          description: 'Support tickets indicate potential checkout bug',
-          priority: 'high',
-          category: 'Technical',
+          estimated_time: `${Math.ceil(fraudReports * 10)} minutes`
+        });
+      }
+
+      // Check for pending disputes
+      const { count: disputes } = await supabase
+        .from('disputes')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'open');
+
+      if (disputes && disputes > 0) {
+        actions.push({
+          id: 'disputes',
+          title: `Mediate ${disputes} open disputes`,
+          description: 'Resolve buyer-seller disputes',
+          priority: disputes > 5 ? 'high' : 'medium',
+          category: 'Support',
           action_type: 'review',
-          estimated_time: '20 minutes'
-        },
-        {
-          id: '5',
-          title: 'Update featured content for Black Friday',
-          description: 'Holiday promotion content needs refresh',
-          priority: 'medium',
-          category: 'Content',
-          action_type: 'manual',
-          estimated_time: '15 minutes'
-        }
-      ];
+          estimated_time: `${Math.ceil(disputes * 15)} minutes`
+        });
+      }
 
       // Sort by priority
-      const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-      mockActions.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+      const priorityOrder: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+      actions.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
 
-      setActionItems(mockActions);
+      setActionItems(actions);
     } catch (error) {
       console.error('Error loading action items:', error);
+      setActionItems([]);
     }
   };
 
   const loadDailyDigest = async () => {
     try {
-      // TODO: Generate daily digest
-      const mockDigest: DailyDigest = {
+      const today = new Date();
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+
+      // Fetch real metrics
+      const [usersResult, sellersResult, ordersResult, revenueResult] = await Promise.all([
+        supabase.from('profiles').select('id', { count: 'exact', head: true }),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('is_seller', true),
+        supabase.from('orders').select('id', { count: 'exact', head: true }).gte('created_at', startOfDay.toISOString()),
+        supabase.from('orders').select('total').gte('created_at', startOfDay.toISOString())
+      ]);
+
+      const totalUsers = usersResult.count || 0;
+      const totalSellers = sellersResult.count || 0;
+      const todayOrders = ordersResult.count || 0;
+      const todayRevenue = (revenueResult.data || []).reduce((sum, order) => sum + (order.total || 0), 0);
+
+      // Check for pending items
+      const { count: pendingTickets } = await supabase
+        .from('support_tickets')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'open');
+
+      const { count: pendingModeration } = await supabase
+        .from('content_moderation_queue')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      const pendingActions = (pendingTickets || 0) + (pendingModeration || 0);
+
+      // Build anomalies based on real conditions
+      const anomalies: DailyDigest['anomalies'] = [];
+      if (pendingTickets && pendingTickets > 20) {
+        anomalies.push({
+          type: 'Support Volume',
+          description: `${pendingTickets} support tickets pending - higher than usual`,
+          severity: 'medium'
+        });
+      }
+
+      // Build recommendations
+      const recommendations: string[] = [];
+      if (pendingTickets && pendingTickets > 0) {
+        recommendations.push(`Review ${pendingTickets} pending support tickets`);
+      }
+      if (pendingModeration && pendingModeration > 0) {
+        recommendations.push(`Approve or reject ${pendingModeration} moderation items`);
+      }
+      if (recommendations.length === 0) {
+        recommendations.push('All systems running smoothly - no immediate actions needed');
+      }
+
+      const digest: DailyDigest = {
         date: new Date().toISOString(),
-        platform_health_summary: 'All systems operational. Platform health score: 98/100.',
-        total_users: 8942,
-        total_sellers: 342,
-        total_revenue: 45680,
-        pending_actions: 5,
-        anomalies: [
-          {
-            type: 'Support Volume',
-            description: 'Ticket volume up 40% (investigate checkout flow)',
-            severity: 'medium'
-          },
-          {
-            type: 'Revenue',
-            description: 'Commission revenue down 15% this week',
-            severity: 'medium'
-          }
-        ],
-        top_performers: [
-          { type: 'seller', name: 'Artisan Pottery Co.', metric: '$2,340 this week' },
-          { type: 'product', name: 'Handmade Ceramic Vase', metric: '89 units sold' }
-        ],
-        recommendations: [
-          'Send compliance reminders to sellers approaching tax thresholds',
-          'Investigate checkout flow issues causing support spike',
-          'Review fraud signals in Chicago area',
-          'Update promotional content for upcoming holiday season'
-        ]
+        platform_health_summary: `Platform operational. ${totalUsers} users, ${totalSellers} sellers, ${todayOrders} orders today.`,
+        total_users: totalUsers,
+        total_sellers: totalSellers,
+        total_revenue: todayRevenue,
+        pending_actions: pendingActions,
+        anomalies,
+        top_performers: [], // Would need analytics tracking
+        recommendations
       };
 
-      setDailyDigest(mockDigest);
+      setDailyDigest(digest);
     } catch (error) {
       console.error('Error loading daily digest:', error);
+      setDailyDigest({
+        date: new Date().toISOString(),
+        platform_health_summary: 'Unable to load platform metrics',
+        total_users: 0,
+        total_sellers: 0,
+        total_revenue: 0,
+        pending_actions: 0,
+        anomalies: [],
+        top_performers: [],
+        recommendations: ['Check database connection']
+      });
     }
   };
 

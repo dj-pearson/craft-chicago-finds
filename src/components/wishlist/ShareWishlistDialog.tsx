@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent } from '@/components/ui/card';
 import { Share2, Copy, Mail, MessageCircle, Heart } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -26,23 +27,112 @@ export const ShareWishlistDialog = ({
   const [shareUrl, setShareUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [sharedWishlistId, setSharedWishlistId] = useState<string | null>(null);
+
+  // Check if wishlist is already shared and load settings
+  useEffect(() => {
+    if (!user || !open) return;
+
+    const checkExistingShare = async () => {
+      try {
+        const { data } = await supabase
+          .from('shared_wishlists')
+          .select('id, slug, share_token, is_public')
+          .eq('creator_id', user.id)
+          .eq('title', wishlistName)
+          .single();
+
+        if (data) {
+          setSharedWishlistId(data.id);
+          setIsPublic(data.is_public);
+          const url = data.is_public
+            ? `${window.location.origin}/wishlist/${data.slug}`
+            : `${window.location.origin}/wishlist/shared/${data.share_token}`;
+          setShareUrl(url);
+        }
+      } catch {
+        // No existing share - that's fine
+      }
+    };
+
+    checkExistingShare();
+  }, [user, open, wishlistName]);
+
+  const generateSlug = (title: string): string => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+      + '-' + Date.now().toString(36);
+  };
+
+  const generateShareToken = (): string => {
+    return crypto.randomUUID().replace(/-/g, '').substring(0, 16);
+  };
 
   const generateShareUrl = async () => {
     if (!user) return;
-    
+
     setLoading(true);
     try {
-      // TODO: Implement wishlist sharing when shared_wishlists table is created
-      console.log('Wishlist sharing functionality not yet implemented');
-      
-      // For now, generate a mock share URL
-      const mockUrl = `${window.location.origin}/wishlist/${wishlistId}`;
-      setShareUrl(mockUrl);
-      
+      const slug = generateSlug(wishlistName);
+      const shareToken = generateShareToken();
+
+      if (sharedWishlistId) {
+        // Update existing shared wishlist
+        const { error } = await supabase
+          .from('shared_wishlists')
+          .update({
+            is_public: isPublic,
+            item_count: itemCount,
+          })
+          .eq('id', sharedWishlistId);
+
+        if (error) throw error;
+
+        // Fetch the existing slug/token for the URL
+        const { data: existing } = await supabase
+          .from('shared_wishlists')
+          .select('slug, share_token')
+          .eq('id', sharedWishlistId)
+          .single();
+
+        if (existing) {
+          const url = isPublic
+            ? `${window.location.origin}/wishlist/${existing.slug}`
+            : `${window.location.origin}/wishlist/shared/${existing.share_token}`;
+          setShareUrl(url);
+        }
+      } else {
+        // Create new shared wishlist
+        const { data, error } = await supabase
+          .from('shared_wishlists')
+          .insert({
+            creator_id: user.id,
+            title: wishlistName,
+            slug: slug,
+            share_token: shareToken,
+            is_public: isPublic,
+            item_count: itemCount,
+          })
+          .select('id, slug, share_token')
+          .single();
+
+        if (error) throw error;
+
+        setSharedWishlistId(data.id);
+        const url = isPublic
+          ? `${window.location.origin}/wishlist/${data.slug}`
+          : `${window.location.origin}/wishlist/shared/${data.share_token}`;
+        setShareUrl(url);
+      }
+
       toast({
-        title: "Feature coming soon",
-        description: "Wishlist sharing will be available soon!",
-        duration: 3000,
+        title: "Share link created!",
+        description: isPublic
+          ? "Anyone with this link can view your wishlist."
+          : "Only people with this private link can view your wishlist.",
+        duration: 4000,
       });
     } catch (error) {
       console.error('Error generating share URL:', error);
@@ -54,6 +144,38 @@ export const ShareWishlistDialog = ({
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Update privacy setting when toggled (if already shared)
+  const handlePublicToggle = async (newValue: boolean) => {
+    setIsPublic(newValue);
+
+    if (sharedWishlistId && shareUrl) {
+      try {
+        const { error } = await supabase
+          .from('shared_wishlists')
+          .update({ is_public: newValue })
+          .eq('id', sharedWishlistId);
+
+        if (error) throw error;
+
+        // Update the share URL based on new privacy setting
+        const { data } = await supabase
+          .from('shared_wishlists')
+          .select('slug, share_token')
+          .eq('id', sharedWishlistId)
+          .single();
+
+        if (data) {
+          const url = newValue
+            ? `${window.location.origin}/wishlist/${data.slug}`
+            : `${window.location.origin}/wishlist/shared/${data.share_token}`;
+          setShareUrl(url);
+        }
+      } catch (error) {
+        console.error('Error updating privacy setting:', error);
+      }
     }
   };
 
@@ -128,7 +250,7 @@ export const ShareWishlistDialog = ({
               <Switch
                 id="public-toggle"
                 checked={isPublic}
-                onCheckedChange={setIsPublic}
+                onCheckedChange={handlePublicToggle}
               />
             </div>
 

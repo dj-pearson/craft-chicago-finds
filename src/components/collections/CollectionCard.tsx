@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Heart, Eye, Package, User, Calendar } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
@@ -46,9 +47,40 @@ export const CollectionCard = ({
   const [followCount, setFollowCount] = useState(collection.follow_count);
   const [loading, setLoading] = useState(false);
 
+  // Check if user is already following this collection
+  useEffect(() => {
+    if (!user || user.id === collection.creator_id) return;
+
+    const checkFollowStatus = async () => {
+      try {
+        // Check if following
+        const { data: followData } = await supabase
+          .from('collection_follows')
+          .select('id')
+          .eq('follower_id', user.id)
+          .eq('collection_id', collection.id)
+          .single();
+
+        setIsFollowing(!!followData);
+
+        // Get updated follower count
+        const { count } = await supabase
+          .from('collection_follows')
+          .select('*', { count: 'exact', head: true })
+          .eq('collection_id', collection.id);
+
+        setFollowCount(count || collection.follow_count);
+      } catch (error) {
+        // Ignore errors for non-existent follow records
+      }
+    };
+
+    checkFollowStatus();
+  }, [user, collection.id, collection.creator_id, collection.follow_count]);
+
   const handleFollow = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (!user) {
       toast({
         title: "Sign in required",
@@ -68,12 +100,58 @@ export const CollectionCard = ({
       return;
     }
 
-    // TODO: Implement collection following when collection_follows table is created
-    toast({
-      title: "Feature coming soon",
-      description: "Collection following will be available soon!",
-      duration: 3000,
-    });
+    setLoading(true);
+    try {
+      if (isFollowing) {
+        // Unfollow
+        const { error } = await supabase
+          .from('collection_follows')
+          .delete()
+          .eq('follower_id', user.id)
+          .eq('collection_id', collection.id);
+
+        if (error) throw error;
+
+        setIsFollowing(false);
+        setFollowCount(prev => Math.max(0, prev - 1));
+
+        toast({
+          title: "Unfollowed",
+          description: `You're no longer following "${collection.title}"`,
+          duration: 3000,
+        });
+      } else {
+        // Follow
+        const { error } = await supabase
+          .from('collection_follows')
+          .insert({
+            follower_id: user.id,
+            collection_id: collection.id,
+            notification_enabled: true
+          });
+
+        if (error) throw error;
+
+        setIsFollowing(true);
+        setFollowCount(prev => prev + 1);
+
+        toast({
+          title: "Following!",
+          description: `You'll get updates about "${collection.title}"`,
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error('Error following/unfollowing collection:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update follow status. Please try again.",
+        variant: "destructive",
+        duration: 4000,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCardClick = () => {

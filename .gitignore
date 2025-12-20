@@ -63,3 +63,7 @@ deployment/RESTORE_DATABASE.md
 configure-kong-cors-simple.ps1
 configure-kong-cors.ps1
 find-kong-admin.sh
+
+# Supabase local configuration - NEVER commit project references
+supabase/.temp/
+supabase/.branches/

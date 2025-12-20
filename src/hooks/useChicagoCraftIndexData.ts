@@ -47,6 +47,15 @@ export const useChicagoCraftIndexData = () => {
       const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
       const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
 
+      // Dynamically fetch Chicago city ID
+      const { data: chicagoCity, error: cityError } = await supabase
+        .from('cities')
+        .select('id')
+        .eq('slug', 'chicago')
+        .single();
+
+      const chicagoCityId = chicagoCity?.id || null;
+
       // Query 1: Active Makers Count
       const { count: makersCount, error: makersError } = await supabase
         .from('profiles')
@@ -89,11 +98,19 @@ export const useChicagoCraftIndexData = () => {
       const pickupRate = totalOrders > 0 ? (pickupOrdersCount / totalOrders) * 100 : 38; // fallback to 38%
 
       // Query 5: Trending Categories (using the optimized function)
-      const { data: trendingCats, error: trendingError } = await supabase
-        .rpc('get_trending_categories', {
-          p_city_id: 'bf6e733a-52de-44c2-99f3-4d5c9f14e8c3', // Chicago ID - TODO: make dynamic
-          p_limit: 6
-        });
+      // Only call RPC if we have a valid city ID
+      let trendingCats: any[] = [];
+      let trendingError: any = null;
+
+      if (chicagoCityId) {
+        const result = await supabase
+          .rpc('get_trending_categories', {
+            p_city_id: chicagoCityId,
+            p_limit: 6
+          });
+        trendingCats = result.data || [];
+        trendingError = result.error;
+      }
 
       if (trendingError) {
         console.error('Error fetching trending categories:', trendingError);
@@ -180,16 +197,8 @@ export const useChicagoCraftIndexData = () => {
         .sort((a, b) => b.pickups - a.pickups)
         .slice(0, 5);
 
-      // Fallback to default neighborhoods if no data
-      if (neighborhoodData.length === 0) {
-        neighborhoodData.push(
-          { name: "Wicker Park", pickups: 342, avgOrderValue: 58, topCategory: "Jewelry" },
-          { name: "Pilsen", pickups: 298, avgOrderValue: 42, topCategory: "Art Prints" },
-          { name: "Logan Square", pickups: 275, avgOrderValue: 51, topCategory: "Ceramics" },
-          { name: "West Loop", pickups: 213, avgOrderValue: 67, topCategory: "Home Decor" },
-          { name: "Lincoln Park", pickups: 189, avgOrderValue: 73, topCategory: "Candles" }
-        );
-      }
+      // If no neighborhood data available, show empty state (no fake data)
+      // The component will handle showing an appropriate message
 
       // Query 7: Seasonal Insights (last 6 months of data)
       const sixMonthsAgo = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
@@ -275,36 +284,38 @@ export const useChicagoCraftIndexData = () => {
         .eq('status', 'active')
         .lte('created_at', thirtyDaysAgo.toISOString());
 
-      const makersChange = makersPrevious ?
-        Math.round(((makersCount || 0) - makersPrevious) / makersPrevious * 100) : 12;
+      const makersChange = makersPrevious && makersPrevious > 0
+        ? Math.round(((makersCount || 0) - makersPrevious) / makersPrevious * 100)
+        : 0;
 
-      const listingsChange = listingsPrevious ?
-        Math.round(((listingsCount || 0) - listingsPrevious) / listingsPrevious * 100) : 15;
+      const listingsChange = listingsPrevious && listingsPrevious > 0
+        ? Math.round(((listingsCount || 0) - listingsPrevious) / listingsPrevious * 100)
+        : 0;
 
-      // Build key metrics
+      // Build key metrics from real data only
       const keyMetrics: KeyMetric[] = [
         {
           label: "Active Makers",
-          value: (makersCount || 523).toString(),
-          change: `+${makersChange}% this month`,
-          trend: 'up'
+          value: (makersCount || 0).toString(),
+          change: makersChange ? `${makersChange > 0 ? '+' : ''}${makersChange}% this month` : 'No prior data',
+          trend: makersChange > 0 ? 'up' : makersChange < 0 ? 'down' : 'neutral'
         },
         {
           label: "Total Listings",
-          value: `${Math.floor((listingsCount || 8400) / 100) * 100}+`,
-          change: `+${listingsChange}% this month`,
-          trend: 'up'
+          value: listingsCount ? `${Math.floor(listingsCount / 100) * 100}+` : '0',
+          change: listingsChange ? `${listingsChange > 0 ? '+' : ''}${listingsChange}% this month` : 'No prior data',
+          trend: listingsChange > 0 ? 'up' : listingsChange < 0 ? 'down' : 'neutral'
         },
         {
           label: "Avg Item Price",
-          value: `$${Math.round(avgPrice)}`,
-          change: "+8% vs last year",
-          trend: 'up'
+          value: avgPrice > 0 ? `$${Math.round(avgPrice)}` : 'N/A',
+          change: "Based on active listings",
+          trend: 'neutral'
         },
         {
           label: "Same-Day Pickups",
-          value: `${Math.round(pickupRate)}%`,
-          change: "of all orders",
+          value: totalOrders > 0 ? `${Math.round(pickupRate)}%` : 'N/A',
+          change: totalOrders > 0 ? "of all orders" : "No orders yet",
           trend: 'neutral'
         }
       ];

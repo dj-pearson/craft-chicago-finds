@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { SupportAnalytics, CATEGORY_LABELS, PRIORITY_LABELS } from '@/integrations/supabase/support-types';
+import { SupportAnalytics, CATEGORY_LABELS, PRIORITY_LABELS, TicketCategory, TicketPriority } from '@/integrations/supabase/support-types';
 import {
   LineChart,
   Line,
@@ -40,52 +41,128 @@ export const SupportAnalyticsDashboard = () => {
     try {
       setLoading(true);
 
-      // TODO: Once support tables exist, fetch real analytics
-      // For now, return mock data
-      const mockAnalytics: SupportAnalytics = {
-        total_open_tickets: 12,
-        total_in_progress_tickets: 8,
-        total_waiting_tickets: 5,
-        tickets_created_today: 3,
-        tickets_resolved_today: 7,
-        avg_first_response_time_hours: 2.5,
-        avg_resolution_time_hours: 18.4,
-        sla_compliance_rate: 92.5,
-        tickets_by_category: {
-          billing: 15,
-          order_issue: 32,
-          account: 8,
-          technical: 12,
-          compliance: 4,
-          other: 6
-        },
-        tickets_by_priority: {
-          critical: 2,
-          high: 8,
-          normal: 45,
-          low: 22
-        },
-        avg_satisfaction_rating: 4.6,
-        total_satisfaction_responses: 58,
-        daily_ticket_volume: [
-          { date: '2025-01-01', created: 5, resolved: 4 },
-          { date: '2025-01-02', created: 7, resolved: 6 },
-          { date: '2025-01-03', created: 4, resolved: 5 },
-          { date: '2025-01-04', created: 8, resolved: 7 },
-          { date: '2025-01-05', created: 6, resolved: 8 },
-          { date: '2025-01-06', created: 9, resolved: 7 },
-          { date: '2025-01-07', created: 5, resolved: 6 },
-        ],
-        admin_performance: [
-          { admin_id: '1', admin_name: 'John Doe', tickets_resolved: 28, avg_resolution_time_hours: 16.2, satisfaction_rating: 4.8 },
-          { admin_id: '2', admin_name: 'Jane Smith', tickets_resolved: 24, avg_resolution_time_hours: 18.5, satisfaction_rating: 4.7 },
-          { admin_id: '3', admin_name: 'Bob Wilson', tickets_resolved: 19, avg_resolution_time_hours: 20.1, satisfaction_rating: 4.5 },
-        ],
-        sla_approaching_deadline: 3,
-        sla_breached: 1
+      // Calculate date range
+      const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Fetch all tickets for the time range
+      const { data: tickets, error: ticketsError } = await supabase
+        .from('support_tickets')
+        .select('*')
+        .gte('created_at', startDate.toISOString());
+
+      if (ticketsError) throw ticketsError;
+
+      const allTickets = tickets || [];
+      const todayStart = today.toISOString();
+      const todayEnd = new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString();
+
+      // Calculate basic stats
+      const openTickets = allTickets.filter(t => t.status === 'open').length;
+      const inProgressTickets = allTickets.filter(t => t.status === 'in_progress').length;
+      const waitingTickets = allTickets.filter(t => t.status === 'waiting_on_user').length;
+      const createdToday = allTickets.filter(t => t.created_at >= todayStart && t.created_at < todayEnd).length;
+      const resolvedToday = allTickets.filter(t => t.resolved_at && t.resolved_at >= todayStart && t.resolved_at < todayEnd).length;
+
+      // Calculate averages
+      const ticketsWithResponse = allTickets.filter(t => t.first_response_at);
+      const avgFirstResponse = ticketsWithResponse.length > 0
+        ? ticketsWithResponse.reduce((sum, t) => {
+            const created = new Date(t.created_at).getTime();
+            const responded = new Date(t.first_response_at!).getTime();
+            return sum + (responded - created) / (1000 * 60 * 60);
+          }, 0) / ticketsWithResponse.length
+        : 0;
+
+      const resolvedTickets = allTickets.filter(t => t.resolved_at);
+      const avgResolution = resolvedTickets.length > 0
+        ? resolvedTickets.reduce((sum, t) => {
+            const created = new Date(t.created_at).getTime();
+            const resolved = new Date(t.resolved_at!).getTime();
+            return sum + (resolved - created) / (1000 * 60 * 60);
+          }, 0) / resolvedTickets.length
+        : 0;
+
+      // SLA compliance
+      const ticketsWithSLA = allTickets.filter(t => t.sla_deadline && (t.status === 'resolved' || t.status === 'closed'));
+      const slaMet = ticketsWithSLA.filter(t => {
+        const deadline = new Date(t.sla_deadline!).getTime();
+        const resolved = new Date(t.resolved_at || t.closed_at!).getTime();
+        return resolved <= deadline;
+      }).length;
+      const slaCompliance = ticketsWithSLA.length > 0 ? (slaMet / ticketsWithSLA.length) * 100 : 100;
+
+      // Tickets by category and priority
+      const byCategory: Record<TicketCategory, number> = {
+        billing: 0, order_issue: 0, account: 0, technical: 0, compliance: 0, other: 0
+      };
+      const byPriority: Record<TicketPriority, number> = {
+        critical: 0, high: 0, normal: 0, low: 0
       };
 
-      setAnalytics(mockAnalytics);
+      allTickets.forEach(t => {
+        if (t.category in byCategory) byCategory[t.category as TicketCategory]++;
+        if (t.priority in byPriority) byPriority[t.priority as TicketPriority]++;
+      });
+
+      // Satisfaction
+      const ratedTickets = allTickets.filter(t => t.user_satisfaction_rating);
+      const avgSatisfaction = ratedTickets.length > 0
+        ? ratedTickets.reduce((sum, t) => sum + t.user_satisfaction_rating!, 0) / ratedTickets.length
+        : 0;
+
+      // Daily volume (last 7 days for chart)
+      const dailyVolume: { date: string; created: number; resolved: number }[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const nextDate = new Date(date.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+        dailyVolume.push({
+          date: dateStr,
+          created: allTickets.filter(t => t.created_at.startsWith(dateStr)).length,
+          resolved: allTickets.filter(t => t.resolved_at?.startsWith(dateStr)).length
+        });
+      }
+
+      // SLA warnings
+      const now = Date.now();
+      const slaApproaching = allTickets.filter(t => {
+        if (!t.sla_deadline || t.status === 'resolved' || t.status === 'closed') return false;
+        const deadline = new Date(t.sla_deadline).getTime();
+        const hoursRemaining = (deadline - now) / (1000 * 60 * 60);
+        return hoursRemaining > 0 && hoursRemaining < 2;
+      }).length;
+
+      const slaBreached = allTickets.filter(t => {
+        if (!t.sla_deadline || t.status === 'resolved' || t.status === 'closed') return false;
+        return new Date(t.sla_deadline).getTime() < now;
+      }).length;
+
+      const analyticsData: SupportAnalytics = {
+        total_open_tickets: openTickets,
+        total_in_progress_tickets: inProgressTickets,
+        total_waiting_tickets: waitingTickets,
+        tickets_created_today: createdToday,
+        tickets_resolved_today: resolvedToday,
+        avg_first_response_time_hours: Math.round(avgFirstResponse * 10) / 10,
+        avg_resolution_time_hours: Math.round(avgResolution * 10) / 10,
+        sla_compliance_rate: Math.round(slaCompliance * 10) / 10,
+        tickets_by_category: byCategory,
+        tickets_by_priority: byPriority,
+        avg_satisfaction_rating: Math.round(avgSatisfaction * 10) / 10,
+        total_satisfaction_responses: ratedTickets.length,
+        daily_ticket_volume: dailyVolume,
+        admin_performance: [], // Would need separate query with joins
+        sla_approaching_deadline: slaApproaching,
+        sla_breached: slaBreached
+      };
+
+      setAnalytics(analyticsData);
     } catch (error) {
       console.error('Error loading analytics:', error);
       toast({
