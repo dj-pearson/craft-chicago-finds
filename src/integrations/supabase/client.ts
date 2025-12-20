@@ -2,25 +2,35 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 
-const SUPABASE_URL =
-  import.meta.env.VITE_SUPABASE_URL || "https://api.craftlocal.net";
+// Self-hosted Supabase configuration
+// These must be set via environment variables - no fallbacks for security
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY =
   import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzM0NDAwMDAwLCJleHAiOjIwNTAwMDAwMDB9.ALT0l4BuD8yD9_TSEpasKyr7IIRuhcEYDqaEUBRBYVM";
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-// Debug logging to confirm configuration
-console.log("🔍 Supabase Configuration:", {
-  url: SUPABASE_URL,
-  hasEnvUrl: !!import.meta.env.VITE_SUPABASE_URL,
-  hasEnvKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
-  usingFallback: !import.meta.env.VITE_SUPABASE_URL
-});
+// Validate configuration in development
+if (import.meta.env.DEV) {
+  console.log("🔍 Supabase Configuration:", {
+    url: SUPABASE_URL ? "✅ Set" : "❌ Missing",
+    key: SUPABASE_PUBLISHABLE_KEY ? "✅ Set" : "❌ Missing",
+  });
+}
 
 if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-  console.error(
-    "Missing Supabase environment variables - using hardcoded fallbacks"
-  );
+  const errorMessage = `Missing required Supabase environment variables:
+    - VITE_SUPABASE_URL: ${SUPABASE_URL ? "set" : "MISSING"}
+    - VITE_SUPABASE_ANON_KEY: ${SUPABASE_PUBLISHABLE_KEY ? "set" : "MISSING"}
+
+    Please set these in your environment or .env.local file.
+    For Cloudflare Pages, set them in the dashboard under Settings > Environment Variables.`;
+
+  console.error(errorMessage);
+
+  // In production, throw to prevent running with invalid config
+  if (import.meta.env.PROD) {
+    throw new Error("Missing Supabase configuration. Check environment variables.");
+  }
 }
 
 /**
@@ -97,9 +107,10 @@ class SecureStorage {
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+// Use empty string fallback for dev mode only - production will throw above
 export const supabase = createClient<Database>(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY,
+  SUPABASE_URL || "",
+  SUPABASE_PUBLISHABLE_KEY || "",
   {
     auth: {
       storage: new SecureStorage(),

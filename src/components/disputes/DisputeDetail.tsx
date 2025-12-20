@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDisputes, Dispute, DisputeMessage } from '@/hooks/useDisputes';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdmin } from '@/hooks/useAdmin';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ interface DisputeDetailProps {
 
 export function DisputeDetail({ disputeId, onBack }: DisputeDetailProps) {
   const { user } = useAuth();
+  const { isAdmin } = useAdmin();
   const { disputes, updateDisputeStatus, getDisputeMessages, sendDisputeMessage } = useDisputes();
   const [dispute, setDispute] = useState<Dispute | null>(null);
   const [messages, setMessages] = useState<DisputeMessage[]>([]);
@@ -111,7 +113,7 @@ export function DisputeDetail({ disputeId, onBack }: DisputeDetailProps) {
     return <div className="text-center py-8">Dispute not found</div>;
   }
 
-  const isAdmin = user?.email === 'admin@example.com'; // Replace with proper admin check
+  // Admin check uses the proper role-based system from useAdmin hook
   const canUpdateStatus = isAdmin || user?.id === dispute.disputing_user_id || user?.id === dispute.disputed_user_id;
 
   return (
