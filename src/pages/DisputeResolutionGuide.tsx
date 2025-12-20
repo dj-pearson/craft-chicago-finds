@@ -3,10 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { 
-  ShieldCheck, 
-  Clock, 
-  MessageSquare, 
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import {
+  ShieldCheck,
+  Clock,
+  MessageSquare,
   FileText, 
   AlertTriangle,
   CheckCircle,
@@ -24,6 +26,7 @@ const DisputeResolutionGuide = () => {
         keywords: ["dispute resolution", "marketplace disputes", "buyer protection", "seller protection", "order issues"]
       }} />
 
+      <Header />
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <Button
@@ -315,6 +318,7 @@ const DisputeResolutionGuide = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };

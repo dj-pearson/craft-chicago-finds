@@ -4,6 +4,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Cookie, Settings, Shield, Info, ArrowLeft } from "lucide-react";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 const CookiePolicy = () => {
   const navigate = useNavigate();
@@ -16,6 +18,7 @@ const CookiePolicy = () => {
         keywords: ["cookie policy", "cookies", "privacy", "data collection", "tracking"]
       }} />
 
+      <Header />
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <Button
@@ -307,6 +310,7 @@ const CookiePolicy = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };

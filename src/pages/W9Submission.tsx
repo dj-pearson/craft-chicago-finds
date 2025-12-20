@@ -15,16 +15,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  FileText, 
-  Shield, 
-  AlertTriangle, 
+import {
+  FileText,
+  Shield,
+  AlertTriangle,
   CheckCircle,
   Info
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { w9FormSchema, type W9FormData } from "@/lib/compliance-validation";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 const W9Submission = () => {
   const { user } = useAuth();
@@ -108,22 +110,33 @@ const W9Submission = () => {
 
   if (submitted) {
     return (
-      <Card>
-        <CardContent className="py-12">
-          <div className="text-center space-y-4">
-            <CheckCircle className="h-16 w-16 text-green-600 mx-auto" />
-            <h2 className="text-2xl font-bold">W-9 Form Submitted Successfully</h2>
-            <p className="text-muted-foreground">
-              Your tax information has been securely saved. Redirecting to dashboard...
-            </p>
+      <>
+        <Header />
+        <div className="min-h-screen bg-background py-8">
+          <div className="max-w-3xl mx-auto">
+            <Card>
+              <CardContent className="py-12">
+                <div className="text-center space-y-4">
+                  <CheckCircle className="h-16 w-16 text-green-600 mx-auto" />
+                  <h2 className="text-2xl font-bold">W-9 Form Submitted Successfully</h2>
+                  <p className="text-muted-foreground">
+                    Your tax information has been securely saved. Redirecting to dashboard...
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <>
+      <Header />
+      <div className="min-h-screen bg-background py-8">
+        <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -373,7 +386,10 @@ const W9Submission = () => {
           </p>
         </CardContent>
       </Card>
-    </div>
+        </div>
+      </div>
+      <Footer />
+    </>
   );
 };
 

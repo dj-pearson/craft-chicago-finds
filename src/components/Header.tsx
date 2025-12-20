@@ -107,7 +107,13 @@ export const Header = () => {
           {/* Actions */}
           <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
             {/* Search - Mobile */}
-            <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden h-9 w-9"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle search"
+            >
               <Search className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="sr-only">Search</span>
             </Button>

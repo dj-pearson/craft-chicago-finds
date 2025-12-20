@@ -3,10 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { 
-  Shield, 
-  MapPin, 
-  Users, 
+import {
+  Shield,
+  MapPin,
+  Users,
   AlertTriangle,
   CheckCircle,
   Eye,
@@ -14,6 +14,8 @@ import {
   Phone,
   ArrowLeft
 } from "lucide-react";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 const SafetyGuidelines = () => {
   const navigate = useNavigate();
@@ -26,6 +28,7 @@ const SafetyGuidelines = () => {
         keywords: ["local pickup safety", "meeting safety", "marketplace safety", "safe transactions", "buyer safety"]
       }} />
 
+      <Header />
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <Button
@@ -330,6 +333,7 @@ const SafetyGuidelines = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };
