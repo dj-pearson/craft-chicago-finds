@@ -88,38 +88,76 @@ export const OneClickReorder = ({ userId, className }: OneClickReorderProps) => 
 
     setLoading(true);
     try {
-      const { data: reorderData, error: reorderError } = await supabase
-        .from('reorder_history')
-        .select('*')
-        .eq('user_id', currentUserId)
-        .order('last_reordered_at', { ascending: false })
-        .limit(10);
-
-      if (reorderError) {
-        console.error("Reorder history error:", reorderError);
-      }
-
-      // Fetch recent delivered orders
+      // Fetch recent delivered orders with listing details
       const { data: orderData, error } = await supabase
         .from('orders')
-        .select('*')
+        .select(`
+          id,
+          created_at,
+          status,
+          total,
+          listing_id,
+          quantity,
+          listings:listing_id (
+            id,
+            title,
+            price,
+            images,
+            seller_id,
+            profiles:seller_id (
+              shop_name,
+              full_name
+            )
+          )
+        `)
         .eq('buyer_id', currentUserId)
         .in('status', ['delivered', 'completed'])
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (error) throw error;
+      if (error) {
+        console.log('Orders table query error:', error);
+        setPreviousOrders([]);
+        setLoading(false);
+        return;
+      }
 
-      // For now, generate mock data since order_items structure is complex
-      const mockOrders = generateMockOrders(currentUserId);
-      setPreviousOrders(mockOrders);
+      // Transform to component format
+      const reorderableOrders: PreviousOrder[] = (orderData || [])
+        .filter(order => order.listings)
+        .map(order => {
+          const listing = order.listings as any;
+          const profile = listing?.profiles;
+          const orderDate = new Date(order.created_at);
+          const daysSinceOrder = Math.floor((Date.now() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
+          const estimatedUsageDays = 30; // Default estimate
+          const suggestedReorderDate = new Date(orderDate.getTime() + estimatedUsageDays * 24 * 60 * 60 * 1000);
+
+          return {
+            id: order.id,
+            order_date: order.created_at,
+            listing: {
+              id: listing?.id || order.listing_id,
+              title: listing?.title || 'Product',
+              price: listing?.price || 0,
+              images: listing?.images || [],
+              seller_name: profile?.shop_name || profile?.full_name || 'Seller',
+              is_consumable: true,
+              estimated_usage_days: estimatedUsageDays
+            },
+            quantity: order.quantity || 1,
+            total_price: order.total || 0,
+            status: 'delivered' as const,
+            is_reorderable: true,
+            suggested_reorder_date: suggestedReorderDate.toISOString(),
+            days_since_order: daysSinceOrder
+          };
+        });
+
+      setPreviousOrders(reorderableOrders);
     } catch (error) {
       console.error("Error fetching reorderable items:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load previous orders",
-        variant: "destructive",
-      });
+      setPreviousOrders([]);
     } finally {
       setLoading(false);
     }
@@ -129,81 +167,32 @@ export const OneClickReorder = ({ userId, className }: OneClickReorderProps) => 
     if (!currentUserId) return;
 
     try {
-      // Mock subscription data
-      const mockSubscriptions: ReorderSubscription[] = [
-        {
-          id: 'sub-1',
-          listing_id: 'listing-1',
-          frequency_days: 30,
-          quantity: 2,
-          next_order_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          is_active: true
-        }
-      ];
-      setSubscriptions(mockSubscriptions);
+      const { data, error } = await supabase
+        .from('reorder_subscriptions')
+        .select('*')
+        .eq('user_id', currentUserId)
+        .eq('is_active', true);
+
+      if (error) {
+        console.log('Subscriptions table not available:', error);
+        setSubscriptions([]);
+        return;
+      }
+
+      const subs: ReorderSubscription[] = (data || []).map(sub => ({
+        id: sub.id,
+        listing_id: sub.listing_id,
+        frequency_days: sub.frequency_days,
+        quantity: sub.quantity,
+        next_order_date: sub.next_order_date,
+        is_active: sub.is_active
+      }));
+
+      setSubscriptions(subs);
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
+      setSubscriptions([]);
     }
-  };
-
-  const generateMockOrders = (userId: string): PreviousOrder[] => {
-    const consumableItems = [
-      {
-        id: 'listing-1',
-        title: 'Lavender Soy Candle',
-        price: 28,
-        images: ['https://images.unsplash.com/photo-1602874801007-19c9ff8e3b5d?w=400'],
-        seller_name: 'Chicago Candle Co.',
-        is_consumable: true,
-        estimated_usage_days: 45
-      },
-      {
-        id: 'listing-2',
-        title: 'Organic Chamomile Tea Blend',
-        price: 18,
-        images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400'],
-        seller_name: 'Windy City Herbs',
-        is_consumable: true,
-        estimated_usage_days: 21
-      },
-      {
-        id: 'listing-3',
-        title: 'Handmade Goat Milk Soap',
-        price: 12,
-        images: ['https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?w=400'],
-        seller_name: 'Prairie Soap Works',
-        is_consumable: true,
-        estimated_usage_days: 30
-      },
-      {
-        id: 'listing-4',
-        title: 'Artisan Coffee Beans - Medium Roast',
-        price: 22,
-        images: ['https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400'],
-        seller_name: 'Logan Square Roasters',
-        is_consumable: true,
-        estimated_usage_days: 14
-      }
-    ];
-
-    return consumableItems.map((item, index) => {
-      const orderDate = new Date(Date.now() - (index + 1) * 20 * 24 * 60 * 60 * 1000);
-      const daysSinceOrder = Math.floor((Date.now() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
-      const estimatedUsageDays = item.estimated_usage_days || 30;
-      const suggestedReorderDate = new Date(orderDate.getTime() + estimatedUsageDays * 24 * 60 * 60 * 1000);
-      
-      return {
-        id: `order-${index + 1}`,
-        order_date: orderDate.toISOString(),
-        listing: item,
-        quantity: Math.floor(Math.random() * 3) + 1,
-        total_price: item.price * (Math.floor(Math.random() * 3) + 1),
-        status: 'delivered' as const,
-        is_reorderable: true,
-        suggested_reorder_date: suggestedReorderDate.toISOString(),
-        days_since_order: daysSinceOrder
-      };
-    });
   };
 
   const handleReorder = async (order: PreviousOrder) => {

@@ -164,7 +164,7 @@ export const MakerLivestreams = ({ className }: MakerLivestreamsProps) => {
       const liveStream = transformedStreams.find(s => s.status === 'live');
       if (liveStream) {
         setSelectedStream(liveStream);
-        generateMockChatMessages(liveStream.id);
+        loadChatMessages(liveStream.id);
       }
     } catch (error) {
       console.error("Error fetching streams:", error);
@@ -178,116 +178,36 @@ export const MakerLivestreams = ({ className }: MakerLivestreamsProps) => {
     }
   };
 
-  const generateMockStreams = (): LiveStream[] => {
-    const craftCategories = ['Pottery', 'Jewelry Making', 'Candle Making', 'Woodworking', 'Knitting'];
-    const makers = [
-      {
-        id: 'maker-1',
-        name: 'Sarah Chen',
-        shop_name: 'Chicago Clay Studio',
-        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=100',
-        is_verified: true,
-        follower_count: 1247
-      },
-      {
-        id: 'maker-2',
-        name: 'Marcus Johnson',
-        shop_name: 'Windy City Woodworks',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100',
-        is_verified: true,
-        follower_count: 892
-      },
-      {
-        id: 'maker-3',
-        name: 'Elena Rodriguez',
-        shop_name: 'Prairie Candle Co.',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100',
-        is_verified: false,
-        follower_count: 456
-      }
-    ];
+  const loadChatMessages = async (streamId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('livestream_chat_messages')
+        .select('*')
+        .eq('stream_id', streamId)
+        .order('created_at', { ascending: true })
+        .limit(50);
 
-    return makers.map((maker, index) => {
-      const now = new Date();
-      const streamTime = new Date(now.getTime() + (index - 1) * 2 * 60 * 60 * 1000); // Spread across time
-      const status = index === 0 ? 'live' : index === 1 ? 'scheduled' : 'ended';
-      
-      return {
-        id: `stream-${index + 1}`,
-        title: `${craftCategories[index]} Masterclass: Creating Beautiful ${craftCategories[index].toLowerCase()}`,
-        description: `Join me for an intimate 20-minute session where I'll show you my favorite techniques for ${craftCategories[index].toLowerCase()}. Ask questions, see the process up close, and shop the featured pieces!`,
-        maker,
-        scheduled_time: streamTime.toISOString(),
-        duration_minutes: 20,
-        status,
-        viewer_count: status === 'live' ? Math.floor(Math.random() * 150) + 50 : 0,
-        peak_viewers: Math.floor(Math.random() * 300) + 100,
-        featured_products: [
-          {
-            id: `product-${index + 1}-1`,
-            title: `Handcrafted ${craftCategories[index]} Set`,
-            price: Math.floor(Math.random() * 100) + 30,
-            image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200',
-            discount_percent: index === 0 ? 15 : undefined
-          },
-          {
-            id: `product-${index + 1}-2`,
-            title: `Custom ${craftCategories[index]} Workshop`,
-            price: Math.floor(Math.random() * 200) + 80,
-            image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=200'
-          }
-        ],
-        craft_category: craftCategories[index],
-        techniques_shown: [
-          'Basic techniques',
-          'Advanced finishing',
-          'Tool selection',
-          'Quality tips'
-        ],
-        stream_url: status === 'live' ? 'https://example.com/stream' : undefined,
-        chat_enabled: true,
-        recording_available: status === 'ended',
-        created_at: new Date(Date.now() - index * 24 * 60 * 60 * 1000).toISOString()
-      };
-    });
-  };
-
-  const generateMockChatMessages = (streamId: string) => {
-    const mockMessages: ChatMessage[] = [
-      {
-        id: 'msg-1',
-        user_name: 'CraftLover23',
-        message: 'This is amazing! Love watching the process 😍',
-        timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-        is_maker: false,
-        is_moderator: false
-      },
-      {
-        id: 'msg-2',
-        user_name: 'Sarah Chen',
-        message: 'Thanks everyone for joining! What would you like to see next?',
-        timestamp: new Date(Date.now() - 4 * 60 * 1000).toISOString(),
-        is_maker: true,
-        is_moderator: false
-      },
-      {
-        id: 'msg-3',
-        user_name: 'PotteryFan',
-        message: 'Can you show the glazing technique again?',
-        timestamp: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
-        is_maker: false,
-        is_moderator: false
-      },
-      {
-        id: 'msg-4',
-        user_name: 'ChicagoCrafter',
-        message: 'Just ordered the pottery set! 🎉',
-        timestamp: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
-        is_maker: false,
-        is_moderator: false
+      if (error) {
+        // Table may not exist yet - use empty state
+        setChatMessages([]);
+        return;
       }
-    ];
-    setChatMessages(mockMessages);
+
+      const messages: ChatMessage[] = (data || []).map(msg => ({
+        id: msg.id,
+        user_name: msg.user_name || 'Anonymous',
+        user_avatar: msg.user_avatar,
+        message: msg.message,
+        timestamp: msg.created_at,
+        is_maker: msg.is_maker || false,
+        is_moderator: msg.is_moderator || false
+      }));
+
+      setChatMessages(messages);
+    } catch (error) {
+      console.error('Error loading chat messages:', error);
+      setChatMessages([]);
+    }
   };
 
   const scheduleStream = async () => {
@@ -356,7 +276,7 @@ export const MakerLivestreams = ({ className }: MakerLivestreamsProps) => {
   const joinStream = (stream: LiveStream) => {
     setSelectedStream(stream);
     if (stream.status === 'live') {
-      generateMockChatMessages(stream.id);
+      loadChatMessages(stream.id);
     }
   };
 
