@@ -102,7 +102,7 @@ npx supabase functions deploy reconcile-revenue
 # Make sure these are set in Supabase Dashboard > Edge Functions > Settings
 STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
-SUPABASE_URL=https://...supabase.co
+SUPABASE_URL=https://api.craftlocal.net
 SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
 ```
@@ -111,7 +111,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
 1. Go to Stripe Dashboard > Developers > Webhooks
 2. Find your existing webhook endpoint
-3. Verify it points to: `https://[your-project].supabase.co/functions/v1/stripe-webhook`
+3. Verify it points to: `https://functions.craftlocal.net/v1/stripe-webhook`
 4. Ensure these events are enabled:
    - ✅ `checkout.session.completed`
    - ✅ `payment_intent.succeeded`
@@ -124,7 +124,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
 ```bash
 # Use Stripe CLI to resend a webhook
-stripe events resend evt_... --webhook-endpoint=https://[your-project].supabase.co/functions/v1/stripe-webhook
+stripe events resend evt_... --webhook-endpoint=https://functions.craftlocal.net/v1/stripe-webhook
 
 # Check logs in Supabase Dashboard > Edge Functions > stripe-webhook
 # Should see: "Order already processed for session: ..."
@@ -213,7 +213,7 @@ SELECT cron.schedule(
   '0 2 * * *',
   $$
   SELECT net.http_post(
-    url := 'https://[your-project].supabase.co/functions/v1/reconcile-revenue',
+    url := 'https://functions.craftlocal.net/v1/reconcile-revenue',
     headers := '{"Content-Type": "application/json", "Authorization": "Bearer [service-role-key]"}'::jsonb,
     body := '{"period_type": "daily"}'::jsonb
   )
@@ -234,7 +234,7 @@ jobs:
     steps:
       - name: Call Reconciliation API
         run: |
-          curl -X POST https://[your-project].supabase.co/functions/v1/reconcile-revenue \
+          curl -X POST https://functions.craftlocal.net/v1/reconcile-revenue \
           -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
           -H "Content-Type: application/json" \
           -d '{"period_type": "daily"}'
@@ -362,7 +362,7 @@ HAVING COUNT(*) > 1;
 2. Environment variables set?
 3. Test with curl:
    ```bash
-   curl -X POST https://[your-project].supabase.co/functions/v1/validate-payment \
+   curl -X POST https://functions.craftlocal.net/v1/validate-payment \
      -H "Authorization: Bearer [anon-key]" \
      -H "Content-Type: application/json" \
      -d '{"listing_id":"test","quantity":1,"amount_submitted":100,"seller_id":"test"}'

@@ -298,13 +298,12 @@ These tables are referenced in code but may not exist:
 - [x] **4.5** Remove mock course/mentor/challenge data from education components
 - [ ] **4.6** Replace placeholder images with real product images *(needs content)*
 
-### Phase 5: Documentation Updates
+### Phase 5: Documentation Updates ✅ PARTIALLY COMPLETED
 
-- [ ] **5.1** Update `SECURITY_REMEDIATIONS.md` URLs
-- [ ] **5.2** Update `CODE_AUDIT_REPORT.md` examples
-- [ ] **5.3** Update `SEO_DUPLICATION_GUIDE.md` examples
-- [ ] **5.4** Update `PAYMENT_SYSTEM_IMPLEMENTATION_GUIDE.md`
-- [ ] **5.5** Update all deployment documentation
+- [x] **5.4** Update `PAYMENT_SYSTEM_IMPLEMENTATION_GUIDE.md` - Updated all project URLs to use `functions.craftlocal.net`
+- [ ] **5.1-5.3, 5.5** Other documentation files contain references to Supabase's external documentation (supabase.com/docs) which are intentional external links, not project-specific URLs
+
+**Note:** References to `supabase.com/docs` are links to Supabase's official documentation and should not be changed. Only project-specific URLs (like edge function endpoints) need to point to `api.craftlocal.net` or `functions.craftlocal.net`.
 
 ### Phase 6: Mobile & ChatGPT Integration
 
