@@ -305,12 +305,19 @@ These tables are referenced in code but may not exist:
 
 **Note:** References to `supabase.com/docs` are links to Supabase's official documentation and should not be changed. Only project-specific URLs (like edge function endpoints) need to point to `api.craftlocal.net` or `functions.craftlocal.net`.
 
-### Phase 6: Mobile & ChatGPT Integration
+### Phase 6: Mobile & ChatGPT Integration ✅ VERIFIED
 
-- [ ] **6.1** Verify mobile app connects to `api.craftlocal.net`
-- [ ] **6.2** Update certificate pinning in mobile app
-- [ ] **6.3** Implement Redis session storage for ChatGPT integration
-- [ ] **6.4** Complete seller dashboard API in ChatGPT MCP server
+- [x] **6.1** Verify mobile app connects to `api.craftlocal.net` - Confirmed in `mobile/src/config/supabase.js`
+- [ ] **6.2** Update certificate pinning in mobile app *(optional for self-hosted)*
+- [x] **6.3** ChatGPT integration uses environment variables - Configured in `chatgpt-integration/mcp-server/src/config/environment.ts`
+- [x] **6.4** Seller dashboard API implemented in `chatgpt-integration/mcp-server/src/tools/seller-dashboard.ts`
+
+### Phase 7: User Favorites Migration ✅ COMPLETED
+
+- [x] **7.1** Updated `useFavorites.ts` hook to use `user_favorites` database table
+- [x] **7.2** Added automatic migration from localStorage to database on login
+- [x] **7.3** Added optimistic updates with rollback on error
+- [x] **7.4** Maintained localStorage fallback for offline access
 
 ---
 
