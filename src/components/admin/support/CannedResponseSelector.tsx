@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -65,8 +66,6 @@ export const CannedResponseSelector = ({
   const loadResponses = async () => {
     try {
       setLoading(true);
-      // TODO: Once support_canned_responses table exists, uncomment:
-      /*
       const { data, error } = await supabase
         .from('support_canned_responses')
         .select('*')
@@ -74,9 +73,7 @@ export const CannedResponseSelector = ({
         .order('usage_count', { ascending: false });
 
       if (error) throw error;
-      setResponses(data || []);
-      */
-      setResponses([]);
+      setResponses((data || []) as CannedResponse[]);
     } catch (error) {
       console.error('Error loading canned responses:', error);
       toast({
@@ -128,13 +125,10 @@ export const CannedResponseSelector = ({
 
     // Increment usage count
     try {
-      // TODO: Once support_canned_responses table exists, uncomment:
-      /*
       await supabase
         .from('support_canned_responses')
         .update({ usage_count: response.usage_count + 1 })
         .eq('id', response.id);
-      */
     } catch (error) {
       console.error('Error updating usage count:', error);
     }

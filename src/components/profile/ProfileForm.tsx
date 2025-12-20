@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,9 +49,22 @@ export const ProfileForm = ({ user, profile }: ProfileFormProps) => {
 
     try {
       const validatedData = profileSchema.parse(formData);
-      
-      // TODO: Implement profile update in Supabase
-      console.log("Profile update data:", validatedData);
+
+      // Update profile in Supabase
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          display_name: validatedData.display_name,
+          bio: validatedData.bio || null,
+          location: validatedData.location || null,
+          website: validatedData.website || null,
+          phone: formData.phone || null,
+          city_id: formData.city_id || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
 
       toast({
         title: "Profile updated",
@@ -66,6 +80,7 @@ export const ProfileForm = ({ user, profile }: ProfileFormProps) => {
         });
         setErrors(fieldErrors);
       } else {
+        console.error('Profile update error:', error);
         toast({
           title: "Update failed",
           description: "Something went wrong. Please try again.",

@@ -65,8 +65,6 @@ export const TicketDetail = ({ ticket, onUpdate }: TicketDetailProps) => {
 
   const loadMessages = async () => {
     try {
-      // TODO: Once support_messages table exists, uncomment:
-      /*
       const { data, error } = await supabase
         .from('support_messages')
         .select(`
@@ -81,9 +79,7 @@ export const TicketDetail = ({ ticket, onUpdate }: TicketDetailProps) => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setMessages(data || []);
-      */
-      setMessages([]);
+      setMessages((data || []) as SupportMessageWithSender[]);
     } catch (error) {
       console.error('Error loading messages:', error);
       toast({
@@ -96,15 +92,12 @@ export const TicketDetail = ({ ticket, onUpdate }: TicketDetailProps) => {
 
   const markMessagesRead = async () => {
     try {
-      // TODO: Mark unread messages as read
-      /*
       await supabase
         .from('support_messages')
         .update({ read_by_admin: true, read_at: new Date().toISOString() })
         .eq('ticket_id', ticket.id)
         .eq('read_by_admin', false)
         .eq('sender_type', 'user');
-      */
     } catch (error) {
       console.error('Error marking messages read:', error);
     }
@@ -118,8 +111,6 @@ export const TicketDetail = ({ ticket, onUpdate }: TicketDetailProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // TODO: Once support_messages table exists, uncomment:
-      /*
       const messageData: SupportMessageInsert = {
         ticket_id: ticket.id,
         sender_id: user.id,
@@ -141,7 +132,6 @@ export const TicketDetail = ({ ticket, onUpdate }: TicketDetailProps) => {
           .update({ first_response_at: new Date().toISOString() })
           .eq('id', ticket.id);
       }
-      */
 
       setNewMessage('');
       setIsInternal(false);
@@ -168,15 +158,12 @@ export const TicketDetail = ({ ticket, onUpdate }: TicketDetailProps) => {
     try {
       setUpdating(true);
 
-      // TODO: Once support_tickets table exists, uncomment:
-      /*
       const { error } = await supabase
         .from('support_tickets')
         .update(updates)
         .eq('id', ticket.id);
 
       if (error) throw error;
-      */
 
       toast({
         title: 'Ticket updated',

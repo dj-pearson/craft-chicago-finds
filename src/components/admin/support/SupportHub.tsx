@@ -54,8 +54,7 @@ export const SupportHub = () => {
     try {
       setLoading(true);
 
-      // TODO: Once support_tickets table exists, uncomment:
-      /*
+      // Query support tickets with related data
       const { data, error } = await supabase
         .from('support_tickets')
         .select(`
@@ -116,10 +115,10 @@ export const SupportHub = () => {
         })
       );
 
-      setTickets(ticketsWithCounts);
+      setTickets(ticketsWithCounts as SupportTicketWithRelations[]);
 
       // Calculate stats
-      const stats = {
+      const calculatedStats = {
         total_open: ticketsWithCounts.filter(t => t.status === 'open').length,
         total_in_progress: ticketsWithCounts.filter(t => t.status === 'in_progress').length,
         total_waiting: ticketsWithCounts.filter(t => t.status === 'waiting_on_user').length,
@@ -130,12 +129,7 @@ export const SupportHub = () => {
         }).length
       };
 
-      setStats(stats);
-      */
-
-      // Mock data for now
-      setTickets([]);
-      setStats({ total_open: 0, total_in_progress: 0, total_waiting: 0, sla_approaching: 0 });
+      setStats(calculatedStats);
     } catch (error) {
       console.error('Error loading tickets:', error);
       toast({
