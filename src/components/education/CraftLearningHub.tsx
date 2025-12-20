@@ -183,145 +183,45 @@ export const CraftLearningHub = ({ className }: CraftLearningHubProps) => {
 
   const fetchChallenges = async () => {
     try {
-      const mockChallenges = generateMockChallenges();
-      setChallenges(mockChallenges);
+      // Query real challenges from database if table exists
+      const { data, error } = await supabase
+        .from('craft_challenges')
+        .select('*')
+        .gte('end_date', new Date().toISOString())
+        .order('start_date', { ascending: true });
+
+      if (error) {
+        // Table may not exist yet - show empty state
+        console.log('Challenges table not available yet');
+        setChallenges([]);
+        return;
+      }
+
+      const transformedChallenges: Challenge[] = (data || []).map(challenge => ({
+        id: challenge.id,
+        title: challenge.title,
+        description: challenge.description,
+        theme: challenge.theme || '',
+        start_date: challenge.start_date,
+        end_date: challenge.end_date,
+        prize_pool: Number(challenge.prize_pool || 0),
+        participant_count: challenge.participant_count || 0,
+        submission_count: challenge.submission_count || 0,
+        difficulty_level: challenge.difficulty_level as 'beginner' | 'intermediate' | 'advanced',
+        categories: challenge.categories || [],
+        judging_criteria: challenge.judging_criteria || [],
+        prizes: challenge.prizes || [],
+        is_active: new Date(challenge.start_date) <= new Date() && new Date(challenge.end_date) >= new Date(),
+        is_registered: false,
+        submission_deadline: challenge.submission_deadline || challenge.end_date,
+        voting_enabled: challenge.voting_enabled || false
+      }));
+
+      setChallenges(transformedChallenges);
     } catch (error) {
       console.error("Error fetching challenges:", error);
+      setChallenges([]);
     }
-  };
-
-  const generateMockCourses = (): Course[] => {
-    const categories = ['Pottery', 'Jewelry Making', 'Woodworking', 'Candle Making', 'Knitting', 'Painting'];
-    const instructors = [
-      {
-        id: 'instructor-1',
-        name: 'Sarah Chen',
-        shop_name: 'Chicago Clay Studio',
-        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=100',
-        bio: 'Master potter with 15 years experience. Featured in Chicago Tribune.',
-        rating: 4.9,
-        student_count: 1247,
-        is_verified: true
-      },
-      {
-        id: 'instructor-2',
-        name: 'Marcus Johnson',
-        shop_name: 'Windy City Woodworks',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100',
-        bio: 'Award-winning woodworker specializing in furniture and home decor.',
-        rating: 4.8,
-        student_count: 892,
-        is_verified: true
-      },
-      {
-        id: 'instructor-3',
-        name: 'Elena Rodriguez',
-        shop_name: 'Prairie Candle Co.',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100',
-        bio: 'Candle making expert teaching sustainable wax techniques.',
-        rating: 4.7,
-        student_count: 634,
-        is_verified: false
-      }
-    ];
-
-    return instructors.map((instructor, index) => ({
-      id: `course-${index + 1}`,
-      title: `Complete ${categories[index]} Masterclass`,
-      description: `Learn professional ${categories[index].toLowerCase()} techniques from a Chicago expert. This comprehensive course covers everything from basic tools to advanced finishing techniques.`,
-      instructor,
-      category: categories[index],
-      difficulty_level: index === 0 ? 'beginner' : index === 1 ? 'intermediate' : 'advanced',
-      duration_minutes: 180 + index * 60,
-      lesson_count: 8 + index * 2,
-      price: 89 + index * 20,
-      thumbnail: `https://images.unsplash.com/photo-${1578662996442 + index}?w=400&h=300&fit=crop`,
-      preview_video: 'https://example.com/preview.mp4',
-      rating: 4.7 + index * 0.1,
-      review_count: 89 + index * 20,
-      student_count: 234 + index * 100,
-      completion_rate: 85 + index * 3,
-      materials_list: [
-        {
-          id: `material-${index}-1`,
-          name: `${categories[index]} Starter Kit`,
-          price: 45 + index * 10,
-          supplier: 'Chicago Art Supply',
-          is_optional: false
-        },
-        {
-          id: `material-${index}-2`,
-          name: 'Professional Tools Set',
-          price: 89 + index * 15,
-          supplier: 'Craft Pro Tools',
-          is_optional: true
-        }
-      ],
-      learning_outcomes: [
-        `Master basic ${categories[index].toLowerCase()} techniques`,
-        'Understand material properties and selection',
-        'Create 3-5 finished pieces',
-        'Learn professional finishing methods',
-        'Develop your personal style'
-      ],
-      prerequisites: index === 0 ? [] : ['Basic craft experience recommended'],
-      certification_available: true,
-      is_purchased: index === 0,
-      progress_percent: index === 0 ? 65 : 0,
-      created_at: new Date(Date.now() - index * 30 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date().toISOString()
-    }));
-  };
-
-  const generateMockChallenges = (): Challenge[] => {
-    return [
-      {
-        id: 'challenge-1',
-        title: 'Chicago Winter Warmth',
-        description: 'Create cozy items perfect for Chicago winters. Show us your warmest, most comforting craft pieces!',
-        theme: 'Winter Comfort',
-        start_date: new Date().toISOString(),
-        end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        prize_pool: 2500,
-        participant_count: 89,
-        submission_count: 34,
-        difficulty_level: 'beginner',
-        categories: ['Knitting', 'Candle Making', 'Pottery'],
-        judging_criteria: ['Creativity', 'Craftsmanship', 'Theme Relevance', 'Community Vote'],
-        prizes: [
-          { rank: 1, prize: 'Cash Prize + Featured Shop', value: 1000 },
-          { rank: 2, prize: 'Cash Prize + Supply Kit', value: 500 },
-          { rank: 3, prize: 'Cash Prize', value: 250 }
-        ],
-        is_active: true,
-        is_registered: false,
-        submission_deadline: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
-        voting_enabled: true
-      },
-      {
-        id: 'challenge-2',
-        title: 'Sustainable Craft Challenge',
-        description: 'Create beautiful items using only recycled or upcycled materials. Show the world that sustainability can be stunning!',
-        theme: 'Eco-Friendly',
-        start_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        end_date: new Date(Date.now() + 37 * 24 * 60 * 60 * 1000).toISOString(),
-        prize_pool: 1500,
-        participant_count: 0,
-        submission_count: 0,
-        difficulty_level: 'intermediate',
-        categories: ['All Categories'],
-        judging_criteria: ['Sustainability', 'Innovation', 'Aesthetics', 'Story'],
-        prizes: [
-          { rank: 1, prize: 'Eco Champion Award + Cash', value: 750 },
-          { rank: 2, prize: 'Green Maker Badge + Cash', value: 500 },
-          { rank: 3, prize: 'Sustainability Kit + Cash', value: 250 }
-        ],
-        is_active: false,
-        is_registered: false,
-        submission_deadline: new Date(Date.now() + 32 * 24 * 60 * 60 * 1000).toISOString(),
-        voting_enabled: false
-      }
-    ];
   };
 
   const enrollInCourse = async (courseId: string) => {
@@ -830,12 +730,25 @@ export const CraftLearningHub = ({ className }: CraftLearningHubProps) => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-medium">Monthly Craft Challenges</h3>
-                <Badge variant="outline" className="px-3 py-1">
-                  <Trophy className="h-3 w-3 mr-1" />
-                  ${challenges.reduce((sum, c) => sum + c.prize_pool, 0)} in prizes
-                </Badge>
+                {challenges.length > 0 && (
+                  <Badge variant="outline" className="px-3 py-1">
+                    <Trophy className="h-3 w-3 mr-1" />
+                    ${challenges.reduce((sum, c) => sum + c.prize_pool, 0)} in prizes
+                  </Badge>
+                )}
               </div>
 
+              {challenges.length === 0 ? (
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <Trophy className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="font-medium text-lg mb-2">No Active Challenges</h3>
+                    <p className="text-muted-foreground text-center max-w-md">
+                      There are no craft challenges available right now. Check back soon for exciting monthly challenges with prizes!
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {challenges.map((challenge) => (
                   <Card key={challenge.id} className="relative overflow-hidden">
@@ -927,6 +840,7 @@ export const CraftLearningHub = ({ className }: CraftLearningHubProps) => {
                   </Card>
                 ))}
               </div>
+              )}
             </div>
           </TabsContent>
 

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Heart, Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,10 +11,10 @@ interface FollowShopButtonProps {
   className?: string;
 }
 
-export const FollowShopButton = ({ 
-  sellerId, 
+export const FollowShopButton = ({
+  sellerId,
   sellerName,
-  className = '' 
+  className = ''
 }: FollowShopButtonProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -21,28 +22,90 @@ export const FollowShopButton = ({
   const [followerCount, setFollowerCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  // Check if user is already following and get follower count
+  useEffect(() => {
+    if (!user || user.id === sellerId) return;
+
+    const checkFollowStatus = async () => {
+      try {
+        // Check if following
+        const { data: followData } = await supabase
+          .from('shop_follows')
+          .select('id')
+          .eq('follower_id', user.id)
+          .eq('shop_owner_id', sellerId)
+          .single();
+
+        setIsFollowing(!!followData);
+
+        // Get follower count
+        const { count } = await supabase
+          .from('shop_follows')
+          .select('*', { count: 'exact', head: true })
+          .eq('shop_owner_id', sellerId);
+
+        setFollowerCount(count || 0);
+      } catch (error) {
+        // Ignore errors for non-existent follow records
+      }
+    };
+
+    checkFollowStatus();
+  }, [user, sellerId]);
+
   if (!user || user.id === sellerId) {
     return null;
   }
 
   const handleFollow = async () => {
     if (!user) return;
-    
+
     setLoading(true);
     try {
-      // TODO: Implement shop following when shop_follows table is created
-      console.log('Shop follow functionality not yet implemented');
-      
-      toast({
-        title: "Feature coming soon",
-        description: "Shop following will be available soon!",
-        duration: 3000,
-      });
+      if (isFollowing) {
+        // Unfollow
+        const { error } = await supabase
+          .from('shop_follows')
+          .delete()
+          .eq('follower_id', user.id)
+          .eq('shop_owner_id', sellerId);
+
+        if (error) throw error;
+
+        setIsFollowing(false);
+        setFollowerCount(prev => Math.max(0, prev - 1));
+
+        toast({
+          title: "Unfollowed",
+          description: `You're no longer following ${sellerName}`,
+          duration: 3000,
+        });
+      } else {
+        // Follow
+        const { error } = await supabase
+          .from('shop_follows')
+          .insert({
+            follower_id: user.id,
+            shop_owner_id: sellerId,
+            notification_enabled: true
+          });
+
+        if (error) throw error;
+
+        setIsFollowing(true);
+        setFollowerCount(prev => prev + 1);
+
+        toast({
+          title: "Following!",
+          description: `You're now following ${sellerName}`,
+          duration: 3000,
+        });
+      }
     } catch (error) {
-      console.error('Error following shop:', error);
+      console.error('Error following/unfollowing shop:', error);
       toast({
         title: "Error",
-        description: "Failed to follow shop. Please try again.",
+        description: "Failed to update follow status. Please try again.",
         variant: "destructive",
         duration: 4000,
       });
@@ -63,7 +126,7 @@ export const FollowShopButton = ({
       {loading ? '...' : isFollowing ? 'Following' : 'Follow'}
       {followerCount > 0 && (
         <>
-          <Users className="h-4 w-4" />
+          <Users className="h-4 w-4 ml-1" />
           <span>{followerCount}</span>
         </>
       )}
