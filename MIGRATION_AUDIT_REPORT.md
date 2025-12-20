@@ -286,8 +286,8 @@ These tables are referenced in code but may not exist:
 - [x] **3.4** Implement shop following functionality in `FollowShopButton.tsx`
 - [x] **3.5** Implement collection following in `CollectionCard.tsx`
 - [x] **3.6** Implement wishlist sharing in `ShareWishlistDialog.tsx`
-- [ ] **3.7** Implement bundle discounts *(tables exist, needs UI implementation)*
-- [ ] **3.8** Implement product personalization *(tables exist, needs UI implementation)*
+- [x] **3.7** Implement bundle discounts in `BundleBuilder.tsx` (seller + product)
+- [x] **3.8** Implement product personalization in `ProductInfo.tsx`
 
 ### Phase 4: Replace Mock Data ✅ MOSTLY COMPLETED
 

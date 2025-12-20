@@ -125,14 +125,36 @@ export const BundleBuilder = ({
   };
 
   const loadBundleDiscounts = async () => {
-    if (!currentCity) return;
+    if (!currentCity || !currentListing) return;
 
     try {
-      // TODO: Implement product bundles when product_bundles table is created
-      console.log('Bundle discounts functionality not yet implemented');
-      setBundleDiscounts([]);
+      // Query active bundles from the seller
+      const { data, error } = await supabase
+        .from('product_bundles')
+        .select('*')
+        .eq('seller_id', currentListing.seller_id)
+        .eq('status', 'active');
+
+      if (error) {
+        console.log('Bundle discounts table not available yet');
+        setBundleDiscounts([]);
+        return;
+      }
+
+      const discounts: BundleDiscount[] = (data || []).map(bundle => ({
+        id: bundle.id,
+        name: bundle.name,
+        description: bundle.description || '',
+        discount_type: bundle.discount_percentage ? 'percentage' : 'fixed',
+        discount_value: bundle.discount_percentage || Number(bundle.discount_amount) || 0,
+        min_items: 2,
+        max_items: undefined
+      }));
+
+      setBundleDiscounts(discounts);
     } catch (error) {
       console.error("Error loading bundle discounts:", error);
+      setBundleDiscounts([]);
     }
   };
 
@@ -214,18 +236,39 @@ export const BundleBuilder = ({
     setLoading(true);
     try {
       const bundleDetails = calculateBundleDetails();
-      const cartSessionId = `cart_${user?.id || "guest"}_${Date.now()}`;
+      const cartId = `cart_${user?.id || "guest"}_${Date.now()}`;
 
-      // Save bundle to database
-      // TODO: Implement bundle cart when cart_bundles table is created
-        console.log('Bundle would be added to cart:', bundleItems);
-        toast({
-          title: "Bundle functionality coming soon!",
-          description: "Multi-product bundles will be available soon.",
-          duration: 3000,
-        });
+      // Try to save bundle to cart_bundles if user is logged in
+      let savedBundleId: string | null = null;
 
-      // Remove bundle data reference
+      if (user && bundleDetails.appliedDiscountName) {
+        // Find the applied discount's bundle ID
+        const appliedBundle = bundleDiscounts.find(d => d.name === bundleDetails.appliedDiscountName);
+
+        if (appliedBundle) {
+          try {
+            const { data: cartBundle, error } = await supabase
+              .from('cart_bundles')
+              .insert({
+                cart_id: cartId,
+                user_id: user.id,
+                bundle_id: appliedBundle.id,
+                quantity: 1
+              })
+              .select('id')
+              .single();
+
+            if (!error && cartBundle) {
+              savedBundleId = cartBundle.id;
+            }
+          } catch (err) {
+            // Table may not exist - continue without bundle tracking
+            console.log('Cart bundles table not available');
+          }
+        }
+      }
+
+      // Add each item to cart
       for (const item of bundleItems) {
         const cartItem = {
           id: item.id,
@@ -236,21 +279,19 @@ export const BundleBuilder = ({
           image: item.image,
           seller_id: item.seller_id,
           seller_name: item.seller_name,
-          shipping_available: true, // Assume true for bundle items
+          shipping_available: true,
           local_pickup_available: true,
-          bundle_id: null, // Remove bundle data reference
+          bundle_id: savedBundleId,
         };
 
         addItem(cartItem, 1);
       }
 
       toast({
-        title: "Bundle added to cart",
-        description: `${
-          bundleItems.length
-        } items added with ${bundleDetails.savingsPercentage.toFixed(
-          0
-        )}% savings!`,
+        title: "Bundle added to cart!",
+        description: bundleDetails.savingsPercentage > 0
+          ? `${bundleItems.length} items added with ${bundleDetails.savingsPercentage.toFixed(0)}% savings!`
+          : `${bundleItems.length} items added to your cart.`,
       });
 
       // Reset and close
