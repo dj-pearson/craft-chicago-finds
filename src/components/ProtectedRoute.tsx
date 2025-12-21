@@ -11,13 +11,13 @@ interface ProtectedRouteProps {
   requireSeller?: boolean;
 }
 
-export const ProtectedRoute = ({ 
-  children, 
+export const ProtectedRoute = ({
+  children,
   requireAuth = true,
   requireAdmin = false,
-  requireSeller = false 
+  requireSeller = false
 }: ProtectedRouteProps) => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
   const location = useLocation();
 
@@ -43,10 +43,8 @@ export const ProtectedRoute = ({
   }
 
   // Redirect to home if seller access required but user is not a seller
-  if (requireSeller && user) {
-    // Check if user has seller profile (this would need to be added to useAuth hook)
-    // For now, just check if user exists
-    // TODO: Add seller check to useAuth hook
+  if (requireSeller && user && !profile?.is_seller) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

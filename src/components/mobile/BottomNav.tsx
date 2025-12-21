@@ -2,12 +2,17 @@ import { Home, Search, PlusCircle, MessageSquare, User, ShoppingCart } from "luc
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/hooks/useCart";
+import { useCityContext } from "@/hooks/useCityContext";
 import { Badge } from "@/components/ui/badge";
 
 export function BottomNav() {
   const location = useLocation();
   const { items } = useCart();
+  const { currentCity } = useCityContext();
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Use current city slug or default to 'chicago' for browse route
+  const citySlug = currentCity?.slug || 'chicago';
 
   const navItems = [
     {
@@ -19,7 +24,7 @@ export function BottomNav() {
     {
       icon: Search,
       label: "Browse",
-      href: "/chicago/browse",
+      href: `/${citySlug}/browse`,
       active: location.pathname.includes("/browse")
     },
     {

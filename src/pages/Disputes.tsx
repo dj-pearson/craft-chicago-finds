@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertTriangle, Plus } from 'lucide-react';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 export default function DisputesPage() {
   const [selectedDisputeId, setSelectedDisputeId] = useState<string | null>(null);
@@ -25,59 +27,65 @@ export default function DisputesPage() {
   };
 
   return (
-    <DisputesProvider>
-      <div className="container mx-auto py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Dispute Resolution</h1>
-            <p className="text-muted-foreground">
-              Manage disputes and resolve issues with orders
-            </p>
+    <>
+      <Header />
+      <DisputesProvider>
+        <div className="min-h-screen bg-background">
+          <div className="container mx-auto py-8">
+            <div className="max-w-4xl mx-auto">
+              <div className="mb-8">
+                <h1 className="text-3xl font-bold mb-2">Dispute Resolution</h1>
+                <p className="text-muted-foreground">
+                  Manage disputes and resolve issues with orders
+                </p>
+              </div>
+
+              {selectedDisputeId ? (
+                <DisputeDetail
+                  disputeId={selectedDisputeId}
+                  onBack={handleBackToList}
+                />
+              ) : (
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="disputes" className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4" />
+                      My Disputes
+                    </TabsTrigger>
+                    <TabsTrigger value="create" className="flex items-center gap-2">
+                      <Plus className="h-4 w-4" />
+                      Create Dispute
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="disputes" className="mt-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Your Disputes</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <DisputeList onSelectDispute={handleSelectDispute} />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="create" className="mt-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Create New Dispute</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <CreateDisputeForm onSuccess={handleCreateSuccess} />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              )}
+            </div>
           </div>
-
-          {selectedDisputeId ? (
-            <DisputeDetail 
-              disputeId={selectedDisputeId} 
-              onBack={handleBackToList}
-            />
-          ) : (
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="disputes" className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4" />
-                  My Disputes
-                </TabsTrigger>
-                <TabsTrigger value="create" className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Create Dispute
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="disputes" className="mt-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Your Disputes</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <DisputeList onSelectDispute={handleSelectDispute} />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="create" className="mt-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Create New Dispute</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CreateDisputeForm onSuccess={handleCreateSuccess} />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          )}
         </div>
-      </div>
-    </DisputesProvider>
+      </DisputesProvider>
+      <Footer />
+    </>
   );
 }
