@@ -6,15 +6,25 @@
     <meta name="color-scheme" content="light dark" />
 
     <!-- DNS Prefetch & Preconnect for faster loading - placed early for best effect -->
-    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
-    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
-    <link rel="dns-prefetch" href="https://api.craftlocal.net">
+    <!-- Supabase (highest priority - database/auth) -->
     <link rel="preconnect" href="https://api.craftlocal.net" crossorigin>
-    <link rel="dns-prefetch" href="https://js.stripe.com">
+    <link rel="dns-prefetch" href="https://api.craftlocal.net">
+
+    <!-- Stripe (payment processing) -->
     <link rel="preconnect" href="https://js.stripe.com" crossorigin>
+    <link rel="dns-prefetch" href="https://js.stripe.com">
+    <link rel="dns-prefetch" href="https://api.stripe.com">
+
+    <!-- Google Analytics -->
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+
+    <!-- Font optimization -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <!-- Preload critical assets -->
-    <link rel="preload" href="/logo-optimized.webp" as="image" type="image/webp">
+    <link rel="preload" href="/Logo.webp" as="image" type="image/webp">
 
     <link rel="icon" href="/favicon.png" type="image/png">
 

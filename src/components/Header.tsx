@@ -34,9 +34,11 @@ export const Header = () => {
 
   // Determine which logo to show based on current page
   const isChicagoPage = location.pathname.includes('/chicago') || location.pathname === '/cities/chicago';
-  const logoSrcWebP = isChicagoPage ? '/Chicago.png' : '/logo-optimized.webp';
+  const logoSrcWebP = isChicagoPage ? '/Chicago.webp' : '/Logo.webp';
   const logoSrcFallback = isChicagoPage ? '/Chicago.png' : '/Logo.png';
   const logoAlt = isChicagoPage ? 'CraftLocal Chicago' : 'CraftLocal';
+  const logoWidth = isChicagoPage ? 300 : 300;
+  const logoHeight = isChicagoPage ? 191 : 103;
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -55,10 +57,10 @@ export const Header = () => {
                   src={logoSrcFallback}
                   alt={logoAlt}
                   className="h-7 sm:h-8 object-contain"
-                  style={{ width: 'auto', aspectRatio: '96/33' }}
-                  width="96"
-                  height="33"
-                  loading="eager"
+                  width={logoWidth}
+                  height={logoHeight}
+                  fetchPriority="high"
+                  decoding="async"
                 />
               </picture>
             </button>

@@ -1,7 +1,8 @@
 import { ArrowRight, MapPin, Users, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import heroImage from "@/assets/hero-marketplace.jpg";
+import heroImageJpg from "@/assets/hero-marketplace.jpg";
+import heroImageWebP from "@/assets/hero-marketplace.webp";
 import { useCityContext } from "@/hooks/useCityContext";
 
 export const Hero = () => {
@@ -10,11 +11,18 @@ export const Hero = () => {
     <section className="relative overflow-hidden bg-gradient-hero">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
-        <img 
-          src={heroImage} 
-          alt="Chicago makers and handmade goods" 
-          className="w-full h-full object-cover"
-        />
+        <picture>
+          <source srcSet={heroImageWebP} type="image/webp" />
+          <img
+            src={heroImageJpg}
+            alt="Chicago makers and handmade goods"
+            className="w-full h-full object-cover"
+            width={1920}
+            height={1080}
+            fetchPriority="high"
+            decoding="async"
+          />
+        </picture>
         <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-accent/80" />
       </div>
 
