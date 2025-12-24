@@ -21,7 +21,8 @@ import { AccessibilityPanel } from "@/components/accessibility/AccessibilityPane
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
   const { user, profile, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const navigate = useNavigate();
@@ -76,31 +77,51 @@ export const Header = () => {
 
           {/* Navigation - Desktop */}
           <nav className="hidden lg:flex items-center gap-1 flex-shrink-0">
-            <Button 
-              variant="ghost" 
-              className="h-9 px-3 text-sm font-medium hover:text-primary transition-colors"
+            <Button
+              variant="ghost"
+              className={`h-9 px-3 text-sm font-medium transition-colors ${
+                location.pathname === "/marketplace"
+                  ? "text-primary bg-primary/10"
+                  : "hover:text-primary"
+              }`}
               onClick={() => navigate("/marketplace")}
+              aria-current={location.pathname === "/marketplace" ? "page" : undefined}
             >
               Marketplace
             </Button>
-            <Button 
-              variant="ghost" 
-              className="h-9 px-3 text-sm font-medium hover:text-primary transition-colors"
+            <Button
+              variant="ghost"
+              className={`h-9 px-3 text-sm font-medium transition-colors ${
+                location.pathname === "/browse" || location.pathname.startsWith("/browse/")
+                  ? "text-primary bg-primary/10"
+                  : "hover:text-primary"
+              }`}
               onClick={() => navigate("/browse")}
+              aria-current={location.pathname === "/browse" || location.pathname.startsWith("/browse/") ? "page" : undefined}
             >
               Browse
             </Button>
             <Button
               variant="ghost"
-              className="h-9 px-3 text-sm font-medium hover:text-primary transition-colors"
+              className={`h-9 px-3 text-sm font-medium transition-colors ${
+                location.pathname === "/sell"
+                  ? "text-primary bg-primary/10"
+                  : "hover:text-primary"
+              }`}
               onClick={() => navigate("/sell")}
+              aria-current={location.pathname === "/sell" ? "page" : undefined}
             >
               Sell
             </Button>
             <Button
               variant="ghost"
-              className="h-9 px-3 text-sm font-medium hover:text-primary transition-colors"
+              className={`h-9 px-3 text-sm font-medium transition-colors ${
+                location.pathname === "/pricing"
+                  ? "text-primary bg-primary/10"
+                  : "hover:text-primary"
+              }`}
               onClick={() => navigate("/pricing")}
+              aria-current={location.pathname === "/pricing" ? "page" : undefined}
             >
               Pricing
             </Button>
@@ -113,8 +134,12 @@ export const Header = () => {
               variant="ghost"
               size="icon"
               className="lg:hidden h-9 w-9"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle search"
+              onClick={() => {
+                setIsSearchOpen(!isSearchOpen);
+                if (isMenuOpen) setIsMenuOpen(false);
+              }}
+              aria-label={isSearchOpen ? "Close search" : "Open search"}
+              aria-expanded={isSearchOpen}
             >
               <Search className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="sr-only">Search</span>
@@ -198,17 +223,28 @@ export const Header = () => {
             )}
 
             {/* Mobile Menu Toggle */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="lg:hidden h-9 w-9 ml-1 flex-shrink-0"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+                if (isSearchOpen) setIsSearchOpen(false);
+              }}
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isMenuOpen}
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>
+
+        {/* Mobile Search Panel */}
+        {isSearchOpen && (
+          <div className="lg:hidden py-3 border-t border-border animate-fade-in">
+            <QuickSearch className="w-full" compact />
+          </div>
+        )}
 
         {/* Mobile Menu */}
         {isMenuOpen && (
@@ -218,50 +254,65 @@ export const Header = () => {
               <CitySelector />
             </div>
 
-            {/* Mobile Search */}
-            <div className="relative mb-4">
-              <QuickSearch className="w-full" compact />
-            </div>
-
             {/* Mobile Navigation */}
-            <nav className="space-y-0.5">
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto"
+            <nav className="space-y-0.5" aria-label="Mobile navigation">
+              <Button
+                variant="ghost"
+                className={`w-full justify-start transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto ${
+                  location.pathname === "/marketplace"
+                    ? "text-primary bg-primary/10"
+                    : "text-foreground hover:text-primary hover:bg-muted/50"
+                }`}
                 onClick={() => {
                   navigate("/marketplace");
                   setIsMenuOpen(false);
                 }}
+                aria-current={location.pathname === "/marketplace" ? "page" : undefined}
               >
                 National Marketplace
               </Button>
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto"
+              <Button
+                variant="ghost"
+                className={`w-full justify-start transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto ${
+                  location.pathname === "/browse" || location.pathname.startsWith("/browse/")
+                    ? "text-primary bg-primary/10"
+                    : "text-foreground hover:text-primary hover:bg-muted/50"
+                }`}
                 onClick={() => {
                   navigate("/browse");
                   setIsMenuOpen(false);
                 }}
+                aria-current={location.pathname === "/browse" || location.pathname.startsWith("/browse/") ? "page" : undefined}
               >
                 Browse Categories
               </Button>
               <Button
                 variant="ghost"
-                className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto"
+                className={`w-full justify-start transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto ${
+                  location.pathname === "/sell"
+                    ? "text-primary bg-primary/10"
+                    : "text-foreground hover:text-primary hover:bg-muted/50"
+                }`}
                 onClick={() => {
                   navigate("/sell");
                   setIsMenuOpen(false);
                 }}
+                aria-current={location.pathname === "/sell" ? "page" : undefined}
               >
                 Start Selling
               </Button>
               <Button
                 variant="ghost"
-                className="w-full justify-start text-foreground hover:text-primary hover:bg-muted/50 transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto"
+                className={`w-full justify-start transition-colors py-2.5 px-3 rounded-md text-sm font-medium h-auto ${
+                  location.pathname === "/pricing"
+                    ? "text-primary bg-primary/10"
+                    : "text-foreground hover:text-primary hover:bg-muted/50"
+                }`}
                 onClick={() => {
                   navigate("/pricing");
                   setIsMenuOpen(false);
                 }}
+                aria-current={location.pathname === "/pricing" ? "page" : undefined}
               >
                 Pricing
               </Button>

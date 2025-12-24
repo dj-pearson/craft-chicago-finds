@@ -5,11 +5,33 @@ import { CategoryGrid } from "@/components/CategoryGrid";
 import { Footer } from "@/components/Footer";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { LocalSEO } from "@/components/seo";
 import { useCityContext } from "@/hooks/useCityContext";
 import { useAuth } from "@/hooks/useAuth";
 import { BreadcrumbStructuredData } from "@/components/SEO";
 import { FAQSection, chicagoHandmadeFAQs } from "@/components/seo/FAQSection";
+
+// Loading skeleton for WelcomeBanner
+const WelcomeBannerSkeleton = () => (
+  <div className="container mx-auto px-4 pt-4">
+    <div className="rounded-lg bg-muted/50 p-4 animate-pulse">
+      <Skeleton className="h-6 w-48 mb-2" />
+      <Skeleton className="h-4 w-64" />
+    </div>
+  </div>
+);
+
+// Loading skeleton for QuickActions
+const QuickActionsSkeleton = () => (
+  <div className="container mx-auto px-4 py-6">
+    <div className="flex gap-3 overflow-hidden">
+      {[1, 2, 3, 4].map((i) => (
+        <Skeleton key={i} className="h-12 w-32 rounded-lg flex-shrink-0" />
+      ))}
+    </div>
+  </div>
+);
 
 // Lazy load below-the-fold components
 const FeaturedMakers = lazy(() => import("@/components/FeaturedMakers").then(module => ({ default: module.FeaturedMakers })));
@@ -59,12 +81,12 @@ const Index = () => {
       <Header />
       <main>
         {user && (
-          <Suspense fallback={null}>
+          <Suspense fallback={<WelcomeBannerSkeleton />}>
             <WelcomeBanner />
           </Suspense>
         )}
         <Hero />
-        <Suspense fallback={null}>
+        <Suspense fallback={<QuickActionsSkeleton />}>
           <QuickActions />
         </Suspense>
         <ValueProposition />
