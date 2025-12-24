@@ -124,7 +124,7 @@ if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
 
 **Problem:**
 ```typescript
-const stripePromise = loadStripe('pk_test_51QM5vxFxgc4C2V6oEKrEqyKmXqU6FeSzKEu2YJHFlXYkV8V1r3JcH8AcXNJqWHWYO8TLHtPJqWZhN1pQN1qJ9Kk900e7x1pGm9');
+const stripePromise = loadStripe('pk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
 ```
 
 Stripe publishable key is hardcoded (test key, but still bad practice).
