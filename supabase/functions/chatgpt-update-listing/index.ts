@@ -41,6 +41,36 @@ serve(async (req) => {
 
     console.log('ChatGPT update listing request:', user.id, listing_id);
 
+    // Define whitelist of allowed fields to prevent mass assignment attacks
+    const ALLOWED_FIELDS = [
+      'title',
+      'description',
+      'price',
+      'category',
+      'subcategory',
+      'tags',
+      'images',
+      'quantity',
+      'shipping_available',
+      'local_pickup',
+      'weight',
+      'dimensions',
+      'condition',
+      'customizable',
+      'customization_instructions',
+      'processing_time'
+    ];
+
+    // Filter updates to only include allowed fields
+    const sanitizedUpdates = Object.keys(updates)
+      .filter(key => ALLOWED_FIELDS.includes(key))
+      .reduce((obj, key) => ({ ...obj, [key]: updates[key] }), {});
+
+    // Check if any fields were provided after sanitization
+    if (Object.keys(sanitizedUpdates).length === 0) {
+      throw new Error('No valid fields provided for update');
+    }
+
     // Verify ownership
     const { data: existingListing, error: fetchError } = await supabaseClient
       .from('listings')
@@ -54,10 +84,10 @@ serve(async (req) => {
       throw new Error('You can only update your own listings');
     }
 
-    // Update listing
+    // Update listing with sanitized fields only
     const { data: listing, error: updateError } = await supabaseClient
       .from('listings')
-      .update(updates)
+      .update(sanitizedUpdates)
       .eq('id', listing_id)
       .select()
       .single();
