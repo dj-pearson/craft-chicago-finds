@@ -29,7 +29,15 @@ serve(async (req) => {
 
     // Apply filters
     if (query) {
-      queryBuilder = queryBuilder.or(`title.ilike.%${query}%,description.ilike.%${query}%,tags.cs.{${query}}`);
+      // Sanitize query to prevent PostgREST injection attacks
+      // Escape special characters that have meaning in PostgREST filter syntax
+      const sanitizedQuery = query
+        .replace(/\\/g, '\\\\')  // Escape backslashes first
+        .replace(/[{}[\](),.]/g, '\\$&')  // Escape PostgREST special chars
+        .replace(/'/g, "''");  // Escape single quotes for SQL
+
+      // Use sanitized query in filters
+      queryBuilder = queryBuilder.or(`title.ilike.%${sanitizedQuery}%,description.ilike.%${sanitizedQuery}%`);
     }
 
     if (category) {
@@ -68,10 +76,19 @@ serve(async (req) => {
 
     // Generate widget HTML
     const widgetUrl = `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/chatgpt-widgets/craftlocal-widgets.js`;
+
+    // Escape listings JSON to prevent XSS when embedding in HTML attribute
+    const escapedListings = JSON.stringify(listings)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;');
+
     const widgetHtml = `
 <script src="${widgetUrl}"></script>
-<craftlocal-product-grid 
-  listings='${JSON.stringify(listings)}'
+<craftlocal-product-grid
+  listings='${escapedListings}'
   columns="3">
 </craftlocal-product-grid>
     `;
