@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useStripe } from '@/hooks/useStripe';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
+import { usePlatformFee } from '@/hooks/usePlatformFee';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -18,12 +19,12 @@ export const AppleGooglePayButton = ({ onSuccess, onError, disabled }: AppleGoog
   const { stripe } = useStripe();
   const { items, totalAmount, clearCart } = useCart();
   const { user } = useAuth();
+  const { feeRate, flatFee } = usePlatformFee();
   const { toast } = useToast();
   const [paymentRequest, setPaymentRequest] = useState<any>(null);
   const [canMakePayment, setCanMakePayment] = useState(false);
 
-  const PLATFORM_FEE_RATE = 0.1;
-  const platformFee = totalAmount * PLATFORM_FEE_RATE;
+  const platformFee = (totalAmount * feeRate) + flatFee;
   const finalTotal = totalAmount + platformFee;
 
   useEffect(() => {

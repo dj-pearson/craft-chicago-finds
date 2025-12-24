@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { usePlatformFee } from '@/hooks/usePlatformFee';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -54,13 +55,11 @@ interface CommissionPayout {
 
 export function PayoutDashboard() {
   const { user } = useAuth();
+  const { feeRate, flatFee } = usePlatformFee();
   const [payouts, setPayouts] = useState<CommissionPayout[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentBalance, setCurrentBalance] = useState(0);
   const [pendingPayout, setPendingPayout] = useState<CommissionPayout | null>(null);
-
-  // Platform fee rate (should match checkout - 10%)
-  const PLATFORM_FEE_RATE = 0.10;
 
   useEffect(() => {
     if (user) {
@@ -112,7 +111,7 @@ export function PayoutDashboard() {
       // Calculate seller's share
       const balance = orders?.reduce((acc, order) => {
         const subtotal = order.total_amount - (order.discount_amount || 0);
-        const platformFee = order.platform_fee || (subtotal * PLATFORM_FEE_RATE);
+        const platformFee = order.platform_fee || ((subtotal * feeRate) + flatFee);
         const sellerAmount = subtotal - platformFee;
         return acc + sellerAmount;
       }, 0) || 0;
@@ -205,7 +204,7 @@ export function PayoutDashboard() {
 
   const averageCommissionRate = totalLifetimeSales > 0
     ? (totalCommissionPaid / totalLifetimeSales) * 100
-    : PLATFORM_FEE_RATE * 100;
+    : feeRate * 100;
 
   return (
     <div className="space-y-6">

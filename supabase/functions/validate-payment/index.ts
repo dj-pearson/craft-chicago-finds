@@ -226,7 +226,53 @@ serve(async (req) => {
       }
 
       // Check for any fraud flags or account restrictions
-      // TODO: Implement buyer account standing check
+      const { data: buyerProfile, error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .select('verification_status')
+        .eq('id', buyer_id)
+        .single();
+
+      if (profileError || !buyerProfile) {
+        return new Response(
+          JSON.stringify({
+            valid: false,
+            error: "BUYER_PROFILE_ERROR",
+            message: "Unable to verify buyer account status"
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+        );
+      }
+
+      // Block suspended accounts
+      if (buyerProfile.verification_status === 'suspended') {
+        return new Response(
+          JSON.stringify({
+            valid: false,
+            error: "ACCOUNT_SUSPENDED",
+            message: "Your account has been suspended. Please contact support."
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
+        );
+      }
+
+      // Check for active fraud reports against buyer
+      const { data: fraudReports, error: fraudError } = await supabaseAdmin
+        .from('fraud_reports')
+        .select('id, report_type, severity')
+        .eq('reported_user_id', buyer_id)
+        .eq('status', 'confirmed')
+        .gte('severity', 'high');
+
+      if (!fraudError && fraudReports && fraudReports.length > 0) {
+        return new Response(
+          JSON.stringify({
+            valid: false,
+            error: "FRAUD_FLAG",
+            message: "Transaction blocked due to account security concerns. Please contact support."
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
+        );
+      }
     }
 
     // ============================================
