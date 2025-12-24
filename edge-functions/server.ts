@@ -20,13 +20,38 @@
 const PORT = parseInt(Deno.env.get('PORT') || '8000');
 const FUNCTIONS_DIR = '/app/functions';
 
-// CORS headers - Configure for your domain
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*', // TODO: Change to specific domain in production
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info',
-  'Access-Control-Max-Age': '86400', // 24 hours
-};
+// Allowed origins for CORS (production domains + localhost for development)
+const ALLOWED_ORIGINS = [
+  'https://craftlocal.net',
+  'https://www.craftlocal.net',
+  'https://craft-chicago-finds.pages.dev',
+  'http://localhost:8080',
+  'http://localhost:3000',
+];
+
+/**
+ * Get CORS origin based on request origin
+ * Returns the request origin if it's in the allowed list, otherwise returns the first allowed origin
+ */
+function getCorsOrigin(request: Request): string {
+  const origin = request.headers.get('Origin');
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    return origin;
+  }
+  // Default to first production origin
+  return ALLOWED_ORIGINS[0];
+}
+
+// CORS headers function - returns headers with dynamic origin
+function getCorsHeaders(request: Request): Record<string, string> {
+  return {
+    'Access-Control-Allow-Origin': getCorsOrigin(request),
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey, x-client-info',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Max-Age': '86400', // 24 hours
+  };
+}
 
 /**
  * Get list of available functions by scanning the functions directory
@@ -57,9 +82,9 @@ async function getAvailableFunctions(): Promise<string[]> {
 /**
  * Health check endpoint handler
  */
-async function handleHealthCheck(): Promise<Response> {
+async function handleHealthCheck(req: Request): Promise<Response> {
   const functions = await getAvailableFunctions();
-  
+
   const healthData = {
     status: 'healthy',
     service: 'craft-local-edge-functions',
@@ -76,14 +101,14 @@ async function handleHealthCheck(): Promise<Response> {
       available: functions,
     },
   };
-  
+
   return new Response(
     JSON.stringify(healthData, null, 2),
     {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        ...corsHeaders,
+        ...getCorsHeaders(req),
       },
     }
   );
@@ -92,10 +117,10 @@ async function handleHealthCheck(): Promise<Response> {
 /**
  * Handle OPTIONS requests for CORS preflight
  */
-function handleOptions(): Response {
+function handleOptions(req: Request): Response {
   return new Response(null, {
     status: 204,
-    headers: corsHeaders,
+    headers: getCorsHeaders(req),
   });
 }
 
@@ -110,14 +135,14 @@ async function handleRequest(req: Request): Promise<Response> {
   
   // Handle OPTIONS for CORS preflight
   if (req.method === 'OPTIONS') {
-    return handleOptions();
+    return handleOptions(req);
   }
-  
+
   // Health check endpoint
   if (path === '/_health' || path === '/health') {
-    return await handleHealthCheck();
+    return await handleHealthCheck(req);
   }
-  
+
   // Root endpoint - return welcome message
   if (path === '/') {
     const functions = await getAvailableFunctions();
@@ -135,15 +160,15 @@ async function handleRequest(req: Request): Promise<Response> {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
-          ...corsHeaders,
+          ...getCorsHeaders(req),
         },
       }
     );
   }
-  
+
   // Extract function name from path
   const functionName = path.split('/')[1];
-  
+
   if (!functionName) {
     return new Response(
       JSON.stringify({ error: 'Function name required' }),
@@ -151,21 +176,21 @@ async function handleRequest(req: Request): Promise<Response> {
         status: 400,
         headers: {
           'Content-Type': 'application/json',
-          ...corsHeaders,
+          ...getCorsHeaders(req),
         },
       }
     );
   }
-  
+
   // Build function path
   const functionPath = `${FUNCTIONS_DIR}/${functionName}/index.ts`;
-  
+
   // Check if function exists
   try {
     await Deno.stat(functionPath);
   } catch {
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: `Function '${functionName}' not found`,
         availableFunctions: await getAvailableFunctions(),
       }),
@@ -173,46 +198,46 @@ async function handleRequest(req: Request): Promise<Response> {
         status: 404,
         headers: {
           'Content-Type': 'application/json',
-          ...corsHeaders,
+          ...getCorsHeaders(req),
         },
       }
     );
   }
-  
+
   // Dynamically import and execute the function
   try {
     console.log(`Loading function: ${functionName}`);
-    
+
     // Import the function module
     const functionModule = await import(`file://${functionPath}`);
-    
+
     // Create a new Request object to pass to the function
     const functionRequest = new Request(req.url, {
       method: req.method,
       headers: req.headers,
       body: req.body,
     });
-    
+
     // If the module exports a handler, call it directly
     if (typeof functionModule.default === 'function') {
       const response = await functionModule.default(functionRequest);
-      
+
       // Add CORS headers to the response
       const headers = new Headers(response.headers);
-      Object.entries(corsHeaders).forEach(([key, value]) => {
+      Object.entries(getCorsHeaders(req)).forEach(([key, value]) => {
         headers.set(key, value);
       });
-      
+
       return new Response(response.body, {
         status: response.status,
         statusText: response.statusText,
         headers,
       });
     }
-    
+
     // If no handler is exported, return an error
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: `Function '${functionName}' does not export a handler`,
         hint: 'Functions should use Deno.serve() or export a default handler function',
       }),
@@ -220,16 +245,16 @@ async function handleRequest(req: Request): Promise<Response> {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
-          ...corsHeaders,
+          ...getCorsHeaders(req),
         },
       }
     );
-    
+
   } catch (error) {
     console.error(`Error executing function '${functionName}':`, error);
-    
+
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: 'Function execution failed',
         message: error.message,
         stack: error.stack,
@@ -238,7 +263,7 @@ async function handleRequest(req: Request): Promise<Response> {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
-          ...corsHeaders,
+          ...getCorsHeaders(req),
         },
       }
     );

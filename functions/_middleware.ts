@@ -6,6 +6,28 @@ const API_KEY_HEADER = 'X-API-Key';
 const CSRF_EXEMPT_PATHS = ['/api/health', '/api/webhook'];
 const STATE_CHANGING_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
+// Allowed origins for CORS (production domains + localhost for development)
+const ALLOWED_ORIGINS = [
+  'https://craftlocal.net',
+  'https://www.craftlocal.net',
+  'https://craft-chicago-finds.pages.dev', // Cloudflare Pages preview
+  'http://localhost:8080', // Local development
+  'http://localhost:3000', // Local preview
+];
+
+/**
+ * Get CORS origin based on request origin
+ * Returns the request origin if it's in the allowed list, otherwise returns the first allowed origin
+ */
+function getCorsOrigin(request: Request): string {
+  const origin = request.headers.get('Origin');
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    return origin;
+  }
+  // Default to first production origin
+  return ALLOWED_ORIGINS[0];
+}
+
 /**
  * Validate CSRF token from header against cookie
  */
@@ -76,9 +98,10 @@ export async function onRequest(context: {
     return new Response(null, {
       status: 204,
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': getCorsOrigin(request),
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': `Content-Type, Authorization, X-Requested-With, ${CSRF_HEADER}, ${API_KEY_HEADER}`,
+        'Access-Control-Allow-Credentials': 'true',
         'Access-Control-Max-Age': '86400',
       },
     });
@@ -101,7 +124,8 @@ export async function onRequest(context: {
               status: 403,
               headers: {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Origin': getCorsOrigin(request),
+                'Access-Control-Allow-Credentials': 'true',
               },
             }
           );
@@ -115,9 +139,10 @@ export async function onRequest(context: {
 
   // Add CORS and security headers to all responses
   const newResponse = new Response(response.body, response);
-  newResponse.headers.set('Access-Control-Allow-Origin', '*');
+  newResponse.headers.set('Access-Control-Allow-Origin', getCorsOrigin(request));
   newResponse.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   newResponse.headers.set('Access-Control-Allow-Headers', `Content-Type, Authorization, X-Requested-With, ${CSRF_HEADER}, ${API_KEY_HEADER}`);
+  newResponse.headers.set('Access-Control-Allow-Credentials', 'true');
 
   // Security headers
   newResponse.headers.set('X-Content-Type-Options', 'nosniff');
