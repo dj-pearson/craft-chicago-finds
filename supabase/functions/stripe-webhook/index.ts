@@ -352,8 +352,33 @@ async function handleCartCheckout(
 
   if (failedOrders.length > 0) {
     console.error("Some orders failed to create:", failedOrders);
-    // TODO: Implement compensation logic or retry mechanism
-    // For now, we continue since at least some orders succeeded
+
+    // Log failed orders to webhook_logs for retry/investigation
+    try {
+      const webhookLogPromises = failedOrders.map(async (failedOrder) => {
+        return supabaseAdmin
+          .from('webhook_logs')
+          .insert({
+            event_id: session.id,
+            event_type: 'checkout.session.completed.failed_order',
+            payload: {
+              session_id: session.id,
+              failed_order: failedOrder,
+              seller_id: failedOrder.seller_id,
+              listing_id: failedOrder.listing_id,
+              error: failedOrder.error
+            },
+            status: 'failed',
+            error_message: failedOrder.error,
+            retry_count: 0
+          });
+      });
+
+      await Promise.all(webhookLogPromises);
+      console.log(`Logged ${failedOrders.length} failed orders to webhook_logs for retry`);
+    } catch (logError) {
+      console.error("Failed to log failed orders:", logError);
+    }
   }
 }
 

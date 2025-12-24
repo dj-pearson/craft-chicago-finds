@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { useDiscountCodes } from "@/hooks/useDiscountCodes";
+import { usePlatformFee } from "@/hooks/usePlatformFee";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +38,7 @@ export const CartPage = () => {
   } = useCart();
   const { user } = useAuth();
   const { validateDiscountCode, calculateDiscountAmount } = useDiscountCodes();
+  const { feeRate, flatFee } = usePlatformFee();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -55,8 +57,6 @@ export const CartPage = () => {
   const [appliedDiscounts, setAppliedDiscounts] = useState<Record<string, AppliedDiscount>>({});
   const [validatingDiscount, setValidatingDiscount] = useState<string | null>(null);
 
-  const platformFeeRate = 0.1; // 10%
-
   // Calculate totals with discounts
   const calculateTotals = () => {
     const subtotal = totalAmount;
@@ -67,7 +67,7 @@ export const CartPage = () => {
     });
 
     const discountedSubtotal = subtotal - totalDiscount;
-    const platformFee = discountedSubtotal * platformFeeRate;
+    const platformFee = (discountedSubtotal * feeRate) + flatFee;
     const finalTotal = discountedSubtotal + platformFee;
 
     return { subtotal, totalDiscount, discountedSubtotal, platformFee, finalTotal };
@@ -502,7 +502,7 @@ export const CartPage = () => {
 
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
-                      <span>Platform fee (10%)</span>
+                      <span>Platform fee ({(feeRate * 100).toFixed(1)}%{flatFee > 0 && ` + $${flatFee.toFixed(2)}`})</span>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info className="h-3 w-3 cursor-help" />

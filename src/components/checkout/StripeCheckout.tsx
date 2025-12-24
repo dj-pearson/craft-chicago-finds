@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useStripe } from '@/hooks/useStripe';
 import { useAuth } from '@/hooks/useAuth';
 import { useFraudDetection } from '@/hooks/useFraudDetection';
+import { usePlatformFee } from '@/hooks/usePlatformFee';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,14 +42,15 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
   const { stripe, isLoading: stripeLoading } = useStripe();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { 
-    analyzeTransaction, 
-    isAnalyzing, 
-    trustScore, 
+  const { feeRate, flatFee } = usePlatformFee();
+  const {
+    analyzeTransaction,
+    isAnalyzing,
+    trustScore,
     getSecurityStatus,
-    isInitialized 
+    isInitialized
   } = useFraudDetection();
-  
+
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [fulfillmentMethod, setFulfillmentMethod] = useState<'local_pickup' | 'shipping'>('local_pickup');
@@ -63,9 +65,8 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
     zip: ''
   });
 
-  const PLATFORM_FEE_RATE = 0.1; // 10% platform fee
   const subtotal = listing.price * quantity;
-  const platformFee = subtotal * PLATFORM_FEE_RATE;
+  const platformFee = (subtotal * feeRate) + flatFee;
   const total = subtotal + platformFee;
 
   // Run fraud analysis when transaction details change
@@ -240,7 +241,7 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
                 <span>${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Platform fee (10%):</span>
+                <span>Platform fee ({(feeRate * 100).toFixed(1)}%{flatFee > 0 && ` + $${flatFee.toFixed(2)}`}):</span>
                 <span>${platformFee.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-semibold border-t pt-2">

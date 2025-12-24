@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCart } from '@/hooks/useCart';
+import { usePlatformFee } from '@/hooks/usePlatformFee';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +29,7 @@ interface ShippingAddress {
 
 export const GuestCheckout = () => {
   const { items, clearCart, totalAmount, itemCount } = useCart();
+  const { feeRate, flatFee } = usePlatformFee();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -92,8 +94,7 @@ export const GuestCheckout = () => {
     }
   };
 
-  const PLATFORM_FEE_RATE = 0.1; // 10%
-  const platformFee = totalAmount * PLATFORM_FEE_RATE;
+  const platformFee = (totalAmount * feeRate) + flatFee;
   const finalTotal = totalAmount + platformFee;
 
   // Group items by seller
@@ -508,7 +509,7 @@ export const GuestCheckout = () => {
                     <span>${totalAmount.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Platform fee (10%)</span>
+                    <span>Platform fee ({(feeRate * 100).toFixed(1)}%{flatFee > 0 && ` + $${flatFee.toFixed(2)}`})</span>
                     <span>${platformFee.toFixed(2)}</span>
                   </div>
                   <Separator />
