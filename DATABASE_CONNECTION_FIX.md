@@ -98,7 +98,7 @@ If you have access to Supabase config, update the CORS settings in your Supabase
 
 ```
 VITE_SUPABASE_URL=https://api.craftlocal.net
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzM0NDAwMDAwLCJleHAiOjIwNTAwMDAwMDB9.ALT0l4BuD8yD9_TSEpasKyr7IIRuhcEYDqaEUBRBYVM
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 ```
 
 5. Click **Save**
