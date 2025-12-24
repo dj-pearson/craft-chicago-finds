@@ -8,6 +8,8 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { LocalSEO } from "@/components/seo";
 import { useCityContext } from "@/hooks/useCityContext";
 import { useAuth } from "@/hooks/useAuth";
+import { BreadcrumbStructuredData } from "@/components/SEO";
+import { FAQSection, chicagoHandmadeFAQs } from "@/components/seo/FAQSection";
 
 // Lazy load below-the-fold components
 const FeaturedMakers = lazy(() => import("@/components/FeaturedMakers").then(module => ({ default: module.FeaturedMakers })));
@@ -20,9 +22,17 @@ const Index = () => {
   const { currentCity } = useCityContext();
   const { user } = useAuth();
   
+  const breadcrumbItems = [
+    { name: "Home", url: "https://craftlocal.net/" },
+    { name: currentCity?.name || "Chicago", url: `https://craftlocal.net/${currentCity?.name?.toLowerCase() || "chicago"}` }
+  ];
+
   return (
     <div className="min-h-screen bg-background">
-      <LocalSEO 
+      {/* Breadcrumb Structured Data for Enhanced Search Results */}
+      <BreadcrumbStructuredData items={breadcrumbItems} />
+
+      <LocalSEO
         pageType="city"
         pageData={{
           cityName: currentCity?.name || "Chicago",
@@ -68,6 +78,14 @@ const Index = () => {
         <Suspense fallback={<LoadingSpinner text="Loading featured makers..." />}>
           <FeaturedMakers />
         </Suspense>
+
+        {/* FAQ Section for GEO and People Also Ask optimization */}
+        <section className="container mx-auto px-4 py-12 sm:py-16">
+          <FAQSection
+            title="Frequently Asked Questions About Chicago Handmade Goods"
+            faqs={chicagoHandmadeFAQs}
+          />
+        </section>
       </main>
       <Footer />
     </div>
