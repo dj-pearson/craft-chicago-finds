@@ -9,13 +9,30 @@ to = "https://:splat"
 status = 301
 force = true
 
+# ============================================
+# SECURITY NOTE: Environment Variables
+# ============================================
+# IMPORTANT: Sensitive keys should be set via Cloudflare Dashboard:
+# Dashboard → Settings → Environment Variables
+#
+# Required secrets to configure:
+# - VITE_SUPABASE_ANON_KEY: Your Supabase anon/public key
+# - VITE_STRIPE_PUBLISHABLE_KEY: Your Stripe publishable key
+#
+# For Supabase Edge Functions, set via Supabase Dashboard:
+# - STRIPE_SECRET_KEY: Your Stripe secret key
+# - STRIPE_WEBHOOK_SECRET: Stripe webhook signing secret
+# - SUPABASE_SERVICE_ROLE_KEY: Service role key for admin operations
+# ============================================
+
 # Environment variables for production
+# Only non-sensitive values should be listed here
 [env.production]
 compatibility_date = "2024-12-19"
 
 [env.production.vars]
 VITE_SUPABASE_URL = "https://api.craftlocal.net"
-VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzM0NDAwMDAwLCJleHAiOjIwNTAwMDAwMDB9.ALT0l4BuD8yD9_TSEpasKyr7IIRuhcEYDqaEUBRBYVM"
+# VITE_SUPABASE_ANON_KEY should be set in Cloudflare Dashboard secrets
 
 # Environment variables for preview
 [env.preview]
@@ -23,4 +40,4 @@ compatibility_date = "2024-12-19"
 
 [env.preview.vars]
 VITE_SUPABASE_URL = "https://api.craftlocal.net"
-VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzM0NDAwMDAwLCJleHAiOjIwNTAwMDAwMDB9.ALT0l4BuD8yD9_TSEpasKyr7IIRuhcEYDqaEUBRBYVM"
+# VITE_SUPABASE_ANON_KEY should be set in Cloudflare Dashboard secrets
