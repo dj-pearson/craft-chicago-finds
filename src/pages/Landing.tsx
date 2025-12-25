@@ -11,6 +11,8 @@ import { Footer } from "@/components/Footer";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { FAQSection, chicagoHandmadeFAQs } from "@/components/seo/FAQSection";
 import { FeaturedCollections } from "@/components/collections/FeaturedCollections";
+import { OrganizationSchema, WebSiteSchema, LocalBusinessSchema } from "@/components/seo/SchemaMarkup";
+import { QuickLinks } from "@/components/seo/InternalLinks";
 
 interface City {
   id: string;
@@ -61,34 +63,104 @@ const Landing = () => {
   const seoTitle = "Craft Chicago Finds - Local Craft Commerce Infrastructure | Chicago's Operating System for Makers";
   const seoDescription = `Chicago's essential infrastructure for local craft commerce. Same-day pickup from 500+ makers. Real-time inventory, craft fair integration, and local economic data. More than a marketplace—we're the platform Chicago's creative economy runs on.`;
 
-  // Organization Schema
+  // Enhanced Organization Schema with comprehensive business information
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Craft Chicago Finds",
+    "alternateName": "CraftLocal",
     "url": window.location.origin,
     "logo": `${window.location.origin}/logo-optimized.webp`,
     "description": "Chicago's craft commerce infrastructure connecting physical and digital local commerce. Essential operating system for makers, buyers, and craft fairs.",
+    "foundingDate": "2024",
+    "slogan": "Chicago's Craft Commerce Infrastructure",
+    "knowsAbout": [
+      "Local craft commerce",
+      "Same-day pickup marketplace",
+      "Handmade goods",
+      "Artisan products",
+      "Chicago makers",
+      "Craft fair integration"
+    ],
+    "areaServed": {
+      "@type": "City",
+      "name": "Chicago",
+      "containedInPlace": {
+        "@type": "State",
+        "name": "Illinois"
+      }
+    },
     "sameAs": [
       "https://www.facebook.com/craftchicagofinds",
       "https://www.instagram.com/craftchicagofinds",
       "https://twitter.com/craftchicago"
-    ]
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "availableLanguage": "English"
+    },
+    "numberOfEmployees": {
+      "@type": "QuantitativeValue",
+      "value": "500",
+      "unitText": "makers"
+    }
   };
 
-  // WebSite Schema with SearchAction
+  // WebSite Schema with SearchAction for sitelinks searchbox
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Craft Chicago Finds",
     "url": window.location.origin,
+    "description": "Chicago's marketplace for handmade goods from local artisans",
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": `${window.location.origin}/{city}/browse?q={search_term_string}`
+        "urlTemplate": `${window.location.origin}/chicago/browse?q={search_term_string}`
       },
       "query-input": "required name=search_term_string"
+    }
+  };
+
+  // LocalBusiness Schema for enhanced local SEO
+  const localBusinessSchema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Craft Chicago Finds",
+    "description": "Chicago's premier marketplace for handmade goods from 500+ local artisans. Same-day pickup available.",
+    "url": window.location.origin,
+    "logo": `${window.location.origin}/logo-optimized.webp`,
+    "image": `${window.location.origin}/logo-optimized.webp`,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Chicago",
+      "addressRegion": "IL",
+      "addressCountry": "US"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "41.8781",
+      "longitude": "-87.6298"
+    },
+    "priceRange": "$15-$500",
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      "opens": "00:00",
+      "closes": "23:59"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Handmade Products",
+      "itemListElement": [
+        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Handmade Ceramics" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Handmade Jewelry" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Home Decor" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Art & Prints" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Handmade Candles" } }
+      ]
     }
   };
 
@@ -123,7 +195,7 @@ const Landing = () => {
       description: seoDescription,
       site: '@craftchicago'
     },
-    schema: [organizationSchema, websiteSchema]
+    schema: [organizationSchema, websiteSchema, localBusinessSchema]
   };
 
   return (
@@ -318,6 +390,14 @@ const Landing = () => {
               title="Frequently Asked Questions"
               faqs={chicagoHandmadeFAQs}
             />
+          </div>
+        </section>
+
+        {/* Quick Links Section - Internal Linking for SEO */}
+        <section className="py-8 px-4 border-t">
+          <div className="container mx-auto">
+            <h3 className="text-sm font-semibold text-muted-foreground mb-4">Quick Links</h3>
+            <QuickLinks citySlug={cities.find(c => c.is_active)?.slug || 'chicago'} />
           </div>
         </section>
       </main>
