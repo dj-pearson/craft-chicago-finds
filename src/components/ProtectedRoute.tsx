@@ -17,12 +17,17 @@ export const ProtectedRoute = ({
   requireAdmin = false,
   requireSeller = false
 }: ProtectedRouteProps) => {
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading, profileLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
   const location = useLocation();
 
   // Show loading spinner while checking auth status
-  if (authLoading || (requireAdmin && adminLoading)) {
+  // Include profileLoading for seller routes since seller status comes from profile
+  const isLoading = authLoading ||
+    (requireAdmin && adminLoading) ||
+    (requireSeller && profileLoading);
+
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />

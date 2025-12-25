@@ -185,7 +185,7 @@ export default function Auth() {
 
     setLoading(true);
 
-    const { error } = await signUp(signUpEmail, signUpPassword, displayName || undefined);
+    const { error } = await signUp(signUpEmail, signUpPassword, displayName ? { displayName } : undefined);
 
     if (error) {
       if (error.message.includes('User already registered')) {
