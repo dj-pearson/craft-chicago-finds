@@ -69,11 +69,71 @@ const Index = () => {
             "@context": "https://schema.org",
             "@type": "WebSite",
             "name": "CraftLocal",
-            "url": "https://craftlocal.com",
+            "url": "https://craftlocal.net",
             "potentialAction": {
               "@type": "SearchAction",
-              "target": "https://craftlocal.com/search?q={search_term_string}",
+              "target": "https://craftlocal.net/search?q={search_term_string}",
               "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "CraftLocal",
+            "legalName": "Craft Chicago Finds",
+            "url": "https://craftlocal.net",
+            "logo": "https://craftlocal.net/logo-optimized.webp",
+            "foundingDate": "2024",
+            "foundingLocation": {
+              "@type": "Place",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Chicago",
+                "addressRegion": "IL",
+                "addressCountry": "US"
+              }
+            },
+            "description": "Chicago's essential craft commerce infrastructure. Same-day pickup marketplace connecting 500+ verified local makers with buyers. Features Market Mode for craft fairs, real-time inventory, and local economic data. Only 10% commission vs Etsy's 20-25%.",
+            "slogan": "Chicago's Craft Commerce Infrastructure",
+            "knowsAbout": [
+              "Local handmade goods marketplace",
+              "Same-day pickup marketplace",
+              "Craft fair integration",
+              "Chicago artisan community",
+              "Local economic data for makers",
+              "Maker intelligence tools"
+            ],
+            "areaServed": {
+              "@type": "City",
+              "name": "Chicago",
+              "containedInPlace": {
+                "@type": "State",
+                "name": "Illinois",
+                "containedInPlace": {
+                  "@type": "Country",
+                  "name": "United States"
+                }
+              }
+            },
+            "sameAs": [
+              "https://www.facebook.com/craftchicagofinds",
+              "https://www.instagram.com/craftchicagofinds",
+              "https://twitter.com/craftchicago"
+            ],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "contactType": "Customer Support",
+              "url": "https://craftlocal.net/contact"
+            },
+            "offers": {
+              "@type": "AggregateOffer",
+              "offerCount": "500+",
+              "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock",
+              "seller": {
+                "@type": "Organization",
+                "name": "CraftLocal"
+              }
             }
           }
         ]}
