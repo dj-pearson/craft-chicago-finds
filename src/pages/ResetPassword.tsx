@@ -13,8 +13,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { Loader2, CheckCircle2 } from 'lucide-react';
+import { validators } from '@/lib/validation';
+import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
 
-const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
+// Use the same strong password policy as signup
+const passwordSchema = validators.password;
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -108,7 +111,7 @@ export default function ResetPassword() {
           <CardHeader>
             <CardTitle>New Password</CardTitle>
             <CardDescription>
-              Choose a strong password with at least 6 characters
+              Choose a strong password with at least 8 characters
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -124,9 +127,7 @@ export default function ResetPassword() {
                   required
                   autoComplete="new-password"
                 />
-                <p className="text-xs text-muted-foreground">
-                  Must be at least 6 characters
-                </p>
+                <PasswordStrengthMeter password={newPassword} />
               </div>
 
               <div className="space-y-2">

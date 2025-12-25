@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -21,8 +21,9 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  profileLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, metadata?: any) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, metadata?: { displayName?: string }) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
@@ -36,8 +37,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
 
-  const fetchProfile = async (userId: string) => {
+  // Track initialization to prevent race conditions
+  const isInitializedRef = useRef(false);
+  const currentProfileFetchRef = useRef<string | null>(null);
+
+  const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
+    // Prevent duplicate fetches for the same user
+    if (currentProfileFetchRef.current === userId) {
+      return null;
+    }
+
+    currentProfileFetchRef.current = userId;
+    setProfileLoading(true);
+
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -47,38 +61,75 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) {
         console.error("Error fetching profile:", error);
-        return;
+        return null;
       }
 
       setProfile(data);
+      return data;
     } catch (error) {
       console.error("Error fetching profile:", error);
+      return null;
+    } finally {
+      currentProfileFetchRef.current = null;
+      setProfileLoading(false);
     }
-  };
+  }, []);
 
-  const refreshProfile = async () => {
+  const refreshProfile = useCallback(async () => {
     if (user) {
       await fetchProfile(user.id);
     }
-  };
+  }, [user, fetchProfile]);
 
   useEffect(() => {
     let mounted = true;
+
+    // Set up auth state listener FIRST to catch any auth events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, newSession) => {
+        if (!mounted) return;
+
+        // Skip if this is the initial session and we haven't initialized yet
+        // The initializeAuth function will handle the initial state
+        if (!isInitializedRef.current && event === 'INITIAL_SESSION') {
+          return;
+        }
+
+        console.log("Auth state changed:", event);
+
+        // Update session and user state synchronously
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
+
+        // Handle profile based on session state
+        if (newSession?.user) {
+          // Use setTimeout to avoid blocking the auth state change
+          // and to batch with React's state updates
+          setTimeout(() => {
+            if (mounted) {
+              fetchProfile(newSession.user.id);
+            }
+          }, 0);
+        } else {
+          setProfile(null);
+        }
+      }
+    );
 
     // Initialize session state
     const initializeAuth = async () => {
       try {
         // Get initial session
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
 
         if (!mounted) return;
 
-        setSession(session);
-        setUser(session?.user ?? null);
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
 
-        if (session?.user) {
+        if (initialSession?.user) {
           // Fetch profile after setting user
-          await fetchProfile(session.user.id);
+          await fetchProfile(initialSession.user.id);
         } else {
           setProfile(null);
         }
@@ -86,29 +137,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.error("Error initializing auth:", error);
       } finally {
         if (mounted) {
+          isInitializedRef.current = true;
           setLoading(false);
         }
       }
     };
-
-    // Set up auth state listener for subsequent changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
-
-        console.log("Auth state changed:", event);
-
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          // Fetch profile on auth state change
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-        }
-      }
-    );
 
     // Initialize auth state
     initializeAuth();
@@ -117,7 +150,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchProfile]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -127,15 +160,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return { error };
   };
 
-  const signUp = async (email: string, password: string, metadata?: any) => {
+  const signUp = async (email: string, password: string, metadata?: { displayName?: string }) => {
     const redirectUrl = `${window.location.origin}/`;
-    
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl,
-        data: metadata,
+        data: metadata?.displayName ? { display_name: metadata.displayName } : undefined,
       }
     });
     return { error };
@@ -169,6 +202,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     session,
     profile,
     loading,
+    profileLoading,
     signIn,
     signUp,
     signOut,
