@@ -356,7 +356,7 @@ async function handleCartCheckout(
     // Log failed orders to webhook_logs for retry/investigation
     try {
       const webhookLogPromises = failedOrders.map(async (failedOrder) => {
-        return supabaseAdmin
+        return supabaseClient
           .from('webhook_logs')
           .insert({
             event_id: session.id,
@@ -364,12 +364,11 @@ async function handleCartCheckout(
             payload: {
               session_id: session.id,
               failed_order: failedOrder,
-              seller_id: failedOrder.seller_id,
-              listing_id: failedOrder.listing_id,
-              error: failedOrder.error
+              seller_id: failedOrder.sellerId,
+              error: String(failedOrder.error)
             },
             status: 'failed',
-            error_message: failedOrder.error,
+            error_message: String(failedOrder.error),
             retry_count: 0
           });
       });
@@ -384,7 +383,7 @@ async function handleCartCheckout(
 
 async function handleGuestCartCheckout(session: Stripe.Checkout.Session, metadata: any) {
   console.log('Processing guest cart checkout:', session.id);
-  
+
   try {
     // ============================================
     // IDEMPOTENCY CHECK for guest orders
@@ -400,7 +399,7 @@ async function handleGuestCartCheckout(session: Stripe.Checkout.Session, metadat
       console.log('Guest order already processed for session:', session.id);
       return; // Skip duplicate processing
     }
-    
+
     // Parse metadata
     const guestName = metadata.guest_name;
     const guestEmail = metadata.guest_email;
@@ -409,42 +408,60 @@ async function handleGuestCartCheckout(session: Stripe.Checkout.Session, metadat
     const shippingAddress = metadata.shipping_address ? JSON.parse(metadata.shipping_address) : null;
     const notes = metadata.notes;
     const sendMagicLink = metadata.send_magic_link === 'true';
-    
+    const platformFee = parseFloat(metadata.platform_fee || '0');
+
     console.log('Guest info:', { guestName, guestEmail, sendMagicLink });
 
-    // Get line items from the session
-    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
-      expand: ['data.price.product']
-    });
+    // Set commission hold period (7 days for chargeback protection)
+    const commissionHoldUntil = new Date();
+    commissionHoldUntil.setDate(commissionHoldUntil.getDate() + 7);
 
-    // Group items by seller (exclude platform fee)
-    const sellerGroups: Record<string, any[]> = {};
-    
-    for (const item of lineItems.data) {
-      const product = item.price?.product as Stripe.Product;
-      if (product?.metadata?.type === 'platform_fee') continue;
-      
-      const sellerId = product?.metadata?.seller_id;
-      if (!sellerId) continue;
-      
-      if (!sellerGroups[sellerId]) {
-        sellerGroups[sellerId] = [];
+    // SECURITY: Use verified cart items from metadata if available
+    let sellerGroups: Record<string, any[]> = {};
+
+    if (metadata.cart_items) {
+      // Use verified cart items stored in metadata (already verified at checkout creation)
+      const cartItems = JSON.parse(metadata.cart_items);
+      for (const item of cartItems) {
+        if (!sellerGroups[item.seller_id]) {
+          sellerGroups[item.seller_id] = [];
+        }
+        sellerGroups[item.seller_id].push(item);
       }
-      
-      sellerGroups[sellerId].push({
-        listing_id: product.metadata.listing_id,
-        seller_name: product.metadata.seller_name,
-        quantity: item.quantity,
-        price: (item.price?.unit_amount || 0) / 100,
-        title: product.name
+      console.log('Using verified cart items from metadata');
+    } else {
+      // Fallback: Get line items from Stripe (for backwards compatibility)
+      console.log('Falling back to Stripe line items');
+      const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+        expand: ['data.price.product']
       });
+
+      for (const item of lineItems.data) {
+        const product = item.price?.product as Stripe.Product;
+        if (product?.metadata?.type === 'platform_fee') continue;
+
+        const sellerId = product?.metadata?.seller_id;
+        if (!sellerId) continue;
+
+        if (!sellerGroups[sellerId]) {
+          sellerGroups[sellerId] = [];
+        }
+
+        sellerGroups[sellerId].push({
+          listing_id: product.metadata.listing_id,
+          seller_name: product.metadata.seller_name,
+          quantity: item.quantity,
+          price: (item.price?.unit_amount || 0) / 100,
+          title: product.name
+        });
+      }
     }
 
     console.log('Seller groups:', Object.keys(sellerGroups));
 
     // Create orders for each seller
     const orderPromises = Object.entries(sellerGroups).map(async ([sellerId, items]) => {
-      const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const totalAmount = items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
       const commissionAmount = totalAmount * 0.1; // 10% platform fee
 
       const { data: order, error } = await supabaseClient
@@ -453,9 +470,18 @@ async function handleGuestCartCheckout(session: Stripe.Checkout.Session, metadat
           buyer_id: null, // Guest order
           seller_id: sellerId,
           listing_id: items[0].listing_id, // Use first item as primary listing
-          quantity: items.reduce((sum, item) => sum + item.quantity, 0),
+          quantity: items.reduce((sum: number, item: any) => sum + item.quantity, 0),
           total_amount: totalAmount,
           commission_amount: commissionAmount,
+
+          // Idempotency and commission tracking
+          stripe_session_id: session.id,
+          stripe_checkout_id: session.id,
+          commission_status: 'held',
+          commission_hold_until: commissionHoldUntil.toISOString(),
+          platform_fee_rate: 0.1,
+          actual_platform_revenue: commissionAmount,
+
           fulfillment_method: fulfillmentMethod,
           shipping_address: shippingAddress ? JSON.stringify({
             ...shippingAddress,
@@ -465,6 +491,7 @@ async function handleGuestCartCheckout(session: Stripe.Checkout.Session, metadat
           }) : null,
           notes: notes || null,
           payment_status: 'completed',
+          paid_at: new Date().toISOString(),
           stripe_payment_intent_id: session.payment_intent,
           status: 'confirmed'
         }])
