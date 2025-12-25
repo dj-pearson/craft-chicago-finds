@@ -23,6 +23,8 @@ import { FAQSection } from "@/components/seo/FAQSection";
 import { getCategoryContent } from "@/components/seo/CategoryContent";
 import { AISearchOptimization } from "@/components/seo/AISearchOptimization";
 import { Card, CardContent } from "@/components/ui/card";
+import { RelatedCategories, QuickLinks } from "@/components/seo/InternalLinks";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 // Re-export types for other components
 export type { Listing, Category, FilterOptions };
@@ -247,6 +249,21 @@ const Browse = () => {
       />
       <Header />
       <main className="container mx-auto px-4 py-8">
+        {/* SEO Breadcrumbs */}
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: currentCity.name, href: `/${currentCity.slug}` },
+            ...(categoryFilter && selectedCategory ? [
+              { label: 'Browse', href: `/${currentCity.slug}/browse` },
+              { label: selectedCategory.name }
+            ] : [
+              { label: 'Browse' }
+            ])
+          ]}
+          className="mb-6"
+        />
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
@@ -261,10 +278,16 @@ const Browse = () => {
             </Button>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-            Browse {currentCity.name} Marketplace
+            {categoryFilter && selectedCategory
+              ? `Handmade ${selectedCategory.name} in ${currentCity.name}`
+              : `Browse ${currentCity.name} Marketplace`
+            }
           </h1>
           <p className="text-muted-foreground">
-            Discover unique handmade goods from local artisans
+            {categoryFilter && selectedCategory
+              ? `Discover ${listings.length}+ unique handmade ${selectedCategory.name.toLowerCase()} from local ${currentCity.name} artisans`
+              : 'Discover unique handmade goods from local artisans'
+            }
           </p>
         </div>
 
@@ -372,6 +395,21 @@ const Browse = () => {
             </div>
           );
         })()}
+
+        {/* Related Categories - Internal Linking for SEO */}
+        {!searchQuery && (
+          <RelatedCategories
+            currentCategory={filters.category}
+            citySlug={currentCity.slug}
+            className="mt-12"
+          />
+        )}
+
+        {/* Quick Links Section for SEO */}
+        <div className="mt-12 pt-8 border-t">
+          <h3 className="text-sm font-semibold text-muted-foreground mb-4">Explore More</h3>
+          <QuickLinks citySlug={currentCity.slug} />
+        </div>
       </main>
       <Footer />
     </div>
