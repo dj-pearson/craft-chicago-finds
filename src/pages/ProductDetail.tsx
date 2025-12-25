@@ -11,6 +11,7 @@ import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
 import { useListing } from "@/hooks/queries/useListing";
+import { useSellerReviews } from "@/hooks/queries/useSellerReviews";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
@@ -19,6 +20,7 @@ import { Card } from "@/components/ui/card";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { FAQSection, FAQItem } from "@/components/seo/FAQSection";
 import { AISearchOptimization } from "@/components/seo/AISearchOptimization";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ProductDetailSkeleton } from "@/components/ui/skeleton-loader";
 
 const ProductDetail = () => {
@@ -34,6 +36,9 @@ const ProductDetail = () => {
     isLoading,
     isError,
   } = useListing(id, currentCity?.id);
+
+  // Fetch seller reviews for AggregateRating schema (SEO rich snippets)
+  const { data: sellerReviewStats } = useSellerReviews(listing?.seller_id);
 
   const loading = isLoading;
   const notFound = isError || (!loading && !listing);
@@ -90,6 +95,7 @@ const ProductDetail = () => {
     : `Shop this unique handmade ${categoryName.toLowerCase()} by ${sellerName} in ${currentCity.name}. $${listing.price} - Support local artisans on Craft Chicago Finds.`;
 
   // Enhanced Product Schema (JSON-LD) for SEO & GEO optimization
+  // Includes AggregateRating for rich snippets when reviews exist
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -100,6 +106,16 @@ const ProductDetail = () => {
       "@type": "Brand",
       "name": sellerName
     },
+    // AggregateRating for star ratings in search results (rich snippets)
+    ...(sellerReviewStats && sellerReviewStats.reviewCount > 0 && {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": sellerReviewStats.averageRating.toString(),
+        "reviewCount": sellerReviewStats.reviewCount.toString(),
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }),
     "offers": {
       "@type": "Offer",
       "url": productUrl,
@@ -149,36 +165,17 @@ const ProductDetail = () => {
     }
   };
 
-  // Breadcrumb Schema
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": window.location.origin
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": currentCity.name,
-        "item": `${window.location.origin}/${currentCity.slug}`
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": "Browse",
-        "item": `${window.location.origin}/${currentCity.slug}/browse`
-      },
-      {
-        "@type": "ListItem",
-        "position": 4,
-        "name": listing.title
-      }
-    ]
-  };
+  // Breadcrumb items for the Breadcrumbs component
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    { label: currentCity.name, href: `/${currentCity.slug}` },
+    { label: "Browse", href: `/${currentCity.slug}/browse` },
+    ...(listing.categories ? [{
+      label: listing.categories.name,
+      href: `/${currentCity.slug}/browse?category=${listing.categories.slug}`
+    }] : []),
+    { label: listing.title } // Current page - no href
+  ];
 
   const seoConfig = {
     title: seoTitle,
@@ -208,7 +205,7 @@ const ProductDetail = () => {
       description: seoDescription,
       image: imageUrl
     },
-    schema: [productSchema, breadcrumbSchema]
+    schema: [productSchema] // Breadcrumb schema handled by Breadcrumbs component
   };
 
   return (
@@ -251,41 +248,8 @@ const ProductDetail = () => {
       />
       <Header />
       <main className="container mx-auto px-4 py-8">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 mb-8 text-sm text-muted-foreground">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(`/${currentCity.slug}`)}
-            className="p-0 h-auto text-muted-foreground hover:text-foreground"
-          >
-            {currentCity.name}
-          </Button>
-          <span>/</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(`/${currentCity.slug}/browse`)}
-            className="p-0 h-auto text-muted-foreground hover:text-foreground"
-          >
-            Browse
-          </Button>
-          {listing.categories && (
-            <>
-              <span>/</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(`/${currentCity.slug}/browse?category=${listing.categories?.slug}`)}
-                className="p-0 h-auto text-muted-foreground hover:text-foreground"
-              >
-                {listing.categories.name}
-              </Button>
-            </>
-          )}
-          <span>/</span>
-          <span className="text-foreground">{listing.title}</span>
-        </div>
+        {/* SEO-optimized Breadcrumbs with BreadcrumbList schema */}
+        <Breadcrumbs items={breadcrumbItems} className="mb-8" />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           {/* Product Images */}
