@@ -30,19 +30,25 @@ Disallow: /profile/
 # Allow important pages for crawling
 Allow: /chicago/
 Allow: /blog/
+Allow: /browse
 Allow: /about
 Allow: /pricing
 Allow: /tools/
 Allow: /chicago-craft-index
 Allow: /for-craft-fairs
 Allow: /featured-makers
+Allow: /sell
+Allow: /categories/
 
-# Sitemap locations
-Sitemap: https://craftchicagofinds.com/sitemap.xml
-Sitemap: https://craftchicagofinds.com/sitemap-products.xml
-Sitemap: https://craftchicagofinds.com/sitemap-blogs.xml
-Sitemap: https://craftchicagofinds.com/sitemap-makers.xml
-Sitemap: https://craftchicagofinds.com/sitemap-static.xml
+# Sitemap locations (Primary sitemap index)
+Sitemap: https://craftlocal.net/sitemap.xml
+Sitemap: https://craftlocal.net/sitemap-products.xml
+Sitemap: https://craftlocal.net/sitemap-blogs.xml
+Sitemap: https://craftlocal.net/sitemap-makers.xml
+Sitemap: https://craftlocal.net/sitemap-static.xml
 
 # Crawl delay for respectful crawling
 Crawl-delay: 1
+
+# Host preference (for SEO consolidation)
+Host: https://craftlocal.net

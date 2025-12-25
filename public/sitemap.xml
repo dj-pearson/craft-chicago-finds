@@ -1,122 +1,201 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Homepage -->
   <url>
     <loc>https://craftlocal.net/</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
+
+  <!-- City Pages -->
   <url>
     <loc>https://craftlocal.net/chicago</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Core Marketplace Pages -->
+  <url>
+    <loc>https://craftlocal.net/browse</loc>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://craftlocal.net/browse</loc>
-    <lastmod>2024-11-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://craftlocal.net/sell</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://craftlocal.net/pricing</loc>
+    <lastmod>2024-12-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Featured Content -->
+  <url>
+    <loc>https://craftlocal.net/featured-makers</loc>
+    <lastmod>2024-12-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://craftlocal.net/chicago-craft-index</loc>
+    <lastmod>2024-12-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://craftlocal.net/for-craft-fairs</loc>
+    <lastmod>2024-12-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Tools -->
+  <url>
+    <loc>https://craftlocal.net/tools/pricing-calculator</loc>
+    <lastmod>2024-12-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Category Pages -->
+  <url>
     <loc>https://craftlocal.net/categories/jewelry</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://craftlocal.net/categories/pottery</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://craftlocal.net/categories/home-decor</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://craftlocal.net/categories/art</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://craftlocal.net/categories/gifts</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+
+  <!-- City-Specific Category Pages -->
   <url>
     <loc>https://craftlocal.net/chicago/jewelry</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://craftlocal.net/chicago/pottery</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://craftlocal.net/chicago/home-decor</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://craftlocal.net/chicago/art</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://craftlocal.net/chicago/gifts</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Blog -->
+  <url>
+    <loc>https://craftlocal.net/blog</loc>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://craftlocal.net/blog/chicago-holiday-gift-guide-2025</loc>
+    <lastmod>2024-12-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://craftlocal.net/blog/etsy-vs-craft-chicago-finds-comparison</loc>
+    <lastmod>2024-12-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://craftlocal.net/blog/meet-chicago-maker-studio-tour</loc>
+    <lastmod>2024-12-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://craftlocal.net/blog/ultimate-guide-chicago-handmade-ceramics</loc>
+    <lastmod>2024-12-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Informational Pages -->
+  <url>
     <loc>https://craftlocal.net/about</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://craftlocal.net/how-it-works</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://craftlocal.net/blog</loc>
-    <lastmod>2024-11-01</lastmod>
-    <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://craftlocal.net/contact</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
+
+  <!-- Legal Pages -->
   <url>
     <loc>https://craftlocal.net/privacy</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://craftlocal.net/terms</loc>
-    <lastmod>2024-11-01</lastmod>
+    <lastmod>2024-12-24</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://craftlocal.net/cookie-policy</loc>
+    <lastmod>2024-12-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
