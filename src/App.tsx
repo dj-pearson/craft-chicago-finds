@@ -13,7 +13,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { BottomNav } from "./components/mobile";
 import { Suspense, lazy } from "react";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { PageLoadingSkeleton } from "@/components/ui/skeleton-loader";
 import "./styles/accessibility.css";
 import "@/lib/errorHandler"; // Initialize global error handler
 import { SessionTimeoutWarning } from "@/components/auth/SessionTimeoutWarning";
@@ -77,7 +77,7 @@ const App = () => {
                   <SessionTimeoutWarning />
           
             <CityProvider>
-              <Suspense fallback={<LoadingSpinner />}>
+              <Suspense fallback={<PageLoadingSkeleton />}>
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/marketplace" element={<NationalMarketplace />} />

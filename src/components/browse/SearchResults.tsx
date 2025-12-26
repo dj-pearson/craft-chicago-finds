@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { VirtualizedList } from "@/components/ui/virtualized-list";
 import { LazyImage } from "@/components/ui/lazy-image";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { ProductGridSkeleton, Skeleton } from "@/components/ui/skeleton-loader";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Listing, Category } from "@/pages/Browse";
 import { cn } from "@/lib/utils";
@@ -175,7 +175,23 @@ export const SearchResults = ({
   };
 
   if (loading) {
-    return <LoadingSpinner text="Searching products..." />;
+    return (
+      <div className="space-y-6">
+        {/* Search header skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-48" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-10 w-20 rounded-lg" />
+            <Skeleton className="h-10 w-40 rounded-md" />
+          </div>
+        </div>
+        {/* Product grid skeleton */}
+        <ProductGridSkeleton count={9} />
+      </div>
+    );
   }
 
   return (

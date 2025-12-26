@@ -1,23 +1,8 @@
 import { cn } from "@/lib/utils";
+import { Skeleton } from "./skeleton";
 
-interface SkeletonProps {
-  className?: string;
-  children?: React.ReactNode;
-}
-
-export const Skeleton = ({ className, children, ...props }: SkeletonProps) => {
-  return (
-    <div
-      className={cn(
-        "animate-pulse rounded-md bg-muted",
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-};
+// Re-export the base Skeleton for convenience (uses consistent shimmer animation)
+export { Skeleton };
 
 // Product Card Skeleton
 export const ProductCardSkeleton = ({ className }: { className?: string }) => {
@@ -44,10 +29,16 @@ export const ProductCardSkeleton = ({ className }: { className?: string }) => {
   );
 };
 
-// Product Grid Skeleton
+// Product Grid Skeleton - with min-height to prevent CLS (Cumulative Layout Shift)
 export const ProductGridSkeleton = ({ count = 12 }: { count?: number }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 min-h-[400px]"
+      role="status"
+      aria-label="Loading products"
+      aria-busy="true"
+    >
+      <span className="sr-only">Loading products...</span>
       {Array.from({ length: count }, (_, i) => (
         <ProductCardSkeleton key={i} />
       ))}
@@ -197,10 +188,16 @@ export const TableSkeleton = ({ rows = 5, cols = 4 }: { rows?: number; cols?: nu
   );
 };
 
-// Product Detail Skeleton
+// Product Detail Skeleton - with accessibility attributes
 export const ProductDetailSkeleton = () => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <div
+      className="grid grid-cols-1 lg:grid-cols-2 gap-12 min-h-[600px]"
+      role="status"
+      aria-label="Loading product details"
+      aria-busy="true"
+    >
+      <span className="sr-only">Loading product details...</span>
       {/* Image Gallery Skeleton */}
       <div className="space-y-4">
         <Skeleton className="aspect-square w-full rounded-lg" />
@@ -253,6 +250,64 @@ export const ProductDetailSkeleton = () => {
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+/**
+ * PageLoadingSkeleton - Full page loading skeleton for route-level Suspense
+ *
+ * SEO-friendly: Provides proper document structure with header/main/footer
+ * Accessibility: Includes aria-busy and screen reader announcements
+ * CLS Prevention: Fixed min-heights prevent layout shift
+ */
+export const PageLoadingSkeleton = () => {
+  return (
+    <div
+      className="min-h-screen bg-background"
+      role="status"
+      aria-label="Loading page content"
+      aria-busy="true"
+    >
+      <span className="sr-only">Loading page content...</span>
+
+      {/* Header skeleton */}
+      <HeaderSkeleton />
+
+      {/* Main content skeleton */}
+      <main className="container mx-auto px-4 py-8">
+        {/* Page title area */}
+        <div className="mb-8">
+          <Skeleton className="h-10 w-64 mb-4" />
+          <Skeleton className="h-5 w-96 max-w-full" />
+        </div>
+
+        {/* Category navigation skeleton */}
+        <CategoryNavSkeleton />
+
+        {/* Content grid skeleton */}
+        <div className="mt-8">
+          <ProductGridSkeleton count={8} />
+        </div>
+      </main>
+
+      {/* Footer skeleton */}
+      <footer className="border-t mt-16">
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {Array.from({ length: 4 }, (_, i) => (
+              <div key={i} className="space-y-4">
+                <Skeleton className="h-5 w-24" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
