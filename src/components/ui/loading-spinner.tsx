@@ -19,19 +19,26 @@ export function LoadingSpinner({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[200px] space-y-4">
-      <Loader2 
+    <div
+      className="flex flex-col items-center justify-center min-h-[200px] space-y-4"
+      role="status"
+      aria-label={text}
+      aria-busy="true"
+    >
+      <Loader2
         className={cn(
-          "animate-spin text-primary", 
+          "animate-spin text-primary",
           sizeClasses[size],
           className
-        )} 
+        )}
+        aria-hidden="true"
       />
       {text && (
-        <p className="text-sm text-muted-foreground animate-pulse">
+        <p className="text-sm text-muted-foreground animate-pulse" aria-hidden="true">
           {text}
         </p>
       )}
+      <span className="sr-only">{text}</span>
     </div>
   );
 }
