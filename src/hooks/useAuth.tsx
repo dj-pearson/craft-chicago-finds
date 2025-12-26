@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react";
 import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 
 interface Profile {
   id: string;
@@ -44,6 +44,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const currentProfileFetchRef = useRef<string | null>(null);
 
   const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
+    // If Supabase is not configured, skip profile fetch
+    if (!isSupabaseConfigured) {
+      return null;
+    }
+
     // Prevent duplicate fetches for the same user
     if (currentProfileFetchRef.current === userId) {
       return null;
@@ -83,6 +88,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
+
+    // If Supabase is not configured, skip auth initialization
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      isInitializedRef.current = true;
+      return;
+    }
 
     // Set up auth state listener FIRST to catch any auth events
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -153,6 +165,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [fetchProfile]);
 
   const signIn = async (email: string, password: string) => {
+    if (!isSupabaseConfigured) {
+      return { error: { message: "Authentication is not configured. Please contact support." } };
+    }
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -161,6 +176,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signUp = async (email: string, password: string, metadata?: { displayName?: string }) => {
+    if (!isSupabaseConfigured) {
+      return { error: { message: "Authentication is not configured. Please contact support." } };
+    }
     const redirectUrl = `${window.location.origin}/`;
 
     const { error } = await supabase.auth.signUp({
@@ -175,6 +193,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signOut = async () => {
+    if (!isSupabaseConfigured) {
+      return;
+    }
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
@@ -182,6 +203,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const resetPassword = async (email: string) => {
+    if (!isSupabaseConfigured) {
+      return { error: { message: "Authentication is not configured. Please contact support." } };
+    }
     const redirectUrl = `${window.location.origin}/auth/reset-password`;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -191,6 +215,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updatePassword = async (newPassword: string) => {
+    if (!isSupabaseConfigured) {
+      return { error: { message: "Authentication is not configured. Please contact support." } };
+    }
     const { error } = await supabase.auth.updateUser({
       password: newPassword,
     });

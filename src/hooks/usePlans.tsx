@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 
 export interface Plan {
   id: string;
@@ -56,6 +56,12 @@ export const PlansProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user]);
 
   const fetchPlans = async () => {
+    // Skip if Supabase is not configured
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('plans')
@@ -71,7 +77,7 @@ export const PlansProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const fetchCurrentSubscription = async () => {
-    if (!user) return;
+    if (!user || !isSupabaseConfigured) return;
 
     try {
       setLoading(true);
@@ -100,6 +106,7 @@ export const PlansProvider = ({ children }: { children: React.ReactNode }) => {
 
   const subscribeToPlan = async (planId: string): Promise<string> => {
     if (!user) throw new Error('User not authenticated');
+    if (!isSupabaseConfigured) throw new Error('Subscription features are not available');
 
     try {
       const { data, error } = await supabase.functions.invoke('create-subscription', {
@@ -120,6 +127,7 @@ export const PlansProvider = ({ children }: { children: React.ReactNode }) => {
 
   const cancelSubscription = async () => {
     if (!currentSubscription) throw new Error('No active subscription');
+    if (!isSupabaseConfigured) throw new Error('Subscription features are not available');
 
     try {
       const { error } = await supabase.functions.invoke('cancel-subscription', {
