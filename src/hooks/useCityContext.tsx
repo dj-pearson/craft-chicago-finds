@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 
 interface City {
   id: string;
@@ -37,6 +37,12 @@ export const CityProvider = ({ children }: { children: ReactNode }) => {
   // Fetch all cities
   useEffect(() => {
     const fetchCities = async () => {
+      // Skip if Supabase is not configured
+      if (!isSupabaseConfigured) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const { data, error } = await supabase
           .from("cities")

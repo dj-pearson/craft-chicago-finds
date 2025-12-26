@@ -3,14 +3,19 @@ import { loadStripe, Stripe } from '@stripe/stripe-js';
 
 const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
-if (!STRIPE_PUBLISHABLE_KEY) {
-  throw new Error(
+// Track if Stripe is properly configured
+export const isStripeConfigured = Boolean(STRIPE_PUBLISHABLE_KEY);
+
+if (!isStripeConfigured) {
+  console.error(
     'Missing Stripe publishable key. ' +
-    'Please ensure VITE_STRIPE_PUBLISHABLE_KEY is set in your .env file.'
+    'Please ensure VITE_STRIPE_PUBLISHABLE_KEY is set in your .env file. ' +
+    'Payment features will be unavailable.'
   );
 }
 
-const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
+// Only load Stripe if configured
+const stripePromise = isStripeConfigured ? loadStripe(STRIPE_PUBLISHABLE_KEY) : null;
 
 interface StripeContextType {
   stripe: Stripe | null;
@@ -21,9 +26,14 @@ const StripeContext = createContext<StripeContextType | undefined>(undefined);
 
 export const StripeProvider = ({ children }: { children: React.ReactNode }) => {
   const [stripe, setStripe] = useState<Stripe | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(isStripeConfigured);
 
   useEffect(() => {
+    // If Stripe is not configured, skip initialization
+    if (!isStripeConfigured || !stripePromise) {
+      return;
+    }
+
     const initializeStripe = async () => {
       try {
         const stripeInstance = await stripePromise;
