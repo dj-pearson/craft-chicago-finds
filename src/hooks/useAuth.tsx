@@ -65,14 +65,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .maybeSingle();
 
       if (error) {
-        console.error("Error fetching profile:", error);
+        if (import.meta.env.DEV) {
+          console.error("Error fetching profile:", error);
+        }
         return null;
       }
 
       setProfile(data);
       return data;
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      if (import.meta.env.DEV) {
+        console.error("Error fetching profile:", error);
+      }
       return null;
     } finally {
       currentProfileFetchRef.current = null;
@@ -107,7 +111,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return;
         }
 
-        console.log("Auth state changed:", event);
+        if (import.meta.env.DEV) {
+          console.log("Auth state changed:", event);
+        }
 
         // Update session and user state synchronously
         setSession(newSession);
@@ -146,7 +152,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setProfile(null);
         }
       } catch (error) {
-        console.error("Error initializing auth:", error);
+        if (import.meta.env.DEV) {
+          console.error("Error initializing auth:", error);
+        }
       } finally {
         if (mounted) {
           isInitializedRef.current = true;

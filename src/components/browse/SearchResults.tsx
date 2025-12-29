@@ -60,8 +60,10 @@ export const SearchResults = ({
   // Search analytics
   useEffect(() => {
     if (searchQuery && listings.length > 0) {
-      // Track search result interaction
-      console.log(`Search "${searchQuery}" returned ${totalResults} results`);
+      // Track search result interaction - only log in development
+      if (import.meta.env.DEV) {
+        console.log(`Search "${searchQuery}" returned ${totalResults} results`);
+      }
     }
   }, [searchQuery, listings.length, totalResults]);
 

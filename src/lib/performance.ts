@@ -63,7 +63,9 @@ export function measureLCP(callback: (metric: PerformanceMetric) => void): void 
 
     observer.observe({ entryTypes: ['largest-contentful-paint'] });
   } catch (error) {
-    console.error('Error measuring LCP:', error);
+    if (import.meta.env.DEV) {
+      console.error('Error measuring LCP:', error);
+    }
   }
 }
 
@@ -88,7 +90,9 @@ export function measureFID(callback: (metric: PerformanceMetric) => void): void 
 
     observer.observe({ entryTypes: ['first-input'] });
   } catch (error) {
-    console.error('Error measuring FID:', error);
+    if (import.meta.env.DEV) {
+      console.error('Error measuring FID:', error);
+    }
   }
 }
 
@@ -119,7 +123,9 @@ export function measureCLS(callback: (metric: PerformanceMetric) => void): void 
 
     observer.observe({ entryTypes: ['layout-shift'] });
   } catch (error) {
-    console.error('Error measuring CLS:', error);
+    if (import.meta.env.DEV) {
+      console.error('Error measuring CLS:', error);
+    }
   }
 }
 
@@ -145,7 +151,9 @@ export function measureFCP(callback: (metric: PerformanceMetric) => void): void 
 
     observer.observe({ entryTypes: ['paint'] });
   } catch (error) {
-    console.error('Error measuring FCP:', error);
+    if (import.meta.env.DEV) {
+      console.error('Error measuring FCP:', error);
+    }
   }
 }
 
@@ -221,7 +229,9 @@ export function measureCustomMetric(name: string, startMark: string, endMark: st
     const measure = performance.getEntriesByName(name)[0];
     return measure ? measure.duration : null;
   } catch (error) {
-    console.error(`Error measuring ${name}:`, error);
+    if (import.meta.env.DEV) {
+      console.error(`Error measuring ${name}:`, error);
+    }
     return null;
   }
 }
@@ -233,7 +243,9 @@ export function startMark(name: string): void {
   try {
     performance.mark(`${name}-start`);
   } catch (error) {
-    console.error(`Error starting mark ${name}:`, error);
+    if (import.meta.env.DEV) {
+      console.error(`Error starting mark ${name}:`, error);
+    }
   }
 }
 
@@ -257,7 +269,9 @@ export function endMark(name: string): number | null {
     
     return measure ? measure.duration : null;
   } catch (error) {
-    console.error(`Error ending mark ${name}:`, error);
+    if (import.meta.env.DEV) {
+      console.error(`Error ending mark ${name}:`, error);
+    }
     return null;
   }
 }
@@ -297,7 +311,7 @@ export function initCoreWebVitals(): void {
 
     // Log navigation timing
     const navTiming = getNavigationTiming();
-    if (navTiming) {
+    if (navTiming && import.meta.env.DEV) {
       console.log('Navigation Timing:', navTiming);
     }
   });
@@ -315,14 +329,18 @@ export function monitorLongTasks(callback: (duration: number) => void): void {
       entries.forEach((entry) => {
         if (entry.duration > 50) {
           callback(entry.duration);
-          console.warn(`Long task detected: ${entry.duration.toFixed(2)}ms`);
+          if (import.meta.env.DEV) {
+            console.warn(`Long task detected: ${entry.duration.toFixed(2)}ms`);
+          }
         }
       });
     });
 
     observer.observe({ entryTypes: ['longtask'] });
   } catch (error) {
-    console.error('Error monitoring long tasks:', error);
+    if (import.meta.env.DEV) {
+      console.error('Error monitoring long tasks:', error);
+    }
   }
 }
 
