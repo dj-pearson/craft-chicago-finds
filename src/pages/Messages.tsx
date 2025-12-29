@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MessageCircle } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface Conversation {
   id: string;
@@ -36,9 +37,15 @@ export interface Conversation {
 const Messages = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // On mobile, clear selection to go back to list
+  const handleBackToList = () => {
+    setSelectedConversation(null);
+  };
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -197,24 +204,57 @@ const Messages = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-16rem)]">
-          {/* Conversation List */}
-          <div className="lg:col-span-1">
-            <ConversationList
-              conversations={conversations}
-              selectedConversation={selectedConversation}
-              onSelectConversation={setSelectedConversation}
-            />
+        {/* Mobile Layout: Show either list or chat, not both */}
+        {isMobile ? (
+          <div className="h-[calc(100dvh-14rem)] min-h-[400px]">
+            {selectedConversation ? (
+              <div className="h-full flex flex-col">
+                {/* Back button on mobile when viewing a conversation */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBackToList}
+                  className="mb-2 self-start gap-2 -ml-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to messages
+                </Button>
+                <div className="flex-1 min-h-0">
+                  <ChatWindow
+                    conversationId={selectedConversation}
+                    currentUser={user}
+                  />
+                </div>
+              </div>
+            ) : (
+              <ConversationList
+                conversations={conversations}
+                selectedConversation={selectedConversation}
+                onSelectConversation={setSelectedConversation}
+              />
+            )}
           </div>
+        ) : (
+          /* Desktop Layout: Side-by-side list and chat */
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-16rem)]">
+            {/* Conversation List */}
+            <div className="lg:col-span-1">
+              <ConversationList
+                conversations={conversations}
+                selectedConversation={selectedConversation}
+                onSelectConversation={setSelectedConversation}
+              />
+            </div>
 
-          {/* Chat Window */}
-          <div className="lg:col-span-2">
-            <ChatWindow
-              conversationId={selectedConversation}
-              currentUser={user}
-            />
+            {/* Chat Window */}
+            <div className="lg:col-span-2">
+              <ChatWindow
+                conversationId={selectedConversation}
+                currentUser={user}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </main>
       <Footer />
     </div>

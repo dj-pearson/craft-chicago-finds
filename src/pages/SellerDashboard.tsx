@@ -261,25 +261,26 @@ export default function SellerDashboard() {
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2 flex items-center gap-3">
-                <Package className="h-8 w-8" />
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 flex items-center gap-2 sm:gap-3">
+                <Package className="h-6 w-6 sm:h-8 sm:w-8" />
                 Seller Dashboard
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Manage your listings and track your business performance
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
               {!isSellerVerified && (
-                <Badge variant="outline" className="text-orange-600 border-orange-600">
+                <Badge variant="outline" className="text-orange-600 border-orange-600 text-xs">
                   Pending Verification
                 </Badge>
               )}
               <Button
                 onClick={() => navigate("/create-listing")}
-                className="gap-2"
+                className="gap-2 w-full sm:w-auto"
+                size="default"
                 disabled={!(profile as any)?.stripe_account_id}
                 title={!(profile as any)?.stripe_account_id ? "Connect Stripe account to create listings" : ""}
               >
@@ -506,68 +507,75 @@ export default function SellerDashboard() {
 
         {/* Main Content */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-14 gap-1">
-            <TabsTrigger value="overview" className="flex items-center gap-1 text-xs">
-              <TrendingUp className="h-3 w-3" />
-              <span className="hidden sm:inline">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger value="listings" className="flex items-center gap-1 text-xs">
-              <Package className="h-3 w-3" />
-              <span className="hidden sm:inline">Listings</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-1 text-xs">
-              <BarChart3 className="h-3 w-3" />
-              <span className="hidden sm:inline">Analytics</span>
-            </TabsTrigger>
-            <TabsTrigger value="discounts" className="flex items-center gap-1 text-xs">
-              <Tag className="h-3 w-3" />
-              <span className="hidden sm:inline">Discounts</span>
-            </TabsTrigger>
-            <TabsTrigger value="shipping" className="flex items-center gap-1 text-xs">
-              <Truck className="h-3 w-3" />
-              <span className="hidden sm:inline">Shipping</span>
-            </TabsTrigger>
-            <TabsTrigger value="ready-today" className="flex items-center gap-1 text-xs">
-              <Package className="h-3 w-3" />
-              <span className="hidden sm:inline">Ready</span>
-            </TabsTrigger>
-            <TabsTrigger value="payments" className="flex items-center gap-1 text-xs">
-              <CreditCard className="h-3 w-3" />
-              <span className="hidden sm:inline">Payments</span>
-            </TabsTrigger>
-            <TabsTrigger value="verification" className="flex items-center gap-1 text-xs">
-              <ShieldCheck className="h-3 w-3" />
-              <span className="hidden sm:inline">Verify</span>
-            </TabsTrigger>
-            <TabsTrigger value="taxes" className="flex items-center gap-1 text-xs">
-              <FileText className="h-3 w-3" />
-              <span className="hidden sm:inline">Taxes</span>
-            </TabsTrigger>
-            <TabsTrigger value="compliance" className="flex items-center gap-1 text-xs">
-              <Scale className="h-3 w-3" />
-              <span className="hidden sm:inline">Standards</span>
-            </TabsTrigger>
-            <TabsTrigger value="learn" className="flex items-center gap-1 text-xs">
-              <BookOpen className="h-3 w-3" />
-              <span className="hidden sm:inline">Learn</span>
-            </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-1 text-xs">
-              <Shield className="h-3 w-3" />
-              <span className="hidden sm:inline">Security</span>
-            </TabsTrigger>
-            <TabsTrigger value="forecast" className="flex items-center gap-1 text-xs">
-              <Lightbulb className="h-3 w-3" />
-              <span className="hidden sm:inline">Forecast</span>
-            </TabsTrigger>
-            <TabsTrigger value="trends" className="flex items-center gap-1 text-xs">
-              <Zap className="h-3 w-3" />
-              <span className="hidden sm:inline">Trends</span>
-            </TabsTrigger>
-            <TabsTrigger value="market-mode" className="flex items-center gap-1 text-xs">
-              <Building2 className="h-3 w-3" />
-              <span className="hidden sm:inline">Markets</span>
-            </TabsTrigger>
-          </TabsList>
+          {/* Horizontally scrollable tabs for mobile */}
+          <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+            <TabsList className="inline-flex w-max md:w-full md:grid md:grid-cols-15 gap-1 min-w-full">
+              <TabsTrigger value="overview" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <TrendingUp className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Overview</span>
+              </TabsTrigger>
+              <TabsTrigger value="listings" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <Package className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Listings</span>
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <BarChart3 className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Analytics</span>
+              </TabsTrigger>
+              <TabsTrigger value="discounts" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <Tag className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Discounts</span>
+              </TabsTrigger>
+              <TabsTrigger value="shipping" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <Truck className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Shipping</span>
+              </TabsTrigger>
+              <TabsTrigger value="ready-today" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <Package className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Ready Today</span>
+              </TabsTrigger>
+              <TabsTrigger value="payments" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <CreditCard className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Payments</span>
+              </TabsTrigger>
+              <TabsTrigger value="verification" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <ShieldCheck className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Verify</span>
+              </TabsTrigger>
+              <TabsTrigger value="taxes" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <FileText className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Taxes</span>
+              </TabsTrigger>
+              <TabsTrigger value="compliance" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <Scale className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Standards</span>
+              </TabsTrigger>
+              <TabsTrigger value="learn" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <BookOpen className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Learn</span>
+              </TabsTrigger>
+              <TabsTrigger value="security" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <Shield className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Security</span>
+              </TabsTrigger>
+              <TabsTrigger value="forecast" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <Lightbulb className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Forecast</span>
+              </TabsTrigger>
+              <TabsTrigger value="trends" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <Zap className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Trends</span>
+              </TabsTrigger>
+              <TabsTrigger value="market-mode" className="flex items-center gap-1.5 text-xs whitespace-nowrap px-3 py-2">
+                <Building2 className="h-4 w-4 md:h-3 md:w-3" />
+                <span>Markets</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          {/* Mobile scroll hint */}
+          <p className="text-xs text-muted-foreground text-center md:hidden">
+            Scroll tabs to see more options
+          </p>
 
           <TabsContent value="overview">
             <div className="space-y-6">

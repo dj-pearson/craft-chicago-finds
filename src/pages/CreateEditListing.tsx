@@ -372,22 +372,23 @@ const CreateEditListing = () => {
       
       {/* Header */}
       <div className="border-b bg-muted/50">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-4">
+        <div className="container mx-auto px-4 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate("/dashboard")}
-              className="gap-2"
+              className="gap-2 self-start"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
+              <span className="hidden sm:inline">Back to Dashboard</span>
+              <span className="sm:hidden">Back</span>
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">
+              <h1 className="text-xl sm:text-2xl font-bold">
                 {isEditing ? "Edit Listing" : "Create New Listing"}
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {currentCity?.name} • Add your handmade products
               </p>
             </div>
@@ -449,17 +450,19 @@ const CreateEditListing = () => {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="price">Price ($) *</Label>
                       <Input
                         id="price"
                         type="number"
+                        inputMode="decimal"
                         min="0"
                         step="0.01"
                         value={formData.price}
                         onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
                         placeholder="25.00"
+                        className="text-base"
                       />
                     </div>
 
@@ -468,10 +471,12 @@ const CreateEditListing = () => {
                       <Input
                         id="inventory"
                         type="number"
+                        inputMode="numeric"
                         min="0"
                         value={formData.inventory_count}
                         onChange={(e) => setFormData(prev => ({ ...prev, inventory_count: e.target.value }))}
                         placeholder="1"
+                        className="text-base"
                       />
                     </div>
                   </div>
@@ -549,24 +554,25 @@ const CreateEditListing = () => {
 
                   {/* Image Preview */}
                   {images.length > 0 && (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                       {images.map((image, index) => (
                         <div key={index} className="relative group">
                           <img
                             src={image}
                             alt={`Product ${index + 1}`}
-                            className="w-full h-32 object-cover rounded-lg border"
+                            className="w-full h-28 sm:h-32 object-cover rounded-lg border"
                           />
                           <Button
                             variant="destructive"
                             size="sm"
                             onClick={() => removeImage(image, index)}
-                            className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 h-7 w-7 sm:h-6 sm:w-6 p-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                            aria-label={`Remove image ${index + 1}`}
                           >
                             <X className="h-4 w-4" />
                           </Button>
                           {index === 0 && (
-                            <Badge className="absolute bottom-2 left-2 text-xs">
+                            <Badge className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 text-xs">
                               Main
                             </Badge>
                           )}
