@@ -16,7 +16,8 @@ import { useSearchAnalytics } from "@/hooks/useSearchAnalytics";
 import { useListings, type Listing, type FilterOptions } from "@/hooks/queries/useListings";
 import { useCategories, type Category } from "@/hooks/queries/useCategories";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ArrowLeft, AlertCircle, RefreshCw } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { ProductGridSkeleton } from "@/components/ui/skeleton-loader";
 import { FAQSection } from "@/components/seo/FAQSection";
@@ -42,8 +43,19 @@ const Browse = () => {
   const [visualSearchResults, setVisualSearchResults] = useState<Listing[] | null>(null);
 
   // Fetch data using React Query
-  const { data: categories = [], isLoading: categoriesLoading } = useCategories(currentCity?.id);
-  const { data: fetchedListings = [], isLoading: listingsLoading } = useListings(
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    isError: categoriesError,
+    refetch: refetchCategories
+  } = useCategories(currentCity?.id);
+
+  const {
+    data: fetchedListings = [],
+    isLoading: listingsLoading,
+    isError: listingsError,
+    refetch: refetchListings
+  } = useListings(
     currentCity?.id,
     filters,
     searchQuery
@@ -52,6 +64,7 @@ const Browse = () => {
   // Use visual search results if available, otherwise use fetched listings
   const listings = visualSearchResults || fetchedListings;
   const loading = categoriesLoading || listingsLoading;
+  const hasError = categoriesError || listingsError;
 
   // Handle visual search results
   const handleVisualSearchResults = (results: Listing[]) => {
@@ -124,6 +137,12 @@ const Browse = () => {
       </div>
     );
   }
+
+  // Handle retry for failed data fetches
+  const handleRetry = () => {
+    if (categoriesError) refetchCategories();
+    if (listingsError) refetchListings();
+  };
 
   // Allow anonymous browsing - user is optional
 
@@ -308,6 +327,28 @@ const Browse = () => {
             />
           </div>
         </div>
+
+        {/* Error state for failed data fetches */}
+        {hasError && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Failed to load products</AlertTitle>
+            <AlertDescription className="flex items-center justify-between">
+              <span>
+                We're having trouble loading the marketplace. Please try again.
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRetry}
+                className="ml-4 gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Subtle signup prompt for anonymous users */}
         <SubtleSignupPrompt variant="general" className="mb-6" />

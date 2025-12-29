@@ -21,7 +21,7 @@ if (import.meta.env.DEV) {
   });
 }
 
-if (!isSupabaseConfigured) {
+if (!isSupabaseConfigured && import.meta.env.DEV) {
   const errorMessage = `Missing required Supabase environment variables:
     - VITE_SUPABASE_URL: ${SUPABASE_URL ? "set" : "MISSING"}
     - VITE_SUPABASE_ANON_KEY: ${SUPABASE_PUBLISHABLE_KEY ? "set" : "MISSING"}
@@ -44,7 +44,9 @@ class SecureStorage {
     try {
       // Validate key to prevent injection
       if (!key.startsWith(this.prefix)) {
-        console.warn("Invalid storage key access attempt:", key);
+        if (import.meta.env.DEV) {
+          console.warn("Invalid storage key access attempt:", key);
+        }
         return null;
       }
 
@@ -69,7 +71,9 @@ class SecureStorage {
 
       return item;
     } catch (error) {
-      console.error("Storage read error:", error);
+      if (import.meta.env.DEV) {
+        console.error("Storage read error:", error);
+      }
       return null;
     }
   }
@@ -90,7 +94,9 @@ class SecureStorage {
 
       localStorage.setItem(key, JSON.stringify(metadata));
     } catch (error) {
-      console.error("Storage write error:", error);
+      if (import.meta.env.DEV) {
+        console.error("Storage write error:", error);
+      }
     }
   }
 
@@ -98,7 +104,9 @@ class SecureStorage {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error("Storage remove error:", error);
+      if (import.meta.env.DEV) {
+        console.error("Storage remove error:", error);
+      }
     }
   }
 }
