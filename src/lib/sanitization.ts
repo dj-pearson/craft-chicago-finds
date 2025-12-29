@@ -17,12 +17,48 @@ export function sanitizeHtml(dirty: string): string {
   });
 }
 
+// Whitelist of safe CSS classes for rich text content
+// Only these classes are allowed to prevent CSS injection attacks
+const SAFE_CSS_CLASSES = [
+  'text-center', 'text-left', 'text-right',
+  'font-bold', 'font-italic', 'font-semibold',
+  'text-sm', 'text-base', 'text-lg', 'text-xl',
+  'mt-2', 'mt-4', 'mb-2', 'mb-4', 'my-2', 'my-4',
+  'ml-2', 'ml-4', 'mr-2', 'mr-4', 'mx-2', 'mx-4',
+  'p-2', 'p-4', 'px-2', 'px-4', 'py-2', 'py-4',
+  'rounded', 'rounded-md', 'rounded-lg',
+  'border', 'border-gray-200', 'border-gray-300',
+  'bg-gray-50', 'bg-gray-100',
+  'list-disc', 'list-decimal',
+  'underline', 'line-through', 'italic',
+];
+
+/**
+ * Sanitize CSS class attribute to only allow whitelisted classes
+ * Prevents CSS injection attacks via arbitrary class names
+ */
+function sanitizeClasses(node: Element): void {
+  const classAttr = node.getAttribute('class');
+  if (!classAttr) return;
+
+  const classes = classAttr.split(/\s+/).filter(Boolean);
+  const safeClasses = classes.filter(cls => SAFE_CSS_CLASSES.includes(cls));
+
+  if (safeClasses.length > 0) {
+    node.setAttribute('class', safeClasses.join(' '));
+  } else {
+    node.removeAttribute('class');
+  }
+}
+
 /**
  * Sanitize rich text content (for blog posts, descriptions)
  * More permissive than sanitizeHtml but still safe
+ * Uses a whitelist approach for CSS classes to prevent CSS injection
  */
 export function sanitizeRichText(dirty: string): string {
-  return DOMPurify.sanitize(dirty, {
+  // First pass: sanitize with DOMPurify allowing class attribute
+  const sanitized = DOMPurify.sanitize(dirty, {
     ALLOWED_TAGS: [
       'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
       'p', 'br', 'span', 'div',
@@ -35,6 +71,16 @@ export function sanitizeRichText(dirty: string): string {
     ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'target', 'rel', 'class'],
     ALLOW_DATA_ATTR: false,
   });
+
+  // Second pass: filter class attributes to only allow whitelisted classes
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = sanitized;
+
+  // Process all elements with class attributes
+  const elementsWithClass = tempDiv.querySelectorAll('[class]');
+  elementsWithClass.forEach(sanitizeClasses);
+
+  return tempDiv.innerHTML;
 }
 
 /**

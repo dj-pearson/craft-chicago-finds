@@ -22,6 +22,11 @@ const RATE_LIMIT_AUTH_MAX_REQUESTS = 5; // Max requests per window for auth endp
 const RATE_LIMIT_PAYMENT_MAX_REQUESTS = 10; // Max requests per window for payment endpoints
 const RATE_LIMIT_CLEANUP_INTERVAL = 300000; // Clean up old entries every 5 minutes
 
+// Request body size limits (in bytes)
+const MAX_BODY_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB for general requests
+const MAX_BODY_SIZE_AUTH = 50 * 1024; // 50 KB for auth requests
+const MAX_BODY_SIZE_API = 5 * 1024 * 1024; // 5 MB for API requests
+
 // In-memory rate limiting store (per worker instance)
 // Note: In production with multiple workers, consider using Cloudflare KV or Durable Objects
 interface RateLimitEntry {
@@ -182,6 +187,57 @@ function getClientIP(request: Request): string {
          'unknown';
 }
 
+/**
+ * Get maximum allowed body size for a given path
+ */
+function getMaxBodySizeForPath(pathname: string): number {
+  if (AUTH_PATHS.some(path => pathname.startsWith(path))) {
+    return MAX_BODY_SIZE_AUTH;
+  }
+  if (pathname.startsWith('/api/')) {
+    return MAX_BODY_SIZE_API;
+  }
+  return MAX_BODY_SIZE_BYTES;
+}
+
+/**
+ * Validate request body size to prevent DoS attacks
+ * Returns an error response if body is too large, null otherwise
+ */
+function validateBodySize(request: Request, pathname: string): Response | null {
+  const contentLength = request.headers.get('content-length');
+
+  if (!contentLength) {
+    return null; // No body or chunked encoding - let downstream handle
+  }
+
+  const bodySize = parseInt(contentLength, 10);
+
+  if (isNaN(bodySize)) {
+    return null; // Invalid header - let downstream handle
+  }
+
+  const maxSize = getMaxBodySizeForPath(pathname);
+
+  if (bodySize > maxSize) {
+    return new Response(
+      JSON.stringify({
+        error: 'Payload too large',
+        message: `Request body exceeds maximum size of ${Math.round(maxSize / 1024)}KB`,
+        maxSize,
+      }),
+      {
+        status: 413,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  }
+
+  return null;
+}
+
 export async function onRequest(context: {
   request: Request;
   env: any;
@@ -205,6 +261,16 @@ export async function onRequest(context: {
         'Access-Control-Max-Age': '86400',
       },
     });
+  }
+
+  // Validate request body size to prevent DoS attacks
+  if (STATE_CHANGING_METHODS.includes(method)) {
+    const bodySizeError = validateBodySize(request, url.pathname);
+    if (bodySizeError) {
+      bodySizeError.headers.set('Access-Control-Allow-Origin', getCorsOrigin(request));
+      bodySizeError.headers.set('Access-Control-Allow-Credentials', 'true');
+      return bodySizeError;
+    }
   }
 
   // Rate limiting for API requests
