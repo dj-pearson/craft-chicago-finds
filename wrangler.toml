@@ -25,6 +25,25 @@ force = true
 # - SUPABASE_SERVICE_ROLE_KEY: Service role key for admin operations
 # ============================================
 
+# ============================================
+# KV Namespace for Distributed Rate Limiting
+# ============================================
+# IMPORTANT: Create the KV namespace in Cloudflare Dashboard:
+# Dashboard → Workers & Pages → KV → Create namespace
+# Name: craft-chicago-rate-limit
+# Then copy the namespace ID and add it below
+#
+# The KV binding enables distributed rate limiting across
+# all Cloudflare Workers instances. Without this, each
+# worker instance maintains its own in-memory rate limit
+# store, which can be bypassed by attackers.
+# ============================================
+
+# Uncomment and configure once KV namespace is created:
+# [[kv_namespaces]]
+# binding = "RATE_LIMIT_KV"
+# id = "<your-kv-namespace-id>"
+
 # Environment variables for production
 # Only non-sensitive values should be listed here
 [env.production]
@@ -32,7 +51,13 @@ compatibility_date = "2024-12-19"
 
 [env.production.vars]
 VITE_SUPABASE_URL = "https://api.craftlocal.net"
+ENVIRONMENT = "production"
 # VITE_SUPABASE_ANON_KEY should be set in Cloudflare Dashboard secrets
+
+# Production KV namespace (uncomment after creating):
+# [[env.production.kv_namespaces]]
+# binding = "RATE_LIMIT_KV"
+# id = "<your-production-kv-namespace-id>"
 
 # Environment variables for preview
 [env.preview]
@@ -40,4 +65,10 @@ compatibility_date = "2024-12-19"
 
 [env.preview.vars]
 VITE_SUPABASE_URL = "https://api.craftlocal.net"
+ENVIRONMENT = "preview"
 # VITE_SUPABASE_ANON_KEY should be set in Cloudflare Dashboard secrets
+
+# Preview KV namespace (uncomment after creating):
+# [[env.preview.kv_namespaces]]
+# binding = "RATE_LIMIT_KV"
+# id = "<your-preview-kv-namespace-id>"
