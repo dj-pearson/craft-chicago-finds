@@ -1,0 +1,14 @@
+﻿CraftLocal Stripe Setup - 12/30/2025 11:10:52
+Mode: LIVE
+
+Product IDs:
+  pro = prod_ThVSi77TGwj0od
+  free = prod_ThVSRfA2Az66Gl
+  premium = prod_ThVSOhIkHNZnXs
+
+Price IDs:
+  price_pro_yearly = price_1Sk6RbPfYcMZqt5byI1DOvXY
+  price_premium_monthly = price_1Sk6RbPfYcMZqt5bW5IeGYIA
+  price_pro_monthly = price_1Sk6RaPfYcMZqt5bu0CGnzpn
+  price_free = price_1Sk6RZPfYcMZqt5by4bayBJg
+  price_premium_yearly = price_1Sk6RcPfYcMZqt5bP6AJDJdI

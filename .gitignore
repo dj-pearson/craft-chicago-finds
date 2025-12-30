@@ -67,3 +67,4 @@ find-kong-admin.sh
 # Supabase local configuration - NEVER commit project references
 supabase/.temp/
 supabase/.branches/
+STRIPE_SETUP_RESULTS.md
