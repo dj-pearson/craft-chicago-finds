@@ -3,11 +3,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Heart, MapPin, Package, Truck, Eye, Maximize2 } from "lucide-react";
+import { Heart, MapPin, Package, Truck, Eye, Maximize2, ShoppingCart, Check } from "lucide-react";
 import { LazyImage } from "@/components/ui/lazy-image";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useCart } from "@/hooks/useCart";
 import { QuickViewModal } from "./QuickViewModal";
 import { TrustBadges } from "@/components/ui/trust-badges";
+import { toast } from "sonner";
 import type { Listing } from "@/pages/Browse";
 
 interface ProductCardProps {
@@ -22,9 +24,13 @@ export const ProductCard = memo(({
   onNavigate
 }: ProductCardProps) => {
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { addItem, isInCart } = useCart();
   const favorited = isFavorite(listing.id);
+  const inCart = isInCart(listing.id);
   const [isHovered, setIsHovered] = useState(false);
   const [showQuickView, setShowQuickView] = useState(false);
+
+  const isOutOfStock = listing.inventory_count === 0;
 
   const handleCardClick = () => {
     onNavigate(`/${citySlug}/product/${listing.id}`);
@@ -38,6 +44,36 @@ export const ProductCard = memo(({
   const handleQuickView = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowQuickView(true);
+  };
+
+  const handleQuickAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (isOutOfStock) {
+      toast.error('Out of stock', {
+        description: 'This item is currently unavailable.'
+      });
+      return;
+    }
+
+    const item = {
+      id: listing.id,
+      listing_id: listing.id,
+      title: listing.title,
+      price: listing.price,
+      max_quantity: listing.inventory_count || 999,
+      image: listing.images?.[0],
+      seller_id: listing.seller_id,
+      seller_name: listing.profiles?.display_name || 'Unknown Seller',
+      shipping_available: listing.shipping_available || false,
+      local_pickup_available: listing.local_pickup_available || false,
+      pickup_location: undefined,
+    };
+
+    addItem(item, 1);
+    toast.success('Added to cart!', {
+      description: `${listing.title} added to your cart.`
+    });
   };
 
   // Get the image to display (secondary on hover if available)
@@ -97,17 +133,43 @@ export const ProductCard = memo(({
             </div>
           )}
 
-          {/* Quick View Button - appears on hover */}
-          <Button
-            variant="secondary"
-            size="sm"
-            className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-background/90 hover:bg-background backdrop-blur-sm"
-            onClick={handleQuickView}
-            aria-label="Quick view"
-          >
-            <Maximize2 className="h-4 w-4 mr-1" />
-            Quick View
-          </Button>
+          {/* Action Buttons - appear on hover */}
+          <div className="absolute bottom-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            {/* Quick Add to Cart Button */}
+            {!isOutOfStock && (
+              <Button
+                variant={inCart ? "default" : "secondary"}
+                size="sm"
+                className={`bg-background/90 hover:bg-background backdrop-blur-sm ${inCart ? 'bg-green-500 hover:bg-green-600 text-white' : ''}`}
+                onClick={handleQuickAddToCart}
+                aria-label={inCart ? 'In cart' : 'Add to cart'}
+              >
+                {inCart ? (
+                  <>
+                    <Check className="h-4 w-4 mr-1" />
+                    In Cart
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="h-4 w-4 mr-1" />
+                    Add
+                  </>
+                )}
+              </Button>
+            )}
+
+            {/* Quick View Button */}
+            <Button
+              variant="secondary"
+              size="sm"
+              className="bg-background/90 hover:bg-background backdrop-blur-sm"
+              onClick={handleQuickView}
+              aria-label="Quick view"
+            >
+              <Maximize2 className="h-4 w-4 mr-1" />
+              View
+            </Button>
+          </div>
 
         {/* Featured Badge */}
         {listing.featured && (
