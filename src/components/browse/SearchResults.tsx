@@ -267,24 +267,65 @@ export const SearchResults = ({
 
       {/* No Results */}
       {listings.length === 0 && !loading && (
-        <div className="text-center py-12">
-          <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No results found</h3>
-          <p className="text-muted-foreground mb-4">
-            {searchQuery 
+        <div className="text-center py-12 max-w-lg mx-auto">
+          <PackageSearch className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-xl font-semibold mb-2">No results found</h3>
+          <p className="text-muted-foreground mb-6">
+            {searchQuery
               ? `We couldn't find any products matching "${searchQuery}"`
               : "No products match your current filters"
             }
           </p>
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Try:</p>
+
+          {/* Category Suggestions */}
+          {categories.length > 0 && (
+            <div className="mb-6">
+              <p className="text-sm font-medium mb-3">Browse by category instead:</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {categories.slice(0, 6).map((category) => (
+                  <Badge
+                    key={category.id}
+                    variant="outline"
+                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors px-3 py-1.5 text-sm"
+                    onClick={() => onSearchChange('')}
+                  >
+                    {category.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Search Tips */}
+          <div className="bg-muted/50 rounded-lg p-4 text-left">
+            <p className="text-sm font-medium mb-2">Search tips:</p>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Checking your spelling</li>
-              <li>• Using fewer or different keywords</li>
-              <li>• Browsing by category instead</li>
-              <li>• Clearing some filters</li>
+              <li className="flex items-center gap-2">
+                <span className="text-primary">•</span>
+                Try broader terms like "jewelry" or "ceramics"
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-primary">•</span>
+                Check your spelling
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-primary">•</span>
+                Use fewer keywords
+              </li>
             </ul>
           </div>
+
+          {/* Clear Search Button */}
+          {searchQuery && (
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={() => onSearchChange('')}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Clear search
+            </Button>
+          )}
         </div>
       )}
 
