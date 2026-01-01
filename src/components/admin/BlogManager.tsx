@@ -63,6 +63,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCityContext } from "@/hooks/useCityContext";
 import { seoManager } from "@/lib/seo-utils";
+import { getReadabilityScore } from "@/lib/readability";
 import { KeywordSelector } from "./KeywordSelector";
 import { BlogTemplateSelector } from "./BlogTemplateSelector";
 import { BlogProductLinker } from "./BlogProductLinker";
@@ -416,7 +417,7 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
           keywords: keywords.join(", "),
           word_count: wordCount,
         }),
-        readability_score: 85,
+        readability_score: getReadabilityScore(result.content),
         ai_generated: true,
         ai_prompt: result.ai_prompt,
       };
@@ -630,7 +631,7 @@ export const BlogManager = ({ className }: BlogManagerProps) => {
           keywords: keywords.join(", "),
           word_count: wordCount,
         }),
-        readability_score: 85, // TODO: Implement readability calculation
+        readability_score: getReadabilityScore(postForm.content),
         ai_generated: selectedPost?.ai_generated || false,
       };
 
