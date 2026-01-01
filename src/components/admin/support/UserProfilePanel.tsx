@@ -116,19 +116,20 @@ export const UserProfilePanel = ({ userId, onClose }: UserProfilePanelProps) => 
       setProfile(profileData);
 
       // Load stats in parallel
-      const [ordersRes, listingsRes, reviewsRes, disputesRes, ticketsRes] = await Promise.all([
+      const [ordersRes, listingsRes, reviewsRes, disputesRes, ticketsRes, salesRes] = await Promise.all([
         supabase.from('orders').select('total_amount').eq('buyer_id', userId),
         supabase.from('listings').select('id').eq('seller_id', userId),
         supabase.from('reviews').select('rating').eq('reviewed_user_id', userId),
         supabase.from('disputes').select('id').or(`disputing_user_id.eq.${userId},disputed_user_id.eq.${userId}`),
-        // TODO: Once support_tickets table exists, uncomment:
-        // supabase.from('support_tickets').select('id').eq('user_id', userId).eq('status', 'open')
-        Promise.resolve({ data: [], error: null })
+        supabase.from('support_tickets').select('id').eq('user_id', userId).eq('status', 'open'),
+        // Calculate total sales from orders where the user is the seller
+        supabase.from('orders').select('total_amount').eq('seller_id', userId).in('status', ['completed', 'shipped', 'delivered'])
       ]);
 
       const totalOrders = ordersRes.data?.length || 0;
       const totalSpent = ordersRes.data?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
       const totalListings = listingsRes.data?.length || 0;
+      const totalSales = salesRes.data?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
       const reviewData = reviewsRes.data || [];
       const avgRating = reviewData.length > 0
         ? reviewData.reduce((sum, r) => sum + r.rating, 0) / reviewData.length
@@ -138,7 +139,7 @@ export const UserProfilePanel = ({ userId, onClose }: UserProfilePanelProps) => 
         total_orders: totalOrders,
         total_spent: totalSpent,
         total_listings: totalListings,
-        total_sales: 0, // TODO: Calculate from orders where seller_id = userId
+        total_sales: totalSales,
         avg_rating: avgRating,
         review_count: reviewData.length,
         dispute_count: disputesRes.data?.length || 0,

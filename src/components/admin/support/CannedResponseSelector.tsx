@@ -267,17 +267,22 @@ export const CannedResponseManager = () => {
   const loadResponses = async () => {
     try {
       setLoading(true);
-      // TODO: Once support_canned_responses table exists, uncomment:
-      /*
       const { data, error } = await supabase
         .from('support_canned_responses')
         .select('*')
-        .order('category, title');
+        .order('category', { ascending: true });
 
       if (error) throw error;
-      setResponses(data || []);
-      */
-      setResponses([]);
+
+      // Sort by title within each category
+      const sortedData = (data || []).sort((a, b) => {
+        if (a.category !== b.category) {
+          return a.category.localeCompare(b.category);
+        }
+        return a.title.localeCompare(b.title);
+      });
+
+      setResponses(sortedData as CannedResponse[]);
     } catch (error) {
       console.error('Error loading responses:', error);
       toast({
@@ -292,7 +297,38 @@ export const CannedResponseManager = () => {
 
   const handleSave = async (data: Partial<CannedResponse>) => {
     try {
-      // TODO: Save logic
+      if (editing) {
+        // Update existing response
+        const { error } = await supabase
+          .from('support_canned_responses')
+          .update({
+            title: data.title,
+            content: data.content,
+            category: data.category,
+            shortcode: data.shortcode,
+            variables: data.variables,
+            is_active: data.is_active ?? true
+          })
+          .eq('id', editing.id);
+
+        if (error) throw error;
+      } else {
+        // Create new response
+        const { error } = await supabase
+          .from('support_canned_responses')
+          .insert({
+            title: data.title,
+            content: data.content,
+            category: data.category,
+            shortcode: data.shortcode,
+            variables: data.variables || [],
+            is_active: true,
+            usage_count: 0
+          });
+
+        if (error) throw error;
+      }
+
       toast({
         title: 'Success',
         description: editing ? 'Response updated' : 'Response created'
@@ -314,7 +350,14 @@ export const CannedResponseManager = () => {
     if (!confirm('Are you sure you want to delete this response?')) return;
 
     try {
-      // TODO: Delete logic
+      // Soft delete by setting is_active to false
+      const { error } = await supabase
+        .from('support_canned_responses')
+        .update({ is_active: false })
+        .eq('id', id);
+
+      if (error) throw error;
+
       toast({
         title: 'Success',
         description: 'Response deleted'
