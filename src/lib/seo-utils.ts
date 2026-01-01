@@ -59,17 +59,54 @@ export const generateUniqueSlug = async (
   excludeId?: string
 ): Promise<string> => {
   try {
-    // TODO: Implement generate_unique_slug function
-    console.log('Unique slug generation not yet implemented');
-    
-    // Fallback to simple slug generation with timestamp
     const baseSlug = generateSlug(baseText);
-    const timestamp = Date.now();
-    return `${baseSlug}-${timestamp}`;
+    let candidateSlug = baseSlug;
+    let suffix = 0;
+    let isUnique = false;
+
+    // Check for uniqueness, adding numeric suffix if needed
+    while (!isUnique) {
+      let query = supabase
+        .from(tableName)
+        .select('id')
+        .eq(columnName, candidateSlug)
+        .limit(1);
+
+      // Exclude current record when updating
+      if (excludeId) {
+        query = query.neq('id', excludeId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        // If table doesn't exist or column not found, fall back to base slug
+        console.warn(`Error checking slug uniqueness in ${tableName}: ${error.message}`);
+        return baseSlug;
+      }
+
+      if (!data || data.length === 0) {
+        // Slug is unique
+        isUnique = true;
+      } else {
+        // Slug exists, try with suffix
+        suffix++;
+        candidateSlug = `${baseSlug}-${suffix}`;
+
+        // Safety limit to prevent infinite loops
+        if (suffix > 100) {
+          // Fall back to timestamp suffix
+          return `${baseSlug}-${Date.now()}`;
+        }
+      }
+    }
+
+    return candidateSlug;
   } catch (error) {
     console.error("Error generating unique slug:", error);
-    // Fallback to simple slug generation
-    return generateSlug(baseText);
+    // Fallback to simple slug generation with timestamp
+    const baseSlug = generateSlug(baseText);
+    return `${baseSlug}-${Date.now()}`;
   }
 };
 

@@ -32,7 +32,7 @@ Use `process.env.*` for Node.js backends
 
 Craft Chicago Finds is a production-ready React-based marketplace application for local artisans and crafters. Built with Vite, TypeScript, React, shadcn/ui, and Tailwind CSS. The application uses Supabase for backend services and is deployed on Cloudflare Pages with edge functions.
 
-**Scale**: 407 TypeScript files, 43 pages, 35 custom hooks, 58 UI components, 95 database migrations
+**Scale**: 454 TypeScript files, 44 pages, 49 custom hooks, 58 UI components, 103 database migrations, 41 library utilities
 
 ## Development Commands
 
@@ -82,7 +82,7 @@ npm run pages:dev
 
 ```
 /
-├── src/                    # Main application source (402 TypeScript files)
+├── src/                    # Main application source (454 TypeScript files)
 │   ├── api/                # Sitemap generation utilities
 │   ├── components/         # Reusable UI components (35 directories)
 │   │   ├── ui/             # 59 shadcn/ui base components
@@ -117,10 +117,10 @@ npm run pages:dev
 │   │   ├── seo/            # SEO components (CategoryContent, FAQSection)
 │   │   ├── subscription/   # Subscription management
 │   │   └── wishlist/       # Wishlist/favorites
-│   ├── hooks/              # 35 custom React hooks + context providers
+│   ├── hooks/              # 49 custom React hooks + context providers
 │   ├── integrations/       # Supabase integration + types (252KB)
-│   ├── lib/                # 29 utility files (analytics, seo, validation, etc.)
-│   ├── pages/              # 43 route components (all lazy-loaded)
+│   ├── lib/                # 41 utility files (analytics, seo, validation, etc.)
+│   ├── pages/              # 44 route components (all lazy-loaded)
 │   └── styles/             # Global CSS files
 ├── functions/              # Cloudflare Pages edge functions
 │   ├── _middleware.ts      # CORS headers
@@ -352,7 +352,7 @@ The app uses multiple context providers in a specific hierarchy:
 - **Persistence**: localStorage for cart, recently viewed
 - **Optimistic Updates**: Cart operations with immediate UI feedback
 
-### Custom Hooks (35 total)
+### Custom Hooks (49 total)
 
 Key hooks to be aware of:
 
@@ -386,7 +386,7 @@ Key hooks to be aware of:
 - `useCategoryTrendAlerts` - Category trend alerts
 - `useChicagoCraftIndexData` - Chicago Craft Index data
 
-### Library Utilities (29 files in `src/lib/`)
+### Library Utilities (41 files in `src/lib/`)
 
 Key utilities:
 
@@ -627,16 +627,16 @@ import { cn } from "@/lib/utils";
 ## Project Status
 
 **Status**: Production-ready, actively maintained
-**Recent Activity**: 193 commits since November 1, 2024
+**Recent Activity**: 99 total commits
 **Last Major Updates**:
 
-- Error handling and keyboard accessibility improvements
-- AI search optimization and sitemap enhancements
-- PageSpeed performance optimizations
-- Edge function improvements
-- Seller feature enhancements (AI generations, bulk operations, templates)
-- SEO strategy implementation with blog content
-- Mobile optimizations (bottom nav, sticky search)
+- Stripe products setup for subscription plans (Free, Pro, Premium)
+- Distributed rate limiting and server-side input validation
+- Mobile optimization across the platform
+- Security enhancements (body size limits, CSS injection prevention)
+- Environment variables documentation
+- Loading states improvements for performance and SEO
+- Secure Stripe checkout with server-side price verification
 
 ## Additional Resources
 
