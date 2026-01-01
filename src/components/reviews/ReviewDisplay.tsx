@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star } from "lucide-react";
@@ -51,6 +51,21 @@ export const ReviewDisplay = ({ reviews, onResponseAdded }: ReviewDisplayProps) 
     }
   };
 
+  // Memoize expensive calculations to avoid recalculating on every render
+  const averageRating = useMemo(() => {
+    if (reviews.length === 0) return 0;
+    return reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+  }, [reviews]);
+
+  // Memoize rating distribution to avoid multiple filter operations on every render
+  const ratingDistribution = useMemo(() => {
+    return [5, 4, 3, 2, 1].map((rating) => {
+      const count = reviews.filter(r => r.rating === rating).length;
+      const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+      return { rating, count, percentage };
+    });
+  }, [reviews]);
+
   if (reviews.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -58,8 +73,6 @@ export const ReviewDisplay = ({ reviews, onResponseAdded }: ReviewDisplayProps) 
       </div>
     );
   }
-
-  const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
 
   return (
     <div className="space-y-6">
@@ -83,26 +96,21 @@ export const ReviewDisplay = ({ reviews, onResponseAdded }: ReviewDisplayProps) 
             {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
           </div>
         </div>
-        
+
         <div className="flex-1">
-          {[5, 4, 3, 2, 1].map((rating) => {
-            const count = reviews.filter(r => r.rating === rating).length;
-            const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
-            
-            return (
-              <div key={rating} className="flex items-center gap-2 text-sm">
-                <span className="w-8">{rating}</span>
-                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                <div className="flex-1 bg-muted rounded-full h-2">
-                  <div
-                    className="bg-yellow-400 h-2 rounded-full"
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-                <span className="w-8 text-right">{count}</span>
+          {ratingDistribution.map(({ rating, count, percentage }) => (
+            <div key={rating} className="flex items-center gap-2 text-sm">
+              <span className="w-8">{rating}</span>
+              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+              <div className="flex-1 bg-muted rounded-full h-2">
+                <div
+                  className="bg-yellow-400 h-2 rounded-full"
+                  style={{ width: `${percentage}%` }}
+                />
               </div>
-            );
-          })}
+              <span className="w-8 text-right">{count}</span>
+            </div>
+          ))}
         </div>
       </div>
 

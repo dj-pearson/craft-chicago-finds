@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,28 @@ export function AdminAnalyticsDashboard() {
   useEffect(() => {
     fetchAdminMetrics();
   }, []);
+
+  // Memoize formatter functions to prevent unnecessary chart re-renders
+  const formatDateTick = useCallback(
+    (value: string) => new Date(value).toLocaleDateString(),
+    []
+  );
+
+  const formatRevenueTooltip = useCallback(
+    (value: number, name: string) => [
+      name === 'revenue' ? `$${value}` : value,
+      name === 'revenue' ? 'Revenue' : 'Orders'
+    ],
+    []
+  );
+
+  const formatUserActivityTooltip = useCallback(
+    (value: number, name: string) => [
+      value,
+      name === 'activeUsers' ? 'Active Users' : 'New Users'
+    ],
+    []
+  );
 
   if (loading) {
     return <div className="text-center py-8">Loading platform analytics...</div>;
@@ -97,29 +119,26 @@ export function AdminAnalyticsDashboard() {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={adminMetrics.revenueTrend}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="date" 
-                  tickFormatter={(value) => new Date(value).toLocaleDateString()}
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={formatDateTick}
                 />
                 <YAxis />
-                <Tooltip 
-                  labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                  formatter={(value, name) => [
-                    name === 'revenue' ? `$${value}` : value, 
-                    name === 'revenue' ? 'Revenue' : 'Orders'
-                  ]}
+                <Tooltip
+                  labelFormatter={formatDateTick}
+                  formatter={formatRevenueTooltip}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="hsl(var(--primary))" 
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="hsl(var(--primary))"
                   strokeWidth={2}
                   name="revenue"
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="orders" 
-                  stroke="hsl(var(--secondary))" 
+                <Line
+                  type="monotone"
+                  dataKey="orders"
+                  stroke="hsl(var(--secondary))"
                   strokeWidth={2}
                   name="orders"
                 />
@@ -136,14 +155,14 @@ export function AdminAnalyticsDashboard() {
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={adminMetrics.userActivityTrend}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="date" 
-                  tickFormatter={(value) => new Date(value).toLocaleDateString()}
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={formatDateTick}
                 />
                 <YAxis />
-                <Tooltip 
-                  labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                  formatter={(value, name) => [value, name === 'activeUsers' ? 'Active Users' : 'New Users']}
+                <Tooltip
+                  labelFormatter={formatDateTick}
+                  formatter={formatUserActivityTooltip}
                 />
                 <Bar dataKey="activeUsers" fill="hsl(var(--primary))" name="activeUsers" />
                 <Bar dataKey="newUsers" fill="hsl(var(--secondary))" name="newUsers" />
