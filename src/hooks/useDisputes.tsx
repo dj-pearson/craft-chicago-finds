@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { handleError, ErrorMessages } from '@/lib/handleError';
+import { useToast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/types';
+
+type DisputeRow = Database["public"]["Tables"]["disputes"]["Row"];
+type DisputeUpdate = Database["public"]["Tables"]["disputes"]["Update"];
 
 export interface Dispute {
   id: string;
@@ -43,6 +49,7 @@ const DisputesContext = createContext<DisputesContextType | undefined>(undefined
 
 export const DisputesProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [disputes, setDisputes] = useState<Dispute[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -66,7 +73,12 @@ export const DisputesProvider = ({ children }: { children: React.ReactNode }) =>
       if (error) throw error;
       setDisputes(data as Dispute[] || []);
     } catch (error) {
-      console.error('Error fetching disputes:', error);
+      handleError(error, ErrorMessages.LOAD_ERROR);
+      toast({
+        title: 'Error',
+        description: 'Failed to load disputes. Please refresh the page.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
@@ -81,16 +93,25 @@ export const DisputesProvider = ({ children }: { children: React.ReactNode }) =>
         .insert([disputeData]);
 
       if (error) throw error;
+      toast({
+        title: 'Success',
+        description: 'Dispute submitted successfully.',
+      });
       await refreshDisputes();
     } catch (error) {
-      console.error('Error creating dispute:', error);
+      handleError(error, 'Failed to create dispute');
+      toast({
+        title: 'Error',
+        description: 'Failed to submit dispute. Please try again.',
+        variant: 'destructive',
+      });
       throw error;
     }
   };
 
   const updateDisputeStatus = async (disputeId: string, status: Dispute['status'], notes?: string) => {
     try {
-      const updateData: any = { 
+      const updateData: DisputeUpdate = {
         status,
         updated_at: new Date().toISOString()
       };
@@ -111,9 +132,18 @@ export const DisputesProvider = ({ children }: { children: React.ReactNode }) =>
         .eq('id', disputeId);
 
       if (error) throw error;
+      toast({
+        title: 'Success',
+        description: 'Dispute status updated successfully.',
+      });
       await refreshDisputes();
     } catch (error) {
-      console.error('Error updating dispute status:', error);
+      handleError(error, 'Failed to update dispute status');
+      toast({
+        title: 'Error',
+        description: 'Failed to update dispute status. Please try again.',
+        variant: 'destructive',
+      });
       throw error;
     }
   };
@@ -129,7 +159,7 @@ export const DisputesProvider = ({ children }: { children: React.ReactNode }) =>
       if (error) throw error;
       return data as DisputeMessage[] || [];
     } catch (error) {
-      console.error('Error fetching dispute messages:', error);
+      handleError(error, 'Failed to fetch dispute messages');
       return [];
     }
   };
@@ -148,8 +178,17 @@ export const DisputesProvider = ({ children }: { children: React.ReactNode }) =>
         }]);
 
       if (error) throw error;
+      toast({
+        title: 'Message sent',
+        description: 'Your message has been sent.',
+      });
     } catch (error) {
-      console.error('Error sending dispute message:', error);
+      handleError(error, 'Failed to send message');
+      toast({
+        title: 'Error',
+        description: 'Failed to send message. Please try again.',
+        variant: 'destructive',
+      });
       throw error;
     }
   };

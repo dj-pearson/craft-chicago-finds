@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-
-import { supabase as supabaseClient } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -37,64 +36,21 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import type { Database } from "@/integrations/supabase/types";
 
-const supabase: any = supabaseClient;
-
-interface AIModel {
-  id: string;
-  model_name: string;
-  display_name: string;
-  provider: string;
-  api_endpoint: string;
-  model_type: string;
-  description: string;
-  max_tokens: number;
-  supports_vision: boolean;
-  supports_streaming: boolean;
-  is_active: boolean;
-  is_default: boolean;
-  sort_order: number;
-  created_at: string;
-  updated_at: string;
-}
-
-interface AISettings {
-  id: string;
-  model_id: string;
-  model_name: string;
-  model_provider: string;
-  api_endpoint: string;
-  max_tokens: number;
-  temperature: number;
-  system_prompt: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-interface AILog {
-  id: string;
-  user_id: string;
-  model_used: string;
-  prompt: string;
-  response: string;
-  tokens_used: number;
-  success: boolean;
-  error_message?: string;
-  generation_type: string;
-  created_at: string;
-}
+type AIModelRow = Database["public"]["Tables"]["ai_models"]["Row"];
+type AISettingsRow = Database["public"]["Tables"]["ai_settings"]["Row"];
+type AIGenerationLogRow = Database["public"]["Tables"]["ai_generation_logs"]["Row"];
 
 export const AISettingsManager = () => {
-  
-  const [settings, setSettings] = useState<AISettings | null>(null);
-  const [logs, setLogs] = useState<AILog[]>([]);
-  const [models, setModels] = useState<AIModel[]>([]);
+  const [settings, setSettings] = useState<AISettingsRow | null>(null);
+  const [logs, setLogs] = useState<AIGenerationLogRow[]>([]);
+  const [models, setModels] = useState<AIModelRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [showModelDialog, setShowModelDialog] = useState(false);
-  const [editingModel, setEditingModel] = useState<AIModel | null>(null);
+  const [editingModel, setEditingModel] = useState<AIModelRow | null>(null);
   const [testResult, setTestResult] = useState<{
     success: boolean;
     content?: string;
