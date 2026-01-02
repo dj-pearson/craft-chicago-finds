@@ -9,6 +9,16 @@ import { queryClient } from "./lib/queryClient";
 import { initCoreWebVitals } from "./lib/performance";
 import { registerServiceWorker } from "./lib/serviceWorker";
 
+// Hide the initial loading skeleton once React is ready
+function hideInitialLoader() {
+  const loader = document.getElementById('initial-loader');
+  if (loader) {
+    loader.classList.add('loaded');
+    // Remove from DOM after transition completes
+    setTimeout(() => loader.remove(), 100);
+  }
+}
+
 // Initialize performance monitoring
 if (typeof window !== 'undefined') {
   initCoreWebVitals();
@@ -19,7 +29,9 @@ if (typeof window !== 'undefined') {
   }
 }
 
-createRoot(document.getElementById("root")!).render(
+const root = createRoot(document.getElementById("root")!);
+
+root.render(
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
       <BrowserRouter>
@@ -30,3 +42,6 @@ createRoot(document.getElementById("root")!).render(
     </HelmetProvider>
   </QueryClientProvider>
 );
+
+// Hide loader after React has rendered
+hideInitialLoader();

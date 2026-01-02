@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, MapPin, ShoppingBag, Users, Store, DollarSign, Zap } from "lucide-react";
@@ -9,10 +9,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SEOHead } from "@/components/seo/SEOHead";
-import { FAQSection, chicagoHandmadeFAQs } from "@/components/seo/FAQSection";
-import { FeaturedCollections } from "@/components/collections/FeaturedCollections";
-import { OrganizationSchema, WebSiteSchema, LocalBusinessSchema } from "@/components/seo/SchemaMarkup";
-import { QuickLinks } from "@/components/seo/InternalLinks";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load below-the-fold components for better LCP
+const FAQSection = lazy(() => import("@/components/seo/FAQSection").then(m => ({ default: m.FAQSection })));
+const FeaturedCollections = lazy(() => import("@/components/collections/FeaturedCollections").then(m => ({ default: m.FeaturedCollections })));
+const QuickLinks = lazy(() => import("@/components/seo/InternalLinks").then(m => ({ default: m.QuickLinks })));
+
+// Import chicagoHandmadeFAQs directly since it's just data
+import { chicagoHandmadeFAQs } from "@/components/seo/FAQSection";
 
 interface City {
   id: string;
@@ -300,10 +305,26 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* Featured Collections */}
+        {/* Featured Collections - Lazy loaded */}
         <section className="py-16 px-4">
           <div className="container mx-auto">
-            <FeaturedCollections limit={6} showHeader={true} />
+            <Suspense fallback={
+              <div className="space-y-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="space-y-2">
+                    <Skeleton className="h-8 w-48" />
+                    <Skeleton className="h-4 w-96" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="h-64 rounded-lg" />
+                  ))}
+                </div>
+              </div>
+            }>
+              <FeaturedCollections limit={6} showHeader={true} />
+            </Suspense>
           </div>
         </section>
 
@@ -383,21 +404,32 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* FAQ Section - Optimized for AI Search (GEO) */}
+        {/* FAQ Section - Optimized for AI Search (GEO) - Lazy loaded */}
         <section className="py-16 px-4 bg-muted/30">
           <div className="container mx-auto max-w-4xl">
-            <FAQSection
-              title="Frequently Asked Questions"
-              faqs={chicagoHandmadeFAQs}
-            />
+            <Suspense fallback={
+              <div className="space-y-4">
+                <Skeleton className="h-8 w-64 mx-auto" />
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-16 w-full rounded-lg" />
+                ))}
+              </div>
+            }>
+              <FAQSection
+                title="Frequently Asked Questions"
+                faqs={chicagoHandmadeFAQs}
+              />
+            </Suspense>
           </div>
         </section>
 
-        {/* Quick Links Section - Internal Linking for SEO */}
+        {/* Quick Links Section - Internal Linking for SEO - Lazy loaded */}
         <section className="py-8 px-4 border-t">
           <div className="container mx-auto">
             <h3 className="text-sm font-semibold text-muted-foreground mb-4">Quick Links</h3>
-            <QuickLinks citySlug={cities.find(c => c.is_active)?.slug || 'chicago'} />
+            <Suspense fallback={<Skeleton className="h-12 w-full" />}>
+              <QuickLinks citySlug={cities.find(c => c.is_active)?.slug || 'chicago'} />
+            </Suspense>
           </div>
         </section>
       </main>
