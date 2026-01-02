@@ -5,26 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
 
+    <!-- Critical CSS - Inlined for instant rendering -->
+    <style>
+      /* Critical CSS for above-the-fold content - prevents render blocking */
+      :root {
+        --background: 0 0% 99%;
+        --foreground: 215 25% 15%;
+        --primary: 204 86% 38%;
+        --primary-foreground: 0 0% 100%;
+        --muted: 20 15% 95%;
+        --muted-foreground: 215 20% 35%;
+        --border: 20 15% 88%;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Loading skeleton styles */
+      .initial-loader {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .loader-header {
+        height: 64px;
+        border-bottom: 1px solid hsl(var(--border));
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        background: hsl(var(--background));
+      }
+
+      .loader-logo {
+        width: 120px;
+        height: 32px;
+        background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--background)) 50%, hsl(var(--muted)) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+      }
+
+      .loader-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        text-align: center;
+      }
+
+      .loader-hero-title {
+        width: 80%;
+        max-width: 400px;
+        height: 48px;
+        background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--background)) 50%, hsl(var(--muted)) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 8px;
+        margin-bottom: 16px;
+      }
+
+      .loader-hero-subtitle {
+        width: 60%;
+        max-width: 300px;
+        height: 24px;
+        background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--background)) 50%, hsl(var(--muted)) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+      }
+
+      @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
+      /* Hide loader once React app loads */
+      #initial-loader.loaded { display: none; }
+    </style>
+
     <!-- DNS Prefetch & Preconnect for faster loading - placed early for best effect -->
     <!-- Supabase (highest priority - database/auth) -->
     <link rel="preconnect" href="https://api.craftlocal.net" crossorigin>
     <link rel="dns-prefetch" href="https://api.craftlocal.net">
 
-    <!-- Stripe (payment processing) -->
-    <link rel="preconnect" href="https://js.stripe.com" crossorigin>
+    <!-- Stripe (payment processing - defer until needed) -->
     <link rel="dns-prefetch" href="https://js.stripe.com">
     <link rel="dns-prefetch" href="https://api.stripe.com">
 
-    <!-- Google Analytics -->
-    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <!-- Google Analytics (defer - not critical for initial load) -->
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
     <link rel="dns-prefetch" href="https://www.google-analytics.com">
 
-    <!-- Font optimization -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Preload critical assets -->
-    <link rel="preload" href="/Logo.webp" as="image" type="image/webp">
+    <!-- Preload critical assets with high priority -->
+    <link rel="preload" href="/Logo.webp" as="image" type="image/webp" fetchpriority="high">
 
     <link rel="icon" href="/favicon.png" type="image/png">
 
@@ -111,6 +196,17 @@
 </head>
 
   <body>
+    <!-- Initial loading skeleton - shows immediately while JS loads -->
+    <div id="initial-loader" class="initial-loader" aria-hidden="true">
+      <div class="loader-header">
+        <div class="loader-logo"></div>
+      </div>
+      <div class="loader-content">
+        <div class="loader-hero-title"></div>
+        <div class="loader-hero-subtitle"></div>
+      </div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
