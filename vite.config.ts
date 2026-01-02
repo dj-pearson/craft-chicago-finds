@@ -64,17 +64,23 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         // Improved manual chunking for better caching and reduced bundle sizes
+        // Split vendor into smaller chunks to reduce main thread blocking
         manualChunks: (id) => {
-          // Core vendor chunks - bundle all React-dependent libraries together
-          // This includes React, React DOM, Radix UI, and react-helmet-async
-          // to ensure proper module initialization order
-          if (id.includes('node_modules/react/') || 
-              id.includes('node_modules/react-dom/') ||
-              id.includes('node_modules/@radix-ui/') ||
-              id.includes('node_modules/react-helmet-async/')) {
-            return 'vendor';
+          // React core - smallest possible chunk for critical path
+          if (id.includes('node_modules/react/') ||
+              id.includes('node_modules/react-dom/')) {
+            return 'react-core';
           }
-          if (id.includes('node_modules/react-router-dom/')) {
+          // React helmet - needed for SEO but can load after React
+          if (id.includes('node_modules/react-helmet-async/')) {
+            return 'react-helmet';
+          }
+          // Radix UI primitives - split out for better caching
+          if (id.includes('node_modules/@radix-ui/')) {
+            return 'radix-ui';
+          }
+          if (id.includes('node_modules/react-router-dom/') ||
+              id.includes('node_modules/@remix-run/router/')) {
             return 'router';
           }
           // Separate large libraries
@@ -83,12 +89,20 @@ export default defineConfig(({ mode }) => ({
           }
           // Note: Recharts removed from manual chunking to avoid circular dependencies
           // Let Vite handle Recharts bundling automatically with proper dependency resolution
-          // Utility libraries
-          if (id.includes('node_modules/clsx/') || id.includes('node_modules/tailwind-merge/') ||
-              id.includes('node_modules/date-fns/')) {
-            return 'utils';
+          // Utility libraries - frequently used, good to cache separately
+          if (id.includes('node_modules/clsx/') ||
+              id.includes('node_modules/tailwind-merge/') ||
+              id.includes('node_modules/class-variance-authority/')) {
+            return 'styling-utils';
           }
-          // Backend services
+          if (id.includes('node_modules/date-fns/')) {
+            return 'date-utils';
+          }
+          // Lucide icons - commonly used, split for better tree-shaking
+          if (id.includes('node_modules/lucide-react/')) {
+            return 'icons';
+          }
+          // Backend services - defer loading where possible
           if (id.includes('node_modules/@supabase/')) {
             return 'supabase';
           }
@@ -97,6 +111,15 @@ export default defineConfig(({ mode }) => ({
           }
           if (id.includes('node_modules/@tanstack/react-query/')) {
             return 'react-query';
+          }
+          // Zod validation - split out as it's not always needed immediately
+          if (id.includes('node_modules/zod/')) {
+            return 'zod';
+          }
+          // DOMPurify - security library, can be loaded async
+          if (id.includes('node_modules/dompurify/') ||
+              id.includes('node_modules/isomorphic-dompurify/')) {
+            return 'sanitize';
           }
           // Analytics code - keep separate to avoid circular dependencies
           if (id.includes('/lib/analytics')) {

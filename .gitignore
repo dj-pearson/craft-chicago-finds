@@ -68,3 +68,6 @@ find-kong-admin.sh
 supabase/.temp/
 supabase/.branches/
 STRIPE_SETUP_RESULTS.md
+
+# Lighthouse reports - generated test artifacts
+lighthouse-report*.json

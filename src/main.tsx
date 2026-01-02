@@ -6,8 +6,6 @@ import { AnalyticsProvider } from './components/analytics';
 import App from "./App.tsx";
 import "./index.css";
 import { queryClient } from "./lib/queryClient";
-import { initCoreWebVitals } from "./lib/performance";
-import { registerServiceWorker } from "./lib/serviceWorker";
 
 // Hide the initial loading skeleton once React is ready
 function hideInitialLoader() {
@@ -15,17 +13,34 @@ function hideInitialLoader() {
   if (loader) {
     loader.classList.add('loaded');
     // Remove from DOM after transition completes
-    setTimeout(() => loader.remove(), 100);
+    setTimeout(() => loader.remove(), 200);
   }
 }
 
-// Initialize performance monitoring
-if (typeof window !== 'undefined') {
-  initCoreWebVitals();
+// Defer non-critical initialization to after page is interactive
+function initDeferredFeatures() {
+  // Use requestIdleCallback for non-critical init, with timeout fallback
+  const scheduleInit = (callback: () => void, timeout = 2000) => {
+    if ('requestIdleCallback' in window) {
+      (window as unknown as { requestIdleCallback: (cb: () => void, opts: { timeout: number }) => void })
+        .requestIdleCallback(callback, { timeout });
+    } else {
+      setTimeout(callback, 100);
+    }
+  };
 
-  // Enable service worker in production for offline caching and faster loads
+  // Initialize performance monitoring after main content is painted
+  scheduleInit(async () => {
+    const { initCoreWebVitals } = await import("./lib/performance");
+    initCoreWebVitals();
+  }, 3000);
+
+  // Enable service worker in production (deferred for faster initial load)
   if (import.meta.env.PROD) {
-    registerServiceWorker();
+    scheduleInit(async () => {
+      const { registerServiceWorker } = await import("./lib/serviceWorker");
+      registerServiceWorker();
+    }, 5000);
   }
 }
 
@@ -45,3 +60,13 @@ root.render(
 
 // Hide loader after React has rendered
 hideInitialLoader();
+
+// Initialize deferred features after first paint
+if (typeof window !== 'undefined') {
+  // Wait for first paint before scheduling deferred work
+  if (document.readyState === 'complete') {
+    initDeferredFeatures();
+  } else {
+    window.addEventListener('load', initDeferredFeatures, { once: true });
+  }
+}
