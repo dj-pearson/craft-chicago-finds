@@ -1,14 +1,16 @@
 /**
  * Authentication Page
- * Handles both sign up and sign in flows
+ * Handles both sign up and sign in flows with MFA support
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthRateLimit } from '@/hooks/useAuthRateLimit';
 import { useAccountLockout } from '@/hooks/useAccountLockout';
+import { useMFA } from '@/hooks/useMFA';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { MFAVerification } from '@/components/auth/MFAVerification';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,14 +30,29 @@ const displayNameSchema = z.string().min(2, 'Display name must be at least 2 cha
 export default function Auth() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, signIn, signUp, resetPassword, loading: authLoading } = useAuth();
+  const { user, signIn, signUp, signOut, resetPassword, loading: authLoading } = useAuth();
   const { checkRateLimit, recordAttempt } = useAuthRateLimit();
   const { checkLockout, recordLoginAttempt, getTimeUntilUnlock, formatLockReason } = useAccountLockout();
+  const {
+    isMFAEnabled,
+    verifyCode,
+    verifyBackupCode,
+    isCurrentDeviceTrusted,
+    trustDevice,
+    mfaSettings,
+    isLoading: mfaLoading
+  } = useMFA();
   const [loading, setLoading] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // MFA state
+  const [showMFAVerification, setShowMFAVerification] = useState(false);
+  const [mfaVerifying, setMfaVerifying] = useState(false);
+  const [mfaError, setMfaError] = useState<string | null>(null);
+  const [mfaAttemptsRemaining, setMfaAttemptsRemaining] = useState(5);
 
   // Account lockout state
   const [lockoutInfo, setLockoutInfo] = useState<{
@@ -56,12 +73,17 @@ export default function Auth() {
   const [signUpPassword, setSignUpPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated (and MFA verified if required)
   useEffect(() => {
-    if (user) {
-      navigate(redirectTo);
+    if (user && !showMFAVerification) {
+      // Check if user has MFA enabled and device is not trusted
+      if (isMFAEnabled && !isCurrentDeviceTrusted()) {
+        setShowMFAVerification(true);
+      } else {
+        navigate(redirectTo);
+      }
     }
-  }, [user, navigate, redirectTo]);
+  }, [user, navigate, redirectTo, isMFAEnabled, isCurrentDeviceTrusted, showMFAVerification]);
 
   // Check lockout status when email changes
   useEffect(() => {
@@ -157,14 +179,76 @@ export default function Auth() {
       } else {
         toast.error(error.message || 'Failed to sign in');
       }
+      setLoading(false);
     } else {
       setLockoutInfo(null);
-      toast.success('Welcome back!');
-      navigate(redirectTo);
+      // MFA check happens in useEffect after user state updates
+      // The useEffect will either show MFA or navigate
+      setLoading(false);
     }
-
-    setLoading(false);
   };
+
+  // Handle MFA verification
+  const handleMFAVerify = useCallback(async (code: string, method: 'totp' | 'backup'): Promise<boolean> => {
+    setMfaVerifying(true);
+    setMfaError(null);
+
+    try {
+      let isValid = false;
+
+      if (method === 'totp') {
+        isValid = await verifyCode(code);
+      } else {
+        isValid = await verifyBackupCode(code);
+      }
+
+      if (isValid) {
+        toast.success('Verification successful!');
+        setShowMFAVerification(false);
+        navigate(redirectTo);
+        return true;
+      } else {
+        const remaining = mfaAttemptsRemaining - 1;
+        setMfaAttemptsRemaining(remaining);
+
+        if (remaining <= 0) {
+          // Too many failed attempts - sign out
+          toast.error('Too many failed verification attempts. Please sign in again.');
+          await signOut();
+          setShowMFAVerification(false);
+          setMfaAttemptsRemaining(5);
+        } else {
+          setMfaError(`Invalid code. ${remaining} attempts remaining.`);
+        }
+        return false;
+      }
+    } catch (error) {
+      setMfaError('Verification failed. Please try again.');
+      return false;
+    } finally {
+      setMfaVerifying(false);
+    }
+  }, [verifyCode, verifyBackupCode, mfaAttemptsRemaining, signOut, navigate, redirectTo]);
+
+  // Handle trust device from MFA
+  const handleTrustDevice = useCallback(async (trust: boolean) => {
+    if (trust) {
+      try {
+        await trustDevice();
+      } catch (error) {
+        console.error('Failed to trust device:', error);
+      }
+    }
+  }, [trustDevice]);
+
+  // Handle MFA cancellation
+  const handleMFACancel = useCallback(async () => {
+    await signOut();
+    setShowMFAVerification(false);
+    setMfaAttemptsRemaining(5);
+    setMfaError(null);
+    toast.info('Sign in cancelled');
+  }, [signOut]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -248,10 +332,27 @@ export default function Auth() {
     // Don't set loading to false on success - user will be redirected
   };
 
-  if (authLoading) {
+  if (authLoading || (user && mfaLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Show MFA verification screen if needed
+  if (showMFAVerification && user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+        <MFAVerification
+          onVerify={handleMFAVerify}
+          onTrustDevice={handleTrustDevice}
+          onCancel={handleMFACancel}
+          email={user.email}
+          isLoading={mfaVerifying}
+          error={mfaError}
+          attemptsRemaining={mfaAttemptsRemaining}
+        />
       </div>
     );
   }
