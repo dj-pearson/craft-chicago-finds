@@ -3,6 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { sanitizeRedirectURL } from "@/lib/validation";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -37,9 +38,10 @@ export const ProtectedRoute = ({
 
   // Redirect to login if authentication required but user not logged in
   if (requireAuth && !user) {
-    // Preserve full URL including search params and hash
+    // Preserve full URL including search params and hash, and sanitize it
     const fullPath = `${location.pathname}${location.search}${location.hash}`;
-    return <Navigate to={`/auth?redirect=${encodeURIComponent(fullPath)}`} replace />;
+    const sanitizedPath = sanitizeRedirectURL(fullPath);
+    return <Navigate to={`/auth?redirect=${encodeURIComponent(sanitizedPath)}`} replace />;
   }
 
   // Redirect to home if admin access required but user is not admin

@@ -64,7 +64,7 @@ export interface PasswordStrengthResult {
  */
 export function calculatePasswordStrength(password: string): PasswordStrengthResult {
   const requirements = {
-    length: password.length >= 8,
+    length: password.length >= 12,
     uppercase: /[A-Z]/.test(password),
     lowercase: /[a-z]/.test(password),
     number: /[0-9]/.test(password),
@@ -77,7 +77,7 @@ export function calculatePasswordStrength(password: string): PasswordStrengthRes
 
   // Base score from requirements
   if (requirements.length) score += 15;
-  else feedback.push('Use at least 8 characters');
+  else feedback.push('Use at least 12 characters');
 
   if (requirements.uppercase) score += 15;
   else feedback.push('Add an uppercase letter');
@@ -140,7 +140,7 @@ export const validators = {
   
   password: z
     .string()
-    .min(8, { message: 'Password must be at least 8 characters' })
+    .min(12, { message: 'Password must be at least 12 characters' })
     .max(128, { message: 'Password must be less than 128 characters' })
     .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
     .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
@@ -198,6 +198,61 @@ export const validators = {
     .max(200, { message: 'Title must be less than 200 characters' })
     .transform((val) => val.trim()),
 };
+
+/**
+ * Sanitize URL to prevent open redirect attacks
+ * Only allows relative paths starting with / or specific allowed domains
+ */
+export function sanitizeRedirectURL(url: string, allowedDomains: string[] = []): string {
+  if (!url || typeof url !== 'string') {
+    return '/';
+  }
+
+  // Trim whitespace
+  url = url.trim();
+
+  // If it's a relative path starting with /, validate it's safe
+  if (url.startsWith('/')) {
+    // Prevent protocol-relative URLs (//evil.com)
+    if (url.startsWith('//')) {
+      return '/';
+    }
+    
+    // Prevent javascript: and data: URLs
+    if (url.toLowerCase().includes('javascript:') || url.toLowerCase().includes('data:')) {
+      return '/';
+    }
+    
+    return url;
+  }
+
+  // If it's an absolute URL, check if domain is allowed
+  try {
+    const parsedUrl = new URL(url);
+    
+    // Only allow http and https protocols
+    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+      return '/';
+    }
+    
+    // Check if domain is in allowed list
+    const hostname = parsedUrl.hostname.toLowerCase();
+    const isAllowed = allowedDomains.some(domain => 
+      hostname === domain.toLowerCase() || 
+      hostname.endsWith(`.${domain.toLowerCase()}`)
+    );
+    
+    if (isAllowed) {
+      return url;
+    }
+  } catch {
+    // Invalid URL, return safe default
+    return '/';
+  }
+
+  // Default to home page if nothing matches
+  return '/';
+}
 
 /**
  * User profile validation

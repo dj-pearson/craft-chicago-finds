@@ -19,12 +19,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { Loader2, AlertTriangle } from 'lucide-react';
-import { validators } from '@/lib/validation';
+import { validators, sanitizeRedirectURL } from '@/lib/validation';
 import { supabase } from '@/integrations/supabase/client';
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
 
 const emailSchema = z.string().email('Please enter a valid email address');
-const passwordSchema = validators.password; // Use strong password policy (8+ chars with complexity)
+const passwordSchema = validators.password; // Use strong password policy (12+ chars with complexity)
 const displayNameSchema = z.string().min(2, 'Display name must be at least 2 characters').optional();
 
 export default function Auth() {
@@ -61,8 +61,9 @@ export default function Auth() {
     remainingAttempts: number;
   } | null>(null);
 
-  // Get redirect URL from query params
-  const redirectTo = searchParams.get('redirect') || '/';
+  // Get redirect URL from query params and sanitize it to prevent open redirect attacks
+  const rawRedirect = searchParams.get('redirect') || '/';
+  const redirectTo = sanitizeRedirectURL(rawRedirect);
 
   // Sign In form
   const [signInEmail, setSignInEmail] = useState('');
@@ -318,10 +319,14 @@ export default function Auth() {
   const handleOAuthSignIn = async (provider: 'google' | 'apple') => {
     setLoading(true);
     
+    // Build callback URL following self-hosted Supabase pattern
+    // OAuth will redirect to Supabase Auth API, which then redirects back to our app
+    const callbackUrl = `${window.location.origin}/auth?redirect=${encodeURIComponent(redirectTo)}`;
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}${redirectTo}`,
+        redirectTo: callbackUrl,
       },
     });
 
