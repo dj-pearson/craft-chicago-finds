@@ -5,26 +5,167 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
 
+    <!-- Critical CSS - Inlined for instant FCP (First Contentful Paint) -->
+    <style>
+      /* Critical CSS for above-the-fold content - prevents render blocking */
+      :root {
+        --background: 0 0% 99%;
+        --foreground: 215 25% 15%;
+        --primary: 204 86% 38%;
+        --primary-foreground: 0 0% 100%;
+        --muted: 20 15% 95%;
+        --muted-foreground: 215 20% 35%;
+        --border: 20 15% 88%;
+        --card: 0 0% 100%;
+        --radius: 0.75rem;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      html {
+        scroll-behavior: smooth;
+        /* Prevent layout shift from scrollbar */
+        overflow-y: scroll;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+
+      /* Critical header styles - matches actual header for no layout shift */
+      .initial-loader {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .loader-header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        height: 56px;
+        border-bottom: 1px solid hsl(var(--border));
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        background: hsl(var(--background) / 0.95);
+        backdrop-filter: blur(8px);
+      }
+
+      @media (min-width: 640px) {
+        .loader-header { height: 64px; padding: 0 16px; }
+      }
+
+      .loader-logo {
+        width: 100px;
+        height: 28px;
+        background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--background)) 50%, hsl(var(--muted)) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+      }
+
+      @media (min-width: 640px) {
+        .loader-logo { width: 120px; height: 32px; }
+      }
+
+      .loader-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 16px;
+        text-align: center;
+      }
+
+      .loader-hero-title {
+        width: 90%;
+        max-width: 500px;
+        height: 40px;
+        background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--background)) 50%, hsl(var(--muted)) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 8px;
+        margin-bottom: 12px;
+      }
+
+      @media (min-width: 768px) {
+        .loader-hero-title { height: 56px; }
+      }
+
+      .loader-hero-subtitle {
+        width: 70%;
+        max-width: 350px;
+        height: 20px;
+        background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--background)) 50%, hsl(var(--muted)) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+        margin-bottom: 24px;
+      }
+
+      .loader-cta {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .loader-button {
+        width: 140px;
+        height: 44px;
+        background: hsl(var(--primary));
+        border-radius: var(--radius);
+        opacity: 0.7;
+      }
+
+      .loader-button-outline {
+        width: 140px;
+        height: 44px;
+        background: transparent;
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+      }
+
+      @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
+      /* Hide loader once React app loads */
+      #initial-loader.loaded {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 150ms ease-out;
+      }
+
+      /* Ensure smooth transition - remove after animation */
+      #root:not(:empty) ~ #initial-loader,
+      #initial-loader.loaded { display: none; }
+    </style>
+
     <!-- DNS Prefetch & Preconnect for faster loading - placed early for best effect -->
     <!-- Supabase (highest priority - database/auth) -->
     <link rel="preconnect" href="https://api.craftlocal.net" crossorigin>
     <link rel="dns-prefetch" href="https://api.craftlocal.net">
 
-    <!-- Stripe (payment processing) -->
-    <link rel="preconnect" href="https://js.stripe.com" crossorigin>
+    <!-- Stripe (payment processing - defer until needed) -->
     <link rel="dns-prefetch" href="https://js.stripe.com">
     <link rel="dns-prefetch" href="https://api.stripe.com">
 
-    <!-- Google Analytics -->
-    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <!-- Google Analytics (defer - not critical for initial load) -->
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
     <link rel="dns-prefetch" href="https://www.google-analytics.com">
 
-    <!-- Font optimization -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Preload critical assets -->
-    <link rel="preload" href="/Logo.webp" as="image" type="image/webp">
+    <!-- Preload critical assets with high priority -->
+    <link rel="preload" href="/Logo.webp" as="image" type="image/webp" fetchpriority="high">
 
     <link rel="icon" href="/favicon.png" type="image/png">
 
@@ -111,6 +252,22 @@
 </head>
 
   <body>
+    <!-- Initial loading skeleton - shows immediately while JS loads -->
+    <!-- Matches actual page structure to prevent layout shift (CLS) -->
+    <div id="initial-loader" class="initial-loader" aria-hidden="true" role="presentation">
+      <div class="loader-header">
+        <div class="loader-logo"></div>
+      </div>
+      <div class="loader-content">
+        <div class="loader-hero-title"></div>
+        <div class="loader-hero-subtitle"></div>
+        <div class="loader-cta">
+          <div class="loader-button"></div>
+          <div class="loader-button-outline"></div>
+        </div>
+      </div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
