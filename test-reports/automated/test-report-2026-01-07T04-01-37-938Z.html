@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automated Test Report - 1/6/2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1f2937; background: #f9fafb; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.5rem; margin: 2rem 0 1rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+    h3 { font-size: 1.25rem; margin: 1.5rem 0 0.75rem; }
+    .header { background: #1f2937; color: white; padding: 2rem; margin-bottom: 2rem; border-radius: 8px; }
+    .header p { opacity: 0.8; }
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .stat-card .value { font-size: 2rem; font-weight: bold; }
+    .stat-card .label { color: #6b7280; font-size: 0.875rem; }
+    .stat-card.success .value { color: #22c55e; }
+    .stat-card.danger .value { color: #ef4444; }
+    .stat-card.warning .value { color: #f59e0b; }
+    .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+    .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+    .badge-passed { background: #dcfce7; color: #166534; }
+    .badge-failed { background: #fee2e2; color: #991b1b; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-critical { background: #fee2e2; color: #991b1b; }
+    .badge-high { background: #ffedd5; color: #9a3412; }
+    .badge-medium { background: #fef3c7; color: #92400e; }
+    .badge-low { background: #e0f2fe; color: #075985; }
+    .progress-bar { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin: 0.5rem 0; }
+    .progress-bar .fill { height: 100%; transition: width 0.3s; }
+    .progress-bar .fill.success { background: #22c55e; }
+    .progress-bar .fill.danger { background: #ef4444; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    th { background: #f9fafb; font-weight: 600; }
+    .error-item { border-left: 4px solid #ef4444; padding-left: 1rem; margin-bottom: 1rem; }
+    .error-item.warning { border-color: #f59e0b; }
+    .error-message { font-family: monospace; font-size: 0.875rem; background: #f3f4f6; padding: 0.5rem; border-radius: 4px; overflow-x: auto; }
+    .recommendation { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+    .recommendation.critical { background: #fee2e2; border-left: 4px solid #ef4444; }
+    .recommendation.high { background: #ffedd5; border-left: 4px solid #f97316; }
+    .recommendation.medium { background: #fef3c7; border-left: 4px solid #f59e0b; }
+    .recommendation.low { background: #e0f2fe; border-left: 4px solid #0ea5e9; }
+    .collapsible { cursor: pointer; }
+    .collapsible::after { content: ' ▼'; font-size: 0.75rem; }
+    .collapsible.collapsed::after { content: ' ▶'; }
+    .content { overflow: hidden; transition: max-height 0.3s; }
+    .content.collapsed { max-height: 0 !important; }
+    code { background: #f3f4f6; padding: 0.125rem 0.375rem; border-radius: 4px; font-size: 0.875rem; }
+    .footer { text-align: center; padding: 2rem; color: #6b7280; font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🧪 Automated Test Report</h1>
+      <p>Generated: 1/6/2026, 10:01:37 PM</p>
+      <p>Duration: 49.84s | Browser: chromium | Pages: 20</p>
+    </div>
+
+    <div class="summary-grid">
+      <div class="stat-card success">
+        <div class="value">10.1%</div>
+        <div class="label">Pass Rate</div>
+      </div>
+      <div class="stat-card">
+        <div class="value">474</div>
+        <div class="label">Total Tests</div>
+      </div>
+      <div class="stat-card success">
+        <div class="value">48</div>
+        <div class="label">Passed</div>
+      </div>
+      <div class="stat-card danger">
+        <div class="value">361</div>
+        <div class="label">Failed</div>
+      </div>
+      <div class="stat-card warning">
+        <div class="value">65</div>
+        <div class="label">Warnings</div>
+      </div>
+      <div class="stat-card">
+        <div class="value">763ms</div>
+        <div class="label">Avg Load Time</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Test Results Distribution</h3>
+      <div class="progress-bar" style="height: 24px;">
+        <div class="fill success" style="width: 10.126582278481013%; display: inline-block;"></div>
+        <div class="fill danger" style="width: 76.16033755274262%; display: inline-block;"></div>
+      </div>
+      <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+        <span><span style="color: #22c55e">■</span> Passed: 48</span>
+        <span><span style="color: #ef4444">■</span> Failed: 361</span>
+        <span><span style="color: #f59e0b">■</span> Warnings: 65</span>
+        <span><span style="color: #6b7280">■</span> Skipped: 0</span>
+      </div>
+    </div>
+
+    
+    <h2>📋 Recommendations</h2>
+    
+      <div class="recommendation high">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <strong>Fix Network Request Failures</strong>
+          <span class="badge badge-high">HIGH</span>
+        </div>
+        <p>12 network request(s) failed, indicating potential API or connectivity issues.</p>
+        <p style="margin-top: 0.5rem;"><strong>Suggested Fix:</strong> Review API endpoints, ensure proper error handling, and check server availability.</p>
+        <p style="margin-top: 0.5rem;"><strong>Affected Pages:</strong> 5</p>
+      </div>
+    
+      <div class="recommendation high">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <strong>Improve Overall Test Pass Rate</strong>
+          <span class="badge badge-high">HIGH</span>
+        </div>
+        <p>Test pass rate is 10.1%, which is below the recommended 80% threshold.</p>
+        <p style="margin-top: 0.5rem;"><strong>Suggested Fix:</strong> Review failing tests and prioritize fixes based on severity and user impact.</p>
+        <p style="margin-top: 0.5rem;"><strong>Affected Pages:</strong> 20</p>
+      </div>
+    
+      <div class="recommendation medium">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <strong>Address Accessibility Issues</strong>
+          <span class="badge badge-medium">MEDIUM</span>
+        </div>
+        <p>3 accessibility violation(s) found that may prevent users with disabilities from using the application.</p>
+        <p style="margin-top: 0.5rem;"><strong>Suggested Fix:</strong> Ensure all images have alt text, form inputs have labels, buttons have accessible names, and color contrast meets WCAG guidelines.</p>
+        <p style="margin-top: 0.5rem;"><strong>Affected Pages:</strong> 1</p>
+      </div>
+    
+      <div class="recommendation medium">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <strong>Resolve Console Errors</strong>
+          <span class="badge badge-medium">MEDIUM</span>
+        </div>
+        <p>9 JavaScript error(s) logged to the console.</p>
+        <p style="margin-top: 0.5rem;"><strong>Suggested Fix:</strong> Check browser console for error details, add proper error handling, and fix any undefined variable issues.</p>
+        <p style="margin-top: 0.5rem;"><strong>Affected Pages:</strong> 7</p>
+      </div>
+    
+    
+
+    
+    <h2>❌ Errors (45)</h2>
+    
+      <div class="error-item ">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>NETWORK</strong>
+          <span class="badge badge-failed">Severity 2</span>
+        </div>
+        <p class="error-message">16 network error(s) detected</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL:  | Occurrences: 20</p>
+      </div>
+    
+      <div class="error-item ">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>NETWORK</strong>
+          <span class="badge badge-failed">Severity 2</span>
+        </div>
+        <p class="error-message">1 network error(s) detected</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080 | Occurrences: 54</p>
+      </div>
+    
+      <div class="error-item ">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>NETWORK</strong>
+          <span class="badge badge-failed">Severity 2</span>
+        </div>
+        <p class="error-message">Error fetching featured collections: TypeError: Cannot read properties of null (reading &#39;rpc&#39;)
+    at fetchFeaturedCollections (http://localhost:8080/src/components/collections/FeaturedCollections.tsx:46:64)
+    at http://localhost:8080/src/components/collections/FeaturedCollections.tsx:37:9
+    at commitHookEffectListMount (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v=38c30df3:16963:34)
+    at commitPassiveMountOnFiber (http://localhost:8080/node_modules/.vite/deps/chunk-WU</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080 | Occurrences: 1</p>
+      </div>
+    
+      <div class="error-item ">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>NETWORK</strong>
+          <span class="badge badge-failed">Severity 2</span>
+        </div>
+        <p class="error-message">Fallback query failed: TypeError: Cannot read properties of null (reading &#39;from&#39;)
+    at fetchFeaturedCollectionsFallback (http://localhost:8080/src/components/collections/FeaturedCollections.tsx:71:52)
+    at fetchFeaturedCollections (http://localhost:8080/src/components/collections/FeaturedCollections.tsx:63:19)
+    at http://localhost:8080/src/components/collections/FeaturedCollections.tsx:37:9
+    at commitHookEffectListMount (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080 | Occurrences: 1</p>
+      </div>
+    
+      <div class="error-item ">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>NETWORK</strong>
+          <span class="badge badge-failed">Severity 2</span>
+        </div>
+        <p class="error-message">Error fetching cities: TypeError: Cannot read properties of null (reading &#39;from&#39;)
+    at fetchCities (http://localhost:8080/src/pages/Landing.tsx:46:56)
+    at http://localhost:8080/src/pages/Landing.tsx:62:9
+    at commitHookEffectListMount (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v=38c30df3:16963:34)
+    at commitPassiveMountOnFiber (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v=38c30df3:18206:19)
+    at commitPassiveMountEffects_complete (http://loc</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080 | Occurrences: 1</p>
+      </div>
+    
+      <div class="error-item ">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>NETWORK</strong>
+          <span class="badge badge-failed">Severity 2</span>
+        </div>
+        <p class="error-message">Error fetching categories: TypeError: Cannot read properties of null (reading &#39;from&#39;)
+    at fetchCategories (http://localhost:8080/src/pages/NationalBrowse.tsx:55:52)
+    at http://localhost:8080/src/pages/NationalBrowse.tsx:47:9
+    at commitHookEffectListMount (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v=38c30df3:16963:34)
+    at commitPassiveMountOnFiber (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v=38c30df3:18206:19)
+    at commitPassiveMountEffect</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080/Browse | Occurrences: 2</p>
+      </div>
+    
+      <div class="error-item ">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>NETWORK</strong>
+          <span class="badge badge-failed">Severity 2</span>
+        </div>
+        <p class="error-message">Error fetching listings: TypeError: Cannot read properties of null (reading &#39;from&#39;)
+    at fetchListings (http://localhost:8080/src/pages/NationalBrowse.tsx:66:34)
+    at http://localhost:8080/src/pages/NationalBrowse.tsx:48:9
+    at commitHookEffectListMount (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v=38c30df3:16963:34)
+    at commitPassiveMountOnFiber (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v=38c30df3:18206:19)
+    at commitPassiveMountEffects_co</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080/Browse | Occurrences: 2</p>
+      </div>
+    
+      <div class="error-item ">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>NETWORK</strong>
+          <span class="badge badge-failed">Severity 2</span>
+        </div>
+        <p class="error-message">Error fetching national featured content: TypeError: Cannot read properties of null (reading &#39;from&#39;)
+    at fetchNationalFeaturedContent (http://localhost:8080/src/components/NationalFeaturedContent.tsx:41:63)
+    at http://localhost:8080/src/components/NationalFeaturedContent.tsx:35:9
+    at commitHookEffectListMount (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v=38c30df3:16963:34)
+    at commitPassiveMountOnFiber (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080/marketplace | Occurrences: 1</p>
+      </div>
+    
+      <div class="error-item ">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>NETWORK</strong>
+          <span class="badge badge-failed">Severity 2</span>
+        </div>
+        <p class="error-message">Error fetching national categories: TypeError: Cannot read properties of null (reading &#39;from&#39;)
+    at fetchNationalCategories (http://localhost:8080/src/components/NationalCategoryGrid.tsx:52:68)
+    at http://localhost:8080/src/components/NationalCategoryGrid.tsx:46:9
+    at commitHookEffectListMount (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v=38c30df3:16963:34)
+    at commitPassiveMountOnFiber (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v=38c30df3:18</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080/marketplace | Occurrences: 1</p>
+      </div>
+    
+      <div class="error-item ">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>NETWORK</strong>
+          <span class="badge badge-failed">Severity 2</span>
+        </div>
+        <p class="error-message">Error fetching national featured makers: TypeError: Cannot read properties of null (reading &#39;from&#39;)
+    at fetchNationalFeaturedMakers (http://localhost:8080/src/components/NationalFeaturedMakers.tsx:44:52)
+    at http://localhost:8080/src/components/NationalFeaturedMakers.tsx:38:9
+    at commitHookEffectListMount (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v=38c30df3:16963:34)
+    at commitPassiveMountOnFiber (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080/marketplace | Occurrences: 1</p>
+      </div>
+    
+      <div class="error-item ">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>NETWORK</strong>
+          <span class="badge badge-failed">Severity 2</span>
+        </div>
+        <p class="error-message">Error fetching featured makers: TypeError: Cannot read properties of null (reading &#39;from&#39;)
+    at fetchFeaturedMakers (http://localhost:8080/src/pages/FeaturedMakers.tsx:40:56)
+    at http://localhost:8080/src/pages/FeaturedMakers.tsx:51:9
+    at commitHookEffectListMount (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v=38c30df3:16963:34)
+    at commitPassiveMountOnFiber (http://localhost:8080/node_modules/.vite/deps/chunk-WUFJGBW4.js?v=38c30df3:18206:19)
+    at commitPassiveMo</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080/featured-makers | Occurrences: 1</p>
+      </div>
+    
+      <div class="error-item warning">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>ACCESSIBILITY</strong>
+          <span class="badge badge-warning">Severity 3</span>
+        </div>
+        <p class="error-message">page.evaluate: SyntaxError: Failed to execute &#39;querySelector&#39; on &#39;Document&#39;: &#39;button:has-text(&quot;Accessibility2&quot;)&#39; is not a valid selector.
+    at eval (eval at evaluate (:290:30), &lt;anonymous&gt;:1:30)
+    at UtilityScript.evaluate (&lt;anonymous&gt;:292:16)
+    at UtilityScript.&lt;anonymous&gt; (&lt;anonymous&gt;:1:44)</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080 | Occurrences: 15</p>
+      </div>
+    
+      <div class="error-item warning">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>ACCESSIBILITY</strong>
+          <span class="badge badge-warning">Severity 3</span>
+        </div>
+        <p class="error-message">Missing required Supabase environment variables:
+    - VITE_SUPABASE_URL: MISSING
+    - VITE_SUPABASE_ANON_KEY: MISSING
+
+    Please set these in your environment or .env.local file.
+    For Cloudflare Pages, set them in the dashboard under Settings &gt; Environment Variables.</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080 | Occurrences: 20</p>
+      </div>
+    
+      <div class="error-item warning">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>ACCESSIBILITY</strong>
+          <span class="badge badge-warning">Severity 3</span>
+        </div>
+        <p class="error-message">Warning: React does not recognize the `%s` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `%s` instead. If you accidentally passed it from a parent component, remove it from the DOM element.%s fetchPriority fetchpriority 
+    at img
+    at picture
+    at button
+    at div
+    at div
+    at div
+    at header
+    at Header (http://localhost:8080/src/components/Header.tsx:37:41)
+    at div
+    at Landing (http://localhost:8080/s</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080 | Occurrences: 15</p>
+      </div>
+    
+      <div class="error-item warning">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>NETWORK</strong>
+          <span class="badge badge-warning">Severity 3</span>
+        </div>
+        <p class="error-message">Network error: net::ERR_ABORTED</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080 | Occurrences: 5</p>
+      </div>
+    
+      <div class="error-item warning">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>VISUAL</strong>
+          <span class="badge badge-warning">Severity 4</span>
+        </div>
+        <p class="error-message">locator.isVisible: Unexpected token &quot;&quot; while parsing css selector &quot;#radix-:r6:&quot;. Did you mean to CSS.escape it?
+Call log:
+[2m    - checking visibility of #radix-:r6: &gt;&gt; nth=0[22m
+</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080 | Occurrences: 1</p>
+      </div>
+    
+      <div class="error-item warning">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>VISUAL</strong>
+          <span class="badge badge-warning">Severity 4</span>
+        </div>
+        <p class="error-message">locator.isVisible: Unexpected token &quot;&quot; while parsing css selector &quot;#radix-:r8:&quot;. Did you mean to CSS.escape it?
+Call log:
+[2m    - checking visibility of #radix-:r8: &gt;&gt; nth=0[22m
+</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080 | Occurrences: 1</p>
+      </div>
+    
+      <div class="error-item warning">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>VISUAL</strong>
+          <span class="badge badge-warning">Severity 4</span>
+        </div>
+        <p class="error-message">locator.isVisible: Unexpected token &quot;&quot; while parsing css selector &quot;#radix-:ra:&quot;. Did you mean to CSS.escape it?
+Call log:
+[2m    - checking visibility of #radix-:ra: &gt;&gt; nth=0[22m
+</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080 | Occurrences: 1</p>
+      </div>
+    
+      <div class="error-item warning">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>VISUAL</strong>
+          <span class="badge badge-warning">Severity 4</span>
+        </div>
+        <p class="error-message">locator.isVisible: Unexpected token &quot;&quot; while parsing css selector &quot;#radix-:rc:&quot;. Did you mean to CSS.escape it?
+Call log:
+[2m    - checking visibility of #radix-:rc: &gt;&gt; nth=0[22m
+</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080 | Occurrences: 1</p>
+      </div>
+    
+      <div class="error-item warning">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>VISUAL</strong>
+          <span class="badge badge-warning">Severity 4</span>
+        </div>
+        <p class="error-message">locator.isVisible: Unexpected token &quot;&quot; while parsing css selector &quot;#radix-:re:&quot;. Did you mean to CSS.escape it?
+Call log:
+[2m    - checking visibility of #radix-:re: &gt;&gt; nth=0[22m
+</p>
+        <p style="font-size: 0.75rem; color: #6b7280;">URL: http://localhost:8080 | Occurrences: 1</p>
+      </div>
+    
+    <p>... and 25 more errors</p>
+    
+
+    <h2>📄 Pages Tested (20)</h2>
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>URL</th>
+            <th>Load Time</th>
+            <th>Tests</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td><code>http://localhost:8080</code></td>
+              <td>3.60s</td>
+              <td>2/22</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/About</code></td>
+              <td>611ms</td>
+              <td>2/13</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/AdminDashboard</code></td>
+              <td>599ms</td>
+              <td>2/14</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/Auth</code></td>
+              <td>793ms</td>
+              <td>6/19</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/Blog</code></td>
+              <td>586ms</td>
+              <td>2/18</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/BlogArticle</code></td>
+              <td>600ms</td>
+              <td>2/17</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/Browse</code></td>
+              <td>666ms</td>
+              <td>2/18</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/Cart</code></td>
+              <td>652ms</td>
+              <td>2/14</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/Checkout</code></td>
+              <td>612ms</td>
+              <td>2/16</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/ChicagoCraftIndex</code></td>
+              <td>586ms</td>
+              <td>2/23</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/chicago/browse</code></td>
+              <td>631ms</td>
+              <td>2/24</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/pricing</code></td>
+              <td>581ms</td>
+              <td>2/23</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/sell</code></td>
+              <td>604ms</td>
+              <td>2/26</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/marketplace</code></td>
+              <td>575ms</td>
+              <td>2/27</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/browse</code></td>
+              <td>581ms</td>
+              <td>2/29</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/blog</code></td>
+              <td>588ms</td>
+              <td>2/33</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/featured-makers</code></td>
+              <td>597ms</td>
+              <td>2/32</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/safety-guidelines</code></td>
+              <td>584ms</td>
+              <td>2/33</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/auth</code></td>
+              <td>602ms</td>
+              <td>6/38</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+            <tr>
+              <td><code>http://localhost:8080/seller-standards</code></td>
+              <td>605ms</td>
+              <td>2/35</td>
+              <td><span class="badge badge-failed">failed</span></td>
+            </tr>
+          
+        </tbody>
+      </table>
+      
+    </div>
+
+    
+
+    <div class="footer">
+      <p>Generated by Automated Testing Tool</p>
+      <p>Test run completed in 49.84s</p>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.collapsible').forEach(el => {
+      el.addEventListener('click', () => {
+        el.classList.toggle('collapsed');
+        const content = el.nextElementSibling;
+        if (content) content.classList.toggle('collapsed');
+      });
+    });
+  </script>
+</body>
+</html>
