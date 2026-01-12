@@ -65,7 +65,7 @@ export default function Blog() {
       
       <Header />
       
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+      <main id="main-content" role="main" className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">CraftLocal Blog</h1>
           <p className="text-muted-foreground text-lg">

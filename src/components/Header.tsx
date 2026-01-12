@@ -76,7 +76,7 @@ export const Header = () => {
           </div>
 
           {/* Navigation - Desktop */}
-          <nav className="hidden lg:flex items-center gap-1 flex-shrink-0">
+          <nav id="main-navigation" className="hidden lg:flex items-center gap-1 flex-shrink-0" aria-label="Main navigation">
             <Button
               variant="ghost"
               className={`h-9 px-3 text-sm font-medium transition-colors ${

@@ -396,7 +396,7 @@ const CreateEditListing = () => {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-8">
+      <main id="main-content" role="main" className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Quick Start Templates - Only show for new listings */}
           {!isEditing && (
