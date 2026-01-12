@@ -64,7 +64,7 @@ const FeaturedMakers = () => {
       
       <Header />
       
-      <main className="container mx-auto px-4 py-12">
+      <main id="main-content" role="main" className="container mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Featured Makers</h1>

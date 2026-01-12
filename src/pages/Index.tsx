@@ -139,7 +139,7 @@ const Index = () => {
         ]}
       />
       <Header />
-      <main>
+      <main id="main-content" role="main">
         {user && (
           <Suspense fallback={<WelcomeBannerSkeleton />}>
             <WelcomeBanner />

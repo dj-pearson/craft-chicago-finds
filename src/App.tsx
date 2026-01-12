@@ -9,6 +9,7 @@ import { StripeProvider } from "./hooks/useStripe";
 import { CartProvider } from "./hooks/useCart";
 import { PlansProvider } from "./hooks/usePlans";
 import { AccessibilityProvider } from "./components/accessibility/AccessibilityProvider";
+import { SkipLinks } from "./components/accessibility/SkipLinks";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { BottomNav } from "./components/mobile";
@@ -62,11 +63,13 @@ const ChicagoCraftIndex = lazy(() => import("./pages/ChicagoCraftIndex"));
 const ForCraftFairs = lazy(() => import("./pages/ForCraftFairs"));
 const About = lazy(() => import("./pages/About"));
 const Sell = lazy(() => import("./pages/Sell"));
+const Accessibility = lazy(() => import("./pages/Accessibility"));
 
 const App = () => {
   return (
     <ErrorBoundary>
         <AccessibilityProvider>
+          <SkipLinks />
           <AuthProvider>
             <PlansProvider>
               <CartProvider>
@@ -166,6 +169,7 @@ const App = () => {
                 <Route path="/for-craft-fairs" element={<ForCraftFairs />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/sell" element={<Sell />} />
+                <Route path="/accessibility" element={<Accessibility />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/:citySlug/blog/:slug" element={<BlogArticle />} />
                 <Route path="/:city/browse" element={<Browse />} />

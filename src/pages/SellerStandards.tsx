@@ -8,7 +8,7 @@ const SellerStandards = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 py-12 max-w-4xl">
+      <main id="main-content" role="main" className="container mx-auto px-4 py-12 max-w-4xl">
         <h1 className="text-4xl font-bold mb-8">Seller Performance Standards</h1>
         
         <Card className="mb-6 bg-blue-50 border-blue-200">

@@ -67,7 +67,7 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="bg-foreground text-background">
+    <footer id="footer" className="bg-foreground text-background" role="contentinfo">
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand */}
@@ -230,7 +230,7 @@ export const Footer = () => {
           {/* Newsletter */}
           <div>
             <h4 className="text-lg font-semibold mb-4">Stay Connected</h4>
-            <p className="text-background/80 text-sm mb-4">
+            <p id="newsletter-description" className="text-background/80 text-sm mb-4">
               Get updates on new makers, featured products, and local events.
             </p>
             <div className="space-y-3">
@@ -245,6 +245,8 @@ export const Footer = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   className="bg-background/10 border-background/20 text-background placeholder:text-background/60"
                   required
+                  aria-label="Email address for newsletter subscription"
+                  aria-describedby="newsletter-description"
                 />
                 <Button
                   type="submit"
@@ -332,6 +334,12 @@ export const Footer = () => {
                 className="text-background/60 hover:text-background transition-colors"
               >
                 Dispute Resolution
+              </Link>
+              <Link
+                to="/accessibility"
+                className="text-background/60 hover:text-background transition-colors"
+              >
+                Accessibility
               </Link>
               <Link
                 to="/privacy#ccpa"

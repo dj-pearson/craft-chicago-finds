@@ -40,7 +40,7 @@ const City = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="container mx-auto px-4 py-16 text-center">
+        <main id="main-content" role="main" className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-4xl font-bold mb-4">City Not Found</h1>
           <p className="text-muted-foreground mb-8">
             We don't have a marketplace for this city yet.
@@ -60,7 +60,7 @@ const City = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="container mx-auto px-4 py-16 text-center">
+        <main id="main-content" role="main" className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-4xl font-bold mb-4">
             {currentCity.name} Marketplace
           </h1>
@@ -208,7 +208,7 @@ const City = () => {
         }}
       />
       <Header />
-      <main>
+      <main id="main-content" role="main">
         {/* City Breadcrumb */}
         <div className="bg-muted/30 border-b border-border">
           <div className="container mx-auto px-4 py-3">
