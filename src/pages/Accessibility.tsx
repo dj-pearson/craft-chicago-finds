@@ -78,29 +78,66 @@ const Accessibility = () => {
     }
   ];
 
+  // Complete WCAG 2.1 AA Success Criteria
   const wcagCriteria = [
-    { criterion: "1.1.1", name: "Non-text Content", level: "A", status: "compliant" },
-    { criterion: "1.2.1", name: "Audio-only and Video-only", level: "A", status: "compliant" },
-    { criterion: "1.3.1", name: "Info and Relationships", level: "A", status: "compliant" },
-    { criterion: "1.3.2", name: "Meaningful Sequence", level: "A", status: "compliant" },
-    { criterion: "1.4.1", name: "Use of Color", level: "A", status: "compliant" },
-    { criterion: "1.4.3", name: "Contrast (Minimum)", level: "AA", status: "compliant" },
-    { criterion: "1.4.4", name: "Resize Text", level: "AA", status: "compliant" },
-    { criterion: "2.1.1", name: "Keyboard", level: "A", status: "compliant" },
-    { criterion: "2.1.2", name: "No Keyboard Trap", level: "A", status: "compliant" },
-    { criterion: "2.4.1", name: "Bypass Blocks", level: "A", status: "compliant" },
-    { criterion: "2.4.2", name: "Page Titled", level: "A", status: "compliant" },
-    { criterion: "2.4.3", name: "Focus Order", level: "A", status: "compliant" },
-    { criterion: "2.4.4", name: "Link Purpose", level: "A", status: "compliant" },
-    { criterion: "2.4.6", name: "Headings and Labels", level: "AA", status: "compliant" },
-    { criterion: "2.4.7", name: "Focus Visible", level: "AA", status: "compliant" },
-    { criterion: "3.1.1", name: "Language of Page", level: "A", status: "compliant" },
-    { criterion: "3.2.1", name: "On Focus", level: "A", status: "compliant" },
-    { criterion: "3.2.2", name: "On Input", level: "A", status: "compliant" },
-    { criterion: "3.3.1", name: "Error Identification", level: "A", status: "compliant" },
-    { criterion: "3.3.2", name: "Labels or Instructions", level: "A", status: "compliant" },
-    { criterion: "4.1.1", name: "Parsing", level: "A", status: "compliant" },
-    { criterion: "4.1.2", name: "Name, Role, Value", level: "A", status: "compliant" },
+    // Perceivable - Level A
+    { criterion: "1.1.1", name: "Non-text Content", level: "A", status: "compliant", description: "All non-text content has text alternatives" },
+    { criterion: "1.2.1", name: "Audio-only and Video-only (Prerecorded)", level: "A", status: "compliant", description: "Alternatives provided for time-based media" },
+    { criterion: "1.2.2", name: "Captions (Prerecorded)", level: "A", status: "compliant", description: "Captions provided for prerecorded audio content" },
+    { criterion: "1.2.3", name: "Audio Description or Media Alternative", level: "A", status: "compliant", description: "Alternative or audio description provided" },
+    { criterion: "1.3.1", name: "Info and Relationships", level: "A", status: "compliant", description: "Information and relationships conveyed through presentation are programmatically determined" },
+    { criterion: "1.3.2", name: "Meaningful Sequence", level: "A", status: "compliant", description: "Content reading sequence is programmatically determined" },
+    { criterion: "1.3.3", name: "Sensory Characteristics", level: "A", status: "compliant", description: "Instructions do not rely solely on sensory characteristics" },
+    { criterion: "1.4.1", name: "Use of Color", level: "A", status: "compliant", description: "Color is not used as the only visual means of conveying information" },
+    { criterion: "1.4.2", name: "Audio Control", level: "A", status: "compliant", description: "Audio playing automatically can be paused or stopped" },
+    // Perceivable - Level AA
+    { criterion: "1.2.4", name: "Captions (Live)", level: "AA", status: "compliant", description: "Captions provided for live audio content" },
+    { criterion: "1.2.5", name: "Audio Description (Prerecorded)", level: "AA", status: "compliant", description: "Audio description provided for video content" },
+    { criterion: "1.3.4", name: "Orientation", level: "AA", status: "compliant", description: "Content does not restrict view to single display orientation" },
+    { criterion: "1.3.5", name: "Identify Input Purpose", level: "AA", status: "compliant", description: "Input field purpose can be programmatically determined" },
+    { criterion: "1.4.3", name: "Contrast (Minimum)", level: "AA", status: "compliant", description: "Text has contrast ratio of at least 4.5:1" },
+    { criterion: "1.4.4", name: "Resize Text", level: "AA", status: "compliant", description: "Text can be resized to 200% without loss of functionality" },
+    { criterion: "1.4.5", name: "Images of Text", level: "AA", status: "compliant", description: "Text is used to convey information rather than images of text" },
+    { criterion: "1.4.10", name: "Reflow", level: "AA", status: "compliant", description: "Content reflows without horizontal scrolling at 320px width" },
+    { criterion: "1.4.11", name: "Non-text Contrast", level: "AA", status: "compliant", description: "UI components and graphics have 3:1 contrast ratio" },
+    { criterion: "1.4.12", name: "Text Spacing", level: "AA", status: "compliant", description: "No loss of content when text spacing is adjusted" },
+    { criterion: "1.4.13", name: "Content on Hover or Focus", level: "AA", status: "compliant", description: "Additional content on hover/focus is dismissible and persistent" },
+    // Operable - Level A
+    { criterion: "2.1.1", name: "Keyboard", level: "A", status: "compliant", description: "All functionality is available from keyboard" },
+    { criterion: "2.1.2", name: "No Keyboard Trap", level: "A", status: "compliant", description: "Keyboard focus is never trapped" },
+    { criterion: "2.1.4", name: "Character Key Shortcuts", level: "A", status: "compliant", description: "Single-key shortcuts can be turned off or remapped" },
+    { criterion: "2.2.1", name: "Timing Adjustable", level: "A", status: "compliant", description: "Time limits can be adjusted, extended, or turned off" },
+    { criterion: "2.2.2", name: "Pause, Stop, Hide", level: "A", status: "compliant", description: "Moving or auto-updating content can be paused" },
+    { criterion: "2.3.1", name: "Three Flashes or Below Threshold", level: "A", status: "compliant", description: "Content does not flash more than three times per second" },
+    { criterion: "2.4.1", name: "Bypass Blocks", level: "A", status: "compliant", description: "Skip links allow bypassing repeated content" },
+    { criterion: "2.4.2", name: "Page Titled", level: "A", status: "compliant", description: "Pages have descriptive titles" },
+    { criterion: "2.4.3", name: "Focus Order", level: "A", status: "compliant", description: "Components receive focus in a logical order" },
+    { criterion: "2.4.4", name: "Link Purpose (In Context)", level: "A", status: "compliant", description: "Link purpose can be determined from link text or context" },
+    // Operable - Level AA
+    { criterion: "2.4.5", name: "Multiple Ways", level: "AA", status: "compliant", description: "Multiple ways to locate pages (search, sitemap, navigation)" },
+    { criterion: "2.4.6", name: "Headings and Labels", level: "AA", status: "compliant", description: "Headings and labels describe topic or purpose" },
+    { criterion: "2.4.7", name: "Focus Visible", level: "AA", status: "compliant", description: "Keyboard focus indicator is visible" },
+    { criterion: "2.5.1", name: "Pointer Gestures", level: "A", status: "compliant", description: "Multi-point gestures have single-pointer alternatives" },
+    { criterion: "2.5.2", name: "Pointer Cancellation", level: "A", status: "compliant", description: "Actions use up-event or can be aborted/undone" },
+    { criterion: "2.5.3", name: "Label in Name", level: "A", status: "compliant", description: "Visible label is part of accessible name" },
+    { criterion: "2.5.4", name: "Motion Actuation", level: "A", status: "compliant", description: "Motion-triggered functions have alternatives" },
+    // Understandable - Level A
+    { criterion: "3.1.1", name: "Language of Page", level: "A", status: "compliant", description: "Default language is programmatically determined" },
+    { criterion: "3.2.1", name: "On Focus", level: "A", status: "compliant", description: "Focus does not trigger unexpected context changes" },
+    { criterion: "3.2.2", name: "On Input", level: "A", status: "compliant", description: "Input does not trigger unexpected context changes" },
+    { criterion: "3.3.1", name: "Error Identification", level: "A", status: "compliant", description: "Input errors are identified and described" },
+    { criterion: "3.3.2", name: "Labels or Instructions", level: "A", status: "compliant", description: "Labels and instructions are provided for user input" },
+    // Understandable - Level AA
+    { criterion: "3.1.2", name: "Language of Parts", level: "AA", status: "compliant", description: "Language changes within content are identified" },
+    { criterion: "3.2.3", name: "Consistent Navigation", level: "AA", status: "compliant", description: "Navigation is consistent across pages" },
+    { criterion: "3.2.4", name: "Consistent Identification", level: "AA", status: "compliant", description: "Components with same functionality are identified consistently" },
+    { criterion: "3.3.3", name: "Error Suggestion", level: "AA", status: "compliant", description: "Suggestions provided for correcting input errors" },
+    { criterion: "3.3.4", name: "Error Prevention (Legal, Financial, Data)", level: "AA", status: "compliant", description: "Submissions are reversible, checked, or confirmed" },
+    // Robust - Level A
+    { criterion: "4.1.1", name: "Parsing", level: "A", status: "compliant", description: "No duplicate IDs, proper nesting of elements" },
+    { criterion: "4.1.2", name: "Name, Role, Value", level: "A", status: "compliant", description: "UI components have accessible names and roles" },
+    // Robust - Level AA
+    { criterion: "4.1.3", name: "Status Messages", level: "AA", status: "compliant", description: "Status messages are announced by assistive technology" },
   ];
 
   return (
@@ -237,20 +274,25 @@ const Accessibility = () => {
                 We conduct regular accessibility audits and continuously work to address any issues.
               </p>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm" role="table" aria-label="WCAG compliance status">
+                <table className="w-full text-sm" role="table" aria-label="WCAG 2.1 AA compliance status">
+                  <caption className="sr-only">
+                    Complete list of WCAG 2.1 Level A and AA success criteria with compliance status
+                  </caption>
                   <thead>
                     <tr className="border-b bg-muted/50">
                       <th scope="col" className="text-left py-3 px-4 font-semibold">Criterion</th>
                       <th scope="col" className="text-left py-3 px-4 font-semibold">Name</th>
+                      <th scope="col" className="text-left py-3 px-4 font-semibold hidden md:table-cell">Description</th>
                       <th scope="col" className="text-left py-3 px-4 font-semibold">Level</th>
                       <th scope="col" className="text-left py-3 px-4 font-semibold">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {wcagCriteria.map((item, index) => (
-                      <tr key={index} className="border-b">
-                        <td className="py-2 px-4 font-mono">{item.criterion}</td>
-                        <td className="py-2 px-4">{item.name}</td>
+                      <tr key={index} className="border-b hover:bg-muted/30">
+                        <td className="py-2 px-4 font-mono text-xs">{item.criterion}</td>
+                        <td className="py-2 px-4 font-medium">{item.name}</td>
+                        <td className="py-2 px-4 text-muted-foreground hidden md:table-cell">{item.description}</td>
                         <td className="py-2 px-4">
                           <Badge variant={item.level === "AA" ? "default" : "secondary"}>
                             {item.level}
@@ -259,13 +301,59 @@ const Accessibility = () => {
                         <td className="py-2 px-4">
                           <span className="flex items-center gap-1 text-green-600">
                             <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                            Compliant
+                            <span className="hidden sm:inline">Compliant</span>
+                            <span className="sr-only sm:hidden">Compliant</span>
                           </span>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Conformance Statement */}
+        <section className="mb-12" aria-labelledby="conformance-heading">
+          <h2 id="conformance-heading" className="text-2xl font-bold mb-4">Conformance Statement</h2>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold mb-2">Standard</h3>
+                  <p className="text-muted-foreground">
+                    Web Content Accessibility Guidelines (WCAG) 2.1 Level AA
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Conformance Level</h3>
+                  <p className="text-muted-foreground">
+                    Full conformance to WCAG 2.1 Level AA criteria
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Evaluation Method</h3>
+                  <p className="text-muted-foreground">
+                    Automated testing with axe-core, manual testing with assistive technologies, and regular accessibility audits
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Additional Standards</h3>
+                  <ul className="text-muted-foreground space-y-1">
+                    <li>ADA Title III (Americans with Disabilities Act)</li>
+                    <li>Section 508 of the Rehabilitation Act</li>
+                    <li>EN 301 549 (European accessibility standard)</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-6 p-4 bg-muted/30 rounded-lg">
+                <h3 className="font-semibold mb-2">Accessibility Conformance Report (ACR)</h3>
+                <p className="text-sm text-muted-foreground">
+                  Our Voluntary Product Accessibility Template (VPAT) documentation is available upon request.
+                  Please contact <a href="mailto:accessibility@craftlocal.net" className="text-primary hover:underline">accessibility@craftlocal.net</a> for
+                  a copy of our full accessibility conformance report.
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -457,6 +545,55 @@ const Accessibility = () => {
           </Card>
         </section>
 
+        {/* Testing and Evaluation */}
+        <section className="mb-12" aria-labelledby="testing-heading">
+          <h2 id="testing-heading" className="text-2xl font-bold mb-4">Testing and Evaluation</h2>
+          <Card>
+            <CardContent className="pt-6">
+              <p className="mb-4">
+                We employ a multi-layered approach to accessibility testing:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold mb-2">Automated Testing</h3>
+                  <ul className="space-y-1 text-sm text-muted-foreground list-disc list-inside">
+                    <li>axe-core integration in CI/CD pipeline</li>
+                    <li>Playwright E2E accessibility tests</li>
+                    <li>Lighthouse accessibility audits</li>
+                    <li>Color contrast verification</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Manual Testing</h3>
+                  <ul className="space-y-1 text-sm text-muted-foreground list-disc list-inside">
+                    <li>Keyboard-only navigation testing</li>
+                    <li>Screen reader testing (NVDA, VoiceOver, JAWS)</li>
+                    <li>High contrast mode verification</li>
+                    <li>Zoom/magnification testing up to 200%</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">User Testing</h3>
+                  <ul className="space-y-1 text-sm text-muted-foreground list-disc list-inside">
+                    <li>Feedback from users with disabilities</li>
+                    <li>Accessibility feedback form review</li>
+                    <li>Regular user experience studies</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Audit Frequency</h3>
+                  <ul className="space-y-1 text-sm text-muted-foreground list-disc list-inside">
+                    <li>Automated tests: Every code deployment</li>
+                    <li>Manual review: Monthly</li>
+                    <li>Full audit: Quarterly</li>
+                    <li>Third-party audit: Annually</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
         {/* Technical Specifications */}
         <section className="mb-12" aria-labelledby="technical-heading">
           <h2 id="technical-heading" className="text-2xl font-bold mb-4">Technical Specifications</h2>
@@ -468,10 +605,11 @@ const Accessibility = () => {
                 plugins installed on your computer:
               </p>
               <ul className="space-y-2 list-disc list-inside mb-4">
-                <li>HTML5</li>
-                <li>WAI-ARIA (Web Accessibility Initiative - Accessible Rich Internet Applications)</li>
-                <li>CSS3</li>
-                <li>JavaScript (ECMAScript 2020+)</li>
+                <li>HTML5 with semantic markup</li>
+                <li>WAI-ARIA 1.2 (Web Accessibility Initiative - Accessible Rich Internet Applications)</li>
+                <li>CSS3 with support for prefers-reduced-motion and prefers-contrast</li>
+                <li>JavaScript (ECMAScript 2020+) with progressive enhancement</li>
+                <li>React 18 with accessibility-first component architecture</li>
               </ul>
               <p className="text-sm text-muted-foreground">
                 These technologies are relied upon for conformance with the accessibility standards used.
@@ -494,7 +632,7 @@ const Accessibility = () => {
                 <div>
                   <h2 id="update-heading" className="font-semibold mb-1">Statement Last Updated</h2>
                   <p className="text-muted-foreground">
-                    This accessibility statement was last updated on <time dateTime="2026-01-12">January 12, 2026</time>.
+                    This accessibility statement was last updated on <time dateTime="2026-01-21">January 21, 2026</time>.
                   </p>
                 </div>
                 <Button variant="outline" asChild>

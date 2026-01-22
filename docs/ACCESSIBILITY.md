@@ -2,6 +2,14 @@
 
 This guide outlines accessibility patterns and best practices for the Craft Chicago Finds codebase. Following these patterns ensures WCAG 2.1 AA compliance.
 
+## Compliance Documentation
+
+| Document | Location | Purpose |
+|----------|----------|---------|
+| Public Statement | [/accessibility](/accessibility) | User-facing accessibility commitment |
+| VPAT Report | [VPAT-2.1-WCAG.md](./VPAT-2.1-WCAG.md) | Formal conformance documentation |
+| This Guide | You are here | Developer implementation patterns |
+
 ## Table of Contents
 
 1. [Core Principles](#core-principles)
@@ -12,6 +20,7 @@ This guide outlines accessibility patterns and best practices for the Craft Chic
 6. [Screen Reader Support](#screen-reader-support)
 7. [Testing](#testing)
 8. [Common Issues and Fixes](#common-issues-and-fixes)
+9. [WCAG 2.1 AA Quick Reference](#wcag-21-aa-quick-reference)
 
 ---
 
@@ -503,8 +512,36 @@ className="focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-of
 - [Axe-core Rules](https://dequeuniversity.com/rules/axe/)
 - [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
 
+## WCAG 2.1 AA Quick Reference
+
+### Perceivable
+- **1.1** Text alternatives for non-text content
+- **1.2** Captions and alternatives for time-based media
+- **1.3** Adaptable content structure (semantic HTML)
+- **1.4** Distinguishable content (contrast, resize, spacing)
+
+### Operable
+- **2.1** Keyboard accessible (all functions, no traps)
+- **2.2** Enough time (adjustable, pauseable)
+- **2.3** No seizure-inducing content
+- **2.4** Navigable (skip links, titles, focus order)
+- **2.5** Input modalities (pointer gestures, motion)
+
+### Understandable
+- **3.1** Readable (language of page and parts)
+- **3.2** Predictable (consistent navigation and identification)
+- **3.3** Input assistance (error identification and prevention)
+
+### Robust
+- **4.1** Compatible (valid HTML, name/role/value, status messages)
+
+For complete criteria details, see [VPAT-2.1-WCAG.md](./VPAT-2.1-WCAG.md).
+
+---
+
 ## Questions?
 
 For accessibility questions or to report issues:
 - Email: accessibility@craftlocal.net
 - File a GitHub issue with the `accessibility` label
+- Review the [VPAT documentation](./VPAT-2.1-WCAG.md) for detailed conformance information
