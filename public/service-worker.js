@@ -81,8 +81,8 @@ self.addEventListener('fetch', (event) => {
   // Handle different types of requests
   if (request.method === 'GET') {
     // API requests - Network first, cache fallback
-    // Note: Using hostname check for self-hosted Supabase at api.craftlocal.net
-    if (url.pathname.includes('/api/') || url.hostname.includes('api.craftlocal.net')) {
+    // Detects API calls by pathname pattern (works with any self-hosted Supabase domain)
+    if (url.pathname.includes('/api/') || url.pathname.includes('/rest/') || url.pathname.includes('/auth/')) {
       event.respondWith(networkFirstStrategy(request, API_CACHE));
     }
     // Images - Cache first, network fallback
