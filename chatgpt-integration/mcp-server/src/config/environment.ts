@@ -28,8 +28,10 @@ export const config = {
       audience: process.env.AUTH0_AUDIENCE || "",
     },
     jwt: {
-      issuer: process.env.JWT_ISSUER || "https://oauth.craftlocal.net",
-      audience: process.env.JWT_AUDIENCE || "https://mcp.craftlocal.net",
+      // JWT issuer and audience must be set via environment variables for self-hosted deployments
+      // No hardcoded defaults to ensure proper configuration
+      issuer: process.env.JWT_ISSUER || "",
+      audience: process.env.JWT_AUDIENCE || "",
     },
   },
 

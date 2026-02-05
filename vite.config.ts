@@ -26,6 +26,8 @@ export default defineConfig(({ mode }) => ({
           );
 
           // Content Security Policy for dev (more permissive for HMR)
+          // Uses permissive connect-src for self-hosted Supabase flexibility
+          // Production CSP is configured in public/_headers
           res.setHeader(
             'Content-Security-Policy',
             [
@@ -34,7 +36,8 @@ export default defineConfig(({ mode }) => ({
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' ws: wss: https://api.craftlocal.net wss://api.craftlocal.net https://api.stripe.com",
+              // Allow connections to any https for dev flexibility with self-hosted Supabase
+              "connect-src 'self' ws: wss: https: http://localhost:* https://api.stripe.com",
               "frame-src 'self' https://js.stripe.com",
             ].join('; ')
           );

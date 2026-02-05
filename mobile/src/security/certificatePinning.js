@@ -5,23 +5,46 @@
 
 import {Platform, NativeModules} from 'react-native';
 
+// Get Supabase domain from environment variable for self-hosted instance
+// This should match your SUPABASE_URL hostname (e.g., 'api.yourserver.com')
+const SUPABASE_API_DOMAIN = process.env.SUPABASE_API_DOMAIN || '';
+
 /**
  * Certificate pin configuration
  * Contains SHA-256 fingerprints of trusted certificates
+ *
+ * IMPORTANT: For self-hosted Supabase, you MUST:
+ * 1. Set SUPABASE_API_DOMAIN environment variable to your Supabase API hostname
+ * 2. Update the certificate pins below with your actual SHA-256 fingerprints
+ * 3. Regenerate pins when certificates are renewed
  */
+
+// Build dynamic certificate pins based on environment
+const buildCertificatePins = () => {
+  const pins = {};
+
+  // Add Supabase domain pins if configured
+  if (SUPABASE_API_DOMAIN) {
+    pins[SUPABASE_API_DOMAIN] = {
+      pins: [
+        // Primary certificate pin (SHA-256) - UPDATE WITH YOUR CERTIFICATE
+        'sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+        // Backup certificate pin - UPDATE WITH YOUR BACKUP CERTIFICATE
+        'sha256/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=',
+      ],
+      includeSubdomains: false,
+      expirationDate: '2025-12-31',
+    };
+  } else {
+    console.warn('[CertificatePinning] SUPABASE_API_DOMAIN not configured - Supabase API pinning disabled');
+  }
+
+  return pins;
+};
+
 const CERTIFICATE_PINS = {
-  // Self-hosted Supabase domain certificates
-  // TODO: Update these pins with your actual certificate SHA-256 fingerprints
-  'api.craftlocal.net': {
-    pins: [
-      // Primary certificate pin (SHA-256) - UPDATE WITH YOUR CERTIFICATE
-      'sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
-      // Backup certificate pin - UPDATE WITH YOUR BACKUP CERTIFICATE
-      'sha256/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=',
-    ],
-    includeSubdomains: false,
-    expirationDate: '2025-12-31',
-  },
+  // Self-hosted Supabase domain certificates (dynamically configured)
+  ...buildCertificatePins(),
 
   // Stripe API certificates
   'api.stripe.com': {

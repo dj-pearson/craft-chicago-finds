@@ -1,24 +1,28 @@
 /**
  * Self-Hosted Supabase Edge Functions Server
  * Craft Local - Chicago Finds Marketplace
- * 
+ *
  * A custom Deno HTTP server that dynamically loads and serves
  * Supabase Edge Functions from the /functions directory.
- * 
+ *
  * Features:
  * - Dynamic function discovery and loading
  * - Health check endpoint
  * - CORS support
  * - Environment variable management
  * - Error handling and logging
- * 
+ *
  * Deployment:
- * - Supabase API: https://api.craftlocal.net
- * - Edge Functions: https://functions.craftlocal.net
+ * Configure SUPABASE_URL and FUNCTIONS_URL environment variables
+ * for your self-hosted instance.
  */
 
 const PORT = parseInt(Deno.env.get('PORT') || '8000');
 const FUNCTIONS_DIR = '/app/functions';
+
+// Self-hosted URLs from environment variables
+const SUPABASE_API_URL = Deno.env.get('SUPABASE_URL') || 'http://localhost:54321';
+const FUNCTIONS_URL = Deno.env.get('FUNCTIONS_URL') || `http://localhost:${PORT}`;
 
 // Allowed origins for CORS (production domains + localhost for development)
 const ALLOWED_ORIGINS = [
@@ -150,8 +154,8 @@ async function handleRequest(req: Request): Promise<Response> {
       JSON.stringify({
         service: 'Craft Local Edge Functions',
         version: '1.0.0',
-        supabaseUrl: 'https://api.craftlocal.net',
-        functionsUrl: 'https://functions.craftlocal.net',
+        supabaseUrl: SUPABASE_API_URL,
+        functionsUrl: FUNCTIONS_URL,
         functions: functions,
         usage: 'POST /{function-name} with JSON body',
         healthCheck: '/_health',
@@ -274,8 +278,8 @@ async function handleRequest(req: Request): Promise<Response> {
  * Start the server
  */
 console.log('🚀 Craft Local Edge Functions Server');
-console.log(`📍 Supabase API: https://api.craftlocal.net`);
-console.log(`📍 Functions URL: https://functions.craftlocal.net`);
+console.log(`📍 Supabase API: ${SUPABASE_API_URL}`);
+console.log(`📍 Functions URL: ${FUNCTIONS_URL}`);
 console.log(`🔌 Starting server on port ${PORT}`);
 console.log(`📁 Functions directory: ${FUNCTIONS_DIR}`);
 console.log(`🌐 CORS enabled`);
