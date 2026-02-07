@@ -27,6 +27,7 @@ const NationalMarketplace = lazy(() => import("./pages/NationalMarketplace"));
 const NationalBrowse = lazy(() => import("./pages/NationalBrowse"));
 const City = lazy(() => import("./pages/City"));
 const Auth = lazy(() => import("./pages/Auth"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogArticle = lazy(() => import("./pages/BlogArticle"));
@@ -118,6 +119,7 @@ const App = () => {
                 <Route path="/marketplace" element={<NationalMarketplace />} />
                 <Route path="/browse" element={<NationalBrowse />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/auth/reset-password" element={<ResetPassword />} />
 
                 {/* Protected Admin Routes - Layer 2: Admin role required */}
