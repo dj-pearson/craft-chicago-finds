@@ -99,7 +99,7 @@ const NationalBrowse = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main>
+      <main id="main-content" role="main">
         {/* National Browse Header */}
         <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border">
           <div className="container mx-auto px-4 py-6">

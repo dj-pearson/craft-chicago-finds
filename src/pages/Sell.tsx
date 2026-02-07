@@ -167,7 +167,7 @@ const Sell = () => {
       <SEOHead config={seoConfig} />
       <Header />
 
-      <main>
+      <main id="main-content" role="main">
         {/* Hero Section */}
         <section className="relative py-20 px-4 bg-gradient-to-br from-primary/5 via-background to-purple-500/5">
           <div className="container mx-auto max-w-6xl">

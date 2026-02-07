@@ -2,9 +2,18 @@ import {createClient} from '@supabase/supabase-js';
 import {supabaseSecureStorage} from '../security/secureStorage';
 
 // Self-hosted Supabase configuration
-// Set these environment variables in your React Native config
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://api.craftlocal.net';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'your-supabase-anon-key';
+// REQUIRED: Set these environment variables in your React Native config (.env file)
+// Do not use hardcoded fallbacks for security reasons
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+
+// Validate required environment variables
+if (!SUPABASE_URL) {
+  console.error('[Supabase] SUPABASE_URL environment variable is required');
+}
+if (!SUPABASE_ANON_KEY) {
+  console.error('[Supabase] SUPABASE_ANON_KEY environment variable is required');
+}
 
 /**
  * Supabase client with secure storage

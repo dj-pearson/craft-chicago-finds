@@ -152,7 +152,7 @@ const AdminDashboard = () => {
           </header>
 
           {/* Content */}
-          <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-8">
+          <main id="main-content" role="main" className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-8">
             {activeTab === "overview" && (
             <div className="space-y-4 sm:space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

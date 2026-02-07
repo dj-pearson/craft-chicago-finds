@@ -141,7 +141,7 @@ export default function OrderConfirmation() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 py-8 md:py-16">
+      <main id="main-content" role="main" className="container mx-auto px-4 py-8 md:py-16">
         <div className="max-w-3xl mx-auto">
           {/* Success Header */}
           <div className="text-center mb-8">

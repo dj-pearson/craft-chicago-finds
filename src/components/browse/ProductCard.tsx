@@ -84,10 +84,19 @@ export const ProductCard = memo(({
   return (
     <>
       <Card
-        className="group cursor-pointer hover:shadow-elevated transition-all duration-300 border-border/50 hover:border-primary/20"
+        className="group cursor-pointer hover:shadow-elevated transition-all duration-300 border-border/50 hover:border-primary/20 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         onClick={handleCardClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleCardClick();
+          }
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        tabIndex={0}
+        role="article"
+        aria-label={`${listing.title}, $${listing.price}${isOutOfStock ? ', sold out' : ''}${listing.profiles?.display_name ? `, by ${listing.profiles.display_name}` : ''}`}
       >
         {/* Product Image */}
         <div className="aspect-square relative overflow-hidden rounded-t-lg">
