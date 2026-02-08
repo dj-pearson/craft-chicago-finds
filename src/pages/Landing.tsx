@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const FAQSection = lazy(() => import("@/components/seo/FAQSection").then(m => ({ default: m.FAQSection })));
 const FeaturedCollections = lazy(() => import("@/components/collections/FeaturedCollections").then(m => ({ default: m.FeaturedCollections })));
 const QuickLinks = lazy(() => import("@/components/seo/InternalLinks").then(m => ({ default: m.QuickLinks })));
+const ExitIntentPopup = lazy(() => import("@/components/marketing/ExitIntentPopup").then(m => ({ default: m.ExitIntentPopup })));
 
 // Import chicagoHandmadeFAQs directly since it's just data
 import { chicagoHandmadeFAQs } from "@/components/seo/FAQSection";
@@ -435,6 +436,11 @@ const Landing = () => {
       </main>
 
       <Footer />
+
+      {/* Exit Intent Email Capture - lazy loaded, non-blocking */}
+      <Suspense fallback={null}>
+        <ExitIntentPopup delay={8000} />
+      </Suspense>
     </div>
   );
 };

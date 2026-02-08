@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { useDiscountCodes } from "@/hooks/useDiscountCodes";
+import { usePlatformFee } from "@/hooks/usePlatformFee";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +26,10 @@ import {
   Check,
   X,
   AlertCircle,
+  ShieldCheck,
+  Lock,
+  RotateCcw,
+  ShoppingCart,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AppleGooglePayButton } from "@/components/checkout/AppleGooglePayButton";
@@ -42,6 +47,7 @@ export const CheckoutPage = () => {
   const { items, clearCart, totalAmount, itemCount } = useCart();
   const { user } = useAuth();
   const { validateDiscountCode, calculateDiscountAmount } = useDiscountCodes();
+  const { feeRate, flatFee } = usePlatformFee();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -63,11 +69,9 @@ export const CheckoutPage = () => {
   const [appliedDiscounts, setAppliedDiscounts] = useState<Record<string, AppliedDiscount>>({});
   const [validatingDiscount, setValidatingDiscount] = useState<string | null>(null);
 
-  const PLATFORM_FEE_RATE = 0.1; // 10%
-
   // Calculate totals with discounts
   const calculateTotals = () => {
-    let subtotal = totalAmount;
+    const subtotal = totalAmount;
     let totalDiscount = 0;
 
     Object.values(appliedDiscounts).forEach((discount) => {
@@ -75,7 +79,7 @@ export const CheckoutPage = () => {
     });
 
     const discountedSubtotal = subtotal - totalDiscount;
-    const platformFee = discountedSubtotal * PLATFORM_FEE_RATE;
+    const platformFee = (discountedSubtotal * feeRate) + flatFee;
     const finalTotal = discountedSubtotal + platformFee;
 
     return { subtotal, totalDiscount, discountedSubtotal, platformFee, finalTotal };
@@ -277,12 +281,45 @@ export const CheckoutPage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" onClick={() => navigate("/cart")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Cart
           </Button>
           <h1 className="text-3xl font-bold">Checkout</h1>
+        </div>
+
+        {/* Checkout Progress Indicator */}
+        <div className="mb-8">
+          <div className="flex items-center justify-center gap-0 max-w-lg mx-auto">
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+                <Check className="h-4 w-4" />
+              </div>
+              <span className="text-xs mt-1 font-medium text-primary">Cart</span>
+            </div>
+            <div className="flex-1 h-0.5 bg-primary mx-2" />
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+                2
+              </div>
+              <span className="text-xs mt-1 font-medium text-primary">Details</span>
+            </div>
+            <div className="flex-1 h-0.5 bg-muted mx-2" />
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-semibold">
+                3
+              </div>
+              <span className="text-xs mt-1 text-muted-foreground">Payment</span>
+            </div>
+            <div className="flex-1 h-0.5 bg-muted mx-2" />
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-semibold">
+                4
+              </div>
+              <span className="text-xs mt-1 text-muted-foreground">Done</span>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -418,7 +455,7 @@ export const CheckoutPage = () => {
               <CardContent>
                 <RadioGroup
                   value={fulfillmentMethod}
-                  onValueChange={(value) => setFulfillmentMethod(value as any)}
+                  onValueChange={(value) => setFulfillmentMethod(value as "mixed" | "shipping" | "local_pickup")}
                   className="space-y-3"
                 >
                   {hasShippingItems && hasPickupItems && (
@@ -589,7 +626,7 @@ export const CheckoutPage = () => {
                   )}
 
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Platform fee (10%)</span>
+                    <span>Platform fee ({(feeRate * 100).toFixed(1)}%{flatFee > 0 && ` + $${flatFee.toFixed(2)}`})</span>
                     <span>${platformFee.toFixed(2)}</span>
                   </div>
 
@@ -670,12 +707,24 @@ export const CheckoutPage = () => {
                   </Button>
                 </div>
 
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <p>• Secure payment processed by Stripe</p>
-                  <p>• Apple Pay / Google Pay supported</p>
-                  <p>• Orders split by seller automatically</p>
-                  <p>• Individual tracking for each seller</p>
-                  <p>• Each seller responsible for their items</p>
+                {/* Trust Signals */}
+                <div className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Lock className="h-4 w-4 text-green-600 flex-shrink-0" />
+                    <span className="text-muted-foreground">256-bit SSL encrypted checkout</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <ShieldCheck className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                    <span className="text-muted-foreground">Secure payment via Stripe</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <RotateCcw className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                    <span className="text-muted-foreground">30-day purchase protection</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <ShoppingCart className="h-4 w-4 text-orange-600 flex-shrink-0" />
+                    <span className="text-muted-foreground">Support local Chicago makers</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
