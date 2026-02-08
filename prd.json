@@ -1,0 +1,248 @@
+{
+  "project": "Craft Chicago Finds",
+  "branchName": "claude/identify-impact-improvements-CqzQz",
+  "description": "Platform improvements identified through comprehensive codebase analysis - covering conversion optimization, UX improvements, security hardening, SEO, admin tooling, and marketing features.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Checkout page platform fee bug fix and trust signal improvements",
+      "description": "As a buyer, I need the checkout page to display accurate platform fees (using the usePlatformFee hook instead of a hardcoded 10% rate), see a checkout progress indicator so I know where I am in the process, and see trust signals (SSL encryption, purchase protection, Stripe security) so I feel confident completing my purchase.",
+      "acceptanceCriteria": [
+        "Checkout.tsx uses usePlatformFee hook instead of hardcoded PLATFORM_FEE_RATE = 0.1",
+        "Platform fee display shows dynamic rate from database config",
+        "Checkout progress indicator shows Cart > Details > Payment > Done steps",
+        "Trust signals section displays SSL, Stripe, purchase protection, and local maker support badges",
+        "Build passes without errors"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Completed - hardcoded fee was a pricing accuracy bug that could charge customers the wrong amount if fees were updated in the database."
+    },
+    {
+      "id": "US-002",
+      "title": "Exit-intent email capture popup for landing page",
+      "description": "As a marketing team member, I need an exit-intent popup on the landing page that captures visitor emails with a 10% discount offer, so we can reduce bounce rates and build our email list for remarketing campaigns.",
+      "acceptanceCriteria": [
+        "Exit-intent popup triggers when mouse leaves viewport at top (desktop)",
+        "Mobile fallback triggers on scroll-up pattern after scrolling past 500px",
+        "Popup only shows to non-authenticated visitors",
+        "7-day cooldown after dismissal stored in localStorage",
+        "8-second delay before popup becomes eligible",
+        "Email submitted to newsletter-subscribe edge function with source='exit_intent'",
+        "GA4 event tracked on conversion",
+        "Build passes without errors"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Completed - lazy loaded to avoid impacting LCP. Uses existing newsletter-subscribe infrastructure."
+    },
+    {
+      "id": "US-003",
+      "title": "Add checkout trust signals to GuestCheckout page",
+      "description": "As a guest buyer, I need to see the same trust signals and checkout progress indicator on the guest checkout page that authenticated users see, so I feel equally confident completing my purchase without an account.",
+      "acceptanceCriteria": [
+        "GuestCheckout.tsx includes checkout progress indicator matching Checkout.tsx",
+        "Trust signal badges (SSL, Stripe, purchase protection) displayed in payment summary",
+        "Consistent visual design with authenticated checkout flow",
+        "Build passes without errors"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Guest checkout already has some trust text but lacks the visual trust badges and progress indicator."
+    },
+    {
+      "id": "US-004",
+      "title": "Cart abandonment recovery with email reminders",
+      "description": "As a platform operator, I need authenticated users who add items to their cart but don't complete checkout within 24 hours to receive an email reminder about their cart, so we can recover abandoned purchases.",
+      "acceptanceCriteria": [
+        "Cart state persisted to database for authenticated users (currently localStorage only)",
+        "Edge function sends cart reminder email after 24 hours of inactivity",
+        "Email contains cart item images, titles, and prices",
+        "Include a direct link back to the cart page",
+        "Users can opt out of cart reminders in notification settings",
+        "Track email open and click-through rates"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Cart is currently localStorage-only, so cart data is lost across devices and can't trigger server-side emails."
+    },
+    {
+      "id": "US-005",
+      "title": "Product image zoom and gallery improvements",
+      "description": "As a buyer, I need to be able to zoom into product images and swipe through a fullscreen gallery on mobile, so I can inspect handmade items closely before purchasing.",
+      "acceptanceCriteria": [
+        "Click-to-zoom on product detail page images",
+        "Fullscreen lightbox gallery with swipe support on mobile",
+        "Pinch-to-zoom support on touch devices",
+        "Keyboard navigation (arrow keys, Escape to close)",
+        "Smooth transitions between images",
+        "No impact on initial page load (lazy loaded)"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Current product page has basic image display. Zoom is critical for handmade goods where buyers want to see craftsmanship details."
+    },
+    {
+      "id": "US-006",
+      "title": "Social sharing for product pages",
+      "description": "As a buyer, I need to share products I find on social media platforms (Instagram, Facebook, Pinterest, X, copy link), so I can recommend handmade items to friends and help makers get more exposure.",
+      "acceptanceCriteria": [
+        "Share button on product detail page with platform options",
+        "Native Web Share API used on mobile when available",
+        "Fallback share buttons for desktop (Facebook, Pinterest, X, copy link)",
+        "Open Graph meta tags already in place for rich previews",
+        "Share event tracked in analytics",
+        "Accessible button labels"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Product pages have OG tags but no share UI. Pinterest is especially valuable for handmade/craft products."
+    },
+    {
+      "id": "US-007",
+      "title": "Empty search results improvement with recommendations",
+      "description": "As a buyer, when my search returns no results, I need to see helpful suggestions (related categories, popular items, spelling corrections) instead of just an empty state, so I can still find relevant products.",
+      "acceptanceCriteria": [
+        "Empty search results page shows: 'Did you mean?' spelling suggestions",
+        "Display popular/trending products as alternatives",
+        "Show related category links based on search terms",
+        "Offer to set up a notification for when matching products are listed",
+        "Track zero-result searches in analytics for admin review"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "SearchBar has correction suggestions but SearchResults empty state is basic. Zero-result tracking would help admins understand demand gaps."
+    },
+    {
+      "id": "US-008",
+      "title": "Seller onboarding email sequence",
+      "description": "As a new seller, I need to receive a structured email onboarding sequence (welcome, listing tips, pricing guide, first sale celebration) so I'm guided through setting up a successful shop.",
+      "acceptanceCriteria": [
+        "Day 0: Welcome email with quick start guide link",
+        "Day 2: Listing optimization tips with examples of top sellers",
+        "Day 5: Pricing strategy guide link (existing pricing calculator)",
+        "Day 7: Check-in email asking if they need help",
+        "After first sale: Celebration email with next steps",
+        "Emails stop if seller completes onboarding steps",
+        "Unsubscribe option on all emails"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Seller retention is critical for marketplace supply. Currently no automated onboarding emails."
+    },
+    {
+      "id": "US-009",
+      "title": "Admin search analytics dashboard enhancements",
+      "description": "As an admin, I need a dashboard showing zero-result searches, most popular searches, search-to-purchase conversion rates, and trending search terms, so I can identify demand gaps and improve product discovery.",
+      "acceptanceCriteria": [
+        "Dashboard shows top 50 zero-result searches with frequency",
+        "Search-to-purchase conversion funnel visualization",
+        "Trending searches over time (7d, 30d, 90d views)",
+        "Export to CSV functionality",
+        "Real-time updates using Supabase realtime subscription",
+        "Actionable insights like 'Create category for X - searched 47 times this week'"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Search analytics data is being collected but admin dashboard needs better visualization and actionable insights."
+    },
+    {
+      "id": "US-010",
+      "title": "Structured data for product pages (Schema.org Product markup)",
+      "description": "As an SEO strategist, I need every product detail page to include complete Schema.org Product markup (including price, availability, seller, reviews, images) so products appear as rich results in Google Search.",
+      "acceptanceCriteria": [
+        "Product pages include @type Product with name, description, image",
+        "Offers schema with price, priceCurrency, availability, seller",
+        "AggregateRating if product has reviews",
+        "Brand set to seller shop name",
+        "Validate with Google Rich Results Test",
+        "No duplicate or conflicting schema on the page"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Landing page has Organization and LocalBusiness schema, but individual product pages likely missing Product schema for rich Google results."
+    },
+    {
+      "id": "US-011",
+      "title": "Recently viewed products widget",
+      "description": "As a buyer, I need to see my recently viewed products on the browse page and product detail pages, so I can easily go back to items I was interested in without searching again.",
+      "acceptanceCriteria": [
+        "Recently viewed products displayed as horizontal scrollable carousel",
+        "Shows on browse page below search results and on product detail page below main content",
+        "Stores last 12 viewed products in localStorage",
+        "Each card shows image, title, price, and seller name",
+        "Click navigates to product detail page",
+        "Clear history option available",
+        "Responsive design for mobile"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "useRecentlyViewed hook exists but may not be integrated into the browse/product UI. Low effort, high value for return visitors."
+    },
+    {
+      "id": "US-012",
+      "title": "Mobile checkout optimization",
+      "description": "As a mobile buyer, I need the checkout flow to be optimized for small screens with larger touch targets, auto-scrolling to errors, collapsible sections, and a persistent total bar, so I can complete purchases quickly on my phone.",
+      "acceptanceCriteria": [
+        "Input fields have minimum 48px touch targets on mobile",
+        "Form auto-scrolls to first validation error on submit",
+        "Collapsible order summary section on mobile (expanded by default on desktop)",
+        "Sticky bottom bar with total and pay button (already on Cart, extend to Checkout)",
+        "Auto-advance to next input on mobile keyboards",
+        "Apple Pay / Google Pay button prominently placed at top on mobile"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "Cart has a sticky mobile checkout bar, but the Checkout page doesn't. Mobile users are the majority of traffic but checkout isn't optimized for them."
+    },
+    {
+      "id": "US-013",
+      "title": "Seller performance dashboard with actionable metrics",
+      "description": "As a seller, I need a performance dashboard showing views-to-favorites ratio, listing conversion rates, response time metrics, and revenue trends, so I can understand what's working and improve my shop.",
+      "acceptanceCriteria": [
+        "Dashboard shows: total views, favorites, add-to-carts, and purchases per listing",
+        "Conversion funnel: view > favorite > cart > purchase with percentages",
+        "Average response time to messages with benchmark comparison",
+        "Revenue chart with daily/weekly/monthly views",
+        "Top performing listings highlighted",
+        "Underperforming listings flagged with improvement suggestions"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "Seller dashboard exists but may lack granular conversion analytics. This data drives seller retention and listing quality."
+    },
+    {
+      "id": "US-014",
+      "title": "Cookie consent banner compliance",
+      "description": "As a compliance officer, I need a GDPR/CCPA-compliant cookie consent banner that allows users to accept, reject, or customize cookie preferences before any non-essential cookies are set, so the platform meets privacy regulations.",
+      "acceptanceCriteria": [
+        "Banner appears on first visit before any analytics cookies are set",
+        "Options: Accept All, Reject Non-Essential, Customize",
+        "Customize modal shows categories: Essential, Analytics, Marketing",
+        "GA4 only initializes after consent for analytics category",
+        "Preference stored in localStorage, respected on return visits",
+        "Link to Cookie Policy page from the banner",
+        "Banner doesn't block page content on mobile"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Cookie Policy page exists but no consent banner. GA4 appears to load unconditionally. Required for GDPR compliance if serving EU visitors."
+    },
+    {
+      "id": "US-015",
+      "title": "Performance budget and bundle size monitoring",
+      "description": "As a developer, I need automated bundle size checks in CI that warn when JavaScript bundle exceeds performance budgets, so we maintain fast page load times as the codebase grows.",
+      "acceptanceCriteria": [
+        "CI pipeline includes bundle size analysis step",
+        "Warning when any chunk exceeds 200KB gzipped",
+        "Error when total initial JS exceeds 500KB gzipped",
+        "Bundle size report commented on PRs showing delta",
+        "Track LCP, FID, CLS metrics in CI",
+        "Historical trend available in CI artifacts"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Vite config has manual chunking but no automated size enforcement. 47 Radix packages + framer-motion risk bundle bloat."
+    }
+  ]
+}
