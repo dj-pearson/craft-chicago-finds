@@ -392,19 +392,19 @@ export default function Auth() {
   // Loading state
   if (authLoading || (user && mfaLoading)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+      <main id="main-content" role="main" tabIndex={-1} className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 focus:outline-none">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-orange-600 dark:text-orange-400" />
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading...</p>
         </div>
-      </div>
+      </main>
     );
   }
 
   // MFA verification screen
   if (showMFAVerification && user) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+      <main id="main-content" role="main" tabIndex={-1} className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 focus:outline-none">
         <MFAVerification
           onVerify={handleMFAVerify}
           onTrustDevice={handleTrustDevice}
@@ -414,7 +414,7 @@ export default function Auth() {
           error={mfaError}
           attemptsRemaining={mfaAttemptsRemaining}
         />
-      </div>
+      </main>
     );
   }
 
@@ -458,7 +458,7 @@ export default function Auth() {
   );
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+    <main id="main-content" role="main" tabIndex={-1} className="min-h-screen flex bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 focus:outline-none">
       {/* Left showcase panel - hidden on mobile */}
       <div className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden">
         {/* Layered gradient background */}
@@ -915,6 +915,6 @@ export default function Auth() {
           50% { transform: translateY(-12px); }
         }
       `}</style>
-    </div>
+    </main>
   );
 }

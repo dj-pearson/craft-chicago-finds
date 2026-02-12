@@ -103,6 +103,7 @@ export const W9FormSubmission = () => {
               value={formData.legal_name}
               onChange={(e) => setFormData(prev => ({ ...prev, legal_name: e.target.value }))}
               placeholder="As shown on your tax return"
+              autoComplete="name"
               required
             />
             <p className="text-xs text-muted-foreground">

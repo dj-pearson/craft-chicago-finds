@@ -253,6 +253,7 @@ export const GuestCheckout = () => {
                       value={shippingAddress.name}
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, name: e.target.value }))}
                       placeholder="John Doe"
+                      autoComplete="name"
                       required
                     />
                   </div>
@@ -264,6 +265,7 @@ export const GuestCheckout = () => {
                       value={shippingAddress.email}
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, email: e.target.value }))}
                       placeholder="john@example.com"
+                      autoComplete="email"
                       required
                     />
                   </div>
@@ -275,6 +277,7 @@ export const GuestCheckout = () => {
                       value={shippingAddress.phone}
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, phone: e.target.value }))}
                       placeholder="+1 (555) 123-4567"
+                      autoComplete="tel"
                     />
                   </div>
                 </div>
@@ -352,6 +355,7 @@ export const GuestCheckout = () => {
                         value={shippingAddress.address}
                         onChange={(e) => handleAddressChange('address', e.target.value)}
                         placeholder="123 Main St, Apt 4B"
+                        autoComplete="street-address"
                         required
                       />
                     </div>
@@ -362,6 +366,7 @@ export const GuestCheckout = () => {
                         value={shippingAddress.city}
                         onChange={(e) => handleAddressChange('city', e.target.value)}
                         placeholder="Chicago"
+                        autoComplete="address-level2"
                         required
                       />
                     </div>
@@ -373,6 +378,7 @@ export const GuestCheckout = () => {
                         onChange={(e) => handleAddressChange('state', e.target.value)}
                         placeholder="IL"
                         maxLength={2}
+                        autoComplete="address-level1"
                         required
                       />
                     </div>
@@ -384,6 +390,7 @@ export const GuestCheckout = () => {
                         onChange={(e) => handleAddressChange('zip', e.target.value)}
                         placeholder="60601"
                         maxLength={10}
+                        autoComplete="postal-code"
                         required
                       />
                     </div>

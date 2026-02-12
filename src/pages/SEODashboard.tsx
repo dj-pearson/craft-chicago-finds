@@ -56,7 +56,7 @@ export default function SEODashboard() {
   });
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <main id="main-content" role="main" tabIndex={-1} className="container mx-auto py-6 space-y-6 focus:outline-none">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">SEO Management Dashboard</h1>
@@ -182,6 +182,6 @@ export default function SEODashboard() {
           <SEOManager />
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 }

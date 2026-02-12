@@ -129,7 +129,7 @@ export default function PricingCalculator() {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
+      <main id="main-content" role="main" tabIndex={-1} className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 focus:outline-none">
         <div className="container mx-auto px-4 py-8 md:py-12">
           {/* Header */}
           <motion.div
@@ -430,7 +430,7 @@ export default function PricingCalculator() {
             )}
           </AnimatePresence>
         </div>
-      </div>
+      </main>
 
       {/* Email Capture Modal */}
       {formData && (

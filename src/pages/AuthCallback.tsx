@@ -77,7 +77,7 @@ export default function AuthCallback() {
   }, [navigate, searchParams]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+    <main id="main-content" role="main" tabIndex={-1} className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 focus:outline-none">
       <div className="w-full max-w-sm mx-4">
         <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-2xl border border-orange-100/50 dark:border-zinc-800/50 shadow-xl p-8 text-center">
           {status === 'processing' && (
@@ -138,6 +138,6 @@ export default function AuthCallback() {
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

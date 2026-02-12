@@ -756,6 +756,7 @@ export const LocalPickupMeetups = ({ className }: LocalPickupMeetupsProps) => {
                       value={newMeetup.contact_phone}
                       onChange={(e) => setNewMeetup(prev => ({ ...prev, contact_phone: e.target.value }))}
                       placeholder="(312) 555-0123"
+                      autoComplete="tel"
                     />
                   </div>
                   
@@ -767,6 +768,7 @@ export const LocalPickupMeetups = ({ className }: LocalPickupMeetupsProps) => {
                       value={newMeetup.contact_email}
                       onChange={(e) => setNewMeetup(prev => ({ ...prev, contact_email: e.target.value }))}
                       placeholder="organizer@example.com"
+                      autoComplete="email"
                     />
                   </div>
                 </div>

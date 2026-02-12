@@ -205,7 +205,7 @@ export const CartPage = () => {
 
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <main id="main-content" role="main" tabIndex={-1} className="container mx-auto px-4 py-8 focus:outline-none">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
 
@@ -224,12 +224,12 @@ export const CartPage = () => {
             </CardContent>
           </Card>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main id="main-content" role="main" tabIndex={-1} className="container mx-auto px-4 py-8 focus:outline-none">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold">Shopping Cart</h1>
@@ -619,7 +619,7 @@ export const CartPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </main>
   );
 };
 

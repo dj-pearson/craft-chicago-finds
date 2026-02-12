@@ -117,6 +117,7 @@ export const ComingSoonBanner = ({ className, variant = 'full' }: ComingSoonBann
                       value={emailSignup.email}
                       onChange={(e) => setEmailSignup(prev => ({ ...prev, email: e.target.value }))}
                       className="pl-10"
+                      autoComplete="email"
                       required
                     />
                   </div>
@@ -282,6 +283,7 @@ export const ComingSoonBanner = ({ className, variant = 'full' }: ComingSoonBann
                   value={emailSignup.email}
                   onChange={(e) => setEmailSignup(prev => ({ ...prev, email: e.target.value }))}
                   className="pl-10"
+                  autoComplete="email"
                   required
                 />
               </div>

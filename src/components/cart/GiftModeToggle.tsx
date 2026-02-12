@@ -96,6 +96,7 @@ export const GiftModeToggle = ({ giftMode, onGiftModeChange }: GiftModeTogglePro
                 value={giftMode.recipientEmail}
                 onChange={(e) => handleFieldChange('recipientEmail', e.target.value)}
                 className="pl-10"
+                autoComplete="email"
               />
             </div>
             <p className="text-xs text-muted-foreground">

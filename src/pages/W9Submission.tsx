@@ -112,7 +112,7 @@ const W9Submission = () => {
     return (
       <>
         <Header />
-        <div className="min-h-screen bg-background py-8">
+        <main id="main-content" role="main" tabIndex={-1} className="min-h-screen bg-background py-8 focus:outline-none">
           <div className="max-w-3xl mx-auto">
             <Card>
               <CardContent className="py-12">
@@ -126,7 +126,7 @@ const W9Submission = () => {
               </CardContent>
             </Card>
           </div>
-        </div>
+        </main>
         <Footer />
       </>
     );
@@ -135,7 +135,7 @@ const W9Submission = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-background py-8">
+      <main id="main-content" role="main" tabIndex={-1} className="min-h-screen bg-background py-8 focus:outline-none">
         <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="space-y-2">
@@ -387,7 +387,7 @@ const W9Submission = () => {
         </CardContent>
       </Card>
         </div>
-      </div>
+      </main>
       <Footer />
     </>
   );

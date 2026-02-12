@@ -122,6 +122,7 @@ export const StripeOnboarding = ({ onComplete }: StripeOnboardingProps) => {
                 value={businessInfo.first_name}
                 onChange={(e) => setBusinessInfo(prev => ({ ...prev, first_name: e.target.value }))}
                 placeholder="John"
+                autoComplete="given-name"
               />
             </div>
             <div>
@@ -131,6 +132,7 @@ export const StripeOnboarding = ({ onComplete }: StripeOnboardingProps) => {
                 value={businessInfo.last_name}
                 onChange={(e) => setBusinessInfo(prev => ({ ...prev, last_name: e.target.value }))}
                 placeholder="Doe"
+                autoComplete="family-name"
               />
             </div>
           </div>
@@ -142,6 +144,7 @@ export const StripeOnboarding = ({ onComplete }: StripeOnboardingProps) => {
               value={businessInfo.business_name}
               onChange={(e) => setBusinessInfo(prev => ({ ...prev, business_name: e.target.value }))}
               placeholder="Your business or shop name"
+              autoComplete="organization"
             />
           </div>
 
