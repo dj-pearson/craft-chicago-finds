@@ -198,6 +198,7 @@ export function ExitIntentPopup({ delay = 5000 }: ExitIntentPopupProps) {
               required
               className="h-12"
               aria-label="Email address for discount"
+              autoComplete="email"
             />
             <Button
               type="submit"

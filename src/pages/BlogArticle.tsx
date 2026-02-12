@@ -66,18 +66,18 @@ export default function BlogArticle() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <main id="main-content" role="main" tabIndex={-1} className="container mx-auto px-4 py-8 max-w-4xl focus:outline-none">
         <Skeleton className="h-8 w-32 mb-6" />
         <Skeleton className="h-12 w-3/4 mb-4" />
         <Skeleton className="h-6 w-1/2 mb-8" />
         <Skeleton className="h-96 w-full" />
-      </div>
+      </main>
     );
   }
 
   if (!article) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl text-center">
+      <main id="main-content" role="main" tabIndex={-1} className="container mx-auto px-4 py-8 max-w-4xl text-center focus:outline-none">
         <h1 className="text-3xl font-bold mb-4">Article Not Found</h1>
         <p className="text-muted-foreground mb-6">The article you're looking for doesn't exist or hasn't been published yet.</p>
         <Link to="/blog">
@@ -86,7 +86,7 @@ export default function BlogArticle() {
             Back to Blog
           </Button>
         </Link>
-      </div>
+      </main>
     );
   }
 
@@ -103,6 +103,7 @@ export default function BlogArticle() {
         }}
       />
 
+      <main id="main-content" role="main" tabIndex={-1} className="flex-1 focus:outline-none">
       <article className="container mx-auto px-4 py-8 max-w-4xl">
         <Link to="/blog">
           <Button variant="ghost" className="mb-6">
@@ -211,6 +212,7 @@ export default function BlogArticle() {
           </Link>
         </div>
       </article>
+      </main>
     </>
   );
 }

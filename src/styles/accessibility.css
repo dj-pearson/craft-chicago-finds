@@ -358,3 +358,255 @@ select:focus {
   border: 1px solid var(--border);
   font-weight: bold;
 }
+
+/* ========================================================
+   WCAG 2.1 AA - 1.4.10 Reflow
+   Content must reflow at 320px CSS width without horizontal scrolling.
+   ======================================================== */
+@media (max-width: 320px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .container {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  /* Stack grid layouts vertically on narrow viewports */
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Prevent overflow from fixed-width elements */
+  img,
+  video,
+  iframe,
+  table,
+  pre,
+  code {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  /* Ensure text doesn't overflow */
+  * {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+}
+
+/* ========================================================
+   WCAG 2.1 AA - 1.4.11 Non-text Contrast
+   UI components and graphical objects must have at least 3:1
+   contrast ratio against adjacent colors.
+   ======================================================== */
+
+/* Ensure form controls have visible borders */
+input,
+textarea,
+select {
+  border: 1px solid hsl(var(--border));
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: hsl(var(--foreground) / 0.4);
+}
+
+/* Ensure checkboxes and radio buttons have sufficient contrast */
+input[type="checkbox"],
+input[type="radio"] {
+  border: 2px solid hsl(var(--foreground) / 0.5);
+}
+
+/* Ensure switch/toggle components meet contrast */
+[role="switch"] {
+  border: 2px solid hsl(var(--foreground) / 0.3);
+}
+
+[role="switch"][aria-checked="true"] {
+  border-color: hsl(var(--primary));
+}
+
+/* Ensure icons used as UI indicators meet contrast */
+.high-contrast svg {
+  stroke-width: 2.5;
+}
+
+/* ========================================================
+   WCAG 2.1 AA - 1.4.12 Text Spacing
+   No loss of content or functionality when user overrides:
+   - Line height to at least 1.5x font size
+   - Letter spacing to 0.12em
+   - Word spacing to 0.16em
+   - Paragraph spacing to 2x font size
+   ======================================================== */
+
+/* These rules ensure the layout doesn't break when users
+   apply custom text spacing via browser extensions or
+   user stylesheets. The key is NOT to use fixed heights
+   on text containers. */
+.text-spacing-override p,
+.text-spacing-override li,
+.text-spacing-override dd,
+.text-spacing-override span,
+.text-spacing-override label {
+  line-height: 1.5 !important;
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+}
+
+.text-spacing-override p {
+  margin-bottom: 2em !important;
+}
+
+/* Prevent text clipping with custom spacing */
+[class*="truncate"],
+[class*="line-clamp"] {
+  overflow: visible;
+  text-overflow: unset;
+  -webkit-line-clamp: unset;
+  white-space: normal;
+}
+
+/* Ensure containers expand with text spacing changes */
+button,
+a,
+label,
+input,
+textarea,
+select {
+  line-height: 1.5;
+}
+
+/* ========================================================
+   WCAG 2.1 AA - 1.4.13 Content on Hover or Focus
+   Hoverable/focusable content must be:
+   - Dismissible (Escape key)
+   - Hoverable (pointer can move to it)
+   - Persistent (stays until dismissed)
+   ======================================================== */
+
+/* Tooltips and popovers must remain visible when hovered */
+[role="tooltip"],
+[data-state="open"][data-side],
+[data-radix-popper-content-wrapper] {
+  pointer-events: auto;
+}
+
+/* Ensure tooltip content doesn't disappear when moving mouse to it */
+[role="tooltip"]:hover,
+[data-state="open"][data-side]:hover {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Dropdown menus stay open when hovered */
+[role="menu"]:hover,
+[role="listbox"]:hover {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ========================================================
+   WCAG 2.1 AA - 1.3.4 Orientation
+   Content is not restricted to a single display orientation
+   ======================================================== */
+
+/* Ensure no orientation locks exist in CSS */
+@media (orientation: portrait) {
+  /* Content should work in both orientations */
+}
+
+@media (orientation: landscape) {
+  /* Content should work in both orientations */
+}
+
+/* ========================================================
+   Focus styles for the floating accessibility widget
+   ======================================================== */
+.fixed [aria-label*="accessibility" i]:focus-visible,
+.fixed [aria-label*="Accessibility" i]:focus-visible {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* ========================================================
+   Print accessibility - hide UI-only elements
+   ======================================================== */
+@media print {
+  .skip-link,
+  .skip-links,
+  [role="region"][aria-label*="accessibility" i],
+  #route-announcer {
+    display: none !important;
+  }
+}
+
+/* ========================================================
+   Prefers-contrast: more - honor OS-level contrast settings
+   WCAG 2.1 AA - 1.4.3 Contrast (Minimum)
+   ======================================================== */
+@media (prefers-contrast: more) {
+  :root {
+    --border: hsl(0 0% 20%);
+  }
+
+  button,
+  a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  input,
+  textarea,
+  select {
+    border-width: 2px;
+    border-color: hsl(0 0% 20%);
+  }
+}
+
+/* ========================================================
+   Forced colors mode (Windows High Contrast)
+   Ensures controls remain visible in forced-colors mode
+   ======================================================== */
+@media (forced-colors: active) {
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    border: 1px solid ButtonText;
+  }
+
+  button:focus,
+  a:focus,
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  [role="switch"] {
+    border: 2px solid ButtonText;
+  }
+
+  [role="switch"][aria-checked="true"] {
+    background-color: Highlight;
+    border-color: Highlight;
+  }
+
+  .skip-link:focus {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  /* Ensure badges are visible */
+  .badge,
+  [class*="Badge"] {
+    border: 1px solid ButtonText;
+  }
+}

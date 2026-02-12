@@ -30,7 +30,7 @@ export default function DisputesPage() {
     <>
       <Header />
       <DisputesProvider>
-        <div className="min-h-screen bg-background">
+        <main id="main-content" role="main" tabIndex={-1} className="min-h-screen bg-background focus:outline-none">
           <div className="container mx-auto py-8">
             <div className="max-w-4xl mx-auto">
               <div className="mb-8">
@@ -83,7 +83,7 @@ export default function DisputesPage() {
               )}
             </div>
           </div>
-        </div>
+        </main>
       </DisputesProvider>
       <Footer />
     </>

@@ -27,7 +27,7 @@ const DisputeResolutionGuide = () => {
       }} />
 
       <Header />
-      <div className="min-h-screen bg-background">
+      <main id="main-content" role="main" tabIndex={-1} className="min-h-screen bg-background focus:outline-none">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <Button
             variant="ghost"
@@ -317,7 +317,7 @@ const DisputeResolutionGuide = () => {
             </div>
           </div>
         </div>
-      </div>
+      </main>
       <Footer />
     </>
   );

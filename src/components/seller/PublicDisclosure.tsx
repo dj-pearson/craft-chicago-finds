@@ -189,6 +189,7 @@ export const PublicDisclosure = () => {
               value={formData.contact_email}
               onChange={(e) => setFormData(prev => ({ ...prev, contact_email: e.target.value }))}
               placeholder="business@example.com"
+              autoComplete="email"
               required
             />
           </div>
@@ -201,6 +202,7 @@ export const PublicDisclosure = () => {
               value={formData.contact_phone}
               onChange={(e) => setFormData(prev => ({ ...prev, contact_phone: e.target.value }))}
               placeholder="(555) 123-4567"
+              autoComplete="tel"
               required
             />
           </div>

@@ -155,6 +155,7 @@ export const SecuritySettings = ({ user }: SecuritySettingsProps) => {
                   value={passwordData.currentPassword}
                   onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
                   placeholder="Enter your current password"
+                  autoComplete="current-password"
                   required
                 />
                 <Button
@@ -179,6 +180,7 @@ export const SecuritySettings = ({ user }: SecuritySettingsProps) => {
                   value={passwordData.newPassword}
                   onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
                   placeholder="Enter your new password"
+                  autoComplete="new-password"
                   required
                 />
                 <Button
@@ -206,6 +208,7 @@ export const SecuritySettings = ({ user }: SecuritySettingsProps) => {
                   value={passwordData.confirmPassword}
                   onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                   placeholder="Confirm your new password"
+                  autoComplete="new-password"
                   required
                 />
                 <Button

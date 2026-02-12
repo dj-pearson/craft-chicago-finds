@@ -300,6 +300,7 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
                       value={shippingAddress.name}
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, name: e.target.value }))}
                       placeholder="John Doe"
+                      autoComplete="name"
                     />
                   </div>
                   <div className="col-span-2">
@@ -309,6 +310,7 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
                       value={shippingAddress.address}
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, address: e.target.value }))}
                       placeholder="123 Main St, Apt 4B"
+                      autoComplete="street-address"
                     />
                   </div>
                   <div>
@@ -318,6 +320,7 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
                       value={shippingAddress.city}
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, city: e.target.value }))}
                       placeholder="Chicago"
+                      autoComplete="address-level2"
                     />
                   </div>
                   <div>
@@ -327,6 +330,7 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
                       value={shippingAddress.state}
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, state: e.target.value }))}
                       placeholder="IL"
+                      autoComplete="address-level1"
                     />
                   </div>
                   <div className="col-span-2">
@@ -336,6 +340,7 @@ export const StripeCheckout = ({ listing, onSuccess, onCancel }: CheckoutProps) 
                       value={shippingAddress.zip}
                       onChange={(e) => setShippingAddress(prev => ({ ...prev, zip: e.target.value }))}
                       placeholder="60601"
+                      autoComplete="postal-code"
                     />
                   </div>
                 </div>

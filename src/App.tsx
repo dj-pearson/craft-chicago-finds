@@ -11,11 +11,13 @@ import { PlansProvider } from "./hooks/usePlans";
 import { SecurityProvider } from "./hooks/useSecurityContext";
 import { AccessibilityProvider } from "./components/accessibility/AccessibilityProvider";
 import { SkipLinks } from "./components/accessibility/SkipLinks";
+import { AccessibilityFloatingWidget } from "./components/accessibility/AccessibilityFloatingWidget";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { BottomNav } from "./components/mobile";
 import { Suspense, lazy, useCallback } from "react";
 import { PageLoadingSkeleton } from "@/components/ui/skeleton-loader";
+import { useRouteAnnouncer } from "@/hooks/useRouteAnnouncer";
 import "./styles/accessibility.css";
 import "@/lib/errorHandler"; // Initialize global error handler
 import { SessionTimeoutWarning } from "@/components/auth/SessionTimeoutWarning";
@@ -69,6 +71,15 @@ const Sell = lazy(() => import("./pages/Sell"));
 const Accessibility = lazy(() => import("./pages/Accessibility"));
 
 /**
+ * Route change announcer - announces page navigation to screen readers
+ * and manages focus on route changes (WCAG 2.4.3, 4.1.3)
+ */
+const RouteAnnouncer = () => {
+  useRouteAnnouncer();
+  return null;
+};
+
+/**
  * Security callbacks for handling access denials
  */
 const SecurityCallbacksWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -113,6 +124,7 @@ const App = () => {
 
             <CityProvider>
               <Suspense fallback={<PageLoadingSkeleton />}>
+              <RouteAnnouncer />
               <SecurityCallbacksWrapper>
               <Routes>
                 <Route path="/" element={<Landing />} />
@@ -254,6 +266,7 @@ const App = () => {
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </SecurityCallbacksWrapper>
+              <AccessibilityFloatingWidget />
               <BottomNav />
               </Suspense>
             </CityProvider>

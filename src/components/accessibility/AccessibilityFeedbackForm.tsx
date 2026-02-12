@@ -303,6 +303,7 @@ export function AccessibilityFeedbackForm({ className, onSuccess }: Accessibilit
                     id="reporterEmail"
                     type="email"
                     {...register('reporterEmail')}
+                    autoComplete="email"
                     aria-invalid={errors.reporterEmail ? 'true' : undefined}
                     aria-describedby={errors.reporterEmail ? 'reporterEmail-error' : undefined}
                   />

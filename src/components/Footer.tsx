@@ -245,6 +245,7 @@ export const Footer = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   className="bg-background/10 border-background/20 text-background placeholder:text-background/60"
                   required
+                  autoComplete="email"
                   aria-label="Email address for newsletter subscription"
                   aria-describedby="newsletter-description"
                 />

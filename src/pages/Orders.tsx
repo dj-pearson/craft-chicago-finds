@@ -65,19 +65,19 @@ export default function Orders() {
 
   if (!user) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <main id="main-content" role="main" tabIndex={-1} className="container mx-auto px-4 py-8 focus:outline-none">
         <Card>
           <CardHeader>
             <CardTitle>Access Denied</CardTitle>
             <CardDescription>Please sign in to view your orders.</CardDescription>
           </CardHeader>
         </Card>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main id="main-content" role="main" tabIndex={-1} className="container mx-auto px-4 py-8 focus:outline-none">
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">My Orders</h1>
@@ -169,7 +169,7 @@ export default function Orders() {
           </Tabs>
         )}
       </div>
-    </div>
+    </main>
   );
 }
 

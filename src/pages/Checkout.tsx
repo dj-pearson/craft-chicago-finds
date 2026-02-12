@@ -279,7 +279,7 @@ export const CheckoutPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main id="main-content" role="main" tabIndex={-1} className="container mx-auto px-4 py-8 focus:outline-none">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" onClick={() => navigate("/cart")}>
@@ -731,7 +731,7 @@ export const CheckoutPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

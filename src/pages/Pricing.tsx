@@ -64,7 +64,7 @@ export const PricingPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main id="main-content" role="main" tabIndex={-1} className="container mx-auto px-4 py-8 focus:outline-none">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -204,7 +204,7 @@ export const PricingPage = () => {
           />
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

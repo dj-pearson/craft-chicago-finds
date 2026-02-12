@@ -53,7 +53,11 @@ export function BottomNav() {
       <div className="h-20 md:hidden" />
 
       {/* Bottom Navigation Bar - Mobile Only */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border md:hidden">
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border md:hidden"
+        aria-label="Mobile navigation"
+        role="navigation"
+      >
         <div className="flex items-center justify-around h-16 px-2">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -67,9 +71,11 @@ export function BottomNav() {
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
+                aria-label={item.label}
+                aria-current={item.active ? "page" : undefined}
               >
-                <Icon className="h-5 w-5" />
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <Icon className="h-5 w-5" aria-hidden="true" />
+                <span className="text-[10px] font-medium" aria-hidden="true">{item.label}</span>
               </Link>
             );
           })}
@@ -81,12 +87,16 @@ export function BottomNav() {
         <Link
           to="/cart"
           className="fixed bottom-20 right-4 z-50 md:hidden"
+          aria-label={`Shopping cart, ${cartItemCount} ${cartItemCount === 1 ? 'item' : 'items'}`}
         >
           <div className="relative">
-            <button className="flex items-center justify-center h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95">
-              <ShoppingCart className="h-6 w-6" />
-            </button>
-            <Badge className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground p-0 text-xs font-bold">
+            <span className="flex items-center justify-center h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95">
+              <ShoppingCart className="h-6 w-6" aria-hidden="true" />
+            </span>
+            <Badge
+              className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground p-0 text-xs font-bold"
+              aria-hidden="true"
+            >
               {cartItemCount > 99 ? "99+" : cartItemCount}
             </Badge>
           </div>

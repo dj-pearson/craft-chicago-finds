@@ -69,15 +69,15 @@ export default function ResetPassword() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <main id="main-content" role="main" tabIndex={-1} className="min-h-screen flex items-center justify-center focus:outline-none">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      </main>
     );
   }
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+      <main id="main-content" role="main" tabIndex={-1} className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted focus:outline-none">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
@@ -95,12 +95,12 @@ export default function ResetPassword() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+    <main id="main-content" role="main" tabIndex={-1} className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted focus:outline-none">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Reset Password</h1>
@@ -157,6 +157,6 @@ export default function ResetPassword() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </main>
   );
 }

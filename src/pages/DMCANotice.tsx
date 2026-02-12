@@ -137,6 +137,7 @@ export default function DMCANotice() {
                   type="email"
                   value={formData.claimant_email}
                   onChange={(e) => setFormData(prev => ({ ...prev, claimant_email: e.target.value }))}
+                  autoComplete="email"
                   required
                 />
               </div>
