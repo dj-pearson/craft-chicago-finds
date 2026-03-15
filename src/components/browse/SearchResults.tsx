@@ -42,6 +42,54 @@ interface SearchResultsProps {
 type ViewMode = 'grid' | 'list';
 type SortOption = 'relevance' | 'newest' | 'price_low' | 'price_high' | 'rating' | 'distance';
 
+// Common craft marketplace terms for spelling suggestions
+const KNOWN_TERMS: Record<string, string[]> = {
+  ceramics: ['cermaics', 'ceramcs', 'ceramik', 'cermics', 'cerimics'],
+  jewelry: ['jewlery', 'jewellery', 'jewlry', 'jewelery', 'jewerly'],
+  candles: ['candels', 'candles', 'candls', 'kandels'],
+  pottery: ['poterry', 'potery', 'potary', 'pottrey'],
+  textiles: ['texiles', 'textils', 'textiels'],
+  macrame: ['macramé', 'makrame', 'macramae', 'macrme'],
+  earrings: ['earings', 'earrigns', 'earrins', 'erring'],
+  necklace: ['necklase', 'necklass', 'necklce', 'neckace'],
+  handmade: ['hand made', 'handmaid', 'handmde'],
+  crochet: ['croche', 'crotchet', 'crochett', 'crocet'],
+  knitting: ['kniting', 'knittig', 'kniting'],
+  woodwork: ['woodwrok', 'wood work', 'woodwrk'],
+  painting: ['panting', 'painitng', 'paintng'],
+  sculpture: ['sculture', 'scuplture', 'sculputre'],
+};
+
+function getSpellingSuggestions(query: string): string[] {
+  const q = query.toLowerCase().trim();
+  const suggestions: string[] = [];
+  for (const [correct, misspellings] of Object.entries(KNOWN_TERMS)) {
+    if (misspellings.some((m) => q.includes(m)) || levenshtein(q, correct) <= 2) {
+      if (q !== correct) suggestions.push(correct);
+    }
+  }
+  return suggestions.slice(0, 3);
+}
+
+function levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+      );
+    }
+  }
+  return dp[m][n];
+}
+
 export const SearchResults = ({
   listings,
   categories,
@@ -267,22 +315,49 @@ export const SearchResults = ({
 
       {/* No Results */}
       {listings.length === 0 && !loading && (
-        <div className="text-center py-12 max-w-lg mx-auto">
-          <PackageSearch className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">No results found</h3>
-          <p className="text-muted-foreground mb-6">
-            {searchQuery
-              ? `We couldn't find any products matching "${searchQuery}"`
-              : "No products match your current filters"
-            }
-          </p>
+        <div className="py-12 max-w-2xl mx-auto">
+          <div className="text-center mb-8">
+            <PackageSearch className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">No results found</h3>
+            <p className="text-muted-foreground">
+              {searchQuery
+                ? `We couldn't find any products matching "${searchQuery}"`
+                : "No products match your current filters"
+              }
+            </p>
+          </div>
+
+          {/* Spelling Suggestions */}
+          {searchQuery && (() => {
+            const suggestions = getSpellingSuggestions(searchQuery);
+            if (suggestions.length === 0) return null;
+            return (
+              <div className="mb-6 text-center">
+                <p className="text-sm text-muted-foreground mb-2">Did you mean:</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {suggestions.map((suggestion) => (
+                    <Button
+                      key={suggestion}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onSearchChange(suggestion)}
+                      className="text-primary"
+                    >
+                      <Search className="h-3 w-3 mr-1.5" />
+                      {suggestion}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Category Suggestions */}
           {categories.length > 0 && (
             <div className="mb-6">
-              <p className="text-sm font-medium mb-3">Browse by category instead:</p>
+              <p className="text-sm font-medium mb-3 text-center">Browse by category instead:</p>
               <div className="flex flex-wrap justify-center gap-2">
-                {categories.slice(0, 6).map((category) => (
+                {categories.slice(0, 8).map((category) => (
                   <Badge
                     key={category.id}
                     variant="outline"
@@ -296,8 +371,28 @@ export const SearchResults = ({
             </div>
           )}
 
+          {/* Popular Search Terms */}
+          {searchQuery && (
+            <div className="mb-6">
+              <p className="text-sm font-medium mb-3 text-center">Popular searches:</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {['ceramics', 'jewelry', 'candles', 'pottery', 'art prints', 'textiles'].map((term) => (
+                  <Badge
+                    key={term}
+                    variant="secondary"
+                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors px-3 py-1.5 text-sm"
+                    onClick={() => onSearchChange(term)}
+                  >
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                    {term}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Search Tips */}
-          <div className="bg-muted/50 rounded-lg p-4 text-left">
+          <div className="bg-muted/50 rounded-lg p-4 text-left max-w-md mx-auto">
             <p className="text-sm font-medium mb-2">Search tips:</p>
             <ul className="text-sm text-muted-foreground space-y-1">
               <li className="flex items-center gap-2">
@@ -317,14 +412,15 @@ export const SearchResults = ({
 
           {/* Clear Search Button */}
           {searchQuery && (
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={() => onSearchChange('')}
-            >
-              <X className="h-4 w-4 mr-2" />
-              Clear search
-            </Button>
+            <div className="text-center mt-4">
+              <Button
+                variant="outline"
+                onClick={() => onSearchChange('')}
+              >
+                <X className="h-4 w-4 mr-2" />
+                Clear search
+              </Button>
+            </div>
           )}
         </div>
       )}

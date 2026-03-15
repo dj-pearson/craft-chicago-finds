@@ -22,6 +22,7 @@ import { FAQSection, FAQItem } from "@/components/seo/FAQSection";
 import { AISearchOptimization } from "@/components/seo/AISearchOptimization";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ProductDetailSkeleton } from "@/components/ui/skeleton-loader";
+import { RecentlyViewedProducts } from "@/components/product/RecentlyViewedProducts";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -311,6 +312,9 @@ const ProductDetail = () => {
           ]}
           className="mb-16"
         />
+
+        {/* Recently Viewed Products */}
+        <RecentlyViewedProducts excludeId={id} className="mb-16" />
 
         {/* Related Products */}
         <RelatedProducts

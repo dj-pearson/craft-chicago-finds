@@ -47,8 +47,8 @@
         "Build passes without errors"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": "Guest checkout already has some trust text but lacks the visual trust badges and progress indicator."
+      "passes": true,
+      "notes": "Completed - Added 4-step checkout progress indicator (Cart > Details > Payment > Done) matching authenticated checkout. Replaced basic text trust signals with visual trust badges (SSL, Stripe, purchase protection, local makers) with colored icons."
     },
     {
       "id": "US-004",
@@ -95,8 +95,8 @@
         "Accessible button labels"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": "Product pages have OG tags but no share UI. Pinterest is especially valuable for handmade/craft products."
+      "passes": true,
+      "notes": "Completed - Created SocialShareDialog component with Facebook, Pinterest, X sharing buttons. Uses native Web Share API on mobile with dialog fallback on desktop. Includes copy-link functionality and GA4 analytics tracking per share method."
     },
     {
       "id": "US-007",
@@ -110,8 +110,8 @@
         "Track zero-result searches in analytics for admin review"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": "SearchBar has correction suggestions but SearchResults empty state is basic. Zero-result tracking would help admins understand demand gaps."
+      "passes": true,
+      "notes": "Completed - Enhanced empty search results with: 'Did you mean?' spelling suggestions using Levenshtein distance for common craft terms, popular search terms (ceramics, jewelry, candles, etc.), improved category browsing suggestions, and search tips. Zero-result searches already tracked via useSearchAnalytics hook."
     },
     {
       "id": "US-008",
@@ -159,8 +159,8 @@
         "No duplicate or conflicting schema on the page"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": "Landing page has Organization and LocalBusiness schema, but individual product pages likely missing Product schema for rich Google results."
+      "passes": true,
+      "notes": "Already implemented - ProductDetail.tsx has comprehensive Product schema (JSON-LD) with name, description, images, Brand, AggregateRating (when reviews exist), Offers with price/currency/availability/seller/shippingDetails, category, and SKU. No work needed."
     },
     {
       "id": "US-011",
@@ -176,8 +176,8 @@
         "Responsive design for mobile"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": "useRecentlyViewed hook exists but may not be integrated into the browse/product UI. Low effort, high value for return visitors."
+      "passes": true,
+      "notes": "Completed - Created RecentlyViewedProducts component with horizontal scrollable carousel. Fetches listing data via React Query for stored IDs. Shows image, title, price, seller name per card. Integrated into both Browse page (below results) and ProductDetail page (above related products). Includes clear history button and scroll navigation arrows. Excludes current product on detail pages."
     },
     {
       "id": "US-012",
