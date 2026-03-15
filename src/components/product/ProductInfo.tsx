@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Heart, MapPin, Truck, Share2 } from "lucide-react";
+import { Heart, MapPin, Truck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { MessageStarter } from "@/components/messaging";
 import { BuyNowButton } from "./BuyNowButton";
@@ -17,6 +17,7 @@ import { TrustBadges } from "@/components/ui/trust-badges";
 import { supabase } from "@/integrations/supabase/client";
 import type { Listing } from "@/pages/Browse";
 import { sanitizeText } from "@/lib/sanitize";
+import { SocialShareDialog } from "./SocialShareDialog";
 
 interface ProductInfoProps {
   listing: Listing & {
@@ -104,22 +105,6 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
     });
   };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: listing.title,
-        text: listing.description || "",
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: "Link copied",
-        description: "Product link has been copied to your clipboard.",
-      });
-    }
-  };
-
   const handleContact = () => {
     toast({
       title: "Contact seller",
@@ -159,9 +144,12 @@ export const ProductInfo = ({ listing }: ProductInfoProps) => {
                 className={`h-4 w-4 ${isFavorited ? "fill-current" : ""}`}
               />
             </Button>
-            <Button variant="outline" size="sm" onClick={handleShare}>
-              <Share2 className="h-4 w-4" />
-            </Button>
+            <SocialShareDialog
+              title={listing.title}
+              description={listing.description || undefined}
+              url={window.location.href}
+              imageUrl={listing.images?.[0]}
+            />
           </div>
         </div>
       </CardHeader>

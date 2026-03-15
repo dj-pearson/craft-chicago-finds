@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, CreditCard, ArrowLeft, Package, Truck, MapPin, Mail, Smartphone, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Loader2, CreditCard, ArrowLeft, Package, Truck, MapPin, Mail, Smartphone, AlertTriangle, CheckCircle2, Check, Lock, ShieldCheck, RotateCcw, ShoppingCart } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { GiftModeToggle } from '@/components/cart/GiftModeToggle';
 import { validateAddress } from '@/lib/address-validation';
@@ -225,12 +225,45 @@ export const GuestCheckout = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" onClick={() => navigate('/cart')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Cart
           </Button>
           <h1 className="text-3xl font-bold">Guest Checkout</h1>
+        </div>
+
+        {/* Checkout Progress Indicator */}
+        <div className="mb-8">
+          <div className="flex items-center justify-center gap-0 max-w-lg mx-auto">
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+                <Check className="h-4 w-4" />
+              </div>
+              <span className="text-xs mt-1 font-medium text-primary">Cart</span>
+            </div>
+            <div className="flex-1 h-0.5 bg-primary mx-2" />
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
+                2
+              </div>
+              <span className="text-xs mt-1 font-medium text-primary">Details</span>
+            </div>
+            <div className="flex-1 h-0.5 bg-muted mx-2" />
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-semibold">
+                3
+              </div>
+              <span className="text-xs mt-1 text-muted-foreground">Payment</span>
+            </div>
+            <div className="flex-1 h-0.5 bg-muted mx-2" />
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-semibold">
+                4
+              </div>
+              <span className="text-xs mt-1 text-muted-foreground">Done</span>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -545,16 +578,30 @@ export const GuestCheckout = () => {
                   )}
                 </Button>
 
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <p>• Secure payment with Stripe</p>
-                  <p>• Apple Pay / Google Pay available</p>
-                  <p>• No account required</p>
-                  {Object.keys(itemsBySeller).length > 1 && (
-                    <p className="text-blue-900 font-medium">
-                      • Your card will be charged {Object.keys(itemsBySeller).length} times (one per seller)
-                    </p>
-                  )}
-                  <p>• Individual tracking for each seller</p>
+                {Object.keys(itemsBySeller).length > 1 && (
+                  <div className="text-xs text-blue-900 font-medium bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    Your card will be charged {Object.keys(itemsBySeller).length} times (one per seller) with individual tracking for each.
+                  </div>
+                )}
+
+                {/* Trust Signals */}
+                <div className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Lock className="h-4 w-4 text-green-600 flex-shrink-0" />
+                    <span className="text-muted-foreground">256-bit SSL encrypted checkout</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <ShieldCheck className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                    <span className="text-muted-foreground">Secure payment via Stripe</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <RotateCcw className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                    <span className="text-muted-foreground">30-day purchase protection</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <ShoppingCart className="h-4 w-4 text-orange-600 flex-shrink-0" />
+                    <span className="text-muted-foreground">Support local Chicago makers</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -1,0 +1,74 @@
+# Progress Tracker - Craft Chicago Finds
+# Ralph from SnarKTank Format
+# Branch: claude/critical-platform-improvements-EdAKz
+# Date: 2026-03-15
+
+## COMPLETED STORIES
+
+[PASSED] US-001 | Checkout page platform fee bug fix and trust signal improvements
+  Priority: 1 | Status: DONE
+  Notes: Hardcoded fee was a pricing accuracy bug. Now uses usePlatformFee hook.
+
+[PASSED] US-002 | Exit-intent email capture popup for landing page
+  Priority: 1 | Status: DONE
+  Notes: Lazy loaded to avoid impacting LCP. Uses existing newsletter-subscribe infrastructure.
+
+[PASSED] US-003 | Add checkout trust signals to GuestCheckout page
+  Priority: 2 | Status: DONE
+  Notes: Added 4-step checkout progress indicator (Cart > Details > Payment > Done) matching authenticated checkout. Replaced basic text trust signals with visual trust badges (SSL, Stripe, purchase protection, local makers) with colored icons.
+
+[PASSED] US-006 | Social sharing for product pages
+  Priority: 3 | Status: DONE
+  Notes: Created SocialShareDialog with Facebook, Pinterest, X sharing. Native Web Share API on mobile, dialog fallback on desktop. Copy-link + GA4 analytics tracking.
+
+[PASSED] US-007 | Empty search results improvement with recommendations
+  Priority: 3 | Status: DONE
+  Notes: Added spelling suggestions (Levenshtein distance for craft terms), popular search terms, improved category browsing, search tips. Zero-result searches already tracked via useSearchAnalytics.
+
+[PASSED] US-010 | Structured data for product pages (Schema.org Product markup)
+  Priority: 4 | Status: DONE (pre-existing)
+  Notes: Already implemented in ProductDetail.tsx with comprehensive Product schema including AggregateRating, Offers, Brand, shippingDetails.
+
+[PASSED] US-011 | Recently viewed products widget
+  Priority: 5 | Status: DONE
+  Notes: Created RecentlyViewedProducts component - horizontal scrollable carousel with React Query data fetching. Integrated into Browse and ProductDetail pages. Clear history + scroll nav.
+
+## REMAINING STORIES (for Ralph loops)
+
+[PENDING] US-004 | Cart abandonment recovery with email reminders
+  Priority: 2 | Status: NOT STARTED
+  Notes: Requires backend work - cart persistence to database, edge function for email triggers.
+
+[PENDING] US-005 | Product image zoom and gallery improvements
+  Priority: 3 | Status: NOT STARTED
+  Notes: Needs lightbox/zoom library integration. Critical for handmade goods inspection.
+
+[PENDING] US-008 | Seller onboarding email sequence
+  Priority: 4 | Status: NOT STARTED
+  Notes: Requires edge functions for scheduled emails. Critical for seller retention.
+
+[PENDING] US-009 | Admin search analytics dashboard enhancements
+  Priority: 4 | Status: NOT STARTED
+  Notes: Data collection exists, needs visualization improvements and actionable insights.
+
+[PENDING] US-012 | Mobile checkout optimization
+  Priority: 5 | Status: NOT STARTED
+  Notes: Touch targets, auto-scroll to errors, sticky bottom bar, Apple/Google Pay placement.
+
+[PENDING] US-013 | Seller performance dashboard with actionable metrics
+  Priority: 5 | Status: NOT STARTED
+  Notes: Conversion funnel analytics, response time metrics, revenue trends.
+
+[PENDING] US-014 | Cookie consent banner compliance
+  Priority: 6 | Status: NOT STARTED
+  Notes: GDPR/CCPA compliance. GA4 currently loads unconditionally.
+
+[PENDING] US-015 | Performance budget and bundle size monitoring
+  Priority: 6 | Status: NOT STARTED
+  Notes: CI pipeline bundle size checks. 47 Radix packages risk bundle bloat.
+
+## SUMMARY
+- Total stories: 15
+- Completed: 7 (including 2 pre-existing)
+- Completed this session: 4 (US-003, US-006, US-007, US-011)
+- Remaining: 8

@@ -26,6 +26,7 @@ import { AISearchOptimization } from "@/components/seo/AISearchOptimization";
 import { Card, CardContent } from "@/components/ui/card";
 import { RelatedCategories, QuickLinks } from "@/components/seo/InternalLinks";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { RecentlyViewedProducts } from "@/components/product/RecentlyViewedProducts";
 
 // Re-export types for other components
 export type { Listing, Category, FilterOptions };
@@ -445,6 +446,9 @@ const Browse = () => {
             className="mt-12"
           />
         )}
+
+        {/* Recently Viewed Products */}
+        <RecentlyViewedProducts className="mt-12" />
 
         {/* Quick Links Section for SEO */}
         <div className="mt-12 pt-8 border-t">
