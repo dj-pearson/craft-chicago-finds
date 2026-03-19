@@ -562,6 +562,18 @@ export default function Auth() {
             </a>
           </div>
 
+          {/* Coming Soon Banner */}
+          <div className="mb-6 rounded-2xl bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-950/40 dark:to-amber-950/40 border border-orange-200 dark:border-orange-800/50 p-5 text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-orange-500/10 mb-3">
+              <Sparkles className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+            </div>
+            <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-1">Coming Soon</h3>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              We're building something special for Chicago's makers and crafters.
+              Sign up for our newsletter to be notified when we launch!
+            </p>
+          </div>
+
           {/* ===== SIGN IN VIEW ===== */}
           {view === 'signin' && (
             <div className="space-y-6">

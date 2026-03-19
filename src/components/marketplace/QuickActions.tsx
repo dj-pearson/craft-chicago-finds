@@ -47,13 +47,12 @@ export function QuickActions() {
                   <p className="text-muted-foreground mb-6">
                     List your handmade crafts and reach customers in Chicago and nationally. Free to join, low commission.
                   </p>
-                  <Button 
-                    onClick={() => navigate('/auth')} 
-                    size="lg" 
-                    className="w-full gap-2"
+                  <Button
+                    disabled
+                    size="lg"
+                    className="w-full gap-2 cursor-not-allowed"
                   >
-                    Sign Up to Sell
-                    <ArrowRight className="h-4 w-4" />
+                    Coming Soon
                   </Button>
                 </div>
               </Card>
@@ -69,14 +68,13 @@ export function QuickActions() {
                   <p className="text-muted-foreground mb-6">
                     Welcome back! Sign in to manage your shop, add products, and get ready for launch.
                   </p>
-                  <Button 
-                    onClick={() => navigate('/auth')} 
-                    variant="outline" 
-                    size="lg" 
-                    className="w-full gap-2"
+                  <Button
+                    disabled
+                    variant="outline"
+                    size="lg"
+                    className="w-full gap-2 cursor-not-allowed"
                   >
-                    Seller Sign In
-                    <ArrowRight className="h-4 w-4" />
+                    Sign In Coming Soon
                   </Button>
                 </div>
               </Card>

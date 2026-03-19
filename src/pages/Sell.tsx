@@ -185,9 +185,8 @@ const Sell = () => {
                   Lower fees, same-day pickup, and a community that values local craft.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
-                    Start Selling Free
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                  <Button size="lg" className="text-lg px-8" disabled>
+                    Coming Soon
                   </Button>
                   <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => navigate("/pricing")}>
                     View Pricing
@@ -491,18 +490,11 @@ const Sell = () => {
                         Only pay when you make a sale
                       </div>
                     </div>
-                    <Button className="w-full" size="lg" onClick={handleGetStarted}>
-                      Create Your Shop
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                    <Button className="w-full" size="lg" disabled>
+                      Coming Soon
                     </Button>
                     <p className="text-xs text-center text-muted-foreground">
-                      Already have an account?{" "}
-                      <button
-                        onClick={() => navigate("/auth")}
-                        className="text-primary hover:underline"
-                      >
-                        Sign in
-                      </button>
+                      Seller accounts coming soon!
                     </p>
                   </CardContent>
                 </Card>
@@ -526,10 +518,9 @@ const Sell = () => {
                 size="lg"
                 variant="secondary"
                 className="text-lg px-8"
-                onClick={handleGetStarted}
+                disabled
               >
-                Get Started Free
-                <ArrowRight className="ml-2 h-5 w-5" />
+                Coming Soon
               </Button>
               <Button
                 size="lg"

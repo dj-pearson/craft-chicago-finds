@@ -23,8 +23,8 @@ export function UserMenu() {
 
   if (!user) {
     return (
-      <Button onClick={() => navigate('/auth')} variant="default">
-        Sign In
+      <Button variant="outline" disabled className="cursor-not-allowed opacity-70">
+        Coming Soon
       </Button>
     );
   }

@@ -111,7 +111,7 @@ export const Header = () => {
               onClick={() => navigate("/sell")}
               aria-current={location.pathname === "/sell" ? "page" : undefined}
             >
-              Sell
+              Sell (Coming Soon)
             </Button>
             <Button
               variant="ghost"
@@ -212,13 +212,13 @@ export const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button 
-                variant="default" 
+              <Button
+                variant="outline"
                 size="sm"
-                onClick={() => navigate("/auth")}
-                className="h-9 px-3 sm:px-4 text-sm font-medium"
+                disabled
+                className="h-9 px-3 sm:px-4 text-sm font-medium cursor-not-allowed opacity-70"
               >
-                Sign In
+                Coming Soon
               </Button>
             )}
 
@@ -299,7 +299,7 @@ export const Header = () => {
                 }}
                 aria-current={location.pathname === "/sell" ? "page" : undefined}
               >
-                Start Selling
+                Start Selling (Coming Soon)
               </Button>
               <Button
                 variant="ghost"

@@ -146,12 +146,9 @@ export const Footer = () => {
             <h4 className="text-lg font-semibold mb-4">Sell</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link
-                  to="/auth"
-                  className="text-background/80 hover:text-background transition-colors"
-                >
-                  Start Selling
-                </Link>
+                <span className="text-background/50 cursor-not-allowed">
+                  Start Selling (Coming Soon)
+                </span>
               </li>
               <li>
                 <Link

@@ -70,10 +70,10 @@ export const SubtleSignupPrompt = ({
               </p>
               <Button
                 size="sm"
-                onClick={() => navigate("/auth")}
-                className="h-7 px-3 text-xs"
+                disabled
+                className="h-7 px-3 text-xs cursor-not-allowed"
               >
-                {prompt.cta}
+                Coming Soon
               </Button>
             </div>
           </div>
