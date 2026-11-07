@@ -257,7 +257,7 @@
         "LAUNCH_CONFIG.LAUNCH_DATE in src/lib/launch-config.ts is the relaunch date, and ComingSoonBanner renders correctly on both sides of it (unit test with a mocked clock)",
         "hub/projects.json gets the new coolify uuids for craftlocal, and STRIPE_API_KEY_CRAFTLOCAL exists in Infisical (checked by name only), so the hub's revenue read reports a number instead of unknown"
       ],
-      "priority": 7,
+      "priority": 1.05,
       "passes": false,
       "notes": "Competitive rationale: Goimagine, a US handmade marketplace, closed on 2026-03-23; secondary coverage attributes it to insufficient buyer traffic to scale against Etsy. Relaunch lean on owned infrastructure and treat buyer traffic as the go/no-go metric (https://www.ecommercebytes.com/2026/02/24/handmade-marketplace-goimagine-to-close-in-march). The draft's '$40k/month' figure had no verifiable source and was removed. The restored abandoned-cart cron overlaps prd.json US-004; this story only re-enables the schedule. Size: XL. Success metric: checkout, sitemap and cron paths green in a smoke run, and the hub shows craftlocal healthy with revenue measured rather than unknown."
     },
@@ -274,7 +274,7 @@
         "A full refund in stripe-webhook reverses the seller transfer and refunds the application fee, as PRD.md section 13 specifies",
         "An integration test in Stripe test mode covers a two-seller cart: both connected accounts receive the right amounts, tax appears on the session, and a mid-month plan upgrade changes the rate only for later orders"
       ],
-      "priority": 8,
+      "priority": 1.1,
       "passes": false,
       "notes": "Competitive rationale: Etsy and Amazon Handmade collect marketplace tax and pay sellers reliably, so this is the floor to compete. A server-side fee source is what lets CraftLocal price under Etsy's 6.5% transaction fee on item plus shipping and Amazon Handmade's 15% referral fee, which also applies to shipping (https://www.etsy.com/legal/fees, https://sell.amazon.com/programs/handmade). Size: L. Success metric: in the first 30 days, 100% of cart orders have a Stripe transfer id per seller, $0 of payouts marked completed without a transfer, and tax collected on 100% of taxable orders."
     },
@@ -290,7 +290,7 @@
         "The storefront emits LocalBusiness or Person JSON-LD plus an ItemList of products and passes the Rich Results test",
         "FeaturedMakers.tsx, NationalFeaturedMakers.tsx, ProgrammaticSEOPage.tsx and QRShopCodes.tsx build links through one makerUrl() helper"
       ],
-      "priority": 9,
+      "priority": 1.14,
       "passes": false,
       "notes": "Competitive rationale: Etsy offers no native local pickup tool and tells sellers to arrange it in Messages (https://help.etsy.com/hc/en-in/articles/360000338067-How-to-Offer-Local-Pickup-or-Delivery). The draft's claim that Etsy 'retired its geolocator search' rests on a single aggregator page and should be confirmed before it appears in marketing copy. Size: M. Success metric: 0 maker URLs in the sitemap returning 404, and storefronts indexed for at least 80% of active makers within 60 days."
     },
@@ -306,7 +306,7 @@
         "The seller dashboard shows fees saved through referrals for the period, computed from orders",
         "A test proves a referred buyer's later purchase from a different maker is charged the standard rate"
       ],
-      "priority": 10,
+      "priority": 1.19,
       "passes": false,
       "notes": "Competitive rationale: Faire charges brands 0% commission on retailers they bring through Faire Direct (https://www.faire.com/support/articles/360034356652). Etsy's Offsite Ads charge 15% below $10k in annual sales and 12% at or above it, mandatory for life once a shop crosses $10k, capped at $100 per order (https://www.etsy.com/legal/fees, https://craftybase.com/blog/everything-you-should-know-about-etsy-offsite-ads). Size: M. Success metric: within 90 days, 30% of new buyer accounts arrive through a maker referral link and 25% of them buy from a second maker."
     },
@@ -322,7 +322,7 @@
         "Reminders go out 24h and 1h before the slot through send-order-reminders",
         "Seller analytics show pickup completion rate and no-show rate, and an integration test covers scan-release, no-show and timeout paths in Stripe test mode"
       ],
-      "priority": 11,
+      "priority": 1.24,
       "passes": false,
       "notes": "Competitive rationale: Etsy has no native local pickup (https://help.etsy.com/hc/en-in/articles/360000338067-How-to-Offer-Local-Pickup-or-Delivery) and Facebook Marketplace local pickups are paid off-platform with no purchase protection (https://litcommerce.com/blog/facebook-marketplace-fees/). Size: L. Success metric: 40% of Chicago orders choose protected pickup, completion at 95% or higher, and disputes on pickup orders under 1%."
     },
@@ -338,7 +338,7 @@
         "An organizer dashboard shows reservations, GMV and storefront visits per vendor attributed to the fair",
         "ForCraftFairs.tsx replaces static copy with a working 'Create your fair' signup that creates an organization and a draft craft_fairs row"
       ],
-      "priority": 12,
+      "priority": 1.29,
       "passes": false,
       "notes": "Competitive rationale: Eventeny sells vendor applications and booth payments to organizers (https://product.eventeny.com/product) without linking vendors' online catalogs, and online-plus-market hybrids such as Urban Makers have lasted (https://urbanmakers.co.uk/about-us/). The draft proposed new events/event_vendors tables; this version builds on the existing craft_fairs schema instead. Size: XL. Success metric: 5 Chicago organizers and 300 vendors onboarded in the first season, with 15% of fair GMV from online reservations or post-fair sales."
     },
@@ -354,7 +354,7 @@
         "Etsy API terms on importing and cross-listing are reviewed and the outcome recorded in docs/etsy-import-terms.md before the funnel is promoted",
         "Funnel events are tracked from compare view to email, signup, first imported listing and first sale"
       ],
-      "priority": 13,
+      "priority": 1.33,
       "passes": false,
       "notes": "Competitive rationale: Etsy charges a $0.20 listing fee, 6.5% on item plus shipping, and Offsite Ads of 15%/12% that become mandatory at $10k (https://www.etsy.com/legal/fees). Sellers report sales drops tied to AI-generated competition (https://www.marketplace.org/story/2026/08/14/the-ai-slopification-of-etsy). The draft's '30-50% drops' figure is anecdotal seller reporting and should not appear in public copy as a statistic. Size: M. Success metric: 150 Chicago sellers imported from Etsy in the first 90 days, 40% of them making a sale within 30 days."
     },
@@ -370,7 +370,7 @@
         "The badge is revoked automatically when expires_at passes or an upheld report finds a listing AI-generated (test covers both)",
         "The public explainer copy passes the hub voice check and claims only what was verified"
       ],
-      "priority": 14,
+      "priority": 1.38,
       "passes": false,
       "notes": "Competitive rationale: reporting in 2026 describes AI-generated listings crowding Etsy and Etsy's response as disclosure rules rather than verification (https://www.marketplace.org/story/2026/08/14/the-ai-slopification-of-etsy, https://fortune.com/2026/11/02/etsy-ai-slop-handmade-product-business/). In-person verification is something only a local marketplace can do at low cost. Size: L. Success metric: 60% of active makers verified within 6 months, and verified listings convert at least 20% better than unverified."
     },
@@ -386,7 +386,7 @@
         "Every '500+' claim in Landing.tsx (seoDescription, JSON-LD description, the maker CTA) is replaced by a live count from the database or removed until true",
         "With no ready-today listings, the page shows the nearest upcoming pickup slots instead of a blank state"
       ],
-      "priority": 15,
+      "priority": 1.43,
       "passes": false,
       "notes": "Competitive rationale: Etsy has no pickup tool (https://help.etsy.com/hc/en-in/articles/360000338067-How-to-Offer-Local-Pickup-or-Delivery); Amazon Handmade and TikTok Shop ship parcels only. Size: M. Success metric: 25% of Chicago sessions visit /chicago/today, and same-day pickup conversion reaches 1.5x the site average."
     },
@@ -402,7 +402,7 @@
         "The seller dashboard shows in-person and online sales side by side per session and per fair",
         "docs/booth-payments.md records the Stripe Terminal pricing and device requirements verified at build time"
       ],
-      "priority": 16,
+      "priority": 1.48,
       "passes": false,
       "notes": "Competitive rationale: craft-fair sellers mostly take cards through Square, and Etsy's in-person selling has relied on a Square integration rather than its own POS; neither ties booth sales to a local marketplace storefront and follow graph. Sources to attach before promotion: Stripe Terminal Tap to Pay docs and Etsy's current in-person selling help page (not verified in this review). Size: L. Success metric: 50 makers process a booth payment in the first season, and in-person GMV reaches 20% of total GMV for makers who use it."
     },
@@ -418,7 +418,7 @@
         "Each page shows real counts, nearest pickup options and verified makers (LEAP-008); no body copy comes from ai-generate-city-content",
         "Blog sitemap entries point to /:citySlug/blog/:slug"
       ],
-      "priority": 17,
+      "priority": 1.52,
       "passes": false,
       "notes": "Competitive rationale: Etsy's search is national and has no local pickup facet, so city and neighborhood category pages with same-day pickup target queries Etsy answers poorly (https://help.etsy.com/hc/en-in/articles/360000338067-How-to-Offer-Local-Pickup-or-Delivery). The draft's route /:city/:category would shadow existing /:city/* routes, so the path is namespaced. Size: L. Success metric: 0 sitemap URLs returning 404, 200 indexed gated pages, organic sessions up 3x within 6 months."
     },
@@ -434,7 +434,7 @@
         "public/llms.txt describes the catalog, the feed URL and the local-pickup capability",
         "An end-to-end test runs a query with a neighborhood and date and gets back only listings available in that window"
       ],
-      "priority": 18,
+      "priority": 1.57,
       "passes": false,
       "notes": "Competitive rationale: OpenAI launched Instant Checkout on the Agentic Commerce Protocol with Etsy as a launch partner (https://techcrunch.com/2025/09/29/openai-takes-on-google-amazon-with-new-agentic-shopping-system/), and Google has announced its Universal Commerce Protocol (https://www.pymnts.com/news/2026/google-takes-a-step-toward-owning-the-checkout-with-ucp/). The draft called the MCP server seller-focused; it already has buyer tools, so this story adds location and pickup awareness plus the feed. Size: L. Success metric: agent channel at 5% of GMV within 6 months, and CraftLocal cited in at least 3 of 10 tracked local-handmade agent queries."
     },
@@ -450,7 +450,7 @@
         "A disconnect action revokes and deletes the stored token, tested",
         "docs/instagram-import.md records the Meta API permissions, review requirements and rate limits verified at build time"
       ],
-      "priority": 19,
+      "priority": 1.62,
       "passes": false,
       "notes": "Competitive rationale: Meta wound down native checkout in Instagram and Facebook Shops for US sellers, leaving makers who sell on Instagram to take orders by DM. Etsy offers no Instagram import. Source to attach before promotion: Meta's announcement ending Shops checkout (from model memory, not verified in this review). Size: L. Success metric: 40% of new Chicago sellers connect Instagram in onboarding, and 20% of their orders arrive through the bio link."
     },
@@ -466,7 +466,7 @@
         "SocialShareDialog.tsx appends a share referral parameter, and orders record share_referrer_id",
         "Analytics report follow-to-purchase rate and digest click-through"
       ],
-      "priority": 20,
+      "priority": 1.67,
       "passes": false,
       "notes": "Competitive rationale: Etsy's own reporting points to weak buyer purchase frequency (https://www.pymnts.com/earnings/2026/etsy-bets-on-ai-to-attract-the-shoppers-its-been-losing/); a follow-driven local weekend habit is a retention loop a national marketplace can't run. The draft's livestream criterion was dropped: maker_livestreams already exists in 20251015205011_*.sql, so the claim was wrong and the item was unrelated polish. Size: M. Success metric: 90-day repeat purchase rate at 30%, digest click-through at 8% or higher."
     },
@@ -482,7 +482,7 @@
         "Retailers can opt in as pickup_locations for LEAP-005",
         "A reorder button rebuilds a past order with current pricing and stock"
       ],
-      "priority": 21,
+      "priority": 1.71,
       "passes": false,
       "notes": "Competitive rationale: Faire charges brands commission on first orders with new retailers and 0% on retailers brought through Faire Direct (https://www.faire.com/support/articles/360040446591, https://www.faire.com/support/articles/360034356652). Confirm Faire's current rate and new-customer fee on its support page before quoting figures publicly. Size: L. Success metric: 40 Chicago retailers buying wholesale and $50k annualized wholesale GMV within 9 months."
     },
@@ -498,7 +498,7 @@
         "Concierge results respect the 'Verified makers only' preference (LEAP-008)",
         "Gift orders accept a gift note and hide prices on the packing slip"
       ],
-      "priority": 22,
+      "priority": 1.76,
       "passes": false,
       "notes": "Competitive rationale: Etsy is putting AI into gift discovery but has no local timing to offer (https://www.pymnts.com/earnings/2026/etsy-bets-on-ai-to-attract-the-shoppers-its-been-losing/). Size: M. Success metric: 10% of Q4 GMV through concierge or registries, and 1 new buyer for every 3 registries shared."
     },
@@ -514,7 +514,7 @@
         "Click deduplication per session excludes the seller's own clicks (tested)",
         "Sellers see ROAS per campaign from orders attributed within 7 days of a click"
       ],
-      "priority": 23,
+      "priority": 1.81,
       "passes": false,
       "notes": "Competitive rationale: Etsy's Offsite Ads charge 15% for shops under $10k in annual sales (which may opt out) and 12% for shops at or above $10k, which cannot (https://www.etsy.com/legal/fees, https://craftybase.com/blog/everything-you-should-know-about-etsy-offsite-ads). The draft said '12-15% on shops over $10k', which misstated the tiers. Size: L. Success metric: 15% of active sellers run a campaign and ad revenue reaches 2% of GMV within 6 months."
     },
@@ -530,7 +530,7 @@
         "Makers receive a purchase order and confirm capacity before the order is accepted",
         "Repeat ordering duplicates last season's box with updated availability"
       ],
-      "priority": 24,
+      "priority": 1.86,
       "passes": false,
       "notes": "Competitive rationale: Etsy's gifting push is consumer-only (https://www.pymnts.com/earnings/2026/etsy-bets-on-ai-to-attract-the-shoppers-its-been-losing/), and a local B2B channel competes for 'buy local' budgets. Size: L. Success metric: 10 corporate accounts and $25k corporate GMV in the first Q4."
     },
@@ -546,7 +546,7 @@
         "Each commission gets a thread reusing custom_order_chats and custom_order_messages",
         "Disputes route to the existing resolve-dispute flow"
       ],
-      "priority": 25,
+      "priority": 1.9,
       "passes": false,
       "notes": "Competitive rationale: Etsy handles custom orders through Messages with no structured request or matching (https://help.etsy.com/hc/en-in/articles/360000338067-How-to-Offer-Local-Pickup-or-Delivery is Etsy's pickup page; the custom-order claim rests on Etsy's Messages-based workflow and should get its own source). Size: L. Success metric: 100 commission requests and a 30% quote-acceptance rate in 6 months, with order value at 3x the catalog average."
     },
@@ -562,7 +562,7 @@
         "Courier cancel and buyer-not-home fall back to pickup or refund under rules shown at checkout",
         "Analytics track delivery attach rate and on-time rate"
       ],
-      "priority": 26,
+      "priority": 1.95,
       "passes": false,
       "notes": "Competitive rationale: Amazon Handmade's 15% referral fee and Etsy's 6.5% transaction fee both apply to shipping (https://sell.amazon.com/programs/handmade, https://www.etsy.com/legal/fees); CraftLocal can exclude delivery from commission and offer same-day. Courier API pricing and coverage must be confirmed before build. Size: L. Success metric: 15% of non-pickup Chicago orders choose same-day delivery, with 95% or better on time."
     }
