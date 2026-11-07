@@ -243,6 +243,328 @@
       "priority": 6,
       "passes": false,
       "notes": "Vite config has manual chunking but no automated size enforcement. 47 Radix packages + framer-motion risk bundle bloat."
+    },
+    {
+      "id": "LEAP-001",
+      "title": "Relaunch CraftLocal's hosting stack and turn its scheduled jobs back on",
+      "description": "As the operator, I need CraftLocal (craftlocal.net) running again on a new self-hosted Supabase stack and a new edge-functions app at functions.craftlocal.net. Its Coolify service was deleted in 2026, so every call to functions.craftlocal.net fails: checkout, newsletter signup, Etsy import, and the sitemap routes that public/_redirects proxies there. No competitive move below can earn a dollar until this ships. The relaunch also clears out what would quietly break a fresh launch: cron jobs left commented out, ai-generate-city-content still calling the Lovable AI gateway, placeholder Stripe price ids ('price_pro_monthly', 'price_premium_monthly') in subscription_plans, and LAUNCH_DATE set to 2024-11-01 in src/lib/launch-config.ts.",
+      "acceptanceCriteria": [
+        "docs/relaunch.md records the data-source decision (restore the last craftlocal dump under /opt/backups/dumps/craftlocal, which the hub marks retired-stack, or start empty) and all 106 files under supabase/migrations apply cleanly to the new stack",
+        "functions.craftlocal.net serves the edge functions, and the /api/sitemap/*, /api/ai-generate-content/* and /api/optimize-image/* rules in public/_redirects return 2xx in a smoke run",
+        "Every commented-out cron.schedule call (send-abandoned-cart-reminders in 20251015210750_*.sql, auto-return-vacation in 20251110000001_add_vacation_mode.sql, low-stock-alerts in 20251110000002_add_low_stock_alerts.sql, and the others found by grep) is restored in a new migration and visible in cron.job",
+        "supabase/functions/ai-generate-city-content no longer calls ai.gateway.lovable.dev and uses the same Anthropic key path as ai-generate-content",
+        "subscription_plans.stripe_price_id holds real Stripe price ids; a SQL check finds no value matching 'price_%_monthly'",
+        "LAUNCH_CONFIG.LAUNCH_DATE in src/lib/launch-config.ts is the relaunch date, and ComingSoonBanner renders correctly on both sides of it (unit test with a mocked clock)",
+        "hub/projects.json gets the new coolify uuids for craftlocal, and STRIPE_API_KEY_CRAFTLOCAL exists in Infisical (checked by name only), so the hub's revenue read reports a number instead of unknown"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "Competitive rationale: Goimagine, a US handmade marketplace, closed on 2026-03-23; secondary coverage attributes it to insufficient buyer traffic to scale against Etsy. Relaunch lean on owned infrastructure and treat buyer traffic as the go/no-go metric (https://www.ecommercebytes.com/2026/02/24/handmade-marketplace-goimagine-to-close-in-march). The draft's '$40k/month' figure had no verifiable source and was removed. The restored abandoned-cart cron overlaps prd.json US-004; this story only re-enables the schedule. Size: XL. Success metric: checkout, sitemap and cron paths green in a smoke run, and the hub shows craftlocal healthy with revenue measured rather than unknown."
+    },
+    {
+      "id": "LEAP-002",
+      "title": "Pay sellers for real: split payouts on multi-seller carts, Stripe Tax, and one server-side fee source",
+      "description": "As a seller, I need cart orders to move my share to my Stripe Connect account. As the business, I need sales tax collected as a marketplace facilitator in Illinois and every expansion state. Today only create-checkout-session and create-payment-intent set transfer_data; create-cart-checkout and create-guest-checkout charge the platform account and nothing transfers the money later (no stripe.transfers.create exists, and stripe-webhook has no transfer or refund handling). process-commission-payout writes payout_status 'completed' on the assumption that 'Stripe handles it'. No checkout sets automatic_tax. PLATFORM_FEE_RATE = 0.1 is hardcoded in create-cart-checkout, create-checkout-session, create-payment-intent and validate-payment, so platform_fee_config is ignored. Fixing this makes fees programmable, which the referral, plan and promotional offers below depend on.",
+      "acceptanceCriteria": [
+        "create-cart-checkout and create-guest-checkout set a transfer_group per order, and stripe-webhook creates one stripe.transfers.create per seller on payment success for that seller's line items minus their fee",
+        "process-commission-payout stores the Stripe transfer id and writes 'completed' only when one exists; a payout without one stays 'pending' with a reason",
+        "create-checkout-session, create-cart-checkout, create-guest-checkout, create-express-checkout and create-payment-intent enable Stripe automatic_tax, and the tax amount is stored on orders",
+        "supabase/functions/_shared/fee.ts resolves the fee from platform_fee_config by seller, category, priority and validity window; every checkout function and validate-payment use it, and grep finds no PLATFORM_FEE_RATE = 0.1 left in supabase/functions",
+        "create-subscription, cancel-subscription and the subscription events in stripe-webhook write or expire a seller-scoped platform_fee_config row at the plan's rate (folded in from the replaced plan story, since PRD.md 6.9 already plans the tiers)",
+        "A full refund in stripe-webhook reverses the seller transfer and refunds the application fee, as PRD.md section 13 specifies",
+        "An integration test in Stripe test mode covers a two-seller cart: both connected accounts receive the right amounts, tax appears on the session, and a mid-month plan upgrade changes the rate only for later orders"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "Competitive rationale: Etsy and Amazon Handmade collect marketplace tax and pay sellers reliably, so this is the floor to compete. A server-side fee source is what lets CraftLocal price under Etsy's 6.5% transaction fee on item plus shipping and Amazon Handmade's 15% referral fee, which also applies to shipping (https://www.etsy.com/legal/fees, https://sell.amazon.com/programs/handmade). Size: L. Success metric: in the first 30 days, 100% of cart orders have a Stripe transfer id per seller, $0 of payouts marked completed without a transfer, and tax collected on 100% of taxable orders."
+    },
+    {
+      "id": "LEAP-003",
+      "title": "Public maker storefronts at /:city/makers/:slug, with every broken link shape redirected",
+      "description": "As a buyer, I want a public shop page for each Chicago maker that I can find by searching '<maker name> chicago'. As a maker, I want one URL for my Instagram bio and booth sign. src/App.tsx has no seller route at all (only /featured-makers), yet FeaturedMakers, NationalFeaturedMakers, ProgrammaticSEOPage and QRShopCodes link to /seller/:id, /:city/sellers/:id, /profile/:id and /shop/:id, all of which hit NotFound, as does every URL functions/sitemap-makers.xml.ts emits. FollowShopButton.tsx writes to shop_follows but is imported by nothing. Storefronts are the page type Etsy shops rank for, and CraftLocal can add the local layer: neighborhood, pickup today, and the next market the maker attends.",
+      "acceptanceCriteria": [
+        "src/App.tsx adds a public route /:city/makers/:slug rendering bio, live listings, FollowShopButton, neighborhood, pickup options and upcoming craft_fairs appearances from fair_participants",
+        "A slug column, unique per city, is added to the seller profile with a migration that backfills existing sellers",
+        "/seller/:id, /:city/sellers/:id, /profile/:id and /shop/:id return 301 to the canonical storefront with query strings such as utm_source preserved",
+        "functions/sitemap-makers.xml.ts emits only canonical storefront URLs, and a test asserts each emitted URL pattern matches a route in App.tsx",
+        "The storefront emits LocalBusiness or Person JSON-LD plus an ItemList of products and passes the Rich Results test",
+        "FeaturedMakers.tsx, NationalFeaturedMakers.tsx, ProgrammaticSEOPage.tsx and QRShopCodes.tsx build links through one makerUrl() helper"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "Competitive rationale: Etsy offers no native local pickup tool and tells sellers to arrange it in Messages (https://help.etsy.com/hc/en-in/articles/360000338067-How-to-Offer-Local-Pickup-or-Delivery). The draft's claim that Etsy 'retired its geolocator search' rests on a single aggregator page and should be confirmed before it appears in marketing copy. Size: M. Success metric: 0 maker URLs in the sitemap returning 404, and storefronts indexed for at least 80% of active makers within 60 days."
+    },
+    {
+      "id": "LEAP-004",
+      "title": "Maker-referred sales at 0% commission, with persisted and attributed QR codes",
+      "description": "As a maker, I want buyers I bring myself (storefront link, Instagram, booth QR code) to cost me 0% platform fee. As the business, I want those buyers to stay and pay the normal rate when they buy from other makers. This is Faire Direct applied to local retail, and it turns every maker into CraftLocal's sales force, the opposite of Etsy's Offsite Ads, which charge sellers for traffic Etsy attributes to itself. Today QRShopCodes.tsx builds codes on the client from mock data, saves nothing and is mounted nowhere, so no scan can be attributed.",
+      "acceptanceCriteria": [
+        "New tables seller_referral_links (id, seller_id, channel, code, created_at) and referral_scans, with RLS limiting reads to the owning seller",
+        "QRShopCodes.tsx is mounted in the seller dashboard, creates and lists codes from the database instead of mock data, and shows scans and attributed orders per code",
+        "A visit through a referral code sets a 30-day referred_by_seller cookie, and checkout writes referral_seller_id onto orders",
+        "The LEAP-002 fee resolver returns 0% (or the configured referral rate) for the referring seller's line items on a referred order and the normal rate for other sellers' items in the same cart",
+        "The seller dashboard shows fees saved through referrals for the period, computed from orders",
+        "A test proves a referred buyer's later purchase from a different maker is charged the standard rate"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "Competitive rationale: Faire charges brands 0% commission on retailers they bring through Faire Direct (https://www.faire.com/support/articles/360034356652). Etsy's Offsite Ads charge 15% below $10k in annual sales and 12% at or above it, mandatory for life once a shop crosses $10k, capped at $100 per order (https://www.etsy.com/legal/fees, https://craftybase.com/blog/everything-you-should-know-about-etsy-offsite-ads). Size: M. Success metric: within 90 days, 30% of new buyer accounts arrive through a maker referral link and 25% of them buy from a second maker."
+    },
+    {
+      "id": "LEAP-005",
+      "title": "Protected local pickup: pay online, funds released on a QR scan at handoff",
+      "description": "As a buyer meeting a maker in person, I want to pay online and have the money released only when I scan the maker's pickup code. As a maker, I want no-shows to forfeit. Etsy has no pickup tool and Facebook Marketplace pickups carry no payment protection. CraftLocal already has pickup_slots and pickup_appointments, PickupScheduler, PickupSlotManager and PickupConfirmation (where the seller flips status by hand), plus process-escrow-payment (capture_method manual) and release-escrow-payment, but nothing in src calls either escrow function. Connecting them at the handoff is the trust product neither incumbent offers.",
+      "acceptanceCriteria": [
+        "Checkout for a pickup order calls process-escrow-payment, and the pickup_appointments row gets a one-time pickup token",
+        "The buyer's order page shows the pickup QR code; the maker's scan in PickupConfirmation.tsx calls release-escrow-payment and moves the order to 'picked_up', replacing the manual status button",
+        "A new pickup_locations table (address, hours, type such as cafe or shop) lets PickupSlotManager publish slots at named partner pickup points",
+        "An unscanned order auto-releases or auto-refunds after a configurable window by cron, and the rule is shown to both parties at checkout",
+        "Reminders go out 24h and 1h before the slot through send-order-reminders",
+        "Seller analytics show pickup completion rate and no-show rate, and an integration test covers scan-release, no-show and timeout paths in Stripe test mode"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "Competitive rationale: Etsy has no native local pickup (https://help.etsy.com/hc/en-in/articles/360000338067-How-to-Offer-Local-Pickup-or-Delivery) and Facebook Marketplace local pickups are paid off-platform with no purchase protection (https://litcommerce.com/blog/facebook-marketplace-fees/). Size: L. Success metric: 40% of Chicago orders choose protected pickup, completion at 95% or higher, and disputes on pickup orders under 1%."
+    },
+    {
+      "id": "LEAP-006",
+      "title": "Craft fair organizer platform on the existing craft_fairs schema: event pages, vendor rosters, reserve online and pick up at the booth",
+      "description": "As a Chicago market organizer, I want an event page listing every vendor with a link to their live CraftLocal storefront, letting shoppers reserve items for booth pickup, and selling after the fair ends. Each organizer onboards 30-200 vendors at once and brings foot traffic, which addresses the buyer-side cold start that sank Goimagine. The schema is half there: craft_fairs (organizer_name and organizer_contact as free text), fair_participants, market_mode_sessions and market_reservations exist and useMarketMode reads them, but there is no organizer account, no public fair route, and ForCraftFairs.tsx is static copy. Eventeny and ArtCall handle vendor applications and booth fees; neither connects vendors' online inventory.",
+      "acceptanceCriteria": [
+        "An organizer role and an organizations table are added, craft_fairs gains organization_id, and RLS lets organizers manage only their own fairs and fair_participants",
+        "Public route /:city/fairs/:slug (using craft_fairs.slug) shows dates, venue, the vendor list linked to LEAP-003 storefronts, and a 'reserve for booth pickup' action that writes market_reservations and holds payment through the LEAP-005 escrow path",
+        "A seller's market_mode_sessions row is tied to a specific fair, and booth sales and reservations decrement the same listing inventory (test covers a concurrent online reservation and booth sale of the last unit)",
+        "After end_date the page switches to 'Missed it? Shop these vendors' and stays indexable with Event JSON-LD",
+        "An organizer dashboard shows reservations, GMV and storefront visits per vendor attributed to the fair",
+        "ForCraftFairs.tsx replaces static copy with a working 'Create your fair' signup that creates an organization and a draft craft_fairs row"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "Competitive rationale: Eventeny sells vendor applications and booth payments to organizers (https://product.eventeny.com/product) without linking vendors' online catalogs, and online-plus-market hybrids such as Urban Makers have lasted (https://urbanmakers.co.uk/about-us/). The draft proposed new events/event_vendors tables; this version builds on the existing craft_fairs schema instead. Size: XL. Success metric: 5 Chicago organizers and 300 vendors onboarded in the first season, with 15% of fair GMV from online reservations or post-fair sales."
+    },
+    {
+      "id": "LEAP-007",
+      "title": "Etsy switching wedge: fee comparison, Etsy import in onboarding, and a 90-day introductory rate",
+      "description": "As an Etsy seller squeezed by Offsite Ads and falling sales, I want to see what I paid Etsy last year against what I'd pay on CraftLocal, then import my shop in minutes at a reduced rate for 90 days. Supply is the binding constraint for a relaunch. import-etsy-listings and EtsyImporter.tsx already pull active listings from Etsy's v3 API (PRD.md roadmap Phase 3 planned the CSV import), but EtsyImporter sits only inside SellerDashboard and nothing points a prospective seller at it. This story is the acquisition funnel around that existing import, not the import itself.",
+      "acceptanceCriteria": [
+        "/tools/pricing-calculator adds an Etsy comparison mode (listing fee, 6.5% on item plus shipping, payment processing, Offsite Ads at 15% or 12% by annual sales with the $100 cap) beside CraftLocal's fee from the LEAP-002 resolver, with sources and an as-of date on the page",
+        "pricing/EmailCaptureModal.tsx records source='etsy_compare'",
+        "SellerActivationWizard.tsx offers Etsy import as a step with progress, per-listing review and a required original-photo confirmation (LEAP-008)",
+        "An imported seller gets a time-boxed platform_fee_config row (for example 5% for 90 days) created automatically, with the expiry shown on their dashboard",
+        "Etsy API terms on importing and cross-listing are reviewed and the outcome recorded in docs/etsy-import-terms.md before the funnel is promoted",
+        "Funnel events are tracked from compare view to email, signup, first imported listing and first sale"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": "Competitive rationale: Etsy charges a $0.20 listing fee, 6.5% on item plus shipping, and Offsite Ads of 15%/12% that become mandatory at $10k (https://www.etsy.com/legal/fees). Sellers report sales drops tied to AI-generated competition (https://www.marketplace.org/story/2026/08/14/the-ai-slopification-of-etsy). The draft's '30-50% drops' figure is anecdotal seller reporting and should not appear in public copy as a statistic. Size: M. Success metric: 150 Chicago sellers imported from Etsy in the first 90 days, 40% of them making a sale within 30 days."
+    },
+    {
+      "id": "LEAP-008",
+      "title": "Verified Human Maker certification, built on seller_verifications and enforced at listing time",
+      "description": "As a buyer tired of AI-generated listings elsewhere, I want a badge proving a real Chicago maker made this item, backed by evidence rather than a checkbox. As a maker, I want that badge to set me apart. CraftLocal can verify in person because it is local: a studio video check-in, a meeting at a partner market, a studio visit. seller_verifications already exists for INFORM Consumers Act identity checks (verification_type limited to identity, phone, email, address, with Stripe Identity fields), so maker verification extends it rather than adding a parallel table. moderate-listing exists and does not look at image provenance.",
+      "acceptanceCriteria": [
+        "A migration extends seller_verifications.verification_type with studio_video, market_meet and studio_visit and adds verifier_id and expires_at; an admin review queue for these types lives in the existing admin area",
+        "Listing creation requires at least one original photo; the upload path keeps EXIF, reads C2PA content credentials where present, and moderate-listing flags images whose provenance is missing or suspect for admin review",
+        "Verified makers show a 'Verified Chicago Maker' badge on listings, storefronts and search results, linking to a public page that states exactly what was checked",
+        "Search and browse get a 'Verified makers only' filter wired through the listing search query and chatgpt-search-listings",
+        "The badge is revoked automatically when expires_at passes or an upheld report finds a listing AI-generated (test covers both)",
+        "The public explainer copy passes the hub voice check and claims only what was verified"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": "Competitive rationale: reporting in 2026 describes AI-generated listings crowding Etsy and Etsy's response as disclosure rules rather than verification (https://www.marketplace.org/story/2026/08/14/the-ai-slopification-of-etsy, https://fortune.com/2026/11/02/etsy-ai-slop-handmade-product-business/). In-person verification is something only a local marketplace can do at low cost. Size: L. Success metric: 60% of active makers verified within 6 months, and verified listings convert at least 20% better than unverified."
+    },
+    {
+      "id": "LEAP-009",
+      "title": "'Ready today near me': live local inventory by distance and neighborhood",
+      "description": "As a Chicago buyer, I want to see handmade items I can pick up today within a few miles, sorted by distance and pickup slot. Same-day local is what Etsy, Amazon Handmade and TikTok Shop can't offer. The pieces exist (the available_today flag, neighborhood fields, ReadyTodaySettings.tsx, pickup_slots) but no route or query uses them together, and Landing.tsx promises 'Same-day pickup from 500+ makers' in its SEO description, JSON-LD and body copy with nothing measuring it.",
+      "acceptanceCriteria": [
+        "New route /:city/today, linked from the City page and navigation",
+        "An RPC filters listings by available_today, the seller's pickup_slots for today and distance from the buyer's location or a chosen neighborhood, using PostGIS or a lat/lng index on pickup locations (new migration; no geo column exists today)",
+        "ReadyTodaySettings.tsx updates availability immediately and a cron clears available_today at end of day",
+        "Results show distance, neighborhood, the next pickup slot and the protected-pickup badge (LEAP-005)",
+        "Every '500+' claim in Landing.tsx (seoDescription, JSON-LD description, the maker CTA) is replaced by a live count from the database or removed until true",
+        "With no ready-today listings, the page shows the nearest upcoming pickup slots instead of a blank state"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": "Competitive rationale: Etsy has no pickup tool (https://help.etsy.com/hc/en-in/articles/360000338067-How-to-Offer-Local-Pickup-or-Delivery); Amazon Handmade and TikTok Shop ship parcels only. Size: M. Success metric: 25% of Chicago sessions visit /chicago/today, and same-day pickup conversion reaches 1.5x the site average."
+    },
+    {
+      "id": "LEAP-010",
+      "title": "Booth checkout: Tap to Pay in Market Mode, one inventory for online and in-person sales",
+      "description": "As a maker selling at a Chicago fair, I want to take card payments on my phone inside CraftLocal's Market Mode so a booth sale decrements the same inventory as my online listings and counts toward my storefront's sales history. As the business, I want offline GMV on CraftLocal's rails: today a maker's booth sales run through Square or cash and CraftLocal never sees them. MarketModeManager.tsx and market_mode_sessions exist but record no payment, and the mobile/ app has no payment path. Owning booth payments makes CraftLocal the system of record for a maker's whole business, which online-only marketplaces are not. Replaces the draft's tiered take-rate story, already planned in PRD.md 6.9 and folded into LEAP-002.",
+      "acceptanceCriteria": [
+        "A create-terminal-payment edge function creates Stripe Terminal PaymentIntents on the seller's connected account with the LEAP-002 fee resolver supplying the in-person rate",
+        "The mobile app adds Tap to Pay (Stripe Terminal SDK) inside Market Mode, tied to the open market_mode_sessions row",
+        "A completed booth payment writes an order with channel='in_person', decrements listing inventory in the same transaction as online orders, and a test covers the last unit selling at the booth while it sits in an online cart",
+        "Booth buyers can enter an email for a receipt, which also offers to follow the shop (shop_follows) and is recorded as a LEAP-004 referral for that maker",
+        "The seller dashboard shows in-person and online sales side by side per session and per fair",
+        "docs/booth-payments.md records the Stripe Terminal pricing and device requirements verified at build time"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": "Competitive rationale: craft-fair sellers mostly take cards through Square, and Etsy's in-person selling has relied on a Square integration rather than its own POS; neither ties booth sales to a local marketplace storefront and follow graph. Sources to attach before promotion: Stripe Terminal Tap to Pay docs and Etsy's current in-person selling help page (not verified in this review). Size: L. Success metric: 50 makers process a booth payment in the first season, and in-person GMV reaches 20% of total GMV for makers who use it."
+    },
+    {
+      "id": "LEAP-011",
+      "title": "Inventory-gated city x category x neighborhood pages, prerendered",
+      "description": "As a Chicago shopper searching 'handmade ceramics Logan Square' or 'Chicago candle makers', I want a real page of local makers and items in stock. As the business, I want organic traffic that scales with inventory rather than with AI filler. ProgrammaticSEOPage.tsx is imported by nothing, and the sitemaps advertise category and blog URLs with no matching route (blog articles live at /:citySlug/blog/:slug).",
+      "acceptanceCriteria": [
+        "Routes /:city/c/:category and /:city/:neighborhood/:category render ProgrammaticSEOPage.tsx from live listings and maker data, without colliding with the existing /:city/browse and /:city/product/:id routes",
+        "A page is indexable only with at least N live listings (configurable, default 6); below that it renders noindex and is left out of the sitemap",
+        "generate-sitemap and functions/sitemap*.xml.ts build URL sets from the database using the same gate, and a test asserts every emitted URL pattern matches an App.tsx route",
+        "Category pages are prerendered to static HTML at build or on a schedule so crawlers get full content without JavaScript",
+        "Each page shows real counts, nearest pickup options and verified makers (LEAP-008); no body copy comes from ai-generate-city-content",
+        "Blog sitemap entries point to /:citySlug/blog/:slug"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": "Competitive rationale: Etsy's search is national and has no local pickup facet, so city and neighborhood category pages with same-day pickup target queries Etsy answers poorly (https://help.etsy.com/hc/en-in/articles/360000338067-How-to-Offer-Local-Pickup-or-Delivery). The draft's route /:city/:category would shadow existing /:city/* routes, so the path is namespaced. Size: L. Success metric: 0 sitemap URLs returning 404, 200 indexed gated pages, organic sessions up 3x within 6 months."
+    },
+    {
+      "id": "LEAP-012",
+      "title": "Agent-ready commerce: product feed and local-pickup tools for AI shopping agents",
+      "description": "As a shopper asking ChatGPT or Gemini for 'a handmade gift in Logan Square I can pick up Saturday', I want CraftLocal inventory in the answer and checkout in the chat. As the business, I want CraftLocal cited by AI shopping agents before makers reach them separately through Shopify. chatgpt-integration/mcp-server already exposes buyer tools (search_listings, get_listing, create_checkout, complete_checkout) and seller tools, backed by the chatgpt-* edge functions, but search has no location, date or pickup awareness and there is no public product feed.",
+      "acceptanceCriteria": [
+        "A feed endpoint (functions.craftlocal.net/feeds/products) publishes active listings in the Agentic Commerce Protocol product feed format, including price, availability, maker, neighborhood, pickup slots and verification status, validated against the published spec",
+        "search_listings in the MCP server and chatgpt-search-listings accept a location radius, neighborhood and pickup date and return only listings with a matching pickup slot",
+        "create_checkout routes through the LEAP-002 fee and tax path and supports LEAP-005 protected pickup",
+        "Agent-originated orders carry channel='agent' and are reported separately in admin analytics",
+        "public/llms.txt describes the catalog, the feed URL and the local-pickup capability",
+        "An end-to-end test runs a query with a neighborhood and date and gets back only listings available in that window"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": "Competitive rationale: OpenAI launched Instant Checkout on the Agentic Commerce Protocol with Etsy as a launch partner (https://techcrunch.com/2025/09/29/openai-takes-on-google-amazon-with-new-agentic-shopping-system/), and Google has announced its Universal Commerce Protocol (https://www.pymnts.com/news/2026/google-takes-a-step-toward-owning-the-checkout-with-ucp/). The draft called the MCP server seller-focused; it already has buyer tools, so this story adds location and pickup awareness plus the feed. Size: L. Success metric: agent channel at 5% of GMV within 6 months, and CraftLocal cited in at least 3 of 10 tracked local-handmade agent queries."
+    },
+    {
+      "id": "LEAP-013",
+      "title": "Instagram to CraftLocal: connect an account, turn posts into listings, sell from the bio link",
+      "description": "As a Chicago maker who sells mostly through Instagram posts and DMs, I want to connect my account, turn posts into draft listings in a few taps, and put my CraftLocal storefront in my bio so followers can buy, reserve or pick up without a DM back-and-forth. As the business, Instagram is where local makers' audiences already are, and every follower who checks out through the bio link is a LEAP-004 referral that stays on CraftLocal. Nothing in the repo connects to Instagram today; import-etsy-listings is the only importer. Replaces the draft's Craft Index story: ChicagoCraftIndex.tsx already renders from useChicagoCraftIndexData (live queries on cities, profiles, listings, orders), so what remained was embeds and a press page, which is polish.",
+      "acceptanceCriteria": [
+        "An instagram-connect edge function completes OAuth with the Instagram API for professional accounts and stores the token server-side only, never returned to the client",
+        "An import-instagram-posts function lists recent media, and a review screen in SellerActivationWizard.tsx and the dashboard turns a selected post into a draft listing (images, caption as description, price and quantity required before publish)",
+        "Imported images go through the LEAP-008 original-photo and provenance checks",
+        "The seller gets a bio link (the LEAP-003 storefront with a LEAP-004 referral code for channel 'instagram') and a scan/click count",
+        "A disconnect action revokes and deletes the stored token, tested",
+        "docs/instagram-import.md records the Meta API permissions, review requirements and rate limits verified at build time"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": "Competitive rationale: Meta wound down native checkout in Instagram and Facebook Shops for US sellers, leaving makers who sell on Instagram to take orders by DM. Etsy offers no Instagram import. Source to attach before promotion: Meta's announcement ending Shops checkout (from model memory, not verified in this review). Size: L. Success metric: 40% of new Chicago sellers connect Instagram in onboarding, and 20% of their orders arrive through the bio link."
+    },
+    {
+      "id": "LEAP-014",
+      "title": "Follow and drop loop: 'new from makers you follow' alerts and a 'ready this weekend' digest",
+      "description": "As a buyer who follows makers, I want an alert when they drop new work and a weekly digest of what's ready near me this weekend. As the business, follows should become repeat visits and shares should be measurable referrals. shop_follows exists but FollowShopButton.tsx is mounted nowhere, send-email-digest exists but reads no follows, and SocialShareDialog.tsx share URLs carry no attribution. This is separate from prd.json US-004 cart abandonment.",
+      "acceptanceCriteria": [
+        "FollowShopButton.tsx is mounted on LEAP-003 storefronts and on ProductDetail",
+        "A trigger on listing publish enqueues a 'new drop' notification for the seller's followers (email plus PWA push), rate-limited per buyer per day",
+        "send-email-digest builds a weekly 'ready this weekend near you' digest from followed makers and LEAP-009 availability, scheduled by cron",
+        "Buyers set per-maker notification preferences, and one-click unsubscribe works without login (tested)",
+        "SocialShareDialog.tsx appends a share referral parameter, and orders record share_referrer_id",
+        "Analytics report follow-to-purchase rate and digest click-through"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": "Competitive rationale: Etsy's own reporting points to weak buyer purchase frequency (https://www.pymnts.com/earnings/2026/etsy-bets-on-ai-to-attract-the-shoppers-its-been-losing/); a follow-driven local weekend habit is a retention loop a national marketplace can't run. The draft's livestream criterion was dropped: maker_livestreams already exists in 20251015205011_*.sql, so the claim was wrong and the item was unrelated polish. Size: M. Success metric: 90-day repeat purchase rate at 30%, digest click-through at 8% or higher."
+    },
+    {
+      "id": "LEAP-015",
+      "title": "Local wholesale: Chicago boutiques buy from Chicago makers on net terms",
+      "description": "As a Chicago boutique or cafe owner, I want to order wholesale from local makers with net-30 terms and minimums, and reorder easily. As a maker, I want boutiques I bring in to cost me nothing in commission. Faire pulls established makers toward boutiques; a local wholesale channel keeps those makers, and the 'buy local' story, on CraftLocal, and turns partner shops into LEAP-005 pickup points. Wholesale appears only as a brainstorm bullet in features.md; nothing is built.",
+      "acceptanceCriteria": [
+        "Sellers set wholesale price, minimum quantity and case pack per listing (new wholesale_pricing table with seller-owned RLS)",
+        "Retailer accounts go through a business verification flow with admin approval before they see wholesale prices on storefronts and a /wholesale catalog",
+        "Wholesale checkout supports Stripe invoicing with net-30 and per-seller transfers through the LEAP-002 path",
+        "Retailers a maker invites pay 0% platform fee on that maker's wholesale orders through the LEAP-004 referral mechanism; others pay the configured wholesale rate",
+        "Retailers can opt in as pickup_locations for LEAP-005",
+        "A reorder button rebuilds a past order with current pricing and stock"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": "Competitive rationale: Faire charges brands commission on first orders with new retailers and 0% on retailers brought through Faire Direct (https://www.faire.com/support/articles/360040446591, https://www.faire.com/support/articles/360034356652). Confirm Faire's current rate and new-customer fee on its support page before quoting figures publicly. Size: L. Success metric: 40 Chicago retailers buying wholesale and $50k annualized wholesale GMV within 9 months."
+    },
+    {
+      "id": "LEAP-016",
+      "title": "AI local gift concierge and shareable gift registries on shared_wishlists",
+      "description": "As someone shopping for a gift, I want to describe the person, budget and date and get suggestions only from Chicago makers I can pick up from or have delivered in time. I also want a shareable registry for a wedding or a move. The registry schema already exists (shared_wishlists with slug and share_token, wishlist_items, wishlist_contributors) and ShareWishlistDialog.tsx exists, but the dialog is mounted nowhere and no route renders a shared list.",
+      "acceptanceCriteria": [
+        "/:city/gifts takes recipient, budget, occasion and deadline and returns listings filtered by real availability and pickup or delivery timing",
+        "The concierge uses an Anthropic model whose only tool is CraftLocal's search RPC; an integration test asserts every returned listing id exists and is in stock",
+        "Routes /wishlist/:slug and /wishlist/shared/:token render shared_wishlists, ShareWishlistDialog.tsx is mounted on the wishlist page, and guests can reserve an item so it isn't bought twice",
+        "Registry and gift shares carry a referral parameter attributed on orders",
+        "Concierge results respect the 'Verified makers only' preference (LEAP-008)",
+        "Gift orders accept a gift note and hide prices on the packing slip"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": "Competitive rationale: Etsy is putting AI into gift discovery but has no local timing to offer (https://www.pymnts.com/earnings/2026/etsy-bets-on-ai-to-attract-the-shoppers-its-been-losing/). Size: M. Success metric: 10% of Q4 GMV through concierge or registries, and 1 new buyer for every 3 registries shared."
+    },
+    {
+      "id": "LEAP-017",
+      "title": "Opt-in promoted listings, the opposite of Etsy's mandatory Offsite Ads",
+      "description": "As a maker who wants more visibility, I want to set a daily budget and promote listings on city, category and ready-today pages, paying only for clicks on CraftLocal and never a mandatory cut of my sales. As the business, I want a second revenue line beyond commission. featured_slots exists but is an admin-managed homepage table (hero, featured_category, featured_listing, seasonal) with no seller, bid or spend.",
+      "acceptanceCriteria": [
+        "New promoted_campaigns and promoted_events tables (impressions, clicks, spend) with seller-owned RLS",
+        "A seller UI creates a campaign with daily budget, listings and placements, and pauses it anytime",
+        "Promoted results fill a capped share of LEAP-011 category, city and LEAP-009 /:city/today results, labelled 'Sponsored', ranked by bid times relevance",
+        "Spend is charged to a card on file with a monthly statement; deduction from Connect balances is used only if the Stripe terms review in docs/promoted-billing.md allows it",
+        "Click deduplication per session excludes the seller's own clicks (tested)",
+        "Sellers see ROAS per campaign from orders attributed within 7 days of a click"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": "Competitive rationale: Etsy's Offsite Ads charge 15% for shops under $10k in annual sales (which may opt out) and 12% for shops at or above $10k, which cannot (https://www.etsy.com/legal/fees, https://craftybase.com/blog/everything-you-should-know-about-etsy-offsite-ads). The draft said '12-15% on shops over $10k', which misstated the tiers. Size: L. Success metric: 15% of active sellers run a campaign and ad revenue reaches 2% of GMV within 6 months."
+    },
+    {
+      "id": "LEAP-018",
+      "title": "Corporate gifting from Chicago makers: curated multi-maker boxes with invoicing",
+      "description": "As an office manager at a Chicago company, I want 50 curated gift boxes from local makers for clients or staff, with one invoice, branded cards and delivery by a date. As the business, corporate gifting brings high order values and repeat seasonal orders that Etsy and Amazon Handmade don't serve locally. It appears only as a features.md bullet; nothing is built. product_bundles and bundle_items exist and can model a box.",
+      "acceptanceCriteria": [
+        "A /corporate-gifting page with a quote form stored in a corporate_requests table, plus an admin pipeline view",
+        "An admin tool composes a box from several makers' listings as a product_bundles row, reserves inventory, and computes per-maker splits paid through the LEAP-002 transfer path",
+        "Approved business accounts check out by Stripe invoice (net-15 or net-30) with Stripe Tax",
+        "Fulfilment uses create-shipping-label or a single local delivery drop",
+        "Makers receive a purchase order and confirm capacity before the order is accepted",
+        "Repeat ordering duplicates last season's box with updated availability"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": "Competitive rationale: Etsy's gifting push is consumer-only (https://www.pymnts.com/earnings/2026/etsy-bets-on-ai-to-attract-the-shoppers-its-been-losing/), and a local B2B channel competes for 'buy local' budgets. Size: L. Success metric: 10 corporate accounts and $25k corporate GMV in the first Q4."
+    },
+    {
+      "id": "LEAP-019",
+      "title": "Custom commission board: buyers post a request, matched local makers quote",
+      "description": "As a buyer who wants something made to order (a ring, a portrait quilt, wedding signage), I want to post a request with photos, a budget and a date, get quotes from Chicago makers, and pay a deposit held in escrow. Today custom work is buyer-initiated per listing: custom_order_chats and custom_order_messages with CustomOrderChat.tsx, plus seller_profiles.custom_order_available and min_custom_order_amount. There is no open request, no matching and no deposit.",
+      "acceptanceCriteria": [
+        "New commission_requests and commission_quotes tables with RLS (buyers see their own requests and quotes; makers with custom_order_available see open requests in their categories)",
+        "The request form takes photos, budget range, deadline and neighborhood; reference photos are embedded with the pgvector support from 20250929000000_add_visual_search_support.sql to match makers with similar past listings",
+        "Matched makers are notified and quote price, timeline and milestones",
+        "Accepting a quote takes a deposit through process-escrow-payment with milestone releases through release-escrow-payment",
+        "Each commission gets a thread reusing custom_order_chats and custom_order_messages",
+        "Disputes route to the existing resolve-dispute flow"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": "Competitive rationale: Etsy handles custom orders through Messages with no structured request or matching (https://help.etsy.com/hc/en-in/articles/360000338067-How-to-Offer-Local-Pickup-or-Delivery is Etsy's pickup page; the custom-order claim rests on Etsy's Messages-based workflow and should get its own source). Size: L. Success metric: 100 commission requests and a 30% quote-acceptance rate in 6 months, with order value at 3x the catalog average."
+    },
+    {
+      "id": "LEAP-020",
+      "title": "Same-day local courier delivery for Chicago orders",
+      "description": "As a buyer who can't make a pickup slot, I want same-day courier delivery from a Chicago maker at checkout with a quoted price and ETA. As a maker, I want the courier booked for me. Etsy, Amazon Handmade and TikTok Shop ship parcels; same-day delivery of handmade goods within a city is not something they offer. Nothing in supabase/functions talks to a courier today.",
+      "acceptanceCriteria": [
+        "A delivery-provider adapter in supabase/functions (for example Uber Direct or DoorDash Drive) quotes price and ETA from the seller's pickup location to the buyer's address",
+        "Checkout offers same-day delivery only when the seller opted in, the listing is available_today and the quote is inside the configured radius",
+        "Booking happens when the seller marks the order ready, and tracking shows on the buyer's order page",
+        "The delivery fee passes through to the buyer and is excluded from the LEAP-002 platform fee, matching what FeeSchedule.tsx states",
+        "Courier cancel and buyer-not-home fall back to pickup or refund under rules shown at checkout",
+        "Analytics track delivery attach rate and on-time rate"
+      ],
+      "priority": 26,
+      "passes": false,
+      "notes": "Competitive rationale: Amazon Handmade's 15% referral fee and Etsy's 6.5% transaction fee both apply to shipping (https://sell.amazon.com/programs/handmade, https://www.etsy.com/legal/fees); CraftLocal can exclude delivery from commission and offer same-day. Courier API pricing and coverage must be confirmed before build. Size: L. Success metric: 15% of non-pickup Chicago orders choose same-day delivery, with 95% or better on time."
     }
   ]
 }
